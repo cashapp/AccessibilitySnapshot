@@ -1,0 +1,25 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+use_frameworks!
+use_modular_headers!
+platform :ios, '10.0'
+
+target 'AccessibilitySnapshotDemo' do
+	pod 'Paralayout', '~> 0.9'
+
+	target 'SnapshotTests' do
+		inherit! :search_paths
+
+		pod 'AccessibilitySnapshot', :path => '../AccessibilitySnapshot.podspec'
+	end
+
+	target 'UnitTests' do
+		inherit! :search_paths
+
+		pod 'AccessibilitySnapshot', :path => '../AccessibilitySnapshot.podspec'
+	end
+end
+
+project 'AccessibilitySnapshot.xcodeproj'
+
+install! 'cocoapods', :disable_input_output_paths => true

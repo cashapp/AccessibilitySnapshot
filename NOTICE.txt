@@ -1,0 +1,11 @@
+This distribution incorporates the following 3rd-party data:
+
+KIF
+Copyright 2011-2016 Square, Inc., released under Apache License
+
+iOSSnapshotTestCase
+Copyright 2017-2018, Uber Technologies, Inc., released under MIT License
+Copyright 2013-2018, Facebook, Inc.
+
+Paralayout
+Copyright 2017 Square, Inc., released under Apache License
