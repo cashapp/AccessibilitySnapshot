@@ -35,6 +35,15 @@ final class HighlightTests: SnapshotTestCase {
         SnapshotVerifyAccessibility(view)
     }
 
+    func testColorInSnapshot() {
+        let view = UILabel()
+        view.text = "Hello World"
+        view.textColor = .red
+        view.sizeToFit()
+
+        SnapshotVerifyAccessibility(view, useMonochromeSnapshot: false)
+    }
+
 }
 
 // MARK: -

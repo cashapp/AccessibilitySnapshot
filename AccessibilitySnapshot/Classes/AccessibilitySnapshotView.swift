@@ -21,8 +21,8 @@ public enum ActivationPointDisplayMode {
     /// Always show the accessibility activation point indicators.
     case always
 
-    /// Only show the accessibility activation point indicator for an element when the activation point is different than the default
-    /// activation point for that element.
+    /// Only show the accessibility activation point indicator for an element when the activation point is different
+    /// than the default activation point for that element.
     case whenOverridden
 
     /// Never show the accessibility activation point indicators.
@@ -32,28 +32,29 @@ public enum ActivationPointDisplayMode {
 
 // MARK: -
 
-/// A container view that wraps a view being snapshotted and overlays it with accessibility markers, as well as shows a legend of
-/// accessibility descriptions underneath.
+/// A container view that displays a snapshot of a view and overlays it with accessibility markers, as well as shows a
+/// legend of accessibility descriptions underneath.
 ///
-/// The overlays and legend will be added when `parseAccessibility()` is called. In order for the coordinates to be calculated
-/// properly, the view must already be in the view hierarchy.
+/// The overlays and legend will be added when `parseAccessibility()` is called. In order for the coordinates to be
+/// calculated properly, the view must already be in the view hierarchy.
 final class AccessibilitySnapshotView: UIView {
 
     // MARK: - Life Cycle
 
     init(
         containedView: UIView,
+        viewRenderingMode: ViewRenderingMode,
         markerColors: [UIColor] = defaultMarkerColors,
         activationPointDisplayMode: ActivationPointDisplayMode
     ) {
         self.containedView = containedView
+        self.viewRenderingMode = viewRenderingMode
         self.markerColors = markerColors
         self.activationPointDisplayMode = activationPointDisplayMode
 
         super.init(frame: containedView.bounds)
 
-        containedView.autoresizingMask = []
-        addSubview(containedView)
+        addSubview(snapshotView)
 
         backgroundColor = .init(white: 0.9, alpha: 1.0)
     }
@@ -67,6 +68,10 @@ final class AccessibilitySnapshotView: UIView {
 
     private let containedView: UIView
 
+    private let viewRenderingMode: ViewRenderingMode
+
+    private let snapshotView: UIImageView = .init()
+
     private let markerColors: [UIColor]
 
     private let activationPointDisplayMode: ActivationPointDisplayMode
@@ -78,7 +83,7 @@ final class AccessibilitySnapshotView: UIView {
     /// Parse the `containedView`'s accessibility and add appropriate visual elements to represent it.
     ///
     /// This must be called _after_ the view is in the view hierarchy.
-    func parseAccessibility() {
+    func parseAccessibility(useMonochromeSnapshot: Bool) {
         // Clean up any previous markers.
         self.displayMarkers.forEach {
             $0.legendView.removeFromSuperview()
@@ -86,9 +91,22 @@ final class AccessibilitySnapshotView: UIView {
             $0.activationPointView?.removeFromSuperview()
         }
 
-        // Force a layout pass after the view is in the hierarchy so that the conversion to screen coordinates works correctly.
+        addSubview(containedView)
+
+        defer {
+            containedView.removeFromSuperview()
+        }
+
+        // Force a layout pass after the view is in the hierarchy so that the conversion to screen coordinates works
+        // correctly.
         containedView.setNeedsLayout()
         containedView.layoutIfNeeded()
+
+        snapshotView.image = containedView.renderToImage(
+            monochrome: useMonochromeSnapshot,
+            viewRenderingMode: viewRenderingMode
+        )
+        snapshotView.bounds.size = containedView.bounds.size
 
         let parser = AccessibilityHierarchyParser()
         let markers = parser.parseAccessibilityElements(in: containedView)
@@ -149,12 +167,12 @@ final class AccessibilitySnapshotView: UIView {
     // MARK: - UIView
 
     override func layoutSubviews() {
-        containedView.frame.origin.y = bounds.minY
-        containedView.frame.origin.x = ((bounds.width - containedView.frame.width) / 2).floorToPixel(in: window)
+        snapshotView.frame.origin.y = bounds.minY
+        snapshotView.frame.origin.x = ((bounds.width - snapshotView.frame.width) / 2).floorToPixel(in: window)
 
         let legendViews = displayMarkers.map { $0.legendView }
 
-        var nextLegendY = containedView.frame.maxY + Metrics.verticalSpacing
+        var nextLegendY = snapshotView.frame.maxY + Metrics.verticalSpacing
         for legendView in legendViews {
             legendView.sizeToFit()
             legendView.frame.origin = .init(x: 0, y: nextLegendY)
@@ -167,13 +185,13 @@ final class AccessibilitySnapshotView: UIView {
             let overlayView = $0.overlayView
             switch marker.shape {
             case let .frame(rect):
-                overlayView.frame = convert(rect, from: containedView)
+                overlayView.frame = convert(rect, from: snapshotView)
 
             case let .path(path):
-                overlayView.frame = convert(path.bounds, from: containedView)
+                overlayView.frame = convert(path.bounds, from: snapshotView)
             }
 
-            $0.activationPointView?.center = convert(marker.activationPoint, from: containedView)
+            $0.activationPointView?.center = convert(marker.activationPoint, from: snapshotView)
         }
     }
 
@@ -183,9 +201,9 @@ final class AccessibilitySnapshotView: UIView {
         let widestLegendView = legendViewSizes.map { $0.width }.reduce(0, max)
         let legendHeight = legendViewSizes.map { $0.height }.reduce(0, { $0 + $1 + Metrics.verticalSpacing })
 
-        let width = max(containedView.frame.width, widestLegendView, Metrics.minimumWidth)
+        let width = max(snapshotView.frame.width, widestLegendView, Metrics.minimumWidth)
 
-        let height = containedView.frame.height +
+        let height = snapshotView.frame.height +
                      legendHeight +
                      (displayMarkers.isEmpty ? 0 : Metrics.bottomMargin)
 
@@ -218,6 +236,20 @@ final class AccessibilitySnapshotView: UIView {
 
         static let verticalSpacing: CGFloat = 16
         static let bottomMargin: CGFloat = 8
+    }
+
+}
+
+// MARK: -
+
+extension AccessibilitySnapshotView {
+
+    enum ViewRenderingMode {
+
+        case renderLayerInContext
+
+        case drawHierarchyInRect
+
     }
 
 }
@@ -311,6 +343,37 @@ private extension AccessibilitySnapshotView {
             static let hintLabelFont = UIFont.italicSystemFont(ofSize: 12)
         }
 
+    }
+
+}
+
+// MARK: -
+
+private extension UIView {
+
+    func renderToImage(monochrome: Bool, viewRenderingMode: AccessibilitySnapshotView.ViewRenderingMode) -> UIImage {
+        let renderer = UIGraphicsImageRenderer(bounds: bounds)
+        let snapshot = renderer.image { context in
+            switch viewRenderingMode {
+            case .drawHierarchyInRect:
+                drawHierarchy(in: bounds, afterScreenUpdates: true)
+
+            case .renderLayerInContext:
+                layer.render(in: context.cgContext)
+            }
+        }
+
+        if monochrome, let cgImage = snapshot.cgImage {
+            let monochromeSnapshot = CIImage(cgImage: cgImage).applyingFilter(
+                "CIColorControls",
+                parameters: [kCIInputSaturationKey: 0]
+            )
+
+            return UIImage(ciImage: monochromeSnapshot, scale: snapshot.scale, orientation: .up)
+
+        } else {
+            return snapshot
+        }
     }
 
 }

@@ -18,28 +18,34 @@ import FBSnapshotTestCase
 
 extension FBSnapshotTestCase {
 
-    /// Snapshots the `view` with colored overlays of each accessibility element it contains, as well as an approximation of the
-    /// description that VoiceOver will read for each element.
+    /// Snapshots the `view` with colored overlays of each accessibility element it contains, as well as an
+    /// approximation of the description that VoiceOver will read for each element.
     ///
-    /// When `recordMode` is true, records a snapshot of the view. When `recordMode` is false, performs a comparison with the
-    /// existing snapshot.
+    /// When `recordMode` is true, records a snapshot of the view. When `recordMode` is false, performs a comparison
+    /// with the existing snapshot.
     ///
     /// - parameter view: The view that will be snapshotted.
-    /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple snapshot tests
-    /// in a given test method. Defaults to no identifier.
-    /// - parameter showActivationPoints: When to show indicators for elements' accessibility activation points. Defaults to showing
-    /// activation points only when they are different than the default activation point for that element.
+    /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple
+    /// snapshot tests in a given test method. Defaults to no identifier.
+    /// - parameter showActivationPoints: When to show indicators for elements' accessibility activation points.
+    /// Defaults to showing activation points only when they are different than the default activation point for that
+    /// element.
+    /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
+    /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
+    /// read certain views. Defaults to `true`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotVerifyAccessibility(
         _ view: UIView,
         identifier: String = "",
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
+        useMonochromeSnapshot: Bool = true,
         file: StaticString = #file,
         line: UInt = #line
     ) {
         let containerView = AccessibilitySnapshotView(
             containedView: view,
+            viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
             activationPointDisplayMode: activationPointDisplayMode
         )
 
@@ -48,7 +54,7 @@ extension FBSnapshotTestCase {
         containerView.center = window.center
         window.addSubview(containerView)
 
-        containerView.parseAccessibility()
+        containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
         containerView.sizeToFit()
 
         FBSnapshotVerifyView(containerView, identifier: identifier, file: file, line: line)

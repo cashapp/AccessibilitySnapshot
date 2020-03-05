@@ -32,15 +32,15 @@
         }\
     }
 
-#define SnapshotVerifyAccessibilityWithActivationPoints(view__, identifier__, showActivationPoints__)\
+#define SnapshotVerifyAccessibilityWithOptions(view__, identifier__, showActivationPoints__, useMonochromeSnapshot__)\
     {\
         _Pragma("clang diagnostic push")\
         _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\
-        SEL selector = @selector(snapshotVerifyAccessibility:identifier:showActivationPoints:);\
+        SEL selector = @selector(snapshotVerifyAccessibility:identifier:showActivationPoints:useMonochromeSnapshot:);\
         _Pragma("clang diagnostic pop")\
-        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, BOOL);\
+        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, BOOL, BOOL);\
         SnapshotMethod snapshotVerifyAccessibility = (SnapshotMethod)[self methodForSelector:selector];\
-        NSString *errorDescription = snapshotVerifyAccessibility(self, selector, view__, identifier__ ?: @"", showActivationPoints__);\
+        NSString *errorDescription = snapshotVerifyAccessibility(self, selector, view__, identifier__ ?: @"", showActivationPoints__, useMonochromeSnapshot__);\
         if (errorDescription == nil) {\
             XCTAssertTrue(YES);\
         } else {\

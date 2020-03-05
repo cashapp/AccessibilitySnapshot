@@ -20,17 +20,38 @@ extension FBSnapshotTestCase {
 
     @objc(snapshotVerifyAccessibility:identifier:)
     private func 🚫objc_snapshotVerifyAccessibility(_ view: UIView, identifier: String) -> String? {
-        return snapshotVerifyAccessibility(view, identifier: identifier, activationPointDisplayMode: .whenOverridden)
+        return snapshotVerifyAccessibility(
+            view,
+            identifier: identifier,
+            activationPointDisplayMode: .whenOverridden,
+            useMonochromeSnapshot: true
+        )
     }
 
-    @objc(snapshotVerifyAccessibility:identifier:showActivationPoints:)
-    private func 🚫objc_snapshotVerifyAccessibility(_ view: UIView, identifier: String, showActivationPoints: Bool) -> String? {
-        return snapshotVerifyAccessibility(view, identifier: identifier, activationPointDisplayMode: showActivationPoints ? .always : .never)
+    @objc(snapshotVerifyAccessibility:identifier:showActivationPoints:useMonochromeSnapshot:)
+    private func 🚫objc_snapshotVerifyAccessibility(
+        _ view: UIView,
+        identifier: String,
+        showActivationPoints: Bool,
+        useMonochromeSnapshot: Bool
+    ) -> String? {
+        return snapshotVerifyAccessibility(
+            view,
+            identifier: identifier,
+            activationPointDisplayMode: showActivationPoints ? .always : .never,
+            useMonochromeSnapshot: useMonochromeSnapshot
+        )
     }
 
-    private func snapshotVerifyAccessibility(_ view: UIView, identifier: String, activationPointDisplayMode: ActivationPointDisplayMode) -> String? {
+    private func snapshotVerifyAccessibility(
+        _ view: UIView,
+        identifier: String,
+        activationPointDisplayMode: ActivationPointDisplayMode,
+        useMonochromeSnapshot: Bool
+    ) -> String? {
         let containerView = AccessibilitySnapshotView(
             containedView: view,
+            viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
             activationPointDisplayMode: activationPointDisplayMode
         )
 
@@ -39,7 +60,7 @@ extension FBSnapshotTestCase {
         containerView.center = window.center
         window.addSubview(containerView)
 
-        containerView.parseAccessibility()
+        containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
         containerView.sizeToFit()
 
         return snapshotVerifyViewOrLayer(

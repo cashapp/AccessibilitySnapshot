@@ -22,7 +22,7 @@ final class LayoutTests: SnapshotTestCase {
 
     func testSmallView() {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
-        view.backgroundColor = .cyan
+        view.backgroundColor = .white
 
         addAccessibleViews(to: view)
 
@@ -31,7 +31,7 @@ final class LayoutTests: SnapshotTestCase {
 
     func testLargeView() {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 400, height: 400))
-        view.backgroundColor = .cyan
+        view.backgroundColor = .white
 
         addAccessibleViews(to: view)
 
@@ -40,7 +40,7 @@ final class LayoutTests: SnapshotTestCase {
 
     func testWideView() {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 400, height: 20))
-        view.backgroundColor = .cyan
+        view.backgroundColor = .white
 
         addAccessibleViews(to: view)
 
@@ -49,7 +49,7 @@ final class LayoutTests: SnapshotTestCase {
 
     func testTallView() {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 400))
-        view.backgroundColor = .cyan
+        view.backgroundColor = .white
 
         addAccessibleViews(to: view)
 
