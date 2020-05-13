@@ -80,7 +80,7 @@ final class AccessibilityPathViewController: AccessibilityViewController {
         for subview in views {
             subview.backgroundColor = .lightGray
             subview.isAccessibilityElement = true
-            subview.accessibilityLabel = "Long label that will be wider than the screen in the snapshot image"
+            subview.accessibilityLabel = "Label"
             subview.frame.size = .init(width: 60, height: 40)
             view.addSubview(subview)
         }

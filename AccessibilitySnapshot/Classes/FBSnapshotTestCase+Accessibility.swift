@@ -40,12 +40,14 @@ extension FBSnapshotTestCase {
         identifier: String = "",
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
+        markerColors: [UIColor] = [],
         file: StaticString = #file,
         line: UInt = #line
     ) {
         let containerView = AccessibilitySnapshotView(
             containedView: view,
             viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
+            markerColors: markerColors,
             activationPointDisplayMode: activationPointDisplayMode
         )
 

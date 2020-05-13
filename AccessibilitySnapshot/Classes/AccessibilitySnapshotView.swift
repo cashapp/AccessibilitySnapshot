@@ -49,11 +49,12 @@ final class AccessibilitySnapshotView: UIView {
     ) {
         self.containedView = containedView
         self.viewRenderingMode = viewRenderingMode
-        self.markerColors = markerColors
+        self.markerColors = markerColors.isEmpty ? AccessibilitySnapshotView.defaultMarkerColors : markerColors
         self.activationPointDisplayMode = activationPointDisplayMode
 
         super.init(frame: containedView.bounds)
 
+        snapshotView.clipsToBounds = true
         addSubview(snapshotView)
 
         backgroundColor = .init(white: 0.9, alpha: 1.0)
@@ -119,19 +120,23 @@ final class AccessibilitySnapshotView: UIView {
             addSubview(legendView)
 
             let overlayView = UIView()
-            addSubview(overlayView)
+            snapshotView.addSubview(overlayView)
 
             switch marker.shape {
-            case .frame:
+            case let .frame(rect):
+                // The `overlayView` itself is used to highlight the region.
                 overlayView.backgroundColor = color.withAlphaComponent(0.3)
+                overlayView.frame = rect
 
             case let .path(path):
-                overlayView.frame = path.bounds
+                // The `overlayView` acts as a container for the highlight path. Since the `path` is already relative to
+                // the `snaphotView`, the `overlayView` takes up the entire size of its parent.
+                overlayView.frame = snapshotView.bounds
                 let overlayLayer = CAShapeLayer()
                 overlayLayer.lineWidth = 4
                 overlayLayer.strokeColor = color.withAlphaComponent(0.3).cgColor
                 overlayLayer.fillColor = nil
-                overlayLayer.path = overlayView.convert(path, from: containedView).cgPath
+                overlayLayer.path = path.cgPath
                 overlayView.layer.addSublayer(overlayLayer)
             }
 
@@ -149,10 +154,13 @@ final class AccessibilitySnapshotView: UIView {
                 }
 
             case .always:
-                let activationPointView = UIImageView(image: UIImage(named: "Crosshairs", in: Bundle.accessibilitySnapshotResources, compatibleWith: nil))
-                activationPointView.frame.size = .init(width: 16, height: 16)
+                let activationPointView = UIImageView(
+                    image: UIImage(named: "Crosshairs", in: Bundle.accessibilitySnapshotResources, compatibleWith: nil)
+                )
+                activationPointView.bounds.size = .init(width: 16, height: 16)
+                activationPointView.center = marker.activationPoint
                 activationPointView.tintColor = color
-                addSubview(activationPointView)
+                snapshotView.addSubview(activationPointView)
                 displayMarker.activationPointView = activationPointView
 
             case .never:
@@ -167,50 +175,151 @@ final class AccessibilitySnapshotView: UIView {
     // MARK: - UIView
 
     override func layoutSubviews() {
-        snapshotView.frame.origin.y = bounds.minY
-        snapshotView.frame.origin.x = ((bounds.width - snapshotView.frame.width) / 2).floorToPixel(in: window)
-
         let legendViews = displayMarkers.map { $0.legendView }
 
-        var nextLegendY = snapshotView.frame.maxY + Metrics.verticalSpacing
-        for legendView in legendViews {
-            legendView.sizeToFit()
-            legendView.frame.origin = .init(x: 0, y: nextLegendY)
-            nextLegendY += legendView.frame.height + Metrics.verticalSpacing
-        }
+        switch legendLocation(viewSize: snapshotView.bounds.size) {
+        case let .bottom(width: availableLegendWidth):
+            snapshotView.frame.origin.y = bounds.minY
+            snapshotView.frame.origin.x = ((bounds.width - snapshotView.frame.width) / 2).floorToPixel(in: window)
 
-        displayMarkers.forEach {
-            let marker = $0.marker
-
-            let overlayView = $0.overlayView
-            switch marker.shape {
-            case let .frame(rect):
-                overlayView.frame = convert(rect, from: snapshotView)
-
-            case let .path(path):
-                overlayView.frame = convert(path.bounds, from: snapshotView)
+            var nextLegendY = snapshotView.frame.maxY + Metrics.legendInsets.top
+            for legendView in legendViews {
+                legendView.bounds.size = legendView.sizeThatFits(
+                    .init(width: availableLegendWidth, height: .greatestFiniteMagnitude)
+                )
+                legendView.frame.origin = .init(x: Metrics.legendInsets.left, y: nextLegendY)
+                nextLegendY += legendView.frame.height + Metrics.legendVerticalSpacing
             }
 
-            $0.activationPointView?.center = convert(marker.activationPoint, from: snapshotView)
+        case let .right(height: availableLegendHeight):
+            snapshotView.frame.origin = .zero
+
+            var nextLegendOrigin: CGPoint = .init(
+                x: snapshotView.frame.maxX + Metrics.legendInsets.left,
+                y: Metrics.legendInsets.top
+            )
+
+            let maxYBoundary = bounds.minY + availableLegendHeight
+
+            for legendView in legendViews {
+                legendView.bounds.size = legendView.sizeThatFits(
+                    .init(width: LegendView.Metrics.minimumWidth, height: availableLegendHeight)
+                )
+
+                if nextLegendOrigin.y + legendView.bounds.height <= maxYBoundary {
+                    legendView.frame.origin = nextLegendOrigin
+                    nextLegendOrigin.y += legendView.bounds.height + Metrics.legendVerticalSpacing
+
+                } else {
+                    legendView.frame.origin = .init(
+                        x: nextLegendOrigin.x + LegendView.Metrics.minimumWidth + Metrics.legendHorizontalSpacing,
+                        y: Metrics.legendInsets.top
+                    )
+                    nextLegendOrigin = .init(
+                        x: legendView.frame.minX,
+                        y: legendView.frame.maxY + Metrics.legendVerticalSpacing
+                    )
+                }
+            }
         }
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        let legendViewSizes = displayMarkers.map { $0.legendView.sizeThatFits(size) }
+        guard !displayMarkers.isEmpty else {
+            return snapshotView.bounds.size
+        }
 
-        let widestLegendView = legendViewSizes.map { $0.width }.reduce(0, max)
-        let legendHeight = legendViewSizes.map { $0.height }.reduce(0, { $0 + $1 + Metrics.verticalSpacing })
+        switch legendLocation(viewSize: snapshotView.bounds.size) {
+        case let .bottom(width: availableWidth):
+            let legendViewSizes = displayMarkers.map {
+                $0.legendView.sizeThatFits(.init(width: availableWidth, height: .greatestFiniteMagnitude))
+            }
 
-        let width = max(snapshotView.frame.width, widestLegendView, Metrics.minimumWidth)
+            let widestLegendView = legendViewSizes
+                .map { $0.width }
+                .reduce(0, max)
 
-        let height = snapshotView.frame.height +
-                     legendHeight +
-                     (displayMarkers.isEmpty ? 0 : Metrics.bottomMargin)
+            let legendHeight = legendViewSizes
+                .map { $0.height }
+                .reduce(-Metrics.legendVerticalSpacing, { $0 + $1 + Metrics.legendVerticalSpacing })
 
-        return CGSize(
-            width: width.ceilToPixel(in: window),
-            height: height.ceilToPixel(in: window)
-        )
+            let width = max(
+                snapshotView.frame.width,
+                widestLegendView + Metrics.legendInsets.left + Metrics.legendInsets.right,
+                Metrics.minimumWidth
+            )
+
+            let heightComponents = [
+                snapshotView.frame.height,
+                Metrics.legendInsets.top,
+                legendHeight,
+                Metrics.legendInsets.bottom,
+            ]
+
+            return CGSize(
+                width: width.ceilToPixel(in: window),
+                height: heightComponents.reduce(0, +).ceilToPixel(in: window)
+            )
+
+        case let .right(height: availableHeight):
+            let legendViewSizes = displayMarkers.map {
+                $0.legendView.sizeThatFits(.init(width: LegendView.Metrics.minimumWidth, height: availableHeight))
+            }
+
+            var columnHeights = [-Metrics.legendVerticalSpacing]
+            var lastColumnIndex = 0
+
+            for legendViewSize in legendViewSizes {
+                let lastColumnHeight = columnHeights[lastColumnIndex]
+                let heightByAddingLegendView = lastColumnHeight + Metrics.legendVerticalSpacing + legendViewSize.height
+
+                if heightByAddingLegendView <= availableHeight {
+                    columnHeights[lastColumnIndex] = heightByAddingLegendView
+
+                } else {
+                    columnHeights.append(legendViewSize.height)
+                    lastColumnIndex += 1
+                }
+            }
+
+            let widthComponents = [
+                snapshotView.bounds.width,
+                Metrics.legendInsets.left,
+                CGFloat(columnHeights.count) * LegendView.Metrics.minimumWidth,
+                CGFloat(columnHeights.count - 1) * Metrics.legendHorizontalSpacing,
+                Metrics.legendInsets.right,
+            ]
+
+            let maxLegendViewHeight = legendViewSizes.reduce(0, { max($0, $1.height) })
+            let height = max(
+                snapshotView.bounds.height,
+                maxLegendViewHeight + Metrics.legendInsets.top + Metrics.legendInsets.bottom
+            )
+
+            return CGSize(
+                width: widthComponents.reduce(0, +),
+                height: height
+            )
+        }
+    }
+
+    // MARK: - Private Methods
+
+    private func legendLocation(viewSize: CGSize) -> LegendLocation {
+        let aspectRatio = viewSize.width / viewSize.height
+
+        if aspectRatio > 1 || viewSize.width < Metrics.minimumWidth {
+            // Wide views should display the legend underneath the snapshotted view. Small views are an exception, as
+            // all views smaller than the minimum width should display the legend underneath.
+            let contentWidth = max(viewSize.width, Metrics.minimumWidth)
+            let availableWidth = contentWidth - Metrics.legendInsets.left - Metrics.legendInsets.right
+            return .bottom(width: availableWidth)
+
+        } else {
+            // Tall views that meet the minimum height requirement should display the legend to the right of the
+            // snapshotted view.
+            return .right(height: viewSize.height - Metrics.legendInsets.top - Metrics.legendInsets.bottom)
+        }
     }
 
     // MARK: - Private Static Properties
@@ -231,11 +340,26 @@ final class AccessibilitySnapshotView: UIView {
 
     }
 
-    private enum Metrics {
-        static let minimumWidth: CGFloat = 300
+    private enum LegendLocation {
 
-        static let verticalSpacing: CGFloat = 16
-        static let bottomMargin: CGFloat = 8
+        case bottom(width: CGFloat)
+
+        case right(height: CGFloat)
+
+    }
+
+    private enum Metrics {
+
+        static var minimumWidth: CGFloat {
+            return LegendView.Metrics.minimumWidth + legendInsets.left + legendInsets.right
+        }
+
+        static let legendInsets: UIEdgeInsets = .init(top: 16, left: 16, bottom: 16, right: 16)
+
+        static let legendHorizontalSpacing: CGFloat = 16
+
+        static let legendVerticalSpacing: CGFloat = 16
+
     }
 
 }
@@ -263,11 +387,12 @@ private extension AccessibilitySnapshotView {
         // MARK: - Life Cycle
 
         init(marker: AccessibilityMarker, color: UIColor) {
-            hintLabel = marker.hint.map {
+            self.hintLabel = marker.hint.map {
                 let label = UILabel()
                 label.text = $0
                 label.font = Metrics.hintLabelFont
                 label.textColor = .init(white: 0.3, alpha: 1.0)
+                label.numberOfLines = 0
                 return label
             }
 
@@ -278,6 +403,7 @@ private extension AccessibilitySnapshotView {
 
             descriptionLabel.text = marker.description
             descriptionLabel.font = Metrics.descriptionLabelFont
+            descriptionLabel.numberOfLines = 0
             addSubview(descriptionLabel)
 
             hintLabel.map(addSubview)
@@ -299,31 +425,67 @@ private extension AccessibilitySnapshotView {
         // MARK: - UIView
 
         override func sizeThatFits(_ size: CGSize) -> CGSize {
-            let descriptionLabelSize = descriptionLabel.sizeThatFits(size)
-            let hintLabelSize = hintLabel?.sizeThatFits(size) ?? .zero
+            let labelSizeToFit = CGSize(
+                width: size.width - Metrics.markerSize - Metrics.markerToLabelSpacing,
+                height: .greatestFiniteMagnitude
+            )
 
-            let width = 2 * Metrics.horizontalInset +
-                        Metrics.markerSize +
-                        Metrics.markerToLabelSpacing +
-                        max(descriptionLabelSize.width, hintLabelSize.width)
+            descriptionLabel.numberOfLines = 1
+            let descriptionLabelSingleLineHeight = descriptionLabel.sizeThatFits(labelSizeToFit).height
+            let markerSizeAboveDescriptionLabel = (Metrics.markerSize - descriptionLabelSingleLineHeight) / 2
 
-            let height = Metrics.markerSize +
-                         (hintLabelSize.height == 0 ? 0 : hintLabelSize.height + Metrics.descriptionLabelToHintLabelSpacing)
+            descriptionLabel.numberOfLines = 0
+            let descriptionLabelSize = descriptionLabel.sizeThatFits(labelSizeToFit)
 
-            return CGSize(width: width, height: height)
+            let hintLabelSize = hintLabel?.sizeThatFits(labelSizeToFit) ?? .zero
+
+            let widthComponents = [
+                Metrics.markerSize,
+                Metrics.markerToLabelSpacing,
+                max(
+                    descriptionLabelSize.width,
+                    hintLabelSize.width
+                ),
+            ]
+
+            let heightComponents = [
+                markerSizeAboveDescriptionLabel,
+                descriptionLabelSize.height,
+                (hintLabelSize.height == 0 ? 0 : hintLabelSize.height + Metrics.descriptionLabelToHintLabelSpacing),
+            ]
+
+            return CGSize(
+                width: widthComponents.reduce(0, +),
+                height: max(
+                    Metrics.markerSize,
+                    heightComponents.reduce(0, +)
+                )
+            )
         }
 
         override func layoutSubviews() {
-            markerView.frame = CGRect(x: Metrics.horizontalInset, y: 0, width: Metrics.markerSize, height: Metrics.markerSize)
+            markerView.frame = CGRect(x: 0, y: 0, width: Metrics.markerSize, height: Metrics.markerSize)
 
-            descriptionLabel.sizeToFit()
-            descriptionLabel.frame.origin = .init(
+            let labelSizeToFit = CGSize(
+                width: bounds.size.width - Metrics.markerSize - Metrics.markerToLabelSpacing,
+                height: .greatestFiniteMagnitude
+            )
+
+            descriptionLabel.numberOfLines = 1
+            let descriptionLabelSingleLineHeight = descriptionLabel.sizeThatFits(labelSizeToFit).height
+
+            descriptionLabel.numberOfLines = 0
+            let descriptionLabelSizeThatFits = descriptionLabel.sizeThatFits(labelSizeToFit)
+
+            descriptionLabel.frame = .init(
                 x: markerView.frame.maxX + Metrics.markerToLabelSpacing,
-                y: markerView.frame.minY + (markerView.frame.height - descriptionLabel.frame.height) / 2
+                y: markerView.frame.minY + (markerView.frame.height - descriptionLabelSingleLineHeight) / 2,
+                width: descriptionLabelSizeThatFits.width,
+                height: descriptionLabelSizeThatFits.height
             )
 
             if let hintLabel = hintLabel {
-                hintLabel.sizeToFit()
+                hintLabel.bounds.size = hintLabel.sizeThatFits(labelSizeToFit)
                 hintLabel.frame.origin = .init(
                     x: descriptionLabel.frame.minX,
                     y: descriptionLabel.frame.maxY + Metrics.descriptionLabelToHintLabelSpacing
@@ -333,14 +495,17 @@ private extension AccessibilitySnapshotView {
 
         // MARK: - Private
 
-        private enum Metrics {
-            static let horizontalInset: CGFloat = 16
+        fileprivate enum Metrics {
+
+            static let minimumWidth: CGFloat = 284
+
             static let markerSize: CGFloat = 14
             static let markerToLabelSpacing: CGFloat = 16
             static let descriptionLabelToHintLabelSpacing: CGFloat = 4
 
             static let descriptionLabelFont = UIFont.systemFont(ofSize: 12)
             static let hintLabelFont = UIFont.italicSystemFont(ofSize: 12)
+
         }
 
     }

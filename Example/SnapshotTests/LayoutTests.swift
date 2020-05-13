@@ -14,77 +14,126 @@
 //  limitations under the License.
 //
 
-import AccessibilitySnapshot
 import FBSnapshotTestCase
 import UIKit
 
+@testable import AccessibilitySnapshot
+
 final class LayoutTests: SnapshotTestCase {
 
-    func testSmallView() {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 20))
-        view.backgroundColor = .white
+    // MARK: - Tests
 
-        addAccessibleViews(to: view)
+    func testStandard() {
+        let view = UIView(frame: .init(x: 0, y: 0, width: 200, height: 50))
 
-        SnapshotVerifyAccessibility(view)
-    }
-
-    func testLargeView() {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 400, height: 400))
-        view.backgroundColor = .white
-
-        addAccessibleViews(to: view)
+        for _ in 0..<5 {
+            addAccessibleView(to: view)
+        }
 
         SnapshotVerifyAccessibility(view)
     }
 
-    func testWideView() {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 400, height: 20))
+    func testClipping() {
+        let view = UIView(frame: .init(x: 0, y: 0, width: 200, height: 200))
         view.backgroundColor = .white
 
-        addAccessibleViews(to: view)
+        // Position the element so that it will go outside the bounds of the parent view.
+        let accessibleView = UIView(
+            frame: .init(x: view.bounds.maxX - 50, y: view.bounds.maxY - 50, width: 100, height: 100)
+        )
+        accessibleView.isAccessibilityElement = true
+        accessibleView.accessibilityLabel = "Label"
+        view.addSubview(accessibleView)
 
         SnapshotVerifyAccessibility(view)
     }
 
-    func testTallView() {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 20, height: 400))
-        view.backgroundColor = .white
+    // MARK: - Tests - Full Screen
 
-        addAccessibleViews(to: view)
+    func testFullScreenWithFewMarkers() {
+        let view = UIView(frame: UIScreen.main.bounds)
+
+        for _ in 0..<3 {
+            addAccessibleView(to: view)
+        }
+
+        SnapshotVerifyAccessibility(view)
+    }
+
+    func testFullScreenWithManyMarkers() {
+        let view = UIView(frame: UIScreen.main.bounds)
+
+        for _ in 0..<24 {
+            addAccessibleView(to: view)
+        }
+
+        SnapshotVerifyAccessibility(view)
+    }
+
+    func testFullScreenWithManyManyMarkers() {
+        let view = UIView(frame: UIScreen.main.bounds)
+
+        for _ in 0..<70 {
+            addAccessibleView(to: view)
+        }
+
+        SnapshotVerifyAccessibility(view)
+    }
+
+    // MARK: - Tests - Wide Views
+
+    func testWideViewWithFewMarkers() {
+        let view = UIView(frame: .init(x: 0, y: 0, width: 1000, height: 50))
+
+        for _ in 0..<3 {
+            addAccessibleView(to: view)
+        }
+
+        SnapshotVerifyAccessibility(view)
+    }
+
+    func testWideViewWithManyMarkers() {
+        let view = UIView(frame: .init(x: 0, y: 0, width: 1000, height: 50))
+
+        for _ in 0..<70 {
+            addAccessibleView(to: view)
+        }
+
+        SnapshotVerifyAccessibility(view)
+    }
+
+    // MARK: - Tests - Text Wrapping
+
+    func testLongMarkerDescription() {
+        let view = UIView(frame: .init(x: 0, y: 0, width: 200, height: 50))
+
+        addAccessibleView(to: view, accessibilityLabel: Factory.longText)
 
         SnapshotVerifyAccessibility(view)
     }
 
     // MARK: - Private Methods
 
-    private func addAccessibleViews(to view: UIView) {
-        let frame = CGRect(
-            x: view.bounds.width / 4,
-            y: view.bounds.height / 4,
-            width: view.bounds.width / 2,
-            height: view.bounds.height / 2
-        )
+    private func addAccessibleView(
+        to view: UIView,
+        accessibilityLabel: String? = "Accessibility Label",
+        accessibilityHint: String? = nil
+    ) {
+        let accessibleView = UIView(frame: view.bounds)
+        accessibleView.isAccessibilityElement = true
+        accessibleView.accessibilityLabel = accessibilityLabel
+        accessibleView.accessibilityHint = accessibilityHint
 
-        let accessibilityView1 = UIView(frame: frame)
-        accessibilityView1.accessibilityLabel = "First subview"
-        accessibilityView1.isAccessibilityElement = true
-        view.addSubview(accessibilityView1)
-
-        let accessibilityView2 = UIView(frame: frame)
-        accessibilityView2.accessibilityLabel = "Second subview"
-        accessibilityView2.isAccessibilityElement = true
-        view.addSubview(accessibilityView2)
-
-        let accessibilityView3 = UIView(frame: frame)
-        accessibilityView3.accessibilityLabel = "Third subview"
-        accessibilityView3.isAccessibilityElement = true
-        view.addSubview(accessibilityView3)
-
-        let accessibilityView4 = UIView(frame: frame)
-        accessibilityView4.accessibilityLabel = "Fourth subview"
-        accessibilityView4.isAccessibilityElement = true
-        view.addSubview(accessibilityView4)
+        view.addSubview(accessibleView)
     }
+
+}
+
+// MARK: -
+
+private enum Factory {
+
+    static let longText = "This is long text that will cause the label to wrap to multiple lines given the default "
+                            + "width of the legend."
 
 }
