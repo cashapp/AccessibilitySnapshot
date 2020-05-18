@@ -1,26 +1,16 @@
-GEM
-  remote: https://rubygems.org/
+GIT
+  remote: https://github.com/CocoaPods/CocoaPods
+  revision: 0a46d4948ae6a3fd9fee8c022741e2c36baca86d
+  branch: master
   specs:
-    CFPropertyList (3.0.1)
-    activesupport (4.2.11.1)
-      i18n (~> 0.7)
-      minitest (~> 5.1)
-      thread_safe (~> 0.3, >= 0.3.4)
-      tzinfo (~> 1.1)
-    algoliasearch (1.27.1)
-      httpclient (~> 2.8, >= 2.8.3)
-      json (>= 1.5.1)
-    atomos (0.1.3)
-    claide (1.0.3)
-    cocoapods (1.8.4)
+    cocoapods (1.9.1)
       activesupport (>= 4.0.2, < 5)
       claide (>= 1.0.2, < 2.0)
-      cocoapods-core (= 1.8.4)
+      cocoapods-core (= 1.9.1)
       cocoapods-deintegrate (>= 1.0.3, < 2.0)
       cocoapods-downloader (>= 1.2.2, < 2.0)
       cocoapods-plugins (>= 1.0.0, < 2.0)
       cocoapods-search (>= 1.0.0, < 2.0)
-      cocoapods-stats (>= 1.0.0, < 2.0)
       cocoapods-trunk (>= 1.4.0, < 2.0)
       cocoapods-try (>= 1.1.0, < 2.0)
       colored2 (~> 3.1)
@@ -30,54 +20,104 @@ GEM
       molinillo (~> 0.6.6)
       nap (~> 1.0)
       ruby-macho (~> 1.4)
-      xcodeproj (>= 1.11.1, < 2.0)
-    cocoapods-core (1.8.4)
+      xcodeproj (>= 1.14.0, < 2.0)
+
+GIT
+  remote: https://github.com/CocoaPods/Core
+  revision: 01e301e2a30a312247252f0c155ec6b244f35c51
+  specs:
+    cocoapods-core (1.9.1)
       activesupport (>= 4.0.2, < 6)
+      addressable (~> 2.6)
       algoliasearch (~> 1.0)
       concurrent-ruby (~> 1.1)
       fuzzy_match (~> 2.0.4)
       nap (~> 1.0)
-    cocoapods-deintegrate (1.0.4)
-    cocoapods-downloader (1.2.2)
-    cocoapods-plugins (1.0.0)
-      nap
-    cocoapods-search (1.0.0)
-    cocoapods-stats (1.1.0)
-    cocoapods-trunk (1.4.1)
-      nap (>= 0.8, < 2.0)
       netrc (~> 0.11)
-    cocoapods-try (1.1.0)
-    colored2 (3.1.2)
-    concurrent-ruby (1.1.5)
-    escape (0.0.4)
-    fourflusher (2.3.1)
-    fuzzy_match (2.0.4)
-    gh_inspector (1.1.3)
-    httpclient (2.8.3)
-    i18n (0.9.5)
-      concurrent-ruby (~> 1.0)
-    json (2.2.0)
-    minitest (5.12.2)
+      public_suffix (~> 2.0)
+      typhoeus (~> 1.0)
+
+GIT
+  remote: https://github.com/CocoaPods/Molinillo
+  revision: d959b112a883c5c48a2e8b825368a449646a1e33
+  specs:
     molinillo (0.6.6)
+
+GIT
+  remote: https://github.com/CocoaPods/Nanaimo
+  revision: 1414d9c0b642e376873138325f8132e8f053988a
+  specs:
     nanaimo (0.2.6)
-    nap (1.1.0)
-    netrc (0.11.0)
-    ruby-macho (1.4.0)
-    thread_safe (0.3.6)
-    tzinfo (1.2.5)
-      thread_safe (~> 0.1)
-    xcodeproj (1.13.0)
+
+GIT
+  remote: https://github.com/CocoaPods/Xcodeproj
+  revision: 1112f447897c116cac1a107de1ffbcb177c702f4
+  specs:
+    xcodeproj (1.16.0)
       CFPropertyList (>= 2.3.3, < 4.0)
       atomos (~> 0.1.3)
       claide (>= 1.0.2, < 2.0)
       colored2 (~> 3.1)
       nanaimo (~> 0.2.6)
 
+GEM
+  remote: https://rubygems.org/
+  specs:
+    CFPropertyList (3.0.2)
+    activesupport (4.2.11.3)
+      i18n (~> 0.7)
+      minitest (~> 5.1)
+      thread_safe (~> 0.3, >= 0.3.4)
+      tzinfo (~> 1.1)
+    addressable (2.7.0)
+      public_suffix (>= 2.0.2, < 5.0)
+    algoliasearch (1.27.2)
+      httpclient (~> 2.8, >= 2.8.3)
+      json (>= 1.5.1)
+    atomos (0.1.3)
+    claide (1.0.3)
+    cocoapods-deintegrate (1.0.4)
+    cocoapods-downloader (1.3.0)
+    cocoapods-plugins (1.0.0)
+      nap
+    cocoapods-search (1.0.0)
+    cocoapods-trunk (1.5.0)
+      nap (>= 0.8, < 2.0)
+      netrc (~> 0.11)
+    cocoapods-try (1.2.0)
+    colored2 (3.1.2)
+    concurrent-ruby (1.1.6)
+    escape (0.0.4)
+    ethon (0.12.0)
+      ffi (>= 1.3.0)
+    ffi (1.12.2)
+    fourflusher (2.3.1)
+    fuzzy_match (2.0.4)
+    gh_inspector (1.1.3)
+    httpclient (2.8.3)
+    i18n (0.9.5)
+      concurrent-ruby (~> 1.0)
+    json (2.3.0)
+    minitest (5.14.1)
+    nap (1.1.0)
+    netrc (0.11.0)
+    public_suffix (2.0.5)
+    ruby-macho (1.4.0)
+    thread_safe (0.3.6)
+    typhoeus (1.4.0)
+      ethon (>= 0.9.0)
+    tzinfo (1.2.7)
+      thread_safe (~> 0.1)
+
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  cocoapods (~> 1.8)!
+  cocoapods!
+  cocoapods-core!
+  molinillo!
+  nanaimo!
+  xcodeproj!
 
 BUNDLED WITH
    1.17.3

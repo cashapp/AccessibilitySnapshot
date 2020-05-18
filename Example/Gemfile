@@ -1,3 +1,11 @@
+def cocoapods_gem(name, gem_name = name.downcase, **opts)
+  gem gem_name, git: "https://github.com/CocoaPods/#{name}", **opts
+end
+
 source 'https://rubygems.org' do
-	gem 'cocoapods', '~> 1.8'
+  cocoapods_gem 'CocoaPods', branch: 'master'
+  cocoapods_gem 'Core', 'cocoapods-core'
+  cocoapods_gem 'Molinillo'
+  cocoapods_gem 'Nanaimo'
+  cocoapods_gem 'Xcodeproj'
 end
