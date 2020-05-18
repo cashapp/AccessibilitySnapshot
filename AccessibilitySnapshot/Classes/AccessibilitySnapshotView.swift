@@ -14,6 +14,8 @@
 //  limitations under the License.
 //
 
+import CoreImage
+import CoreImage.CIFilterBuiltins
 import UIKit
 
 public enum ActivationPointDisplayMode {
@@ -528,17 +530,46 @@ private extension UIView {
             }
         }
 
-        if monochrome, let cgImage = snapshot.cgImage {
-            let monochromeSnapshot = CIImage(cgImage: cgImage).applyingFilter(
-                "CIColorControls",
-                parameters: [kCIInputSaturationKey: 0]
-            )
-
-            return UIImage(ciImage: monochromeSnapshot, scale: snapshot.scale, orientation: .up)
+        if monochrome {
+            return monochromeSnapshot(for: snapshot) ?? snapshot
 
         } else {
             return snapshot
         }
+    }
+
+    private func monochromeSnapshot(for snapshot: UIImage) -> UIImage? {
+        guard let inputImage = CIImage(image: snapshot) else {
+            return nil
+        }
+
+        let monochromeFilter: CIFilter
+        if #available(iOS 13, *) {
+            let filter = CIFilter.colorControls()
+            filter.saturation = 0
+            filter.inputImage = inputImage
+            monochromeFilter = filter
+
+        } else {
+            monochromeFilter = CIFilter(
+                name: "CIColorControls",
+                parameters: [
+                    kCIInputImageKey: inputImage,
+                    kCIInputSaturationKey: 0,
+                ]
+            )!
+        }
+
+        let context = CIContext()
+
+        guard
+            let outputImage = monochromeFilter.outputImage,
+            let cgImage = context.createCGImage(outputImage, from: outputImage.extent)
+        else {
+            return nil
+        }
+
+        return UIImage(cgImage: cgImage)
     }
 
 }
