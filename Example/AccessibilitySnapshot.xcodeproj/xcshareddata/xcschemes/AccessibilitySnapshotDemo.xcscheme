@@ -70,6 +70,9 @@
                <Test
                   Identifier = "DefaultControlsTests/testDatePicker()">
                </Test>
+               <Test
+                  Identifier = "TextAccessibilityTests">
+               </Test>
             </SkippedTests>
          </TestableReference>
          <TestableReference
