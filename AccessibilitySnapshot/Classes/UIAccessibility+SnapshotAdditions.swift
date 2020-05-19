@@ -245,11 +245,9 @@ extension NSObject {
             return nil
         }
 
-        let majorOSVersion = Int(String(UIDevice.current.systemVersion.split(separator: ".").first!))!
-
         switch context {
         case let .tabBarItem(index: _, count: _, item: item):
-            if majorOSVersion >= 12 {
+            if NSObject.majorOSVersion == 12 {
                 return item.title ?? ""
             } else {
                 return nil
@@ -271,7 +269,11 @@ extension NSObject {
 
         switch context {
         case let .tabBarItem(index: _, count: _, item: item):
-            return item.badgeValue == nil
+            if NSObject.majorOSVersion >= 13 {
+                return false
+            } else {
+                return item.badgeValue == nil
+            }
 
         case .series, .tab, .dataTableCell, .listStart, .listEnd, .landmarkStart, .landmarkEnd:
             return false
@@ -279,8 +281,16 @@ extension NSObject {
     }
 
     private func hidesAccessibilityHint() -> Bool {
-        return accessibilityTraits.contains(.tabBarItem)
+        if NSObject.majorOSVersion >= 13 {
+            return false
+        } else {
+            return accessibilityTraits.contains(.tabBarItem)
+        }
     }
+
+    // MARK: - Private Static Properties
+
+    private static let majorOSVersion = Int(String(UIDevice.current.systemVersion.split(separator: ".").first!))!
 
     // MARK: - Private
 
