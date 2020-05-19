@@ -15,7 +15,6 @@
 //
 
 import CoreImage
-import CoreImage.CIFilterBuiltins
 import UIKit
 
 public enum ActivationPointDisplayMode {
@@ -543,22 +542,13 @@ private extension UIView {
             return nil
         }
 
-        let monochromeFilter: CIFilter
-        if #available(iOS 13, *) {
-            let filter = CIFilter.colorControls()
-            filter.saturation = 0
-            filter.inputImage = inputImage
-            monochromeFilter = filter
-
-        } else {
-            monochromeFilter = CIFilter(
-                name: "CIColorControls",
-                parameters: [
-                    kCIInputImageKey: inputImage,
-                    kCIInputSaturationKey: 0,
-                ]
-            )!
-        }
+        let monochromeFilter = CIFilter(
+            name: "CIColorControls",
+            parameters: [
+                kCIInputImageKey: inputImage,
+                kCIInputSaturationKey: 0,
+            ]
+        )!
 
         let context = CIContext()
 
