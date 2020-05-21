@@ -44,11 +44,7 @@ extension FBSnapshotTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        // The tests must be run in a host application in order for the accessibility properties to be populated
-        // correctly. The `UIApplication.shared` singleton is non-optional, but will be uninitialized when the tests are
-        // running outside of a host application, so we can use this check to determine whether we have a test host.
-        let hostApplication: UIApplication? = UIApplication.shared
-        guard hostApplication != nil else {
+        guard isRunningInHostApplication else {
             XCTFail(
                 "Accessibility snapshot tests cannot be run in a test target without a host application",
                 file: file,
@@ -180,6 +176,16 @@ extension FBSnapshotTestCase {
         if requiresWindow {
             view.removeFromSuperview()
         }
+    }
+
+    // MARK: - Internal Properties
+
+    var isRunningInHostApplication: Bool {
+        // The tests must be run in a host application in order for the accessibility properties to be populated
+        // correctly. The `UIApplication.shared` singleton is non-optional, but will be uninitialized when the tests are
+        // running outside of a host application, so we can use this check to determine whether we have a test host.
+        let hostApplication: UIApplication? = UIApplication.shared
+        return (hostApplication != nil)
     }
 
 }

@@ -49,11 +49,7 @@ extension FBSnapshotTestCase {
         activationPointDisplayMode: ActivationPointDisplayMode,
         useMonochromeSnapshot: Bool
     ) -> String? {
-        // The tests must be run in a host application in order for the accessibility properties to be populated
-        // correctly. The `UIApplication.shared` singleton is non-optional, but will be uninitialized when the tests are
-        // running outside of a host application, so we can use this check to determine whether we have a test host.
-        let hostApplication: UIApplication? = UIApplication.shared
-        guard hostApplication != nil else {
+        guard isRunningInHostApplication else {
             return "Accessibility snapshot tests cannot be run in a test target without a host application"
         }
 
