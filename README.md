@@ -9,7 +9,7 @@ AccessibilitySnapshots makes it simple to add regression tests for accessibility
 
 ## Getting Started
 
-AccessibilitySnapshot is built on top of [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case). Before setting up accessibility snapshot tests, make sure your project is set up for standard snapshot testing.
+AccessibilitySnapshot is built on top of [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case). Before setting up accessibility snapshot tests, make sure your project is set up for standard snapshot testing. Accessibility snapshot tests require that the test target has a host application.
 
 ### CocoaPods
 

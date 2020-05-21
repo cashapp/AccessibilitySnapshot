@@ -49,6 +49,10 @@ extension FBSnapshotTestCase {
         activationPointDisplayMode: ActivationPointDisplayMode,
         useMonochromeSnapshot: Bool
     ) -> String? {
+        guard isRunningInHostApplication else {
+            return "Accessibility snapshot tests cannot be run in a test target without a host application"
+        }
+
         let containerView = AccessibilitySnapshotView(
             containedView: view,
             viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
