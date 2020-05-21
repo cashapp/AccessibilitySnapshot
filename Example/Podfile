@@ -11,6 +11,13 @@ target 'AccessibilitySnapshotDemo' do
 		pod 'AccessibilitySnapshot', :path => '../AccessibilitySnapshot.podspec'
 	end
 
+	target 'HeadlessSnapshotTests' do
+		inherit! :search_paths
+
+		pod 'AccessibilitySnapshot', :path => '../AccessibilitySnapshot.podspec'
+		pod 'Paralayout', '~> 0.9'
+	end
+
 	target 'UnitTests' do
 		inherit! :search_paths
 
