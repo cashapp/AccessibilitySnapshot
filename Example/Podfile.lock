@@ -1,6 +1,10 @@
 PODS:
   - AccessibilitySnapshot (0.3.0):
+    - AccessibilitySnapshot/Core (= 0.3.0)
+    - AccessibilitySnapshot/iOSSnapshotTestCase (= 0.3.0)
+  - AccessibilitySnapshot/Core (0.3.0):
     - fishhook (~> 0.2)
+  - AccessibilitySnapshot/iOSSnapshotTestCase (0.3.0):
     - iOSSnapshotTestCase (~> 6.0)
   - fishhook (0.2)
   - iOSSnapshotTestCase (6.2.0):
@@ -12,6 +16,7 @@ PODS:
 
 DEPENDENCIES:
   - AccessibilitySnapshot (from `../AccessibilitySnapshot.podspec`)
+  - AccessibilitySnapshot/Core (from `../AccessibilitySnapshot.podspec`)
   - Paralayout (~> 0.9)
 
 SPEC REPOS:
@@ -25,11 +30,11 @@ EXTERNAL SOURCES:
     :path: "../AccessibilitySnapshot.podspec"
 
 SPEC CHECKSUMS:
-  AccessibilitySnapshot: 4ef5ec8d06dd9aa167fcc3afa86539a59d649161
+  AccessibilitySnapshot: 7da311708ad3959dcfbd71d5c993115242146b3b
   fishhook: ea19933abfe8f2f52c55fd8b6e2718467d3ebc89
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   Paralayout: e36bf8c795ed9930159b9635ebb802d026667d0b
 
-PODFILE CHECKSUM: 75c7dd396546765a95d746610aba834d2b137c84
+PODFILE CHECKSUM: a46ca457f96c3770fea5e16fe5218c1408222d82
 
 COCOAPODS: 1.9.1

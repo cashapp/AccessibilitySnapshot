@@ -12,20 +12,30 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '10.0'
 
-  s.source_files = 'AccessibilitySnapshot/Classes/**/*.{swift,h,m}'
-  s.public_header_files = [
-    'AccessibilitySnapshot/Classes/FBSnapshotTestCase_Accessibility.h',
-    'AccessibilitySnapshot/Classes/UIAccessibilityStatusUtility.h',
-    'AccessibilitySnapshot/Classes/UIView+DynamicTypeSnapshotting.h',
-  ]
+  s.default_subspecs = 'Core', 'iOSSnapshotTestCase'
 
-  s.resource_bundles = {
-   'AccessibilitySnapshot' => ['AccessibilitySnapshot/Assets/**/*.{strings,xcassets}']
-  }
+  s.subspec 'Core' do |ss|
+    ss.source_files = 'AccessibilitySnapshot/Core/Classes/**/*.{swift,h,m}'
+    ss.public_header_files = [
+      'AccessibilitySnapshot/Core/Classes/UIAccessibilityStatusUtility.h',
+      'AccessibilitySnapshot/Core/Classes/UIView+DynamicTypeSnapshotting.h',
+    ]
+    ss.resource_bundles = {
+     'AccessibilitySnapshot' => ['AccessibilitySnapshot/Core/Assets/**/*.{strings,xcassets}']
+    }
+
+    ss.dependency 'fishhook', '~> 0.2'
+  end
+
+  s.subspec 'iOSSnapshotTestCase' do |ss|
+    ss.source_files = 'AccessibilitySnapshot/iOSSnapshotTestCase/Classes/**/*.{swift,h,m}'
+    ss.public_header_files = [
+      'AccessibilitySnapshot/iOSSnapshotTestCase/Classes/FBSnapshotTestCase_Accessibility.h',
+    ]
+
+    ss.dependency 'iOSSnapshotTestCase', '~> 6.0'
+  end
 
   s.frameworks = 'XCTest'
   s.weak_frameworks = 'XCTest'
-
-  s.dependency 'iOSSnapshotTestCase', '~> 6.0'
-  s.dependency 'fishhook', '~> 0.2'
 end
