@@ -74,7 +74,7 @@ You can also run accessibility snapshot tests from Objective-C:
 
 We love our
 [contributors](https://github.com/CashApp/AccessibilitySnapshot/graphs/contributors)!
-Please read our [contributing guidelines](Contributing.md) prior to submitting
+Please read our [contributing guidelines](CONTRIBUTING.md) prior to submitting
 a pull request.
 
 ## License
