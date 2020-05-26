@@ -33,6 +33,7 @@ Pod::Spec.new do |s|
       'AccessibilitySnapshot/iOSSnapshotTestCase/Classes/FBSnapshotTestCase_Accessibility.h',
     ]
 
+    ss.dependency 'AccessibilitySnapshot/Core'
     ss.dependency 'iOSSnapshotTestCase', '~> 6.0'
   end
 
