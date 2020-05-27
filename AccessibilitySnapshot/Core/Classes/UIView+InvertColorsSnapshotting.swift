@@ -20,10 +20,10 @@ import UIKit
 
 extension UIView {
 
-    // MARK: - Internal Methods
+    // MARK: - Public Methods
 
     @available(iOS 11, *)
-    func drawHierarchyWithInvertedColors(in rect: CGRect, using context: UIGraphicsImageRendererContext) {
+    public func drawHierarchyWithInvertedColors(in rect: CGRect, using context: UIGraphicsImageRendererContext) {
         if accessibilityIgnoresInvertColors {
             drawHierarchy(in: rect, afterScreenUpdates: false)
 
