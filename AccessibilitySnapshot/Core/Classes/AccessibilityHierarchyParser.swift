@@ -16,11 +16,11 @@
 
 import UIKit
 
-struct AccessibilityMarker {
+public struct AccessibilityMarker {
 
     // MARK: - Public Types
 
-    enum Shape {
+    public enum Shape {
 
         /// Accessibility frame, in the coordinate space of the view being snapshotted.
         case frame(CGRect)
@@ -34,29 +34,29 @@ struct AccessibilityMarker {
 
     /// The description of the accessibility element that will be read by VoiceOver when the element is brought into
     /// focus.
-    var description: String
+    public var description: String
 
     /// A hint that will be read by VoiceOver if focus remains on the element after the `description` is read.
-    var hint: String?
+    public var hint: String?
 
     /// The shape that will be highlighted on screen while the element is in focus.
-    var shape: Shape
+    public var shape: Shape
 
     /// The accessibility activation point, in the coordinate space of the view being snapshotted.
-    var activationPoint: CGPoint
+    public var activationPoint: CGPoint
 
     /// Whether or not the `activationPoint` is the default activation point for the object.
     ///
     /// For most elements, the default activation point is the midpoint of the element's accessibility frame. Certain
     /// elements have distinct defaults - for example, a `UISlider` puts its activation point at the center of its thumb
     /// by default.
-    var usesDefaultActivationPoint: Bool
+    public var usesDefaultActivationPoint: Bool
 
 }
 
 // MARK: -
 
-protocol UserInterfaceLayoutDirectionProviding {
+public protocol UserInterfaceLayoutDirectionProviding {
 
     var userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection { get }
 
@@ -66,12 +66,12 @@ extension UIApplication: UserInterfaceLayoutDirectionProviding {}
 
 // MARK: -
 
-final class AccessibilityHierarchyParser {
+public final class AccessibilityHierarchyParser {
 
     // MARK: - Public Types
 
     /// Represents a context in which elements are contained.
-    enum Context {
+    public enum Context {
 
         /// Indicates the element is part of a series of elements.
         /// Reads as "`index` of `count`."
@@ -138,6 +138,10 @@ final class AccessibilityHierarchyParser {
 
     }
 
+    // MARK: - Life Cycle
+
+    public init() {}
+
     // MARK: - Public Methods
 
     /// Parses the accessibility hierarchy starting from the `root` view and returns markers for each element in the
@@ -147,7 +151,7 @@ final class AccessibilityHierarchyParser {
     /// relative to this view's coordinate space.
     /// - parameter userInterfaceLayoutDirectionProvider: The provider of the device's user interface layout direction.
     /// In most cases, this should use the default value, `UIApplication.shared`.
-    func parseAccessibilityElements(
+    public func parseAccessibilityElements(
         in root: UIView,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared
     ) -> [AccessibilityMarker] {
