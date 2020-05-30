@@ -14,10 +14,9 @@
 //  limitations under the License.
 //
 
+import AccessibilitySnapshot
 import UIKit
 import XCTest
-
-@testable import AccessibilitySnapshot
 
 final class AccessibilityHierarchyParserTests: XCTestCase {
 

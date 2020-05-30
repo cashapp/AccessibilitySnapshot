@@ -9,7 +9,7 @@ AccessibilitySnapshots makes it simple to add regression tests for accessibility
 
 ## Getting Started
 
-AccessibilitySnapshot is built on top of [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case). Before setting up accessibility snapshot tests, make sure your project is set up for standard snapshot testing. Accessibility snapshot tests require that the test target has a host application.
+By default, AccessibilitySnapshot uses [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) to record snapshots and perform comparisons. Before setting up accessibility snapshot tests, make sure your project is set up for standard snapshot testing. Accessibility snapshot tests require that the test target has a host application.
 
 ### CocoaPods
 
@@ -17,6 +17,12 @@ Install with [CocoaPods](https://cocoapods.org) by adding the following to your 
 
 ```ruby
 pod 'AccessibilitySnapshot'
+```
+
+To use only the core accessibility parser, add a dependency on the Core subspec alone.
+
+```ruby
+pod 'AccessibilitySnapshot/Core'
 ```
 
 ## Usage

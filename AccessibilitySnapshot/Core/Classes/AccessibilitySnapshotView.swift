@@ -38,11 +38,20 @@ public enum ActivationPointDisplayMode {
 ///
 /// The overlays and legend will be added when `parseAccessibility()` is called. In order for the coordinates to be
 /// calculated properly, the view must already be in the view hierarchy.
-final class AccessibilitySnapshotView: UIView {
+public final class AccessibilitySnapshotView: UIView {
 
     // MARK: - Life Cycle
 
-    init(
+    /// Initializes a new snapshot container view.
+    ///
+    /// - parameter containedView: The view that should be snapshotted, and for which the accessibility markers should
+    /// be generated.
+    /// - parameter viewRenderingMode: The method to use when snapshotting the `containedView`.
+    /// - parameter markerColors: An array of colors to use for the highlighted regions. These colors will be used in
+    /// order, repeating through the array as necessary.
+    /// - parameter activationPointDisplayMode: Controls when to show indicators for elements' accessibility activation
+    /// points.
+    public init(
         containedView: UIView,
         viewRenderingMode: ViewRenderingMode,
         markerColors: [UIColor] = defaultMarkerColors,
@@ -85,7 +94,7 @@ final class AccessibilitySnapshotView: UIView {
     /// Parse the `containedView`'s accessibility and add appropriate visual elements to represent it.
     ///
     /// This must be called _after_ the view is in the view hierarchy.
-    func parseAccessibility(useMonochromeSnapshot: Bool) {
+    public func parseAccessibility(useMonochromeSnapshot: Bool) {
         // Clean up any previous markers.
         self.displayMarkers.forEach {
             $0.legendView.removeFromSuperview()
@@ -175,7 +184,7 @@ final class AccessibilitySnapshotView: UIView {
 
     // MARK: - UIView
 
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         let legendViews = displayMarkers.map { $0.legendView }
 
         switch legendLocation(viewSize: snapshotView.bounds.size) {
@@ -225,7 +234,7 @@ final class AccessibilitySnapshotView: UIView {
         }
     }
 
-    override func sizeThatFits(_ size: CGSize) -> CGSize {
+    public override func sizeThatFits(_ size: CGSize) -> CGSize {
         guard !displayMarkers.isEmpty else {
             return snapshotView.bounds.size
         }
@@ -323,9 +332,9 @@ final class AccessibilitySnapshotView: UIView {
         }
     }
 
-    // MARK: - Private Static Properties
+    // MARK: - Public Static Properties
 
-    private static let defaultMarkerColors: [UIColor] = [ .cyan, .magenta, .green, .blue, .yellow, .purple, .orange ]
+    public static let defaultMarkerColors: [UIColor] = [ .cyan, .magenta, .green, .blue, .yellow, .purple, .orange ]
 
     // MARK: - Private Types
 
@@ -369,10 +378,12 @@ final class AccessibilitySnapshotView: UIView {
 
 extension AccessibilitySnapshotView {
 
-    enum ViewRenderingMode {
+    public enum ViewRenderingMode {
 
+        /// Render the view's layer in a `CGContext` using the `render(in:)` method.
         case renderLayerInContext
 
+        /// Draw the view's hierarchy after screen updates using the `drawHierarchy(in:afterScreenUpdates:)` method.
         case drawHierarchyInRect
 
     }
