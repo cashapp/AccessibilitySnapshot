@@ -85,7 +85,7 @@ a pull request.
 
 ## Extensions
 
-  - [AccessibilitySnapshotPointfree](https://github.com/Sherlouk/AccessibilitySnapshotPointfree) adds support for AccessibilitySnapshot to Pointfree's [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing/).
+  - [AccessibilitySnapshot+SnapshotTesting](https://github.com/Sherlouk/AccessibilitySnapshot-SnapshotTesting) adds support for AccessibilitySnapshot to Pointfree's [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing/).
 
 Have you written your own extension? [Add it here](https://github.com/cashapp/AccessibilitySnapshot/edit/master/README.md) and submit a pull request!
 
