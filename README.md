@@ -9,7 +9,7 @@ AccessibilitySnapshots makes it simple to add regression tests for accessibility
 
 ## Getting Started
 
-By default, AccessibilitySnapshot uses [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) to record snapshots and perform comparisons. Before setting up accessibility snapshot tests, make sure your project is set up for standard snapshot testing. Accessibility snapshot tests require that the test target has a host application.
+By default, AccessibilitySnapshot uses [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) to record snapshots and perform comparisons. Before setting up accessibility snapshot tests, make sure your project is set up for standard snapshot testing. Accessibility snapshot tests require that the test target has a host application. See the [Extensions](#extensions) section below for a list of other available snapshotting options.
 
 ### CocoaPods
 
@@ -82,6 +82,12 @@ We love our
 [contributors](https://github.com/CashApp/AccessibilitySnapshot/graphs/contributors)!
 Please read our [contributing guidelines](CONTRIBUTING.md) prior to submitting
 a pull request.
+
+## Extensions
+
+  - [AccessibilitySnapshot+SnapshotTesting](https://github.com/Sherlouk/AccessibilitySnapshot-SnapshotTesting) adds support for AccessibilitySnapshot to Pointfree's [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing/).
+
+Have you written your own extension? [Add it here](https://github.com/cashapp/AccessibilitySnapshot/edit/master/README.md) and submit a pull request!
 
 ## License
 
