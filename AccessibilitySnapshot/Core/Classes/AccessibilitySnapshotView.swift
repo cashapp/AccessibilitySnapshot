@@ -164,6 +164,10 @@ public final class AccessibilitySnapshotView: UIView {
                 }
 
             case .always:
+                guard containedView.bounds.contains(marker.activationPoint) else {
+                    break
+                }
+
                 let activationPointView = UIImageView(
                     image: UIImage(named: "Crosshairs", in: Bundle.accessibilitySnapshotResources, compatibleWith: nil)
                 )
