@@ -61,6 +61,10 @@ enum Platform: String, CustomStringConvertible {
 		}
 	}
 
+	var derivedDataPath: String {
+		return ".build/derivedData/\(rawValue)"
+	}
+
 	var description: String {
 		return rawValue
 	}
@@ -136,6 +140,7 @@ xcodeBuildArguments.append(
 		"-sdk", "iphonesimulator",
 		"-PBXBuildsContinueAfterErrors=0",
 		"-destination", platform.destination,
+		"-derivedDataPath", platform.derivedDataPath,
 		"ONLY_ACTIVE_ARCH=NO",
 	]
 )
