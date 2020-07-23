@@ -1,10 +1,10 @@
 PODS:
-  - AccessibilitySnapshot (0.3.1):
-    - AccessibilitySnapshot/Core (= 0.3.1)
-    - AccessibilitySnapshot/iOSSnapshotTestCase (= 0.3.1)
-  - AccessibilitySnapshot/Core (0.3.1):
+  - AccessibilitySnapshot (0.3.2):
+    - AccessibilitySnapshot/Core (= 0.3.2)
+    - AccessibilitySnapshot/iOSSnapshotTestCase (= 0.3.2)
+  - AccessibilitySnapshot/Core (0.3.2):
     - fishhook (~> 0.2)
-  - AccessibilitySnapshot/iOSSnapshotTestCase (0.3.1):
+  - AccessibilitySnapshot/iOSSnapshotTestCase (0.3.2):
     - AccessibilitySnapshot/Core
     - iOSSnapshotTestCase (~> 6.0)
   - fishhook (0.2)
@@ -31,7 +31,7 @@ EXTERNAL SOURCES:
     :path: "../AccessibilitySnapshot.podspec"
 
 SPEC CHECKSUMS:
-  AccessibilitySnapshot: 5c623007716998e3b9d040fd28f42407c0e38502
+  AccessibilitySnapshot: fc706b52b64780cc00dbadda8b445320ff3ed17c
   fishhook: ea19933abfe8f2f52c55fd8b6e2718467d3ebc89
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   Paralayout: e36bf8c795ed9930159b9635ebb802d026667d0b
