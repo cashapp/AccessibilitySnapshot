@@ -533,6 +533,11 @@ private extension AccessibilitySnapshotView {
 private extension UIView {
 
     func renderToImage(monochrome: Bool, viewRenderingMode: AccessibilitySnapshotView.ViewRenderingMode) -> UIImage {
+        // Hide the cursor of text inputs to prevent test flakes.
+        recursiveForEach(viewType: UITextField.self) { textField in
+            textField.tintColor = .clear
+        }
+
         let renderer = UIGraphicsImageRenderer(bounds: bounds)
         let snapshot = renderer.image { context in
             switch viewRenderingMode {
@@ -551,6 +556,8 @@ private extension UIView {
             return snapshot
         }
     }
+
+    // MARK: - Private Methods
 
     private func monochromeSnapshot(for snapshot: UIImage) -> UIImage? {
         guard let inputImage = CIImage(image: snapshot) else {
@@ -576,6 +583,17 @@ private extension UIView {
 
         return UIImage(cgImage: cgImage)
     }
+
+    private func recursiveForEach<ViewType: UIView>(
+        viewType: ViewType.Type,
+        _ block: (ViewType) -> Void
+    ) {
+        if let view = self as? ViewType {
+            block(view)
+        }
+        subviews.forEach { $0.recursiveForEach(viewType: viewType, block) }
+    }
+
 
 }
 

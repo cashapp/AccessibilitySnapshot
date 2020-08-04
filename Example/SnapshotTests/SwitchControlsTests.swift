@@ -23,7 +23,7 @@ final class SwitchControlsTests: SnapshotTestCase {
         let control = UISwitch()
         control.isOn = true
 
-        let container = ContainerView(control: control)
+        let container = ContainerView(subview: control)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -33,7 +33,7 @@ final class SwitchControlsTests: SnapshotTestCase {
         let control = UISwitch()
         control.isOn = false
 
-        let container = ContainerView(control: control)
+        let container = ContainerView(subview: control)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -44,7 +44,7 @@ final class SwitchControlsTests: SnapshotTestCase {
         control.isOn = true
         control.isEnabled = false
 
-        let container = ContainerView(control: control)
+        let container = ContainerView(subview: control)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -55,7 +55,7 @@ final class SwitchControlsTests: SnapshotTestCase {
         control.isOn = true
         control.accessibilityLabel = "Label"
 
-        let container = ContainerView(control: control)
+        let container = ContainerView(subview: control)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -67,7 +67,7 @@ final class SwitchControlsTests: SnapshotTestCase {
         control.accessibilityLabel = "Label"
         control.accessibilityValue = "Value"
 
-        let container = ContainerView(control: control)
+        let container = ContainerView(subview: control)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -79,7 +79,7 @@ final class SwitchControlsTests: SnapshotTestCase {
         control.accessibilityLabel = "Label"
         control.accessibilityHint = "Hint"
 
-        let container = ContainerView(control: control)
+        let container = ContainerView(subview: control)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -100,7 +100,7 @@ final class SwitchControlsTests: SnapshotTestCase {
             .searchField,
         ])
 
-        let container = ContainerView(control: control)
+        let container = ContainerView(subview: control)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -120,7 +120,7 @@ final class SwitchControlsTests: SnapshotTestCase {
         accessibilityTraits.remove(.button)
         fakeSwitch.accessibilityTraits = accessibilityTraits
 
-        let container = ContainerView(control: fakeSwitch)
+        let container = ContainerView(subview: fakeSwitch)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -137,49 +137,10 @@ final class SwitchControlsTests: SnapshotTestCase {
         fakeSwitch.accessibilityValue = "Value"
         fakeSwitch.accessibilityTraits = UISwitch().accessibilityTraits
 
-        let container = ContainerView(control: fakeSwitch)
+        let container = ContainerView(subview: fakeSwitch)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
-    }
-
-}
-
-// MARK: -
-
-private final class ContainerView: UIView {
-
-    // MARK: - Life Cycle
-
-    init(control: UIView) {
-        self.control = control
-
-        super.init(frame: .zero)
-
-        backgroundColor = .white
-
-        addSubview(control)
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: - Private Properties
-
-    private let control: UIView
-
-    // MARK: - UIView
-
-    override func layoutSubviews() {
-        control.frame.size = control.sizeThatFits(bounds.insetBy(dx: 10, dy: 10).size)
-        control.alignToSuperview(.center)
-    }
-
-    override func sizeThatFits(_ size: CGSize) -> CGSize {
-        let controlSize = control.sizeThatFits(size)
-        return CGSize(width: size.width, height: controlSize.height + 20)
     }
 
 }
