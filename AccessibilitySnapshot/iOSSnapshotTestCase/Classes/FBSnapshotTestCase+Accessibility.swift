@@ -27,6 +27,7 @@ extension FBSnapshotTestCase {
     /// - parameter view: The view that will be snapshotted.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple
     /// snapshot tests in a given test method. Defaults to no identifier.
+    /// - parameter forceCursorVisible: Whether or not the text fields in the view (if any) should be showing their cursor in the snapshot. Defaults to `true`.
     /// - parameter showActivationPoints: When to show indicators for elements' accessibility activation points.
     /// Defaults to showing activation points only when they are different than the default activation point for that
     /// element.
@@ -38,6 +39,7 @@ extension FBSnapshotTestCase {
     public func SnapshotVerifyAccessibility(
         _ view: UIView,
         identifier: String = "",
+        forceCursorVisible: Bool = true,
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
@@ -51,6 +53,22 @@ extension FBSnapshotTestCase {
                 line: line
             )
             return
+        }
+
+        if forceCursorVisible {
+            // Show the cursor of all text fields.
+            view.recursiveForEach(viewType: UITextField.self) { textField in
+                textField.becomeFirstResponder()
+
+                // Find the field editor of the text field which controls the animation of the cursor
+                guard let fieldEditorLayer = (textField.value(forKey: "fieldEditor") as? UIView)?.layer else {
+                    return
+                }
+
+                // Set the speed and time offset of the layer such that the cursor will remain visible
+                fieldEditorLayer.speed = 0
+                fieldEditorLayer.timeOffset = fieldEditorLayer.beginTime
+            }
         }
 
         let containerView = AccessibilitySnapshotView(
@@ -186,6 +204,20 @@ extension FBSnapshotTestCase {
         // running outside of a host application, so we can use this check to determine whether we have a test host.
         let hostApplication: UIApplication? = UIApplication.shared
         return (hostApplication != nil)
+    }
+
+}
+
+private extension UIView {
+
+    func recursiveForEach<ViewType: UIView>(
+        viewType: ViewType.Type,
+        _ block: (ViewType) -> Void
+    ) {
+        if let view = self as? ViewType {
+            block(view)
+        }
+        subviews.forEach { $0.recursiveForEach(viewType: viewType, block) }
     }
 
 }

@@ -25,7 +25,7 @@ final class DefaultControlsTests: SnapshotTestCase {
     func testDatePicker() {
         let datePicker = UIDatePicker()
 
-        let container = ContainerView(control: datePicker)
+        let container = ContainerView(subview: datePicker)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -40,7 +40,7 @@ final class DefaultControlsTests: SnapshotTestCase {
         pageControl.pageIndicatorTintColor = .darkGray
         pageControl.currentPageIndicatorTintColor = .black
 
-        let container = ContainerView(control: pageControl)
+        let container = ContainerView(subview: pageControl)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -55,7 +55,7 @@ final class DefaultControlsTests: SnapshotTestCase {
         segmentedControl.insertSegment(withTitle: "Segment C", at: 2, animated: false)
         segmentedControl.selectedSegmentIndex = 1
 
-        let container = ContainerView(control: segmentedControl)
+        let container = ContainerView(subview: segmentedControl)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -69,7 +69,7 @@ final class DefaultControlsTests: SnapshotTestCase {
         slider.maximumValue = 100
         slider.value = 75
 
-        let container = ContainerView(control: slider)
+        let container = ContainerView(subview: slider)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -83,7 +83,7 @@ final class DefaultControlsTests: SnapshotTestCase {
         stepper.maximumValue = 1
         stepper.value = 0
 
-        let container = ContainerView(control: stepper)
+        let container = ContainerView(subview: stepper)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
@@ -95,49 +95,10 @@ final class DefaultControlsTests: SnapshotTestCase {
         stepper.maximumValue = 1
         stepper.value = 0
 
-        let container = ContainerView(control: stepper)
+        let container = ContainerView(subview: stepper)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
         SnapshotVerifyAccessibility(container)
-    }
-
-}
-
-// MARK: -
-
-private final class ContainerView: UIView {
-
-    // MARK: - Life Cycle
-
-    init(control: UIControl) {
-        self.control = control
-
-        super.init(frame: .zero)
-
-        backgroundColor = .white
-
-        addSubview(control)
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: - Private Properties
-
-    private let control: UIControl
-
-    // MARK: - UIView
-
-    override func layoutSubviews() {
-        control.frame.size = control.sizeThatFits(bounds.insetBy(dx: 10, dy: 10).size)
-        control.alignToSuperview(.center)
-    }
-
-    override func sizeThatFits(_ size: CGSize) -> CGSize {
-        let controlSize = control.sizeThatFits(size)
-        return CGSize(width: size.width, height: controlSize.height + 20)
     }
 
 }
