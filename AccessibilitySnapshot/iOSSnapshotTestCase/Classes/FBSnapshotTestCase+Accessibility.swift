@@ -55,6 +55,9 @@ extension FBSnapshotTestCase {
             return
         }
 
+        // Store the layers of the text fields whose animations will be
+        // paused in order to resume them after the snapshot test.
+        var pausedTextFieldLayers = [CALayer]()
         if forceCursorVisible {
             // Show the cursor of all text fields.
             view.recursiveForEach(viewType: UITextField.self) { textField in
@@ -65,9 +68,9 @@ extension FBSnapshotTestCase {
                     return
                 }
 
-                // Set the speed and time offset of the layer such that the cursor will remain visible
-                fieldEditorLayer.speed = 0
-                fieldEditorLayer.timeOffset = fieldEditorLayer.beginTime
+                // Pause the animation of the layer so that the cursor will remain visible
+                fieldEditorLayer.pauseAnimation()
+                pausedTextFieldLayers.append(fieldEditorLayer)
             }
         }
 
@@ -87,6 +90,8 @@ extension FBSnapshotTestCase {
         containerView.sizeToFit()
 
         FBSnapshotVerifyView(containerView, identifier: identifier, file: file, line: line)
+
+        pausedTextFieldLayers.forEach { $0.resumeAnimation() }
     }
 
     /// Snapshots the `view` using the specified content size category to test Dynamic Type.
@@ -208,6 +213,8 @@ extension FBSnapshotTestCase {
 
 }
 
+// MARK: -
+
 private extension UIView {
 
     func recursiveForEach<ViewType: UIView>(
@@ -218,6 +225,26 @@ private extension UIView {
             block(view)
         }
         subviews.forEach { $0.recursiveForEach(viewType: viewType, block) }
+    }
+
+}
+
+// MARK: -
+
+private extension CALayer  {
+
+    func pauseAnimation() {
+        speed = 0.0
+        timeOffset = convertTime(CACurrentMediaTime(), from: nil)
+    }
+
+    func resumeAnimation() {
+        let pausedTime = timeOffset
+        speed = 1.0
+        timeOffset = 0.0
+        beginTime = 0.0
+        let timeSincePause = convertTime(CACurrentMediaTime(), from: nil) - pausedTime
+        beginTime = timeSincePause
     }
 
 }
