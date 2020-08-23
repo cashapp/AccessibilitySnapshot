@@ -75,3 +75,6 @@
 
 /* Description of the last element in a landmark container */
 "context.landmark_end.description" = "End.";
+
+/* Description for an accessibility element indicating that it has custom actions available */
+"custom_actions.description" = "Actions Available";

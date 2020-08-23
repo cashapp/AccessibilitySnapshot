@@ -51,6 +51,7 @@ final class RootViewController: UITableViewController {
             }),
             ("Accessibility Paths", { _ in return AccessibilityPathViewController() }),
             ("Accessibility Activation Point", { _ in return ActivationPointViewController() }),
+            ("Accessibility Custom Actions", { _ in return AccessibilityCustomActionsViewController() }),
             ("Dynamic Type", { _ in return DynamicTypeViewController() }),
         ]
 
