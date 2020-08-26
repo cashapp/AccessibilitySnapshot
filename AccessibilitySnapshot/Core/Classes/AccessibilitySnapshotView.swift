@@ -414,11 +414,11 @@ private extension AccessibilitySnapshotView {
 
             // If our description and hint are both empty, but we have custom actions, we'll use the description label
             // to show the "Actions Available" text, since this makes our layout simpler when we align to the marker.
-            let showActionsAvailableInDecription = (marker.description.isEmpty && !marker.customActions.isEmpty)
+            let showActionsAvailableInDescription = (marker.description.isEmpty && !marker.customActions.isEmpty)
 
             if !marker.customActions.isEmpty {
                 self.customActionsView = .init(
-                    actionsAvailableText: showActionsAvailableInDecription
+                    actionsAvailableText: showActionsAvailableInDescription
                         ? nil
                         : Strings.actionsAvailableText(for: marker.accessibilityLanguage),
                     customActions: marker.customActions
@@ -433,7 +433,7 @@ private extension AccessibilitySnapshotView {
             markerView.backgroundColor = color.withAlphaComponent(0.3)
             addSubview(markerView)
 
-            descriptionLabel.text = showActionsAvailableInDecription
+            descriptionLabel.text = showActionsAvailableInDescription
                 ? Strings.actionsAvailableText(for: marker.accessibilityLanguage)
                 : marker.description
             descriptionLabel.font = Metrics.descriptionLabelFont
