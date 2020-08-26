@@ -52,6 +52,12 @@ public struct AccessibilityMarker {
     /// by default.
     public var usesDefaultActivationPoint: Bool
 
+    /// The names of the custom actions supported by the element.
+    public var customActions: [String]
+
+    /// The language code of the language used to localize strings in the description.
+    public var accessibilityLanguage: String?
+
 }
 
 // MARK: -
@@ -187,7 +193,9 @@ public final class AccessibilityHierarchyParser {
                 hint: hint,
                 shape: accessibilityShape(for: element.object, in: root),
                 activationPoint: root.convert(activationPoint, from: nil),
-                usesDefaultActivationPoint: (activationPoint == defaultActivationPoint(for: element.object))
+                usesDefaultActivationPoint: (activationPoint == defaultActivationPoint(for: element.object)),
+                customActions: element.object.accessibilityCustomActions?.map { $0.name } ?? [],
+                accessibilityLanguage: element.object.accessibilityLanguage
             )
         }
     }

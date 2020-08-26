@@ -57,4 +57,10 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         SnapshotVerifyAccessibility(tabBarViewController.view)
     }
 
+    func testCustomActions() {
+        let customActionsViewController = AccessibilityCustomActionsViewController()
+        customActionsViewController.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(customActionsViewController.view)
+    }
+
 }
