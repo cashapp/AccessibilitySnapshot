@@ -62,16 +62,6 @@ public struct AccessibilityMarker {
 
 // MARK: -
 
-public protocol UserInterfaceLayoutDirectionProviding {
-
-    var userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection { get }
-
-}
-
-extension UIApplication: UserInterfaceLayoutDirectionProviding {}
-
-// MARK: -
-
 public final class AccessibilityHierarchyParser {
 
     // MARK: - Public Types
@@ -155,14 +145,9 @@ public final class AccessibilityHierarchyParser {
     ///
     /// - parameter root: The root view of the accessibility hierarchy. Coordinates in the returned markers will be
     /// relative to this view's coordinate space.
-    /// - parameter userInterfaceLayoutDirectionProvider: The provider of the device's user interface layout direction.
-    /// In most cases, this should use the default value, `UIApplication.shared`.
-    public func parseAccessibilityElements(
-        in root: UIView,
-        userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared
-    ) -> [AccessibilityMarker] {
-        let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
-
+    public func parseAccessibilityElements(in root: UIView) -> [AccessibilityMarker] {
+        let userInterfaceLayoutDirection = root.effectiveUserInterfaceLayoutDirection
+        
         let accessibilityNodes = root.recursiveAccessibilityHierarchy()
 
         let uncontextualizedElements = sortedElements(

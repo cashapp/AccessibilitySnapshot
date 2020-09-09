@@ -48,26 +48,16 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         gridView.addSubview(elementD)
 
         let parser = AccessibilityHierarchyParser()
-
-        let ltrElements = parser.parseAccessibilityElements(
-            in: gridView,
-            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight)
-        ).map { $0.description }
+        
+        gridView.semanticContentAttribute = .forceLeftToRight
+        let ltrElements = parser.parseAccessibilityElements(in: gridView)
+            .map { $0.description }
         XCTAssertEqual(ltrElements, ["A", "B", "C", "D"])
-
-        let rtlElements = parser.parseAccessibilityElements(
-            in: gridView,
-            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .rightToLeft)
-        ).map { $0.description }
+        
+        gridView.semanticContentAttribute = .forceRightToLeft
+        let rtlElements = parser.parseAccessibilityElements(in: gridView)
+            .map { $0.description }
         XCTAssertEqual(rtlElements, ["B", "A", "D", "C"])
     }
-
-}
-
-// MARK: -
-
-private struct TestUserInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding {
-
-    var userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection
 
 }
