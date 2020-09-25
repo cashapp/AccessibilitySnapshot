@@ -18,24 +18,30 @@ PODS:
 DEPENDENCIES:
   - AccessibilitySnapshot (from `../AccessibilitySnapshot.podspec`)
   - AccessibilitySnapshot/Core (from `../AccessibilitySnapshot.podspec`)
-  - Paralayout (~> 0.9)
+  - Paralayout (from `https://github.com/square/Paralayout`)
 
 SPEC REPOS:
   trunk:
     - fishhook
     - iOSSnapshotTestCase
-    - Paralayout
 
 EXTERNAL SOURCES:
   AccessibilitySnapshot:
     :path: "../AccessibilitySnapshot.podspec"
+  Paralayout:
+    :git: https://github.com/square/Paralayout
+
+CHECKOUT OPTIONS:
+  Paralayout:
+    :commit: 404a1f008b86463632edd2b76301e1c00bf90090
+    :git: https://github.com/square/Paralayout
 
 SPEC CHECKSUMS:
   AccessibilitySnapshot: fc706b52b64780cc00dbadda8b445320ff3ed17c
   fishhook: ea19933abfe8f2f52c55fd8b6e2718467d3ebc89
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
-  Paralayout: e36bf8c795ed9930159b9635ebb802d026667d0b
+  Paralayout: f4d6727fca5b592eb93a7cc408e45404599a4b0a
 
-PODFILE CHECKSUM: a46ca457f96c3770fea5e16fe5218c1408222d82
+PODFILE CHECKSUM: fff026bf6c6a44bd5ab7a336f2f0265ea56f3dbd
 
 COCOAPODS: 1.9.1
