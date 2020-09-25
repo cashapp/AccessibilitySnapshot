@@ -37,6 +37,13 @@ Pod::Spec.new do |s|
     ss.dependency 'iOSSnapshotTestCase', '~> 6.0'
   end
 
+  s.subspec 'SnapshotTesting' do |ss|
+    ss.source_files = 'AccessibilitySnapshot/SnapshotTesting/Classes/**/*.{swift,h,m}'
+
+    ss.dependency 'AccessibilitySnapshot/Core'
+    ss.dependency 'SnapshotTesting', '~> 1.7.2'
+  end
+
   s.frameworks = 'XCTest'
   s.weak_frameworks = 'XCTest'
 end
