@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'AccessibilitySnapshot'
-  s.version          = '0.3.2'
+  s.version          = '0.3.3'
   s.summary          = 'Easy regression testing for iOS accessibility'
 
   s.homepage         = 'https://github.com/CashApp/AccessibilitySnapshot'
@@ -41,7 +41,7 @@ Pod::Spec.new do |s|
     ss.source_files = 'AccessibilitySnapshot/SnapshotTesting/Classes/**/*.{swift,h,m}'
 
     ss.dependency 'AccessibilitySnapshot/Core'
-    ss.dependency 'SnapshotTesting', '~> 1.7.2'
+    ss.dependency 'SnapshotTesting', '~> 1.0'
   end
 
   s.frameworks = 'XCTest'

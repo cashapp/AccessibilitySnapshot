@@ -1,20 +1,15 @@
 import SnapshotTesting
-import AccessibilitySnapshot
 
 extension Snapshotting where Value == UIView, Format == UIImage {
 
     /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
-    ///
-    /// Matches functionality of CashApp's `SnapshotVerifyAccessibility` function.
     public static var accessibilityImage: Snapshotting {
         return .accessibilityImage()
     }
     
     /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
-    ///
-    /// Matches functionality of CashApp's `SnapshotVerifyAccessibility` function.
     ///
     /// - Parameter showActivationPoints: When to show indicators for elements' accessibility activation points.
     /// Defaults to showing activation points only when they are different than the default activation point for that
@@ -56,8 +51,6 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     
     /// Snapshots the current view using the specified content size category to test Dynamic Type.
     ///
-    /// Matches functionality of CashApp's `SnapshotVerify` function.
-    ///
     /// - Parameter contentSizeCategory: The content size category to use in the snapshot
     public static func image(
         at contentSizeCategory: UIContentSizeCategory
@@ -70,8 +63,6 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     }
     
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
-    ///
-    /// Matches functionality of CashApp's `SnapshotVerifyWithInvertedColors` function.
     @available(iOS 11, *)
     public static var imageWithSmartInvert: Snapshotting {
         
@@ -131,16 +122,12 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     
     /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
-    ///
-    /// Matches functionality of CashApp's `SnapshotVerifyAccessibility` function.
     public static var accessibilityImage: Snapshotting {
         return .accessibilityImage()
     }
     
     /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
-    ///
-    /// Matches functionality of CashApp's `SnapshotVerifyAccessibility` function.
     ///
     /// - Parameter showActivationPoints: When to show indicators for elements' accessibility activation points.
     /// Defaults to showing activation points only when they are different than the default activation point for that
@@ -167,8 +154,6 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     
     /// Snapshots the current view using the specified content size category to test Dynamic Type.
     ///
-    /// Matches functionality of CashApp's `SnapshotVerify` function.
-    ///
     /// - Parameter contentSizeCategory: The content size category to use in the snapshot
     public static func image(
         at contentSizeCategory: UIContentSizeCategory
@@ -183,8 +168,6 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     }
     
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
-    ///
-    /// Matches functionality of CashApp's `SnapshotVerifyWithInvertedColors` function.
     @available(iOS 11, *)
     public static var imageWithSmartInvert: Snapshotting {
         Snapshotting<UIView, UIImage>.imageWithSmartInvert.pullback { viewController in
