@@ -14,15 +14,15 @@
 //  limitations under the License.
 //
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UIAccessibilityStatusUtility : NSObject
+@interface UIView (DynamicTypeSnapshotting)
 
-- (void)mockInvertColorsStatus;
+- (void)AS_processChangeFromTraits:(UITraitCollection *)oldTraits NS_SWIFT_NAME(processChange(from:));
 
-- (void)unmockStatuses;
++ (void)AS_setPreferredContentSizeCategoryOverride:(nullable UIContentSizeCategory)contentSizeCategory NS_SWIFT_NAME(setPreferredContentSizeCategoryOverride(_:));
 
 @end
 

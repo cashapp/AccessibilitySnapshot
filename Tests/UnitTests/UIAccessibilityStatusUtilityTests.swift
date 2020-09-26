@@ -14,16 +14,23 @@
 //  limitations under the License.
 //
 
-@import UIKit;
+import XCTest
 
-NS_ASSUME_NONNULL_BEGIN
+@testable import AccessibilitySnapshot
+import AccessibilitySnapshot_ObjC
 
-@interface UIAccessibilityStatusUtility : NSObject
+final class UIAccessibilityStatusUtilityTests: XCTestCase {
 
-- (void)mockInvertColorsStatus;
+    func testInvertColorsStatus() {
+        let statusUtility = UIAccessibilityStatusUtility()
 
-- (void)unmockStatuses;
+        XCTAssertFalse(UIAccessibility.isInvertColorsEnabled)
 
-@end
+        statusUtility.mockInvertColorsStatus()
+        XCTAssertTrue(UIAccessibility.isInvertColorsEnabled)
 
-NS_ASSUME_NONNULL_END
+        statusUtility.unmockStatuses()
+        XCTAssertFalse(UIAccessibility.isInvertColorsEnabled)
+    }
+
+}

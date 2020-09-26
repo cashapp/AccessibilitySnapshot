@@ -1,0 +1,80 @@
+/* Description for the 'selected' accessibility trait */
+"trait.selected.description" = "Selected.";
+
+/* Format for the description of the selected element; param0: the description of the element */
+"trait.selected.format" = "Selected: %@";
+
+/* Description for the 'not enabled' accessibility trait */
+"trait.not_enabled.description" = "Dimmed.";
+
+/* Description for the 'button' accessibility trait */
+"trait.button.description" = "Button.";
+
+/* Description for the 'tab' accessibility trait */
+"trait.tab.description" = "Tab.";
+
+/* Description for the 'header' accessibility trait */
+"trait.header.description" = "Heading.";
+
+/* Description for the 'link' accessibility trait */
+"trait.link.description" = "Link.";
+
+/* Description for the 'adjustable' accessibility trait */
+"trait.adjustable.description" = "Adjustable.";
+
+/* Hint describing how to use elements with the 'adjustable' accessibility trait */
+"trait.adjustable.hint" = "Swipe up or down with one finger to adjust the value.";
+
+/* Format for hint describing how to use elements with the 'adjustable' accessibility trait; param0: the existing hint */
+"trait.adjustable.hint_format" = "%@. Swipe up or down with one finger to adjust the value.";
+
+/* Description for the 'image' accessibility trait */
+"trait.image.description" = "Image.";
+
+/* Description for the 'search field' accessibility trait */
+"trait.search_field.description" = "Search Field.";
+
+/* Description for the 'switch button' accessibility trait, when the switch is on */
+"trait.switch_button.state_on.description" = "Switch Button. On.";
+
+/* Description for the 'switch button' accessibility trait, when the switch is off */
+"trait.switch_button.state_off.description" = "Switch Button. Off.";
+
+/* Description for the 'switch button' accessibility trait, when the state of the switch cannot be determined */
+"trait.switch_button.state_unspecified.description" = "Switch Button.";
+
+/* Hint describing how to use elements with the 'switch button' accessibility trait */
+"trait.switch_button.hint" = "Double tap to toggle setting.";
+
+/* Format for hint describing how to use elements with the 'switch button' accessibility trait; param0: the existing hint */
+"trait.switch_button.hint_format" = "%@. Double tap to toggle setting.";
+
+/* Format for the description of an element in a series; param0: the description of the element, param1: the index of the element in the series, param2: the number of elements in the series */
+"context.series.description_format" = "%1$@ %2$@ of %3$@.";
+
+/* Format for the description of the height of a cell in a table; param0: the number of rows the cell spans */
+"context.data_table.row_span_format" = "Spans %@ rows.";
+
+/* Format for the description of the width of a cell in a table; param0: the number of columns the cell spans */
+"context.data_table.column_span_format" = "Spans %@ columns.";
+
+/* Format for the description of the vertical location of a cell in a table; param0: the row in which the cell resides */
+"context.data_table.row_format" = "Row %@.";
+
+/* Format for the description of the horizontal location of a cell in a table; param0: the column in which the cell resides */
+"context.data_table.column_format" = "Column %@.";
+
+/* Description of the first element in a list */
+"context.list_start.description" = "List Start.";
+
+/* Description of the last element in a list */
+"context.list_end.description" = "List End.";
+
+/* Description of the first element in a landmark container */
+"context.landmark_start.description" = "Landmark.";
+
+/* Description of the last element in a landmark container */
+"context.landmark_end.description" = "End.";
+
+/* Description for an accessibility element indicating that it has custom actions available */
+"custom_actions.description" = "Actions Available";

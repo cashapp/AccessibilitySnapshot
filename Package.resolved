@@ -1,0 +1,16 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "fishhook",
+        "repositoryURL": "https://github.com/tsuiyuenhong/fishhook.git",
+        "state": {
+          "branch": "support_spm",
+          "revision": "a657ecfe1692f6bb4f61e4d8f0893a18cbe75d81",
+          "version": null
+        }
+      }
+    ]
+  },
+  "version": 1
+}
