@@ -3,11 +3,20 @@
     "pins": [
       {
         "package": "fishhook",
-        "repositoryURL": "https://github.com/tsuiyuenhong/fishhook.git",
+        "repositoryURL": "https://github.com/Sherlouk/fishhook.git",
         "state": {
-          "branch": "support_spm",
-          "revision": "a657ecfe1692f6bb4f61e4d8f0893a18cbe75d81",
+          "branch": null,
+          "revision": "82375ca9b43fab575d8d42a930cf617184c47ac1",
           "version": null
+        }
+      },
+      {
+        "package": "SnapshotTesting",
+        "repositoryURL": "https://github.com/pointfreeco/swift-snapshot-testing.git",
+        "state": {
+          "branch": null,
+          "revision": "c466812aa2e22898f27557e2e780d3aad7a27203",
+          "version": "1.8.2"
         }
       }
     ]

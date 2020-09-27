@@ -14,7 +14,7 @@
 //  limitations under the License.
 //
 
-#import "UIAccessibilityStatusUtility.h"
+#import "include/UIAccessibilityStatusUtility.h"
 
 @import fishhook;
 
@@ -53,6 +53,7 @@
         &UIAccessibilityAlwaysEnabled,
         NULL
     }};
+    
     rebind_symbols(rebindings, 1);
 }
 

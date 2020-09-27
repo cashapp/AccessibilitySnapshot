@@ -35,8 +35,9 @@ private enum StringLocalization {
     private static var localeToBundleMap: [String: Bundle] = [:]
 
     private static let resourceBundle: Bundle = {
-        // TODO: See how we can do a conditional wrapper here to prevent the CocoaPods solution below from breaking
+        #if SWIFT_PACKAGE
         return Bundle.module
+        #else
         
         let frameworkBundle = Bundle(for: AccessibilityHierarchyParser.self)
 
@@ -49,6 +50,7 @@ private enum StringLocalization {
         }
 
         return resourceBundle
+        #endif
     }()
 
     // MARK: - Public Static Methods

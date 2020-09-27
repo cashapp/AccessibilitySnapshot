@@ -3,12 +3,13 @@ use_modular_headers!
 platform :ios, '10.0'
 
 target 'AccessibilitySnapshotDemo' do
-	pod 'Paralayout', '~> 0.9'
+	pod 'Paralayout', :git => 'https://github.com/square/Paralayout.git', :branch => 'master'
 
 	target 'SnapshotTests' do
 		inherit! :search_paths
 
 		pod 'AccessibilitySnapshot', :path => '../AccessibilitySnapshot.podspec'
+		pod 'AccessibilitySnapshot/SnapshotTesting', :path => '../AccessibilitySnapshot.podspec'
 	end
 
 	target 'UnitTests' do

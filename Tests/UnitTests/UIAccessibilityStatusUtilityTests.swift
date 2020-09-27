@@ -17,7 +17,7 @@
 import XCTest
 
 @testable import AccessibilitySnapshot
-import AccessibilitySnapshot_ObjC
+import AccessibilitySnapshotCore_ObjC
 
 final class UIAccessibilityStatusUtilityTests: XCTestCase {
 

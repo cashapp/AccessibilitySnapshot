@@ -10,27 +10,57 @@ let package = Package(
         .iOS(.v11),
     ],
     products: [
-        .library(name: "AccessibilitySnapshot", targets: ["AccessibilitySnapshot"]),
+        // Core + SnapshotTesting for image comparison
+        .library(
+            name: "AccessibilitySnapshot",
+            targets: ["AccessibilitySnapshot"]
+        ),
+        
+        .library(
+            name: "AccessibilitySnapshotCore",
+            targets: ["AccessibilitySnapshotCore"]
+        ),
     ],
     dependencies: [
         /*
-         facebook/fishhook (https://github.com/facebook/fishhook) does not currently support Swift Package Manager.
+         fishhook (https://github.com/facebook/fishhook) does not currently support Swift Package Manager.
          
          A pull request is open (https://github.com/facebook/fishhook/pull/78) to add support at which point this dependency will be changed to the parent repository.
          */
-        .package(url: "https://github.com/tsuiyuenhong/fishhook.git", .branch("support_spm"))
+        .package(
+            url: "https://github.com/Sherlouk/fishhook.git",
+            .revision("82375ca9b43fab575d8d42a930cf617184c47ac1")
+        ),
+        
+        .package(
+            name: "SnapshotTesting",
+            url: "https://github.com/pointfreeco/swift-snapshot-testing.git",
+            .upToNextMajor(from: "1.8.0")
+        )
     ],
     targets: [
         .target(
-            name: "AccessibilitySnapshot-ObjC",
-            dependencies: ["fishhook"]
+            name: "AccessibilitySnapshotCore-ObjC",
+            dependencies: ["fishhook"],
+            swiftSettings: [
+                .define("SWIFT_PACKAGE_MANAGER")
+            ]
         ),
                 
         .target(
-            name: "AccessibilitySnapshot",
-            dependencies: ["AccessibilitySnapshot-ObjC"]
+            name: "AccessibilitySnapshotCore",
+            dependencies: ["AccessibilitySnapshotCore-ObjC"]
         ),
         
-        .testTarget(name: "UnitTests", dependencies: ["AccessibilitySnapshot"])
+        .target(
+            name: "AccessibilitySnapshot",
+            dependencies: ["AccessibilitySnapshotCore", "SnapshotTesting"],
+            path: "Sources/AccessibilitySnapshot/SnapshotTesting"
+        ),
+        
+        .testTarget(
+            name: "UnitTests",
+            dependencies: ["AccessibilitySnapshotCore"]
+        )
     ]
 )
