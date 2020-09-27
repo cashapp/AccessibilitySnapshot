@@ -7,9 +7,6 @@ PODS:
   - AccessibilitySnapshot/iOSSnapshotTestCase (0.3.3):
     - AccessibilitySnapshot/Core
     - iOSSnapshotTestCase (~> 6.0)
-  - AccessibilitySnapshot/SnapshotTesting (0.3.3):
-    - AccessibilitySnapshot/Core
-    - SnapshotTesting (~> 1.0)
   - fishhook (0.2)
   - iOSSnapshotTestCase (6.2.0):
     - iOSSnapshotTestCase/SwiftSupport (= 6.2.0)
@@ -17,19 +14,15 @@ PODS:
   - iOSSnapshotTestCase/SwiftSupport (6.2.0):
     - iOSSnapshotTestCase/Core
   - Paralayout (0.9.1)
-  - SnapshotTesting (1.7.2)
 
 DEPENDENCIES:
   - AccessibilitySnapshot (from `../AccessibilitySnapshot.podspec`)
-  - AccessibilitySnapshot/Core (from `../AccessibilitySnapshot.podspec`)
-  - AccessibilitySnapshot/SnapshotTesting (from `../AccessibilitySnapshot.podspec`)
   - Paralayout (from `https://github.com/square/Paralayout.git`, branch `master`)
 
 SPEC REPOS:
   trunk:
     - fishhook
     - iOSSnapshotTestCase
-    - SnapshotTesting
 
 EXTERNAL SOURCES:
   AccessibilitySnapshot:
@@ -48,8 +41,7 @@ SPEC CHECKSUMS:
   fishhook: ea19933abfe8f2f52c55fd8b6e2718467d3ebc89
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   Paralayout: f4d6727fca5b592eb93a7cc408e45404599a4b0a
-  SnapshotTesting: 8caa6661fea7c8019d5b46de77c16bab99c36c5c
 
-PODFILE CHECKSUM: 48bf9449beb9240476a20c42cd429ab92f930569
+PODFILE CHECKSUM: 6d14604411e88ee385b0a8d4c19fb450df865759
 
 COCOAPODS: 1.9.1

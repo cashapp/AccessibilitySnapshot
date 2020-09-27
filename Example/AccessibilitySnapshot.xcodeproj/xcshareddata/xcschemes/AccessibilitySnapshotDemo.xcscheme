@@ -21,7 +21,7 @@
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
-            buildForTesting = "YES"
+            buildForTesting = "NO"
             buildForRunning = "NO"
             buildForProfiling = "NO"
             buildForArchiving = "NO"
@@ -55,9 +55,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "607FACE41AFB9204008FA782"
-               BuildableName = "SnapshotTests.xctest"
-               BlueprintName = "SnapshotTests"
+               BlueprintIdentifier = "16FEAE472520F84900087F2C"
+               BuildableName = "SnapshotTestingTests.xctest"
+               BlueprintName = "SnapshotTestingTests"
                ReferencedContainer = "container:AccessibilitySnapshot.xcodeproj">
             </BuildableReference>
             <SkippedTests>
@@ -71,18 +71,18 @@
                   Identifier = "DefaultControlsTests/testDatePicker()">
                </Test>
                <Test
-                  Identifier = "TextAccessibilityTests">
+                  Identifier = "InvertColorsTests/testInvertColors()">
                </Test>
             </SkippedTests>
          </TestableReference>
          <TestableReference
-            skipped = "YES">
+            skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "3D881955246E03C00061DA6A"
-               BuildableName = "UnitTests.xctest"
+               BlueprintIdentifier = "UnitTests"
+               BuildableName = "UnitTests"
                BlueprintName = "UnitTests"
-               ReferencedContainer = "container:AccessibilitySnapshot.xcodeproj">
+               ReferencedContainer = "container:..">
             </BuildableReference>
          </TestableReference>
       </Testables>

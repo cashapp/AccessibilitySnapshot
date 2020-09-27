@@ -14,22 +14,20 @@
 //  limitations under the License.
 //
 
-import XCTest
+import AccessibilitySnapshot
+import SnapshotTesting
+import UIKit
 
-@testable import AccessibilitySnapshot
+@testable import AccessibilitySnapshotDemo
 
-final class UIAccessibilityStatusUtilityTests: XCTestCase {
+final class InvertColorsTests: SnapshotTestCase {
 
-    func testInvertColorsStatus() {
-        let statusUtility = UIAccessibilityStatusUtility()
+    @available(iOS 11, *)
+    func testInvertColors() {
+        let viewController = InvertColorsViewController()
+        viewController.view.frame = UIScreen.main.bounds
 
-        XCTAssertFalse(UIAccessibility.isInvertColorsEnabled)
-
-        statusUtility.mockInvertColorsStatus()
-        XCTAssertTrue(UIAccessibility.isInvertColorsEnabled)
-
-        statusUtility.unmockStatuses()
-        XCTAssertFalse(UIAccessibility.isInvertColorsEnabled)
+        assertSnapshot(matching: viewController, as: .imageWithSmartInvert)
     }
 
 }

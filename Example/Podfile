@@ -1,6 +1,6 @@
 use_frameworks!
 use_modular_headers!
-platform :ios, '10.0'
+platform :ios, '11.0'
 
 target 'AccessibilitySnapshotDemo' do
 	pod 'Paralayout', :git => 'https://github.com/square/Paralayout.git', :branch => 'master'
@@ -9,13 +9,12 @@ target 'AccessibilitySnapshotDemo' do
 		inherit! :search_paths
 
 		pod 'AccessibilitySnapshot', :path => '../AccessibilitySnapshot.podspec'
-		pod 'AccessibilitySnapshot/SnapshotTesting', :path => '../AccessibilitySnapshot.podspec'
 	end
 
-	target 'UnitTests' do
+	target 'SnapshotTestingTests' do
 		inherit! :search_paths
-
-		pod 'AccessibilitySnapshot/Core', :path => '../AccessibilitySnapshot.podspec'
+		# We bring AccessibilitySnapshot in through Swift Package Manager.
+		# We only need this for Paralayout which doesn't support SPM.
 	end
 end
 
