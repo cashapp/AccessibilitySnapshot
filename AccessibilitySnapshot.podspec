@@ -35,7 +35,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'SnapshotTesting' do |ss|
-    ss.source_files = 'Sources/AccessibilitySnapshot/SnapshotTesting/Classes/**/*.{swift,h,m}'
+    ss.source_files = 'Sources/AccessibilitySnapshot/SnapshotTesting/**/*.{swift,h,m}'
 
     ss.dependency 'AccessibilitySnapshot/Core'
     ss.dependency 'SnapshotTesting', '~> 1.0'
