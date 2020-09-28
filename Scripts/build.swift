@@ -90,7 +90,7 @@ enum Task: String, CustomStringConvertible {
 	var scheme: String {
 		switch self {
 		case .xcode:
-			return "AccessibilitySnapshotDemo"
+			return "AccessibilitySnapshotDemo (FBSnapshotTestCase)"
 		}
 	}
 
