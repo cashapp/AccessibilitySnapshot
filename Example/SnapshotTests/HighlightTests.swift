@@ -48,7 +48,7 @@ final class HighlightTests: SnapshotTestCase {
 
 // MARK: -
 
-private final class AccessibleContainerView: UIView {
+final class AccessibleContainerView: UIView {
 
     // MARK: - Life Cycle
 

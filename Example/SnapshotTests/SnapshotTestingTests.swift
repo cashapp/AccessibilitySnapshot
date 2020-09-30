@@ -20,49 +20,87 @@ import XCTest
 
 @testable import AccessibilitySnapshotDemo
 
-/// Tests are taken from the `ElementOrderTests.swift` file but showcasing how to use the SnapshotTesting (Pointfree) library for the image creation and comparison
+/// Tests covering the integration between the core components of AccessibilitySnapshot and SnapshotTesting.
 final class SnapshotTestingTests: XCTestCase {
 
-    func testScatter() {
-        let elementOrderViewController = ElementOrderViewController(configurations: .scatter)
-        elementOrderViewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: elementOrderViewController, as: .accessibilityImage)
+    // MARK: - Tests
+
+    func testSimpleConfiguration() {
+        let viewController = ViewAccessibilityPropertiesViewController()
+        viewController.view.frame = UIScreen.main.bounds
+        assertSnapshot(matching: viewController, as: .accessibilityImage, named: nameForDevice())
     }
 
-    func testGrid() {
-        let elementOrderViewController = ElementOrderViewController(configurations: .grid)
-        elementOrderViewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: elementOrderViewController, as: .accessibilityImage)
+    func testShowingActivationPoint() {
+        let viewController = ActivationPointViewController()
+        viewController.view.frame = UIScreen.main.bounds
+
+        assertSnapshot(
+            matching: viewController,
+            as: .accessibilityImage(showActivationPoints: .always),
+            named: nameForDevice(baseName: "always")
+        )
+
+        assertSnapshot(
+            matching: viewController,
+            as: .accessibilityImage(showActivationPoints: .whenOverridden),
+            named: nameForDevice(baseName: "whenOverridden")
+        )
+
+        assertSnapshot(
+            matching: viewController,
+            as: .accessibilityImage(showActivationPoints: .never),
+            named: nameForDevice(baseName: "never")
+        )
     }
 
-    func testContainerInElementStack() {
-        let elementOrderViewController = ElementOrderViewController(configurations: .containerInElementStack)
-        elementOrderViewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: elementOrderViewController, as: .accessibilityImage)
+    func testUsingMonochromeSnapshot() {
+        let view = UILabel()
+        view.text = "Hello World"
+        view.textColor = .red
+        view.sizeToFit()
+
+        assertSnapshot(
+            matching: view,
+            as: .accessibilityImage(useMonochromeSnapshot: false),
+            named: nameForDevice(baseName: "false")
+        )
+
+        assertSnapshot(
+            matching: view,
+            as: .accessibilityImage(useMonochromeSnapshot: true),
+            named: nameForDevice(baseName: "true")
+        )
     }
 
-    func testZeroSizedContainerInElementStack() {
-        let elementOrderViewController = ElementOrderViewController(configurations: .zeroSizedContainerInElementStack)
-        elementOrderViewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: elementOrderViewController, as: .accessibilityImage)
+    func testMarkerColors() {
+        let view = AccessibleContainerView(count: 8, innerMargin: 10)
+        view.sizeToFit()
+
+        assertSnapshot(
+            matching: view,
+            as: .accessibilityImage(),
+            named: nameForDevice(baseName: "default")
+        )
+
+        assertSnapshot(
+            matching: view,
+            as: .accessibilityImage(markerColors: [.red, .green, .blue]),
+            named: nameForDevice(baseName: "custom")
+        )
     }
 
-    func testGroupedViewsInElementStack() {
-        let elementOrderViewController = ElementOrderViewController(configurations: .groupedViewsInElementStack)
-        elementOrderViewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: elementOrderViewController, as: .accessibilityImage)
+    // MARK: - Private Methods
+
+    private func nameForDevice(baseName: String? = nil) -> String {
+        let size = UIScreen.main.bounds.size
+        let scale = UIScreen.main.scale
+        let version = UIDevice.current.systemVersion
+        let deviceName = "\(Int(size.width))x\(Int(size.height))-\(version)-\(Int(scale))x"
+
+        return [baseName, deviceName]
+            .compactMap { $0 }
+            .joined(separator: "-")
     }
 
-    func testUngroupedViewsInElementStack() {
-        let elementOrderViewController = ElementOrderViewController(configurations: .ungroupedViewsInElementStack)
-        elementOrderViewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: elementOrderViewController, as: .accessibilityImage)
-    }
-
-    func testUngroupedViewsInAccessibleParent() {
-        let elementOrderViewController = ElementOrderViewController(configurations: .ungroupedViewsInAccessibleParent)
-        elementOrderViewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: elementOrderViewController, as: .accessibilityImage)
-    }
-    
 }
