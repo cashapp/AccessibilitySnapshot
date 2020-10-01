@@ -72,7 +72,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         at contentSizeCategory: UIContentSizeCategory
     ) -> Snapshotting {
         
-        Snapshotting<UIView, UIImage>.image(
+        return Snapshotting<UIView, UIImage>.image(
             traits: .init(preferredContentSizeCategory: contentSizeCategory)
         )
         
@@ -158,7 +158,7 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
         markerColors: [UIColor] = []
     ) -> Snapshotting {
         
-        Snapshotting<UIView, UIImage>.accessibilityImage(
+        return Snapshotting<UIView, UIImage>.accessibilityImage(
             showActivationPoints: activationPointDisplayMode,
             useMonochromeSnapshot: useMonochromeSnapshot,
             markerColors: markerColors
@@ -175,18 +175,18 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
         at contentSizeCategory: UIContentSizeCategory
     ) -> Snapshotting {
         
-        Snapshotting<UIView, UIImage>.image(
+        return Snapshotting<UIView, UIImage>.image(
             traits: .init(preferredContentSizeCategory: contentSizeCategory)
         ).pullback { viewController in
             viewController.view
         }
-        
+
     }
     
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
     @available(iOS 11, *)
     public static var imageWithSmartInvert: Snapshotting {
-        Snapshotting<UIView, UIImage>.imageWithSmartInvert.pullback { viewController in
+        return Snapshotting<UIView, UIImage>.imageWithSmartInvert.pullback { viewController in
             viewController.view
         }
     }
