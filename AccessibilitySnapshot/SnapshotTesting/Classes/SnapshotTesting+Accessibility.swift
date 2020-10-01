@@ -23,27 +23,26 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     public static var accessibilityImage: Snapshotting {
         return .accessibilityImage()
     }
-    
+
     /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
     ///
-    /// - Parameter showActivationPoints: When to show indicators for elements' accessibility activation points.
+    /// - parameter showActivationPoints: When to show indicators for elements' accessibility activation points.
     /// Defaults to showing activation points only when they are different than the default activation point for that
     /// element.
-    /// - Parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
+    /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
-    /// - Parameter markerColors: The array of colours which will be chosen from when creating the overlays
+    /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays
     public static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = []
     ) -> Snapshotting {
-        
         guard isRunningInHostApplication else {
             fatalError("Accessibility snapshot tests cannot be run in a test target without a host application")
         }
-        
+
         return Snapshotting<UIView, UIImage>.image.pullback { view in
             let containerView = AccessibilitySnapshotView(
                 containedView: view,
@@ -51,37 +50,33 @@ extension Snapshotting where Value == UIView, Format == UIImage {
                 markerColors: markerColors,
                 activationPointDisplayMode: activationPointDisplayMode
             )
-            
+
             let window = UIWindow(frame: UIScreen.main.bounds)
             window.makeKeyAndVisible()
             containerView.center = window.center
             window.addSubview(containerView)
-            
+
             containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
             containerView.sizeToFit()
-            
+
             return containerView
         }
-        
     }
-    
+
     /// Snapshots the current view using the specified content size category to test Dynamic Type.
     ///
-    /// - Parameter contentSizeCategory: The content size category to use in the snapshot
+    /// - parameter contentSizeCategory: The content size category to use in the snapshot
     public static func image(
         at contentSizeCategory: UIContentSizeCategory
     ) -> Snapshotting {
-        
         return Snapshotting<UIView, UIImage>.image(
             traits: .init(preferredContentSizeCategory: contentSizeCategory)
         )
-        
     }
-    
+
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
     @available(iOS 11, *)
     public static var imageWithSmartInvert: Snapshotting {
-        
        func postNotification() {
             NotificationCenter.default.post(
                 name: UIAccessibility.invertColorsStatusDidChangeNotification,
@@ -91,37 +86,35 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         }
 
         return Snapshotting<UIImage, UIImage>.image.pullback { view in
-            
             let requiresWindow = (view.window == nil && !(view is UIWindow))
-            
+
             if requiresWindow {
                 let window = UIApplication.shared.keyWindow ?? UIWindow(frame: UIScreen.main.bounds)
                 window.addSubview(view)
             }
-            
+
             view.layoutIfNeeded()
-            
+
             let statusUtility = UIAccessibilityStatusUtility()
             statusUtility.mockInvertColorsStatus()
             postNotification()
-    
+
             let renderer = UIGraphicsImageRenderer(bounds: view.bounds)
             let image = renderer.image { context in
                 view.drawHierarchyWithInvertedColors(in: view.bounds, using: context)
             }
-            
+
             statusUtility.unmockStatuses()
             postNotification()
-            
+
             if requiresWindow {
                 view.removeFromSuperview()
             }
-            
+
             return image
-            
         }
     }
-    
+
     // MARK: - Internal Properties
 
     internal static var isRunningInHostApplication: Bool {
@@ -131,58 +124,58 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         let hostApplication: UIApplication? = UIApplication.shared
         return (hostApplication != nil)
     }
-    
+
 }
 
 extension Snapshotting where Value == UIViewController, Format == UIImage {
-    
+
     /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
     public static var accessibilityImage: Snapshotting {
         return .accessibilityImage()
     }
-    
+
     /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
     ///
-    /// - Parameter showActivationPoints: When to show indicators for elements' accessibility activation points.
+    /// - parameter showActivationPoints: When to show indicators for elements' accessibility activation points.
     /// Defaults to showing activation points only when they are different than the default activation point for that
     /// element.
-    /// - Parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
+    /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
-    /// - Parameter markerColors: The array of colours which will be chosen from when creating the overlays
+    /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays
     public static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = []
     ) -> Snapshotting {
-        
-        return Snapshotting<UIView, UIImage>.accessibilityImage(
-            showActivationPoints: activationPointDisplayMode,
-            useMonochromeSnapshot: useMonochromeSnapshot,
-            markerColors: markerColors
-        ).pullback { viewController in
-            viewController.view
-        }
-        
+        return Snapshotting<UIView, UIImage>
+            .accessibilityImage(
+                showActivationPoints: activationPointDisplayMode,
+                useMonochromeSnapshot: useMonochromeSnapshot,
+                markerColors: markerColors
+            )
+            .pullback { viewController in
+                viewController.view
+            }
     }
-    
+
     /// Snapshots the current view using the specified content size category to test Dynamic Type.
     ///
-    /// - Parameter contentSizeCategory: The content size category to use in the snapshot
+    /// - parameter contentSizeCategory: The content size category to use in the snapshot
     public static func image(
         at contentSizeCategory: UIContentSizeCategory
     ) -> Snapshotting {
-        
-        return Snapshotting<UIView, UIImage>.image(
-            traits: .init(preferredContentSizeCategory: contentSizeCategory)
-        ).pullback { viewController in
-            viewController.view
-        }
-
+        return Snapshotting<UIView, UIImage>
+            .image(
+                traits: .init(preferredContentSizeCategory: contentSizeCategory)
+            )
+            .pullback { viewController in
+                viewController.view
+            }
     }
-    
+
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
     @available(iOS 11, *)
     public static var imageWithSmartInvert: Snapshotting {
@@ -190,5 +183,5 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
             viewController.view
         }
     }
-    
+
 }
