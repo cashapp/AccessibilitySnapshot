@@ -43,12 +43,12 @@ CHECKOUT OPTIONS:
     :git: https://github.com/square/Paralayout
 
 SPEC CHECKSUMS:
-  AccessibilitySnapshot: efb414282754f419aeb0d30ff5fced3b9c34a493
+  AccessibilitySnapshot: 9f5bb086d87f4d797f4e047c46dcb06b0c7878f8
   fishhook: ea19933abfe8f2f52c55fd8b6e2718467d3ebc89
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   Paralayout: f4d6727fca5b592eb93a7cc408e45404599a4b0a
   SnapshotTesting: 8caa6661fea7c8019d5b46de77c16bab99c36c5c
 
-PODFILE CHECKSUM: 332cfdabe1a3484b3609dfab9f008000ac98e579
+PODFILE CHECKSUM: 909a664616eb8ce5c087424039327435f7f366b7
 
 COCOAPODS: 1.9.1
