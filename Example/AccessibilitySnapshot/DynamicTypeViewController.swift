@@ -143,16 +143,10 @@ private extension DynamicTypeViewController {
         // MARK: - Private Methods
 
         private func updateFont() {
-            if #available(iOS 11, *) {
-                label.font = UIFontMetrics.default.scaledFont(
-                    for: self.regularFont,
-                    compatibleWith: self.traitCollection
-                )
-
-            } else {
-                let fontSize = UIFont.preferredFont(forTextStyle: .body).pointSize
-                label.font = regularFont.withSize(fontSize)
-            }
+            label.font = UIFontMetrics.default.scaledFont(
+                for: self.regularFont,
+                compatibleWith: self.traitCollection
+            )
         }
 
     }

@@ -17,7 +17,6 @@
 import Paralayout
 import UIKit
 
-@available(iOS 11, *)
 final class LandmarkContainerViewController: AccessibilityViewController {
 
     // MARK: - UIViewController
@@ -30,7 +29,6 @@ final class LandmarkContainerViewController: AccessibilityViewController {
 
 // MARK: -
 
-@available(iOS 11, *)
 private extension LandmarkContainerViewController {
 
     final class View: UIView {

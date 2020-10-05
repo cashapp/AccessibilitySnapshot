@@ -21,7 +21,6 @@ import FBSnapshotTestCase
 
 final class InvertColorsTests: SnapshotTestCase {
 
-    @available(iOS 11, *)
     func testInvertColors() {
         let viewController = InvertColorsViewController()
         viewController.view.frame = UIScreen.main.bounds
