@@ -13,6 +13,7 @@
 		3D04B6DB21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D04B6DA21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift */; };
 		3D0AC55C222DD70A00B6F1C1 /* UserInterfaceDirectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D0AC55B222DD70A00B6F1C1 /* UserInterfaceDirectionViewController.swift */; };
 		3D13DB522221124000066519 /* ObjectiveCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3D13DB512221124000066519 /* ObjectiveCTests.m */; };
+		3D220A2B252AF72900359C1E /* AccessibleContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D220A2A252AF72900359C1E /* AccessibleContainerView.swift */; };
 		3D39BFAC223314C1009C3EF4 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D39BFAB223314C1009C3EF4 /* TabBarViewController.swift */; };
 		3D39BFB02239BC42009C3EF4 /* ActivationPointTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D39BFAF2239BC42009C3EF4 /* ActivationPointTests.swift */; };
 		3D39BFB22239BEA6009C3EF4 /* ActivationPointViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D39BFB12239BEA5009C3EF4 /* ActivationPointViewController.swift */; };
@@ -83,6 +84,7 @@
 		3D0AC55B222DD70A00B6F1C1 /* UserInterfaceDirectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserInterfaceDirectionViewController.swift; sourceTree = "<group>"; };
 		3D13DB502221124000066519 /* SnapshotTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SnapshotTests-Bridging-Header.h"; path = "Supporting Files/SnapshotTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3D13DB512221124000066519 /* ObjectiveCTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectiveCTests.m; sourceTree = "<group>"; };
+		3D220A2A252AF72900359C1E /* AccessibleContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleContainerView.swift; sourceTree = "<group>"; };
 		3D39BFAB223314C1009C3EF4 /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
 		3D39BFAF2239BC42009C3EF4 /* ActivationPointTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivationPointTests.swift; sourceTree = "<group>"; };
 		3D39BFB12239BEA5009C3EF4 /* ActivationPointViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivationPointViewController.swift; sourceTree = "<group>"; };
@@ -192,6 +194,14 @@
 			name = "Accessibility Screens";
 			sourceTree = "<group>";
 		};
+		3D220A29252AF70600359C1E /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				3D220A2A252AF72900359C1E /* AccessibleContainerView.swift */,
+			);
+			name = Utilities;
+			sourceTree = "<group>";
+		};
 		3D881957246E03C00061DA6A /* UnitTests */ = {
 			isa = PBXGroup;
 			children = (
@@ -291,6 +301,7 @@
 				1635CE4D251EAC6700907101 /* SnapshotTestingTests.swift */,
 				3DBEAA5C2223C0CE00FAE61D /* SwitchControlsTests.swift */,
 				3DC8D05A224750F500E8A03C /* TextAccessibilityTests.swift */,
+				3D220A29252AF70600359C1E /* Utilities */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 			);
 			path = SnapshotTests;
@@ -615,6 +626,7 @@
 				3DC2C67C21F46020003184E4 /* HighlightTests.swift in Sources */,
 				3DF464FC220D4F430048D446 /* SnapshotTestCase.swift in Sources */,
 				3D3F2E162263E94D00F7608E /* InvertColorsTests.swift in Sources */,
+				3D220A2B252AF72900359C1E /* AccessibleContainerView.swift in Sources */,
 				3DC8D05B224750F500E8A03C /* TextAccessibilityTests.swift in Sources */,
 				1635CE4E251EAC6700907101 /* SnapshotTestingTests.swift in Sources */,
 				3DBEAA5D2223C0CE00FAE61D /* SwitchControlsTests.swift in Sources */,
