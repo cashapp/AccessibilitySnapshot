@@ -33,7 +33,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
-    /// - parameter drawHierarchyInKeyWindow: Whether ot not to draw the view hierachy in the key window, rather than
+    /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
     /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays
     public static func accessibilityImage(
