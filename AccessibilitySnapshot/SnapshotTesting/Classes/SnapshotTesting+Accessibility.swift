@@ -65,8 +65,11 @@ extension Snapshotting where Value == UIView, Format == UIImage {
 
     /// Snapshots the current view using the specified content size category to test Dynamic Type.
     ///
+    /// This method has been marked internal since it is still under development. Once it has been completed, it should
+    /// be made `public`.
+    ///
     /// - parameter contentSizeCategory: The content size category to use in the snapshot
-    public static func image(
+    static func image(
         at contentSizeCategory: UIContentSizeCategory
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>.image(
