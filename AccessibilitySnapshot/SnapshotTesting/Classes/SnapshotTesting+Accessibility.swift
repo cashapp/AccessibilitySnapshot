@@ -33,34 +33,39 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter drawHierarchyInKeyWindow: Whether ot not to draw the view hierachy in the key window, rather than
+    /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
     /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays
     public static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
+        drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = []
     ) -> Snapshotting {
         guard isRunningInHostApplication else {
             fatalError("Accessibility snapshot tests cannot be run in a test target without a host application")
         }
 
-        return Snapshotting<UIView, UIImage>.image.pullback { view in
-            let containerView = AccessibilitySnapshotView(
-                containedView: view,
-                viewRenderingMode: .renderLayerInContext,
-                markerColors: markerColors,
-                activationPointDisplayMode: activationPointDisplayMode
-            )
+        return Snapshotting<UIView, UIImage>
+            .image(drawHierarchyInKeyWindow: drawHierarchyInKeyWindow)
+            .pullback { view in
+                let containerView = AccessibilitySnapshotView(
+                    containedView: view,
+                    viewRenderingMode: drawHierarchyInKeyWindow ? .drawHierarchyInRect : .renderLayerInContext,
+                    markerColors: markerColors,
+                    activationPointDisplayMode: activationPointDisplayMode
+                )
 
-            let window = UIWindow(frame: UIScreen.main.bounds)
-            window.makeKeyAndVisible()
-            containerView.center = window.center
-            window.addSubview(containerView)
+                let window = UIWindow(frame: UIScreen.main.bounds)
+                window.makeKeyAndVisible()
+                containerView.center = window.center
+                window.addSubview(containerView)
 
-            containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
-            containerView.sizeToFit()
+                containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+                containerView.sizeToFit()
 
-            return containerView
-        }
+                return containerView
+            }
     }
 
     /// Snapshots the current view using the specified content size category to test Dynamic Type.
@@ -147,16 +152,20 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter drawHierarchyInKeyWindow: Whether ot not to draw the view hierachy in the key window, rather than
+    /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
     /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays
     public static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
+        drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = []
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>
             .accessibilityImage(
                 showActivationPoints: activationPointDisplayMode,
                 useMonochromeSnapshot: useMonochromeSnapshot,
+                drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
                 markerColors: markerColors
             )
             .pullback { viewController in

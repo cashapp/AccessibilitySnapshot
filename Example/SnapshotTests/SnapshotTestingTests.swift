@@ -73,6 +73,32 @@ final class SnapshotTestingTests: XCTestCase {
         )
     }
 
+    func testRenderingMethods() {
+        let view = UIView()
+        view.bounds.size = .init(width: 40, height: 40)
+        view.layer.transform = CATransform3DMakeRotation(.pi / 4, 1, 1, 1)
+        view.backgroundColor = .red
+
+        view.isAccessibilityElement = true
+        view.accessibilityLabel = "Test Element"
+
+        let container = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+        view.center = .init(x: 50, y: 50)
+        container.addSubview(view)
+
+        assertSnapshot(
+            matching: container,
+            as: .accessibilityImage(drawHierarchyInKeyWindow: false),
+            named: nameForDevice(baseName: "false")
+        )
+
+        assertSnapshot(
+            matching: container,
+            as: .accessibilityImage(drawHierarchyInKeyWindow: true),
+            named: nameForDevice(baseName: "true")
+        )
+    }
+
     func testMarkerColors() {
         let view = AccessibleContainerView(count: 8, innerMargin: 10)
         view.sizeToFit()
