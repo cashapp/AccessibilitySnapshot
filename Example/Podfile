@@ -11,6 +11,7 @@ target 'AccessibilitySnapshotDemo' do
 		inherit! :search_paths
 
 		pod 'AccessibilitySnapshot', :path => '../AccessibilitySnapshot.podspec'
+		pod 'AccessibilitySnapshot/SnapshotTesting', :path => '../AccessibilitySnapshot.podspec'
 	end
 
 	target 'UnitTests' do

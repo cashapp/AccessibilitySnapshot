@@ -9,3 +9,6 @@ Copyright 2013-2018, Facebook, Inc.
 
 Paralayout
 Copyright 2017 Square, Inc., released under Apache License
+
+SnapshotTesting
+Copyright 2019 Point-Free, Inc., released under MIT License

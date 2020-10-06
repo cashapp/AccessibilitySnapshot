@@ -25,6 +25,12 @@ To use only the core accessibility parser, add a dependency on the Core subspec 
 pod 'AccessibilitySnapshot/Core'
 ```
 
+Alternatively, if you wish to use Pointfree's SnapshotTesting library to perform image comparisons, then you should use the following subspec instead.
+
+```ruby
+pod 'AccessibilitySnapshot/SnapshotTesting'
+```
+
 ## Usage
 
 To run a snapshot test, simply call the `SnapshotVerifyAccessibility` method:
@@ -84,8 +90,6 @@ Please read our [contributing guidelines](CONTRIBUTING.md) prior to submitting
 a pull request.
 
 ## Extensions
-
-  - [AccessibilitySnapshot+SnapshotTesting](https://github.com/Sherlouk/AccessibilitySnapshot-SnapshotTesting) adds support for AccessibilitySnapshot to Pointfree's [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing/).
 
 Have you written your own extension? [Add it here](https://github.com/cashapp/AccessibilitySnapshot/edit/master/README.md) and submit a pull request!
 
