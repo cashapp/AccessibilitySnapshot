@@ -22,7 +22,6 @@ extension UIView {
 
     // MARK: - Public Methods
 
-    @available(iOS 11, *)
     public func drawHierarchyWithInvertedColors(in rect: CGRect, using context: UIGraphicsImageRendererContext) {
         if accessibilityIgnoresInvertColors {
             drawHierarchy(in: rect, afterScreenUpdates: false)
@@ -87,7 +86,6 @@ extension UIView {
 
     // MARK: - Private Properties
 
-    @available(iOS 11, *)
     private var hasSubviewInHierarchyThatIgnoresInvertColors: Bool {
         if accessibilityIgnoresInvertColors {
             return true
