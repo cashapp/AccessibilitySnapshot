@@ -17,6 +17,7 @@
 import Paralayout
 import UIKit
 
+@available(iOS 11, *)
 final class ListContainerViewController: AccessibilityViewController {
 
     // MARK: - UIViewController
@@ -29,6 +30,7 @@ final class ListContainerViewController: AccessibilityViewController {
 
 // MARK: -
 
+@available(iOS 11, *)
 private extension ListContainerViewController {
 
     final class View: UIView {

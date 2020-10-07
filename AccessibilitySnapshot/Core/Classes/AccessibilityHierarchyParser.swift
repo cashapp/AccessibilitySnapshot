@@ -218,6 +218,7 @@ public final class AccessibilityHierarchyParser {
 
         case accessibilityContainer(NSObject)
 
+        @available(iOS 11, *)
         case dataTable(UIAccessibilityContainerDataTable)
 
     }
@@ -436,24 +437,26 @@ public final class AccessibilityHierarchyParser {
                 )
             }
 
-            if container.accessibilityContainerType == .list {
-                if elementIndex == 0 {
-                    return .listStart
-                } else if elementIndex == container.accessibilityElementCount() - 1 {
-                    return .listEnd
+            if #available(iOS 11, *) {
+                if container.accessibilityContainerType == .list {
+                    if elementIndex == 0 {
+                        return .listStart
+                    } else if elementIndex == container.accessibilityElementCount() - 1 {
+                        return .listEnd
+                    }
                 }
-            }
 
-            if container.accessibilityContainerType == .landmark {
-                if elementIndex == 0 {
-                    return .landmarkStart
-                } else if elementIndex == container.accessibilityElementCount() - 1 {
-                    return .landmarkEnd
+                if container.accessibilityContainerType == .landmark {
+                    if elementIndex == 0 {
+                        return .landmarkStart
+                    } else if elementIndex == container.accessibilityElementCount() - 1 {
+                        return .landmarkEnd
+                    }
                 }
             }
 
         case let .dataTable(dataTable):
-            if let cell = element as? UIAccessibilityContainerDataTableCell {
+            if #available(iOS 11, *), let cell = element as? UIAccessibilityContainerDataTableCell {
                 let rowRange = cell.accessibilityRowRange()
                 let row = rowRange.location
 
@@ -628,19 +631,32 @@ private extension NSObject {
     /// Some elements can provide context in multiple roles, which can be differentiated using the
     /// `providedContextAsSuperview()` and `providedContextAsContainer()` methods.
     private var providesContext: Bool {
+        if #available(iOS 11, *) {
+            if self is UIAccessibilityContainerDataTable && accessibilityContainerType == .dataTable {
+                return true
+            }
+
+            if accessibilityContainerType == .list {
+                return true
+            }
+
+            if accessibilityContainerType == .landmark {
+                return true
+            }
+        }
+
         return self is UISegmentedControl
             || self is UITabBar
             || accessibilityTraits.contains(.tabBar)
-            || accessibilityContainerType == .list
-            || accessibilityContainerType == .landmark
-            || (self is UIAccessibilityContainerDataTable && accessibilityContainerType == .dataTable)
     }
 
     /// The form of context provider the object acts as for elements beneath it in the hierarchy when the elements
     /// beneath it are part of the view hierarchy and the object is not an accessibility container.
     private func providedContextAsSuperview() -> AccessibilityHierarchyParser.ContextProvider {
-        if accessibilityContainerType == .dataTable, let self = self as? UIAccessibilityContainerDataTable {
-            return .dataTable(self)
+        if #available(iOS 11, *) {
+            if accessibilityContainerType == .dataTable, let self = self as? UIAccessibilityContainerDataTable {
+                return .dataTable(self)
+            }
         }
 
         return .superview(self as! UIView)
@@ -649,8 +665,10 @@ private extension NSObject {
     /// The form of context provider the object acts as for elements beneath it in the hierarchy when the object is
     /// being used as an accessibility container.
     private func providedContextAsContainer() -> AccessibilityHierarchyParser.ContextProvider {
-        if accessibilityContainerType == .dataTable, let self = self as? UIAccessibilityContainerDataTable {
-            return .dataTable(self)
+        if #available(iOS 11, *) {
+            if accessibilityContainerType == .dataTable, let self = self as? UIAccessibilityContainerDataTable {
+                return .dataTable(self)
+            }
         }
 
         return .accessibilityContainer(self)

@@ -17,6 +17,7 @@
 import Paralayout
 import UIKit
 
+@available(iOS 11, *)
 final class DataTableViewController: AccessibilityViewController {
 
     // MARK: - Public Types
@@ -71,6 +72,7 @@ final class DataTableViewController: AccessibilityViewController {
 
 // MARK: -
 
+@available(iOS 11, *)
 private extension DataTableViewController {
 
     class View: UIView, UIAccessibilityContainerDataTable {
@@ -201,6 +203,7 @@ private extension DataTableViewController {
 
 // MARK: -
 
+@available(iOS 11, *)
 private extension DataTableViewController {
 
     final class ViewWithHeaders: View {
@@ -259,6 +262,7 @@ private extension DataTableViewController {
 
 // MARK: -
 
+@available(iOS 11, *)
 private extension DataTableViewController {
 
     final class Cell: UIView, UIAccessibilityContainerDataTableCell {
@@ -327,6 +331,7 @@ private extension DataTableViewController {
 
 // MARK: -
 
+@available(iOS 11, *)
 extension DataTableViewController {
 
     static func makeConfigurationSelectionViewController(

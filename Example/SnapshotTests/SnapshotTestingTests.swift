@@ -117,6 +117,11 @@ final class SnapshotTestingTests: XCTestCase {
     }
 
     func testInvertColors() {
+        guard #available(iOS 11, *) else {
+            // Snapshotting with inverted colors is only available on iOS 11+.
+            return
+        }
+
         let viewController = InvertColorsViewController()
         viewController.view.frame = UIScreen.main.bounds
         assertSnapshot(matching: viewController, as: .imageWithSmartInvert, named: nameForDevice())

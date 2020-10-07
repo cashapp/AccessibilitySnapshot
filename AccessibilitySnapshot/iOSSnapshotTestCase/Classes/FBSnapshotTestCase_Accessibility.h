@@ -50,16 +50,20 @@
 
 #define SnapshotVerifyWithInvertedColors(view__, identifier__)\
     {\
-        _Pragma("clang diagnostic push")\
-        _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\
-        SEL selector = @selector(snapshotVerifyWithInvertedColors:identifier:);\
-        _Pragma("clang diagnostic pop")\
-        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *);\
-        SnapshotMethod snapshotVerifyWithInvertedColors = (SnapshotMethod)[self methodForSelector:selector];\
-        NSString *errorDescription = snapshotVerifyWithInvertedColors(self, selector, view__, identifier__ ?: @"");\
-        if (errorDescription == nil) {\
-            XCTAssertTrue(YES);\
+        if (@available(iOS 11.0, *)) {\
+            _Pragma("clang diagnostic push")\
+            _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\
+            SEL selector = @selector(snapshotVerifyWithInvertedColors:identifier:);\
+            _Pragma("clang diagnostic pop")\
+            typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *);\
+            SnapshotMethod snapshotVerifyWithInvertedColors = (SnapshotMethod)[self methodForSelector:selector];\
+            NSString *errorDescription = snapshotVerifyWithInvertedColors(self, selector, view__, identifier__ ?: @"");\
+            if (errorDescription == nil) {\
+                XCTAssertTrue(YES);\
+            } else {\
+                XCTFail("%@", errorDescription);\
+            }\
         } else {\
-            XCTFail("%@", errorDescription);\
+            XCTFail(@"Snapshot testing with inverted colors is only available on iOS 11 and greater.");\
         }\
     }

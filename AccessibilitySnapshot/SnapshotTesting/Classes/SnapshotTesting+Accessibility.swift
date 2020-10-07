@@ -83,6 +83,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     }
 
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
+    @available(iOS 11, *)
     public static var imageWithSmartInvert: Snapshotting {
        func postNotification() {
             NotificationCenter.default.post(
@@ -191,6 +192,7 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     }
 
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
+    @available(iOS 11, *)
     public static var imageWithSmartInvert: Snapshotting {
         return Snapshotting<UIView, UIImage>.imageWithSmartInvert.pullback { viewController in
             viewController.view

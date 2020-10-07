@@ -25,7 +25,7 @@ final class RootViewController: UITableViewController {
     // MARK: - Life Cycle
 
     init() {
-        self.accessibilityScreens = [
+        var accessibilityScreens = [
             ("View Accessibility Properties", { _ in return ViewAccessibilityPropertiesViewController() }),
             ("Label Accessibility Properties", { _ in return LabelAccessibilityPropertiesViewController() }),
             ("Button Accessibility Traits", { _ in return ButtonAccessibilityTraitsViewController() }),
@@ -53,15 +53,20 @@ final class RootViewController: UITableViewController {
             ("Accessibility Activation Point", { _ in return ActivationPointViewController() }),
             ("Accessibility Custom Actions", { _ in return AccessibilityCustomActionsViewController() }),
             ("Dynamic Type", { _ in return DynamicTypeViewController() }),
-            ("Data Table", { presentingViewController in
+        ]
+
+        if #available(iOS 11, *) {
+            accessibilityScreens.append(("Data Table", { presentingViewController in
                 return DataTableViewController.makeConfigurationSelectionViewController(
                     presentingViewController: presentingViewController
                 )
-            }),
-            ("List Container", { _ in return ListContainerViewController() }),
-            ("Landmark Container", { _ in return LandmarkContainerViewController() }),
-            ("Invert Colors", { _ in return InvertColorsViewController() }),
-        ]
+            }))
+            accessibilityScreens.append(("List Container", { _ in return ListContainerViewController() }))
+            accessibilityScreens.append(("Landmark Container", { _ in return LandmarkContainerViewController() }))
+            accessibilityScreens.append(("Invert Colors", { _ in return InvertColorsViewController() }))
+        }
+
+        self.accessibilityScreens = accessibilityScreens
 
         super.init(nibName: nil, bundle: nil)
     }

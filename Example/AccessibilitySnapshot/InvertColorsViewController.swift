@@ -17,6 +17,7 @@
 import Paralayout
 import UIKit
 
+@available(iOS 11, *)
 final class InvertColorsViewController: AccessibilityViewController {
 
     // MARK: - Private Properties

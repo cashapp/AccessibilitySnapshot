@@ -78,6 +78,7 @@ extension FBSnapshotTestCase {
         )
     }
 
+    @available(iOS 11, *)
     @objc(snapshotVerifyWithInvertedColors:identifier:)
     private func snapshotVerifyWithInvertedColors(_ view: UIView, identifier: String) -> String? {
         func postNotification() {

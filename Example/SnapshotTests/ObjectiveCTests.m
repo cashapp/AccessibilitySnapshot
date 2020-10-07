@@ -128,16 +128,18 @@
 
 - (void)testViewWithInvertedColors;
 {
-    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
-    [view setBackgroundColor:[UIColor redColor]];
+    if (@available(iOS 11.0, *)) {
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        [view setBackgroundColor:[UIColor redColor]];
 
-    UIView *subview = [[UIView alloc] initWithFrame:CGRectMake(25, 25, 50, 50)];
-    [subview setBackgroundColor:[UIColor greenColor]];
+        UIView *subview = [[UIView alloc] initWithFrame:CGRectMake(25, 25, 50, 50)];
+        [subview setBackgroundColor:[UIColor greenColor]];
 
-    [subview setAccessibilityIgnoresInvertColors:YES];
-    [view addSubview:subview];
+        [subview setAccessibilityIgnoresInvertColors:YES];
+        [view addSubview:subview];
 
-    SnapshotVerifyWithInvertedColors(view, nil);
+        SnapshotVerifyWithInvertedColors(view, nil);
+    }
 }
 
 @end
