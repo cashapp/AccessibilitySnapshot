@@ -1,6 +1,6 @@
 use_frameworks!
 use_modular_headers!
-platform :ios, '10.0'
+platform :ios, '12.0'
 
 target 'AccessibilitySnapshotDemo' do
 	# Paralayout does not support Xcode 12 in the current release version. Support will be added in 1.0 (see
