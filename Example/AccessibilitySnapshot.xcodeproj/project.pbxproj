@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1635CE4E251EAC6700907101 /* SnapshotTestingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1635CE4D251EAC6700907101 /* SnapshotTestingTests.swift */; };
+		16EEB11D2534D54F008CF375 /* SnapshotTestingDescriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16EEB11C2534D54F008CF375 /* SnapshotTestingDescriptionTests.swift */; };
 		3D04B6D6211558B0006218A4 /* AccessibilityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D04B6D5211558B0006218A4 /* AccessibilityViewController.swift */; };
 		3D04B6D921155942006218A4 /* LabelAccessibilityPropertiesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D04B6D821155942006218A4 /* LabelAccessibilityPropertiesViewController.swift */; };
 		3D04B6DB21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D04B6DA21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift */; };
@@ -75,6 +76,7 @@
 /* Begin PBXFileReference section */
 		0BFCB4FD6BC17AB232B26E72 /* Pods_UnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1635CE4D251EAC6700907101 /* SnapshotTestingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotTestingTests.swift; sourceTree = "<group>"; };
+		16EEB11C2534D54F008CF375 /* SnapshotTestingDescriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotTestingDescriptionTests.swift; sourceTree = "<group>"; };
 		358D84DCD315110A89BD052E /* Pods-UnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-UnitTests/Pods-UnitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		3A3192D7B9B16BD10FB517A2 /* Pods_SnapshotTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SnapshotTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B8EB28BD6E6A6332C5D3115 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
@@ -299,6 +301,7 @@
 				3DC488382212B40C006D1E15 /* ModalTests.swift */,
 				3DF464FB220D4F430048D446 /* SnapshotTestCase.swift */,
 				1635CE4D251EAC6700907101 /* SnapshotTestingTests.swift */,
+				16EEB11C2534D54F008CF375 /* SnapshotTestingDescriptionTests.swift */,
 				3DBEAA5C2223C0CE00FAE61D /* SwitchControlsTests.swift */,
 				3DC8D05A224750F500E8A03C /* TextAccessibilityTests.swift */,
 				3D220A29252AF70600359C1E /* Utilities */,
@@ -625,6 +628,7 @@
 				3D13DB522221124000066519 /* ObjectiveCTests.m in Sources */,
 				3DC2C67C21F46020003184E4 /* HighlightTests.swift in Sources */,
 				3DF464FC220D4F430048D446 /* SnapshotTestCase.swift in Sources */,
+				16EEB11D2534D54F008CF375 /* SnapshotTestingDescriptionTests.swift in Sources */,
 				3D3F2E162263E94D00F7608E /* InvertColorsTests.swift in Sources */,
 				3D220A2B252AF72900359C1E /* AccessibleContainerView.swift in Sources */,
 				3DC8D05B224750F500E8A03C /* TextAccessibilityTests.swift in Sources */,

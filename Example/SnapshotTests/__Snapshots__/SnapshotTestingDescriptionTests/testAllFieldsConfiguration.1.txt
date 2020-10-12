@@ -1,0 +1,57 @@
+Found 8 marker(s)
+
+Description is Empty
+Hint is Empty
+Language is Empty
+Shape: Path
+Activation Point: 0.0, 0.0
+Custom Actions: None
+
+Description: Label
+Hint is Empty
+Language is Empty
+Shape: Path
+Activation Point: 0.0, 0.0
+Custom Actions: None
+
+Description: Value
+Hint is Empty
+Language is Empty
+Shape: Path
+Activation Point: 0.0, 0.0
+Custom Actions: None
+
+Description: Hint
+Hint is Empty
+Language is Empty
+Shape: Path
+Activation Point: 0.0, 0.0
+Custom Actions: None
+
+Description: Label: Value
+Hint is Empty
+Language is Empty
+Shape: Path
+Activation Point: 0.0, 0.0
+Custom Actions: None
+
+Description: Label
+Hint: Hint
+Language is Empty
+Shape: Path
+Activation Point: 0.0, 0.0
+Custom Actions: None
+
+Description: Value
+Hint: Hint
+Language is Empty
+Shape: Path
+Activation Point: 0.0, 0.0
+Custom Actions: None
+
+Description: Label: Value
+Hint: Hint
+Language is Empty
+Shape: Path
+Activation Point: 0.0, 0.0
+Custom Actions: None

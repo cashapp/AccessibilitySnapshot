@@ -16,6 +16,121 @@
 
 import SnapshotTesting
 
+extension Snapshotting where Value == UIView, Format == String {
+    
+    public enum AccessibilityFields: CaseIterable {
+        case description
+        case hint
+        case language
+        case shape
+        case activationPoint
+        case customActions
+        
+        public static var defaultFields: [AccessibilityFields] = [ .description, .hint ]
+        
+        internal func line(for marker: AccessibilityMarker) -> String? {
+            switch self {
+            case .description:
+                if marker.description.isEmpty {
+                    return "Description is Empty"
+                }
+                
+                return "Description: \(marker.description)"
+                
+            case .hint:
+                guard let hint = marker.hint, hint.isEmpty == false else {
+                    return "Hint is Empty"
+                }
+                
+                return "Hint: \(hint)"
+                
+            case .language:
+                guard let language = marker.accessibilityLanguage, language.isEmpty == false else {
+                    return "Language is Empty"
+                }
+                
+                return "Language: \(language)"
+                
+            case .shape:
+                switch marker.shape {
+                case .frame(let frame):
+                    return "Shape: Frame (x:\(frame.minX), y:\(frame.minY), w:\(frame.width), h:\(frame.height))"
+                    
+                case .path:
+                    return "Shape: Path"
+                }
+                
+            case .activationPoint:
+                return "Activation Point: \(marker.activationPoint.x), \(marker.activationPoint.y)"
+                
+            case .customActions:
+                if marker.customActions.isEmpty {
+                    return "Custom Actions: None"
+                }
+                
+                return "Custom Actions:\n\(marker.customActions.joined(separator: "\n"))"
+            }
+        }
+    }
+    
+    /// Snapshots the approximation of the description that VoiceOver will read for the element(s) in the supplied view.
+    ///
+    /// By default, will capture the description and hint.
+    public static var accessibilityDescription: Snapshotting {
+        return accessibilityDescription()
+    }
+    
+    /// Snapshots the approximation of the description that VoiceOver will read for the element(s) in the supplied view.
+    ///
+    /// - parameter fields: Which fileds do you want to be included in the snapshot? By default, will capture the description and hint.
+    public static func accessibilityDescription(
+        fields: [Snapshotting.AccessibilityFields] = AccessibilityFields.defaultFields
+    ) -> Snapshotting<UIView, String> {
+        return Snapshotting(
+            pathExtension: "txt",
+            diffing: .lines,
+            snapshot: { view in
+                
+                // Force a layout pass after the view is in the hierarchy so that the conversion to screen coordinates
+                // works correctly.
+                view.setNeedsLayout()
+                view.layoutIfNeeded()
+                
+                let markers = AccessibilityHierarchyParser().parseAccessibilityElements(in: view)
+                
+                let mapMarkerToDescription: (AccessibilityMarker) -> String = { marker in
+                    let output = fields
+                        .map { $0.line(for: marker) }
+                        .compactMap { $0 }
+                        .joined(separator: "\n")
+                    
+                    if output.isEmpty {
+                        return "No Fields"
+                    }
+                    
+                    return output
+                }
+                
+                switch markers.count {
+                case 0:
+                    return "No Markers"
+                    
+                case 1:
+                    return markers.map(mapMarkerToDescription).joined()
+                    
+                default:
+                    return """
+                    Found \(markers.count) marker(s)
+
+                    \(markers.map(mapMarkerToDescription).joined(separator: "\n\n"))
+                    """
+                }
+            }
+        )
+    }
+    
+}
+
 extension Snapshotting where Value == UIView, Format == UIImage {
 
     /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
