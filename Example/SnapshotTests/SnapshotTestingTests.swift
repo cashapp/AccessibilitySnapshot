@@ -25,6 +25,20 @@ final class SnapshotTestingTests: XCTestCase {
 
     // MARK: - Tests
 
+    @available(iOS 13.0, *)
+    func testSimpleSwiftUIConfiguration() {
+        let viewController = SwiftUIView().toVC()
+        viewController.view.frame = UIScreen.main.bounds
+        assertSnapshot(matching: viewController, as: .accessibilityImage, named: nameForDevice())
+    }
+
+    @available(iOS 13.0, *)
+    func testSimpleSwiftUIWithScrollViewConfiguration() {
+        let viewController = SwiftUIViewWithScrollView().toVC()
+        viewController.view.frame = UIScreen.main.bounds
+        assertSnapshot(matching: viewController, as: .accessibilityImage, named: nameForDevice())
+    }
+
     func testSimpleConfiguration() {
         let viewController = ViewAccessibilityPropertiesViewController()
         viewController.view.frame = UIScreen.main.bounds
