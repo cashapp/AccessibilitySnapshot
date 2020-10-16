@@ -19,6 +19,32 @@ import FBSnapshotTestCase
 
 final class DefaultControlsTests: SnapshotTestCase {
 
+    static let statusUtility = UIAccessibilityStatusUtility()
+
+    override class func setUp() {
+        super.setUp()
+
+        statusUtility.mockVoiceOverStatus()
+
+        NotificationCenter.default.post(
+            name: UIAccessibility.voiceOverStatusDidChangeNotification,
+            object: nil,
+            userInfo: nil
+        )
+    }
+
+    override class func tearDown() {
+        statusUtility.unmockStatuses()
+
+        NotificationCenter.default.post(
+            name: UIAccessibility.voiceOverStatusDidChangeNotification,
+            object: nil,
+            userInfo: nil
+        )
+
+        super.tearDown()
+    }
+
     // MARK: - UIDatePicker
 
     // This test is disabled because the accessibility descriptions are not correct.

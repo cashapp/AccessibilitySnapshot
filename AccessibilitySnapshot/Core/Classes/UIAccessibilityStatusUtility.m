@@ -36,6 +36,12 @@
     return self;
 }
 
+- (void)mockVoiceOverStatus;
+{
+    [self mockStatusForFunction:&UIAccessibilityIsVoiceOverRunning
+                          named:"UIAccessibilityIsVoiceOverRunning"];
+}
+
 - (void)mockInvertColorsStatus;
 {
     [self mockStatusForFunction:&UIAccessibilityIsInvertColorsEnabled

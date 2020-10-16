@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UIAccessibilityStatusUtility : NSObject
 
+- (void)mockVoiceOverStatus;
+
 - (void)mockInvertColorsStatus;
 
 - (void)unmockStatuses;
