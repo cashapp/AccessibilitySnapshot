@@ -20,6 +20,11 @@ extension NSObject {
 
     /// Returns a tuple consisting of the `description`, and optionally a `hint`, that VoiceOver will read for the object.
     func accessibilityDescription(context: AccessibilityHierarchyParser.Context?) -> (description: String, hint: String?) {
+        print("Generating description for \(self)")
+        print("-> accessibilityLabel = \"\(accessibilityLabel ?? "<nil>")\"")
+        print("-> accessibilityValue = \"\(accessibilityValue ?? "<nil>")\"")
+        print("-> accessibilityHint = \"\(accessibilityHint ?? "<nil>")\"")
+        print("-> accessibilityTraits = \(accessibilityTraits.rawValue)")
         var accessibilityDescription = accessibilityLabelOverride(for: context) ?? accessibilityLabel ?? ""
 
         var hintDescription = hidesAccessibilityHint() ? nil : accessibilityHint?.nonEmpty()
@@ -235,6 +240,7 @@ extension NSObject {
             }
         }
 
+        print("-> Resolved to \"\(accessibilityDescription)\"")
         return (accessibilityDescription, hintDescription)
     }
 
