@@ -62,13 +62,76 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "AccessibilityContainersTests">
+               </Test>
+               <Test
                   Identifier = "AccessibilityContainersTests/testDataTableWithUndefinedColumns()">
                </Test>
                <Test
                   Identifier = "AccessibilityContainersTests/testDataTableWithUndefinedRowsAndColumns()">
                </Test>
                <Test
+                  Identifier = "AccessibilitySnapshotTests/testAccessibilityPaths()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testButtonTraits()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testCustomActions()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testDescriptionEdgeCases()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testLabelDescription()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testViewDescription()">
+               </Test>
+               <Test
+                  Identifier = "ActivationPointTests">
+               </Test>
+               <Test
                   Identifier = "DefaultControlsTests/testDatePicker()">
+               </Test>
+               <Test
+                  Identifier = "DefaultControlsTests/testPageControl()">
+               </Test>
+               <Test
+                  Identifier = "DefaultControlsTests/testSegmentedControl()">
+               </Test>
+               <Test
+                  Identifier = "DefaultControlsTests/testSlider()">
+               </Test>
+               <Test
+                  Identifier = "ElementOrderTests">
+               </Test>
+               <Test
+                  Identifier = "ElementSelectionTests">
+               </Test>
+               <Test
+                  Identifier = "HighlightTests">
+               </Test>
+               <Test
+                  Identifier = "InvertColorsTests">
+               </Test>
+               <Test
+                  Identifier = "LayoutTests">
+               </Test>
+               <Test
+                  Identifier = "ModalTests">
+               </Test>
+               <Test
+                  Identifier = "ObjectiveCTests">
+               </Test>
+               <Test
+                  Identifier = "SnapshotTestCase">
+               </Test>
+               <Test
+                  Identifier = "SnapshotTestingTests">
+               </Test>
+               <Test
+                  Identifier = "SwitchControlsTests">
                </Test>
                <Test
                   Identifier = "TextAccessibilityTests">
