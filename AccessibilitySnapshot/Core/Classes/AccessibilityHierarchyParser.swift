@@ -161,8 +161,6 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared
     ) -> [AccessibilityMarker] {
-        print("Parsing accessibility elements in \(root)")
-
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
 
         let accessibilityNodes = root.recursiveAccessibilityHierarchy()
@@ -561,8 +559,6 @@ private extension NSObject {
     func recursiveAccessibilityHierarchy(
         contextProvider: AccessibilityHierarchyParser.ContextProvider? = nil
     ) -> [AccessibilityNode] {
-        print("-> Generating accessibility hierarchy for \(self)")
-
         guard !accessibilityElementsHidden else {
             return []
         }
@@ -572,19 +568,15 @@ private extension NSObject {
         // (presumably to account for animations and/or rounding error). We use an alpha threshold of zero since that
         // should fulfill the intent.
         if let `self` = self as? UIView, self.isHidden || self.frame.size == .zero || self.alpha <= 0 {
-            print("   -> Object is hidden")
             return []
         }
 
         var recursiveAccessibilityHierarchy: [AccessibilityNode] = []
 
         if isAccessibilityElement {
-            print("   -> Object is an accessibility element")
             recursiveAccessibilityHierarchy.append(.element(self, contextProvider: contextProvider))
 
         } else if let accessibilityElements = accessibilityElements as? [NSObject] {
-            print("   -> Object is an accessibility container")
-            print("      -> Found \(accessibilityElements.count) element(s) in container")
             var accessibilityHierarchyOfElements: [AccessibilityNode] = []
             for element in accessibilityElements {
                 accessibilityHierarchyOfElements.append(
@@ -600,7 +592,6 @@ private extension NSObject {
             ))
 
         } else if let `self` = self as? UIView {
-            print("   -> Object is a view")
             // If there is at least one modal subview, the last modal is the only subview parsed in the accessibility
             // hierarchy. Otherwise, parse all of the subviews.
             let subviewsToParse: [UIView]
@@ -609,8 +600,6 @@ private extension NSObject {
             } else {
                 subviewsToParse = self.subviews
             }
-
-            print("      -> Found \(subviewsToParse.count) subview(s)")
 
             var accessibilityHierarchyOfSubviews: [AccessibilityNode] = []
             for subview in subviewsToParse {
