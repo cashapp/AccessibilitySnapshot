@@ -65,8 +65,10 @@ extension FBSnapshotTestCase {
         containerView.center = window.center
         window.addSubview(containerView)
 
-        containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+        let markers = containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
         containerView.sizeToFit()
+
+        add(XCTAttachment(string: markers))
 
         FBSnapshotVerifyView(containerView, identifier: identifier, file: file, line: line)
     }

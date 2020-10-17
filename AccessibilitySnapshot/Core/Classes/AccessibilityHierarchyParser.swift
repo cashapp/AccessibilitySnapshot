@@ -150,6 +150,8 @@ public final class AccessibilityHierarchyParser {
 
     // MARK: - Public Methods
 
+    public var mostRecentNodeDescriptions: [String] = []
+
     /// Parses the accessibility hierarchy starting from the `root` view and returns markers for each element in the
     /// hierarchy, in the order VoiceOver will iterate through them when using flick navigation.
     ///
@@ -164,6 +166,7 @@ public final class AccessibilityHierarchyParser {
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
 
         let accessibilityNodes = root.recursiveAccessibilityHierarchy()
+        mostRecentNodeDescriptions = accessibilityNodes.map { "\($0)" }
 
         let uncontextualizedElements = sortedElements(
             for: accessibilityNodes,
