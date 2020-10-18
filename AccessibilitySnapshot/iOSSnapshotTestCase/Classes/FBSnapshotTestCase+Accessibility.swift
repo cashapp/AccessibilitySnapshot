@@ -68,7 +68,7 @@ extension FBSnapshotTestCase {
         containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
         containerView.sizeToFit()
 
-        add(XCTAttachment(string: "Is this a timing issue?"))
+        print("Seriously what's going on?")
 
         FBSnapshotVerifyView(containerView, identifier: identifier, file: file, line: line)
     }
