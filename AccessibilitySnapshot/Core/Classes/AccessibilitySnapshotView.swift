@@ -94,8 +94,7 @@ public final class AccessibilitySnapshotView: UIView {
     /// Parse the `containedView`'s accessibility and add appropriate visual elements to represent it.
     ///
     /// This must be called _after_ the view is in the view hierarchy.
-    @discardableResult
-    public func parseAccessibility(useMonochromeSnapshot: Bool) -> String {
+    public func parseAccessibility(useMonochromeSnapshot: Bool) {
         // Clean up any previous markers.
         self.displayMarkers.forEach {
             $0.legendView.removeFromSuperview()
@@ -185,8 +184,6 @@ public final class AccessibilitySnapshotView: UIView {
             displayMarkers.append(displayMarker)
         }
         self.displayMarkers = displayMarkers
-
-        return parser.mostRecentNodeDescriptions.description
     }
 
     // MARK: - UIView
