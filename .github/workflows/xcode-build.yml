@@ -31,15 +31,3 @@ jobs:
         with:
           name: Test Results
           path: .build/derivedData/**/Logs/Test/*.xcresult
-  pod-lint:
-    name: Pod Lint
-    runs-on: macOS-latest
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-      - name: Bundle Install
-        run: bundle install --gemfile=Example/Gemfile
-      - name: Pod Install
-        run: bundle exec --gemfile=Example/Gemfile pod install --project-directory=Example
-      - name: Lint Podspec
-        run: bundle exec --gemfile=Example/Gemfile pod lib lint --verbose --fail-fast
