@@ -68,7 +68,7 @@ extension FBSnapshotTestCase {
         containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
         containerView.sizeToFit()
 
-        print("Seriously what's going on?")
+        fflush(stdout)
 
         FBSnapshotVerifyView(containerView, identifier: identifier, file: file, line: line)
     }
