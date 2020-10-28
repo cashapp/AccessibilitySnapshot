@@ -28,6 +28,8 @@ final class AccessibilityContainersTests: SnapshotTestCase {
         let viewController = DataTableViewController(configuration: .basic)
         viewController.view.frame = UIScreen.main.bounds
         SnapshotVerifyAccessibility(viewController.view)
+
+        _ = 0
     }
 
     func testDataTableWithHeaders() {
