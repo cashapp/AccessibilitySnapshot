@@ -17,7 +17,7 @@ PODS:
   - iOSSnapshotTestCase/SwiftSupport (6.2.0):
     - iOSSnapshotTestCase/Core
   - Paralayout (0.9.1)
-  - SnapshotTesting (1.7.2)
+  - SnapshotTesting (1.8.2)
 
 DEPENDENCIES:
   - AccessibilitySnapshot (from `../AccessibilitySnapshot.podspec`)
@@ -47,7 +47,7 @@ SPEC CHECKSUMS:
   fishhook: ea19933abfe8f2f52c55fd8b6e2718467d3ebc89
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   Paralayout: f4d6727fca5b592eb93a7cc408e45404599a4b0a
-  SnapshotTesting: 8caa6661fea7c8019d5b46de77c16bab99c36c5c
+  SnapshotTesting: 38947050d13960d57a4a9c166fcf51bca7d56970
 
 PODFILE CHECKSUM: 909a664616eb8ce5c087424039327435f7f366b7
 
