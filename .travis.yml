@@ -1,6 +1,6 @@
 language: objective-c
 jobs:
-  - osx_image: xcode10.3
+  - osx_image: xcode11.6
     env: ACTIONS="xcode";PLATFORM="iOS_12"
 install:
   - bundle install --gemfile=Example/Gemfile
