@@ -57,24 +57,17 @@ typedef struct nlist_64 nlist_t;
 #define SEG_DATA_CONST  "__DATA_CONST"
 #endif
 
-/*
- * A structure representing a particular intended rebinding from a symbol
- * name to its replacement
- */
+/// A structure representing a particular intended rebinding from a symbol name to its replacement.
 struct rebinding {
   const char *name;
   void *replacement;
   void **replaced;
 };
 
-/*
- * For each rebinding in rebindings, rebinds references to external, indirect
- * symbols with the specified name to instead point at replacement for each
- * image in the calling process as well as for all future images that are loaded
- * by the process. If rebind_functions is called more than once, the symbols to
- * rebind are added to the existing list of rebindings, and if a given symbol
- * is rebound more than once, the later rebinding will take precedence.
- */
+/// For each rebinding in rebindings, rebinds references to external, indirect symbols with the specified name to
+/// instead point at replacement for each image in the calling process as well as for all future images that are loaded
+/// by the process. If rebind_functions is called more than once, the symbols to rebind are added to the existing list
+/// of rebindings, and if a given symbol is rebound more than once, the later rebinding will take precedence.
 int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel);
 
 struct rebindings_entry {
