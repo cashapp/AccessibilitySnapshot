@@ -100,16 +100,6 @@ struct rebinding {
 FISHHOOK_VISIBILITY
 int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel);
 
-/*
- * Rebinds as above, but only in the specified image. The header should point
- * to the mach-o header, the slide should be the slide offset. Others as above.
- */
-FISHHOOK_VISIBILITY
-int rebind_symbols_image(void *header,
-                         intptr_t slide,
-                         struct rebinding rebindings[],
-                         size_t rebindings_nel);
-
 struct rebindings_entry {
   struct rebinding *rebindings;
   size_t rebindings_nel;
@@ -278,20 +268,6 @@ static void rebind_symbols_for_image(struct rebindings_entry *rebindings,
 static void _rebind_symbols_for_image(const struct mach_header *header,
                                       intptr_t slide) {
     rebind_symbols_for_image(_rebindings_head, header, slide);
-}
-
-int rebind_symbols_image(void *header,
-                         intptr_t slide,
-                         struct rebinding rebindings[],
-                         size_t rebindings_nel) {
-    struct rebindings_entry *rebindings_head = NULL;
-    int retval = prepend_rebindings(&rebindings_head, rebindings, rebindings_nel);
-    rebind_symbols_for_image(rebindings_head, (const struct mach_header *) header, slide);
-    if (rebindings_head) {
-      free(rebindings_head->rebindings);
-    }
-    free(rebindings_head);
-    return retval;
 }
 
 int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel) {
