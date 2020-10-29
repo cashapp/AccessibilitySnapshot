@@ -55,19 +55,10 @@
 #include <mach-o/loader.h>
 #include <mach-o/nlist.h>
 
-#ifdef __LP64__
 typedef struct mach_header_64 mach_header_t;
 typedef struct segment_command_64 segment_command_t;
 typedef struct section_64 section_t;
 typedef struct nlist_64 nlist_t;
-#define LC_SEGMENT_ARCH_DEPENDENT LC_SEGMENT_64
-#else
-typedef struct mach_header mach_header_t;
-typedef struct segment_command segment_command_t;
-typedef struct section section_t;
-typedef struct nlist nlist_t;
-#define LC_SEGMENT_ARCH_DEPENDENT LC_SEGMENT
-#endif
 
 #ifndef SEG_DATA_CONST
 #define SEG_DATA_CONST  "__DATA_CONST"
@@ -212,7 +203,7 @@ static void rebind_symbols_for_image(struct rebindings_entry *rebindings,
   uintptr_t cur = (uintptr_t)header + sizeof(mach_header_t);
   for (uint i = 0; i < header->ncmds; i++, cur += cur_seg_cmd->cmdsize) {
     cur_seg_cmd = (segment_command_t *)cur;
-    if (cur_seg_cmd->cmd == LC_SEGMENT_ARCH_DEPENDENT) {
+    if (cur_seg_cmd->cmd == LC_SEGMENT_64) {
       if (strcmp(cur_seg_cmd->segname, SEG_LINKEDIT) == 0) {
         linkedit_segment = cur_seg_cmd;
       }
@@ -239,7 +230,7 @@ static void rebind_symbols_for_image(struct rebindings_entry *rebindings,
   cur = (uintptr_t)header + sizeof(mach_header_t);
   for (uint i = 0; i < header->ncmds; i++, cur += cur_seg_cmd->cmdsize) {
     cur_seg_cmd = (segment_command_t *)cur;
-    if (cur_seg_cmd->cmd == LC_SEGMENT_ARCH_DEPENDENT) {
+    if (cur_seg_cmd->cmd == LC_SEGMENT_64) {
       if (strcmp(cur_seg_cmd->segname, SEG_DATA) != 0 &&
           strcmp(cur_seg_cmd->segname, SEG_DATA_CONST) != 0) {
         continue;
