@@ -43,6 +43,75 @@
 
 #import <dlfcn.h>
 
+/// A structure representing a particular intended rebinding from a symbol name to its replacement.
+struct rebinding {
+  const char *name;
+  void *replacement;
+  void **replaced;
+};
+
+/// For each rebinding in rebindings, rebinds references to external, indirect symbols with the specified name to
+/// instead point at replacement for each image in the calling process as well as for all future images that are loaded
+/// by the process. If rebind_functions is called more than once, the symbols to rebind are added to the existing list
+/// of rebindings, and if a given symbol is rebound more than once, the later rebinding will take precedence.
+int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel);
+
+
+@interface UIAccessibilityStatusUtility ()
+
+@property (nonatomic) NSMutableArray<NSValue *> *rerebindings;
+
+@end
+
+@implementation UIAccessibilityStatusUtility
+
+- (instancetype)init;
+{
+    if (self = [super init]) {
+        _rerebindings = [NSMutableArray<NSValue *> new];
+    }
+    return self;
+}
+
+- (void)mockInvertColorsStatus;
+{
+    [self mockStatusForFunction:&UIAccessibilityIsInvertColorsEnabled
+                          named:"UIAccessibilityIsInvertColorsEnabled"];
+}
+
+- (void)mockStatusForFunction:(void *)function named:(const char *)functionName;
+{
+    struct rebinding rerebinding = {functionName, function, NULL};
+    [self.rerebindings addObject:[NSValue valueWithBytes:&rerebinding
+                                                objCType:@encode(struct rebinding)]];
+
+    struct rebinding rebindings[] = {{
+        functionName,
+        &UIAccessibilityAlwaysEnabled,
+        NULL
+    }};
+    rebind_symbols(rebindings, 1);
+}
+
+- (void)unmockStatuses;
+{
+    for (NSValue *rebindingValue in self.rerebindings) {
+        struct rebinding rebinding;
+        [rebindingValue getValue:&rebinding];
+
+        rebind_symbols((struct rebinding[1]){rebinding}, 1);
+    }
+
+    [self.rerebindings removeAllObjects];
+}
+
+BOOL UIAccessibilityAlwaysEnabled() {
+    return true;
+}
+
+@end
+
+
 #include <sys/mman.h>
 #include <mach/mach.h>
 #include <mach-o/dyld.h>
@@ -56,19 +125,6 @@ typedef struct nlist_64 nlist_t;
 #ifndef SEG_DATA_CONST
 #define SEG_DATA_CONST  "__DATA_CONST"
 #endif
-
-/// A structure representing a particular intended rebinding from a symbol name to its replacement.
-struct rebinding {
-  const char *name;
-  void *replacement;
-  void **replaced;
-};
-
-/// For each rebinding in rebindings, rebinds references to external, indirect symbols with the specified name to
-/// instead point at replacement for each image in the calling process as well as for all future images that are loaded
-/// by the process. If rebind_functions is called more than once, the symbols to rebind are added to the existing list
-/// of rebindings, and if a given symbol is rebound more than once, the later rebinding will take precedence.
-int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel);
 
 struct rebindings_entry {
     struct rebinding *rebindings;
@@ -179,12 +235,12 @@ static void rebind_symbols_for_image(struct rebindings_entry *rebindings,
     if (dladdr(header, &info) == 0) {
         return;
     }
-    
+
     segment_command_t *cur_seg_cmd;
     segment_command_t *linkedit_segment = NULL;
     struct symtab_command* symtab_cmd = NULL;
     struct dysymtab_command* dysymtab_cmd = NULL;
-    
+
     uintptr_t cur = (uintptr_t)header + sizeof(mach_header_t);
     for (uint i = 0; i < header->ncmds; i++, cur += cur_seg_cmd->cmdsize) {
         cur_seg_cmd = (segment_command_t *)cur;
@@ -198,20 +254,20 @@ static void rebind_symbols_for_image(struct rebindings_entry *rebindings,
             dysymtab_cmd = (struct dysymtab_command*)cur_seg_cmd;
         }
     }
-    
+
     if (!symtab_cmd || !dysymtab_cmd || !linkedit_segment ||
         !dysymtab_cmd->nindirectsyms) {
         return;
     }
-    
+
     // Find base symbol/string table addresses
     uintptr_t linkedit_base = (uintptr_t)slide + linkedit_segment->vmaddr - linkedit_segment->fileoff;
     nlist_t *symtab = (nlist_t *)(linkedit_base + symtab_cmd->symoff);
     char *strtab = (char *)(linkedit_base + symtab_cmd->stroff);
-    
+
     // Get indirect symbol table (array of uint32_t indices into symbol table)
     uint32_t *indirect_symtab = (uint32_t *)(linkedit_base + dysymtab_cmd->indirectsymoff);
-    
+
     cur = (uintptr_t)header + sizeof(mach_header_t);
     for (uint i = 0; i < header->ncmds; i++, cur += cur_seg_cmd->cmdsize) {
         cur_seg_cmd = (segment_command_t *)cur;
@@ -255,58 +311,3 @@ int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel) {
     }
     return retval;
 }
-
-
-@interface UIAccessibilityStatusUtility ()
-
-@property (nonatomic) NSMutableArray<NSValue *> *rerebindings;
-
-@end
-
-@implementation UIAccessibilityStatusUtility
-
-- (instancetype)init;
-{
-    if (self = [super init]) {
-        _rerebindings = [NSMutableArray<NSValue *> new];
-    }
-    return self;
-}
-
-- (void)mockInvertColorsStatus;
-{
-    [self mockStatusForFunction:&UIAccessibilityIsInvertColorsEnabled
-                          named:"UIAccessibilityIsInvertColorsEnabled"];
-}
-
-- (void)mockStatusForFunction:(void *)function named:(const char *)functionName;
-{
-    struct rebinding rerebinding = {functionName, function, NULL};
-    [self.rerebindings addObject:[NSValue valueWithBytes:&rerebinding
-                                                objCType:@encode(struct rebinding)]];
-
-    struct rebinding rebindings[] = {{
-        functionName,
-        &UIAccessibilityAlwaysEnabled,
-        NULL
-    }};
-    rebind_symbols(rebindings, 1);
-}
-
-- (void)unmockStatuses;
-{
-    for (NSValue *rebindingValue in self.rerebindings) {
-        struct rebinding rebinding;
-        [rebindingValue getValue:&rebinding];
-
-        rebind_symbols((struct rebinding[1]){rebinding}, 1);
-    }
-
-    [self.rerebindings removeAllObjects];
-}
-
-BOOL UIAccessibilityAlwaysEnabled() {
-    return true;
-}
-
-@end
