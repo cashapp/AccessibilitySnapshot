@@ -75,10 +75,6 @@ typedef struct nlist nlist_t;
 #define FISHHOOK_VISIBILITY __attribute__((visibility("default")))
 #endif
 
-#ifdef __cplusplus
-extern "C" {
-#endif //__cplusplus
-
 #ifndef SEG_DATA_CONST
 #define SEG_DATA_CONST  "__DATA_CONST"
 #endif
@@ -113,10 +109,6 @@ int rebind_symbols_image(void *header,
                          intptr_t slide,
                          struct rebinding rebindings[],
                          size_t rebindings_nel);
-
-#ifdef __cplusplus
-}
-#endif //__cplusplus
 
 struct rebindings_entry {
   struct rebinding *rebindings;
