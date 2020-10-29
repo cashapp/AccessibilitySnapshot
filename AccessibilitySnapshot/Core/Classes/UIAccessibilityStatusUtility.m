@@ -43,16 +43,9 @@
 
 #import <dlfcn.h>
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/mman.h>
-#include <sys/types.h>
 #include <mach/mach.h>
-#include <mach/vm_map.h>
-#include <mach/vm_region.h>
 #include <mach-o/dyld.h>
-#include <mach-o/loader.h>
 #include <mach-o/nlist.h>
 
 typedef struct mach_header_64 mach_header_t;
