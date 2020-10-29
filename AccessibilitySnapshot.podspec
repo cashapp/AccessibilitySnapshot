@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '12.0'
 
-  s.default_subspecs = 'Core', 'iOSSnapshotTestCase'
+  s.default_subspecs = 'Core', 'SnapshotTesting'
 
   s.subspec 'Core' do |ss|
     ss.source_files = 'AccessibilitySnapshot/Core/Classes/**/*.{swift,h,m}'
