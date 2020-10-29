@@ -23,8 +23,6 @@ Pod::Spec.new do |s|
     ss.resource_bundles = {
      'AccessibilitySnapshot' => ['AccessibilitySnapshot/Core/Assets/**/*.{strings,xcassets}']
     }
-
-    ss.dependency 'fishhook', '~> 0.2'
   end
 
   s.subspec 'iOSSnapshotTestCase' do |ss|
