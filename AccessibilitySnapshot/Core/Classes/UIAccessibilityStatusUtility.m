@@ -69,12 +69,6 @@ typedef struct nlist nlist_t;
 #define LC_SEGMENT_ARCH_DEPENDENT LC_SEGMENT
 #endif
 
-#if !defined(FISHHOOK_EXPORT)
-#define FISHHOOK_VISIBILITY __attribute__((visibility("hidden")))
-#else
-#define FISHHOOK_VISIBILITY __attribute__((visibility("default")))
-#endif
-
 #ifndef SEG_DATA_CONST
 #define SEG_DATA_CONST  "__DATA_CONST"
 #endif
@@ -97,7 +91,6 @@ struct rebinding {
  * rebind are added to the existing list of rebindings, and if a given symbol
  * is rebound more than once, the later rebinding will take precedence.
  */
-FISHHOOK_VISIBILITY
 int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel);
 
 struct rebindings_entry {
