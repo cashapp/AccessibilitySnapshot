@@ -25,6 +25,11 @@ jobs:
       - name: Select Xcode Version (11.3.1)
         run: sudo xcode-select --switch /Applications/Xcode_11.3.1.app/Contents/Developer
         if: matrix.platform == 'iOS_13'
+      - name: Install iOS 12.4 Runtime
+        run: |
+          cp -R \
+          /Applications/Xcode_10.3.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator12.4.sdk \
+          /Applications/Xcode_11.3.1.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator12.4.sdk
       - name: List Available Runtimes
         run: xcrun simctl list runtimes
       - name: Pod Install
