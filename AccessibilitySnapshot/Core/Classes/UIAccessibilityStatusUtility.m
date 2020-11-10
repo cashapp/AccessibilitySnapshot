@@ -173,6 +173,7 @@ static vm_prot_t get_protection(void *sectionStart) {
         return VM_PROT_READ;
     }
 }
+
 static void perform_rebinding_with_section(struct rebindings_entry *rebindings,
                                            section_t *section,
                                            intptr_t slide,
