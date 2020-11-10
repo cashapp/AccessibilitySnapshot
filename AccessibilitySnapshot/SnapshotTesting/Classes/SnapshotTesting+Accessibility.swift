@@ -74,7 +74,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     /// be made `public`.
     ///
     /// - parameter contentSizeCategory: The content size category to use in the snapshot
-    static func image(
+    public static func image(
         at contentSizeCategory: UIContentSizeCategory
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>.image(
@@ -178,7 +178,7 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     /// be made `public`.
     ///
     /// - parameter contentSizeCategory: The content size category to use in the snapshot
-    static func image(
+    public static func image(
         at contentSizeCategory: UIContentSizeCategory
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>
