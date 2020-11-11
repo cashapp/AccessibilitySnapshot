@@ -44,6 +44,7 @@ final class RootViewController: UITableViewController {
                 )
             }),
             ("Element Order with Semantic Content", { _ in return UserIntefaceDirectionViewController() }),
+            ("Nested Accessibility Containers", { _ in return NestedContainersViewController() }),
             ("Modal Accessibility Views", { presentingViewController in
                 return ModalAccessibilityViewController.makeConfigurationSelectionViewController(
                     presentingViewController: presentingViewController

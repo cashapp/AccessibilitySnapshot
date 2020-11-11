@@ -63,4 +63,10 @@ final class ElementOrderTests: SnapshotTestCase {
         SnapshotVerifyAccessibility(elementOrderViewController.view)
     }
 
+    func testNestedAccessibilityContainers() {
+        let nestedContainersViewController = NestedContainersViewController()
+        nestedContainersViewController.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(nestedContainersViewController.view)
+    }
+
 }

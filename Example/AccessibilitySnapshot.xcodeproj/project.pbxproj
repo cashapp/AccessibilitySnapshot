@@ -21,6 +21,7 @@
 		3D3F2E162263E94D00F7608E /* InvertColorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3F2E152263E94D00F7608E /* InvertColorsTests.swift */; };
 		3D4674682116A3F100278B57 /* ViewAccessibilityPropertiesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4674672116A3F100278B57 /* ViewAccessibilityPropertiesViewController.swift */; };
 		3D9894F9213509C8006C16F6 /* DescriptionEdgeCasesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9894F8213509C8006C16F6 /* DescriptionEdgeCasesViewController.swift */; };
+		3D9F0A40255BE5BF000E63D7 /* NestedContainersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9F0A3F255BE5BF000E63D7 /* NestedContainersViewController.swift */; };
 		3DA12A3222405B9E00EB3C33 /* DataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA12A3122405B9E00EB3C33 /* DataTableViewController.swift */; };
 		3DBAC28722406EBB00EF4D0A /* AccessibilityContainersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBAC28622406EBB00EF4D0A /* AccessibilityContainersTests.swift */; };
 		3DBAC28F2242E7C700EF4D0A /* ListContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBAC28E2242E7C700EF4D0A /* ListContainerViewController.swift */; };
@@ -94,6 +95,7 @@
 		3D881956246E03C00061DA6A /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D88195A246E03C00061DA6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3D9894F8213509C8006C16F6 /* DescriptionEdgeCasesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescriptionEdgeCasesViewController.swift; sourceTree = "<group>"; };
+		3D9F0A3F255BE5BF000E63D7 /* NestedContainersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NestedContainersViewController.swift; sourceTree = "<group>"; };
 		3DA12A3122405B9E00EB3C33 /* DataTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTableViewController.swift; sourceTree = "<group>"; };
 		3DBAC28622406EBB00EF4D0A /* AccessibilityContainersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityContainersTests.swift; sourceTree = "<group>"; };
 		3DBAC28E2242E7C700EF4D0A /* ListContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListContainerViewController.swift; sourceTree = "<group>"; };
@@ -178,6 +180,7 @@
 				3D9894F8213509C8006C16F6 /* DescriptionEdgeCasesViewController.swift */,
 				3DF464FD220D594E0048D446 /* ElementSelectionViewController.swift */,
 				3DF46501220D7F9B0048D446 /* ElementOrderViewController.swift */,
+				3D9F0A3F255BE5BF000E63D7 /* NestedContainersViewController.swift */,
 				3D0AC55B222DD70A00B6F1C1 /* UserInterfaceDirectionViewController.swift */,
 				3DEBF24D221018610065424F /* DefaultControlsViewController.swift */,
 				3DBEAA5A2222953E00FAE61D /* SwitchControlViewController.swift */,
@@ -595,6 +598,7 @@
 			files = (
 				3DC8D04C224734E400E8A03C /* DynamicTypeViewController.swift in Sources */,
 				607FACD81AFB9204008FA782 /* RootViewController.swift in Sources */,
+				3D9F0A40255BE5BF000E63D7 /* NestedContainersViewController.swift in Sources */,
 				3DBEAA5F2223D0DA00FAE61D /* AccessibilityPathViewController.swift in Sources */,
 				3D4674682116A3F100278B57 /* ViewAccessibilityPropertiesViewController.swift in Sources */,
 				3D39BFB22239BEA6009C3EF4 /* ActivationPointViewController.swift in Sources */,
