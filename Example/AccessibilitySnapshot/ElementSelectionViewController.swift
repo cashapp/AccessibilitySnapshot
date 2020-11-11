@@ -41,6 +41,8 @@ final class ElementSelectionViewController: AccessibilityViewController {
         // A view with three accessible elements.
         case viewWithAccessibleSubviews(accessibilityElementsHidden: Bool, isHidden: Bool)
 
+        case nestedAccessibilityContainer
+
     }
 
     // MARK: - Life Cycle
@@ -48,6 +50,7 @@ final class ElementSelectionViewController: AccessibilityViewController {
     init(configurations: [ViewConfiguration]) {
         views = configurations.map { configuration in
             let view: UIView
+            var width: CGFloat?
             switch configuration {
             case let .accessibilityElement(accessibilityElementsHidden: accessibilityElementsHidden, isHidden: isHidden):
                 view = UIView()
@@ -68,9 +71,13 @@ final class ElementSelectionViewController: AccessibilityViewController {
                 view = AccessibleGroupView()
                 view.accessibilityElementsHidden = accessibilityElementsHidden
                 view.isHidden = isHidden
+
+            case .nestedAccessibilityContainer:
+                view = NestedAccessibilityContainerView()
+                width = 200
             }
 
-            view.frame.size = CGSize(width: 64, height: 64)
+            view.frame.size = CGSize(width: width ?? 64, height: 64)
             view.layer.cornerRadius = 32
             view.backgroundColor = .lightGray
             view.accessibilityLabel = "Lorem ipsum"
@@ -199,6 +206,10 @@ extension ElementSelectionViewController {
             nextHandler(.viewWithAccessibleSubviews(accessibilityElementsHidden: false, isHidden: true))
         }))
 
+        alertController.addAction(.init(title: "Nested Accessibility Container", style: .default, handler: { _ in
+            nextHandler(.nestedAccessibilityContainer)
+        }))
+
         if !existingConfigurations.isEmpty {
             alertController.addAction(.init(title: "Done", style: .cancel, handler: { _ in
                 nextHandler(nil)
@@ -242,6 +253,43 @@ private final class AccessibilityContainerView: UIView {
     @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+}
+
+// MARK: -
+
+private final class NestedAccessibilityContainerView: UIView {
+
+    // MARK: - Life Cycle
+
+    override convenience init(frame: CGRect) {
+        self.init(
+            frame: frame,
+            subviews: [
+                AccessibilityContainerView(),
+                NestedAccessibilityContainerView(subviews: [AccessibilityContainerView()])
+            ]
+        )
+    }
+
+    private init(frame: CGRect = .zero, subviews: [UIView]) {
+        super.init(frame: frame)
+
+        subviews.forEach(addSubview)
+        accessibilityElements = subviews
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - UIView
+
+    override func layoutSubviews() {
+        subviews.forEach { $0.bounds.size = .init(width: 64, height: 64) }
+        applySubviewDistribution(subviews, axis: .horizontal)
     }
 
 }

@@ -121,4 +121,13 @@ final class ElementSelectionTests: SnapshotTestCase {
         SnapshotVerifyAccessibility(elementSelectionViewController.view)
     }
 
+    func testNestedAccessibilityContainers() {
+        let elementSelectionViewController = ElementSelectionViewController(configurations: [
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
+            .nestedAccessibilityContainer,
+        ])
+        elementSelectionViewController.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(elementSelectionViewController.view)
+    }
+
 }
