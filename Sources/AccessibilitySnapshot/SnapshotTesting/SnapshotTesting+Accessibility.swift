@@ -14,7 +14,13 @@
 //  limitations under the License.
 //
 
+import UIKit
 import SnapshotTesting
+
+#if SWIFT_PACKAGE
+import AccessibilitySnapshotCore
+import AccessibilitySnapshotCore_ObjC
+#endif
 
 extension Snapshotting where Value == UIView, Format == UIImage {
 

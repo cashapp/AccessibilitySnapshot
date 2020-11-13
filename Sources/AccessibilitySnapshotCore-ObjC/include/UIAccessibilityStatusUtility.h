@@ -14,7 +14,7 @@
 //  limitations under the License.
 //
 
-@import Foundation;
+@import UIKit;
 
 NS_ASSUME_NONNULL_BEGIN
 
