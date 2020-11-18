@@ -27,3 +27,8 @@ Carthage/Build
 
 # CocoaPods
 Pods/
+
+# Swift Package Manager
+generated/
+.build/
+.swiftpm/

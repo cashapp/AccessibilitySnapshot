@@ -15,10 +15,10 @@ Pod::Spec.new do |s|
   s.default_subspecs = 'Core', 'SnapshotTesting'
 
   s.subspec 'Core' do |ss|
-    ss.source_files = 'Sources/AccessibilitySnapshotCore/Classes/**/*.swift', 'Sources/AccessibilitySnapshotCore-ObjC/**/*.{h,m}'
-    ss.public_header_files = 'Sources/AccessibilitySnapshotCore-ObjC/include/*.h'
+    ss.source_files = 'Sources/AccessibilitySnapshot/Core/Swift/Classes/**/*.swift', 'Sources/AccessibilitySnapshot/Core/ObjC/**/*.{h,m}'
+    ss.public_header_files = 'Sources/AccessibilitySnapshot/Core/ObjC/include/*.h'
     ss.resource_bundles = {
-     'AccessibilitySnapshot' => ['Sources/AccessibilitySnapshotCore/Assets/**/*.{strings,xcassets}']
+     'AccessibilitySnapshot' => ['Sources/AccessibilitySnapshot/Core/Swift/Assets/**/*.{strings,xcassets}']
     }
   end
 

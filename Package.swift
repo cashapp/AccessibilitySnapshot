@@ -29,9 +29,15 @@ let package = Package(
         )
     ],
     targets: [
-        .target(name: "AccessibilitySnapshotCore-ObjC"),
-        .target(name: "AccessibilitySnapshotCore", dependencies: ["AccessibilitySnapshotCore-ObjC"]),
-        
+        .target(
+            name: "AccessibilitySnapshotCore-ObjC",
+            path: "Sources/AccessibilitySnapshot/Core/ObjC"
+        ),
+        .target(
+            name: "AccessibilitySnapshotCore",
+            dependencies: ["AccessibilitySnapshotCore-ObjC"],
+            path: "Sources/AccessibilitySnapshot/Core/Swift"
+        ),
         .target(
             name: "AccessibilitySnapshot",
             dependencies: ["AccessibilitySnapshotCore", "SnapshotTesting"],
