@@ -14,8 +14,8 @@
 //  limitations under the License.
 //
 
-import UIKit
 import SnapshotTesting
+import UIKit
 
 #if SWIFT_PACKAGE
 import AccessibilitySnapshotCore
