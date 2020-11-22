@@ -43,3 +43,17 @@ jobs:
         run: bundle exec --gemfile=Example/Gemfile pod install --project-directory=Example
       - name: Lint Podspec
         run: bundle exec --gemfile=Example/Gemfile pod lib lint --verbose --fail-fast
+  spm:
+    name: SPM Build
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        platform: ['iOS_13']
+      fail-fast: false
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: Select Xcode Version
+        run: sudo xcode-select --switch /Applications/Xcode_12.2.app/Contents/Developer
+      - name: Build
+        run: Scripts/build.swift spm ${{ matrix.platform }}
