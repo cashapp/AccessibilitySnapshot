@@ -46,14 +46,14 @@ enum TaskError: Error {
 }
 
 enum Platform: String, CustomStringConvertible {
-    case iOS_14
+	case iOS_14
 	case iOS_13
 	case iOS_12
 
 	var destination: String {
 		switch self {
-        case .iOS_14:
-            return "platform=iOS Simulator,OS=14.2,name=iPhone 12 Pro"
+		case .iOS_14:
+			return "platform=iOS Simulator,OS=14.2,name=iPhone 12 Pro"
 		case .iOS_13:
 			return "platform=iOS Simulator,OS=13.3,name=iPhone 11 Pro"
 		case .iOS_12:
@@ -71,13 +71,13 @@ enum Platform: String, CustomStringConvertible {
 }
 
 enum Task: String, CustomStringConvertible {
-    case spm
+	case spm
 	case xcode
 
 	var workspace: String? {
 		switch self {
-        case .spm:
-            return nil
+		case .spm:
+			return nil
 		case .xcode:
 			return "Example/AccessibilitySnapshot.xcworkspace"
 		}
@@ -85,8 +85,8 @@ enum Task: String, CustomStringConvertible {
 
 	var project: String? {
 		switch self {
-        case .spm:
-            return nil
+		case .spm:
+			return nil
 		case .xcode:
 			return nil
 		}
@@ -94,8 +94,8 @@ enum Task: String, CustomStringConvertible {
 
 	var scheme: String {
 		switch self {
-        case .spm:
-            return "AccessibilitySnapshot"
+		case .spm:
+			return "AccessibilitySnapshot"
 		case .xcode:
 			return "AccessibilitySnapshotDemo"
 		}
@@ -103,8 +103,8 @@ enum Task: String, CustomStringConvertible {
 
 	var shouldRunTests: Bool {
 		switch self {
-        case .spm:
-            return false
+		case .spm:
+			return false
 		case .xcode:
 			return true
 		}
