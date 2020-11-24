@@ -35,6 +35,9 @@ private enum StringLocalization {
     private static var localeToBundleMap: [String: Bundle] = [:]
 
     private static let resourceBundle: Bundle = {
+        #if SWIFT_PACKAGE
+        return Bundle.module
+        #else
         let frameworkBundle = Bundle(for: AccessibilityHierarchyParser.self)
 
         guard let resourceBundlePath = frameworkBundle.path(forResource: "AccessibilitySnapshot", ofType: "bundle") else {
@@ -46,6 +49,7 @@ private enum StringLocalization {
         }
 
         return resourceBundle
+        #endif
     }()
 
     // MARK: - Public Static Methods

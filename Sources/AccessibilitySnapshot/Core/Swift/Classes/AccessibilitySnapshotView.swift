@@ -771,9 +771,13 @@ private extension Bundle {
     private final class Sentinel {}
 
     static var accessibilitySnapshotResources: Bundle = {
+        #if SWIFT_PACKAGE
+        return Bundle.module
+        #else
         let container = Bundle(for: Sentinel.self)
         let resources = container.url(forResource: "AccessibilitySnapshot", withExtension: "bundle")!
         return Bundle(url: resources)!
+        #endif
     }()
 
 }

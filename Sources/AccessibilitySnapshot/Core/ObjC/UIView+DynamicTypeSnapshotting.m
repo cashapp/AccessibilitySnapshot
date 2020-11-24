@@ -14,7 +14,7 @@
 //  limitations under the License.
 //
 
-#import "UIView+DynamicTypeSnapshotting.h"
+#import "include/UIView+DynamicTypeSnapshotting.h"
 
 #import <objc/runtime.h>
 

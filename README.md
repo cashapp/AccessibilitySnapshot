@@ -31,6 +31,36 @@ Alternatively, if you wish to use [iOSSnapshotTestCase](https://github.com/uber/
 pod 'AccessibilitySnapshot/iOSSnapshotTestCase'
 ```
 
+### Swift Package Manager
+
+Install with [Swift Package Manager](https://swift.org/package-manager/) by adding the following to your `Package.swift`:
+
+```swift
+dependencies: [
+    .package(name: "AccessibilitySnapshot", url: "https://github.com/cashapp/AccessibilitySnapshot.git", from: "0.4.1"),
+]
+```
+
+Next, add AccessibilitySnapshot as a dependency to your test target:
+
+```swift
+targets: [
+    .target(name: "MyApp"),
+    .testTarget(name: "MyAppTests", dependencies: ["MyApp", "AccessibilitySnapshot"])
+]
+```
+
+To use only the core accessibility parser, add a dependency on the Core library alone:
+
+```swift
+targets: [
+    .target(name: "MyApp"),
+    .testTarget(name: "MyAppTests", dependencies: ["MyApp", "AccessibilitySnapshotCore"])
+]
+```
+
+We do not currently support AccessibilitySnapshot and [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) through Swift Package Manager.
+
 ## Usage
 
 AccessibilitySnapshot builds on top of existing snapshot frameworks to add support for snapshotting your app's accessibility. By default it uses the [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing) framework for snapshotting, but can be switched over to [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) as well.
