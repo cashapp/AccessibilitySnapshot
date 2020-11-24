@@ -1,9 +1,9 @@
 PODS:
-  - AccessibilitySnapshot/Core (0.4.0)
-  - AccessibilitySnapshot/iOSSnapshotTestCase (0.4.0):
+  - AccessibilitySnapshot/Core (0.4.1)
+  - AccessibilitySnapshot/iOSSnapshotTestCase (0.4.1):
     - AccessibilitySnapshot/Core
     - iOSSnapshotTestCase (~> 6.0)
-  - AccessibilitySnapshot/SnapshotTesting (0.4.0):
+  - AccessibilitySnapshot/SnapshotTesting (0.4.1):
     - AccessibilitySnapshot/Core
     - SnapshotTesting (~> 1.0)
   - iOSSnapshotTestCase (6.2.0):
@@ -37,7 +37,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/square/Paralayout
 
 SPEC CHECKSUMS:
-  AccessibilitySnapshot: 4e1a6b6a16d945a4aca3a7459490fc6e1ccc867e
+  AccessibilitySnapshot: 7d696575ee0df4371dde653b3087aaa9cfe4c300
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   Paralayout: f4d6727fca5b592eb93a7cc408e45404599a4b0a
   SnapshotTesting: 38947050d13960d57a4a9c166fcf51bca7d56970
