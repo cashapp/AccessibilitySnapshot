@@ -177,6 +177,43 @@ extension FBSnapshotTestCase {
         }
     }
 
+    @available(iOS 14, *)
+    public func SnapshotVerifyWithButtonShapes(
+        _ view: UIView,
+        identifier: String = "",
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        func postNotification() {
+            NotificationCenter.default.post(
+                name: UIAccessibility.buttonShapesEnabledStatusDidChangeNotification,
+                object: nil,
+                userInfo: nil
+            )
+        }
+
+        let requiresWindow = (view.window == nil && !(view is UIWindow))
+        if requiresWindow {
+            let window = UIApplication.shared.keyWindow ?? UIWindow(frame: UIScreen.main.bounds)
+            window.addSubview(view)
+        }
+
+        view.layoutIfNeeded()
+
+        let statusUtility = UIAccessibilityStatusUtility()
+        statusUtility.mockButtonShapesStatus()
+        postNotification()
+
+        FBSnapshotVerifyView(view, identifier: identifier, file: file, line: line)
+
+        statusUtility.unmockStatuses()
+        postNotification()
+
+        if requiresWindow {
+            view.removeFromSuperview()
+        }
+    }
+
     // MARK: - Internal Properties
 
     var isRunningInHostApplication: Bool {

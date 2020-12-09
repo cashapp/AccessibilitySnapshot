@@ -79,6 +79,12 @@ int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel);
                           named:"UIAccessibilityIsInvertColorsEnabled"];
 }
 
+- (void)mockButtonShapesStatus;
+{
+    [self mockStatusForFunction:&UIAccessibilityButtonShapesEnabled
+                          named:"UIAccessibilityButtonShapesEnabled"];
+}
+
 - (void)mockStatusForFunction:(void *)function named:(const char *)functionName;
 {
     struct rebinding rerebinding = {functionName, function, NULL};

@@ -22,6 +22,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)mockInvertColorsStatus;
 
+- (void)mockButtonShapesStatus API_AVAILABLE(ios(14));
+
 - (void)unmockStatuses;
 
 @end

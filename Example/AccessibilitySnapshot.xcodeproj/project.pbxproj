@@ -20,6 +20,8 @@
 		3D3F2E142263E6B900F7608E /* InvertColorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3F2E132263E6B900F7608E /* InvertColorsViewController.swift */; };
 		3D3F2E162263E94D00F7608E /* InvertColorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3F2E152263E94D00F7608E /* InvertColorsTests.swift */; };
 		3D4674682116A3F100278B57 /* ViewAccessibilityPropertiesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4674672116A3F100278B57 /* ViewAccessibilityPropertiesViewController.swift */; };
+		3D4F050D2581649B00A48D78 /* ButtonShapeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4F050C2581649B00A48D78 /* ButtonShapeTests.swift */; };
+		3D4F0512258171AC00A48D78 /* ButtonShapesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4F0511258171AC00A48D78 /* ButtonShapesViewController.swift */; };
 		3D9894F9213509C8006C16F6 /* DescriptionEdgeCasesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9894F8213509C8006C16F6 /* DescriptionEdgeCasesViewController.swift */; };
 		3DA12A3222405B9E00EB3C33 /* DataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA12A3122405B9E00EB3C33 /* DataTableViewController.swift */; };
 		3DBAC28722406EBB00EF4D0A /* AccessibilityContainersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBAC28622406EBB00EF4D0A /* AccessibilityContainersTests.swift */; };
@@ -91,6 +93,8 @@
 		3D3F2E132263E6B900F7608E /* InvertColorsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvertColorsViewController.swift; sourceTree = "<group>"; };
 		3D3F2E152263E94D00F7608E /* InvertColorsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvertColorsTests.swift; sourceTree = "<group>"; };
 		3D4674672116A3F100278B57 /* ViewAccessibilityPropertiesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewAccessibilityPropertiesViewController.swift; sourceTree = "<group>"; };
+		3D4F050C2581649B00A48D78 /* ButtonShapeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonShapeTests.swift; sourceTree = "<group>"; };
+		3D4F0511258171AC00A48D78 /* ButtonShapesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonShapesViewController.swift; sourceTree = "<group>"; };
 		3D881956246E03C00061DA6A /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D88195A246E03C00061DA6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3D9894F8213509C8006C16F6 /* DescriptionEdgeCasesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescriptionEdgeCasesViewController.swift; sourceTree = "<group>"; };
@@ -190,6 +194,7 @@
 				3DC8D04B224734E400E8A03C /* DynamicTypeViewController.swift */,
 				3D3F2E132263E6B900F7608E /* InvertColorsViewController.swift */,
 				3DDE7FF524C6D6BF00999ABA /* AccessibilityCustomActionsViewController.swift */,
+				3D4F0511258171AC00A48D78 /* ButtonShapesViewController.swift */,
 			);
 			name = "Accessibility Screens";
 			sourceTree = "<group>";
@@ -290,6 +295,7 @@
 				3DBAC28622406EBB00EF4D0A /* AccessibilityContainersTests.swift */,
 				607FACEB1AFB9204008FA782 /* AccessibilityPropertiesTests.swift */,
 				3D39BFAF2239BC42009C3EF4 /* ActivationPointTests.swift */,
+				3D4F050C2581649B00A48D78 /* ButtonShapeTests.swift */,
 				3DEBF24F22101EE40065424F /* DefaultControlsTests.swift */,
 				3DF46503220D8C500048D446 /* ElementOrderTests.swift */,
 				3DF464FF220D5FB00048D446 /* ElementSelectionTests.swift */,
@@ -614,6 +620,7 @@
 				3DBEAA5B2222953E00FAE61D /* SwitchControlViewController.swift in Sources */,
 				3DBAC2912242F9B200EF4D0A /* LandmarkContainerViewController.swift in Sources */,
 				3D39BFAC223314C1009C3EF4 /* TabBarViewController.swift in Sources */,
+				3D4F0512258171AC00A48D78 /* ButtonShapesViewController.swift in Sources */,
 				3D04B6DB21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -633,6 +640,7 @@
 				3DF46500220D5FB00048D446 /* ElementSelectionTests.swift in Sources */,
 				3DBAC28722406EBB00EF4D0A /* AccessibilityContainersTests.swift in Sources */,
 				3DC488392212B40C006D1E15 /* ModalTests.swift in Sources */,
+				3D4F050D2581649B00A48D78 /* ButtonShapeTests.swift in Sources */,
 				607FACEC1AFB9204008FA782 /* AccessibilityPropertiesTests.swift in Sources */,
 				3D39BFB02239BC42009C3EF4 /* ActivationPointTests.swift in Sources */,
 				3DC2C67921F4478A003184E4 /* LayoutTests.swift in Sources */,

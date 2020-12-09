@@ -44,6 +44,7 @@ class SnapshotTestCase: FBSnapshotTestCase {
     // MARK: - Private Static Properties
 
     private static let testedDevices = [
+        TestDeviceConfig(systemVersion: "14.2", screenSize: CGSize(width: 390, height: 844), screenScale: 3),
         TestDeviceConfig(systemVersion: "13.3", screenSize: CGSize(width: 375, height: 812), screenScale: 3),
         TestDeviceConfig(systemVersion: "12.1", screenSize: CGSize(width: 375, height: 812), screenScale: 3),
     ]
@@ -63,6 +64,12 @@ class SnapshotTestCase: FBSnapshotTestCase {
 
         guard UIApplication.shared.preferredContentSizeCategory == .large else {
             fatalError("Tests must be run on a device that has Dynamic Type disabled")
+        }
+
+        if #available(iOS 14, *) {
+            guard !UIAccessibility.buttonShapesEnabled else {
+                fatalError("Tests must be run on a device that has Button Shapes disabled")
+            }
         }
 
         fileNameOptions = [.OS, .screenSize, .screenScale]

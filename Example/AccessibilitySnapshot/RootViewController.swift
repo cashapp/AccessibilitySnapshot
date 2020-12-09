@@ -61,6 +61,7 @@ final class RootViewController: UITableViewController {
             ("List Container", { _ in return ListContainerViewController() }),
             ("Landmark Container", { _ in return LandmarkContainerViewController() }),
             ("Invert Colors", { _ in return InvertColorsViewController() }),
+            ("Button Shapes", { _ in return ButtonShapesViewController() }),
         ]
 
         super.init(nibName: nil, bundle: nil)
