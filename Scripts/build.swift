@@ -57,7 +57,7 @@ enum Platform: String, CustomStringConvertible {
 		case .iOS_13:
 			return "platform=iOS Simulator,OS=13.3,name=iPhone 11 Pro"
 		case .iOS_12:
-			return "platform=iOS Simulator,OS=12.1,name=iPhone Xs"
+			return "platform=iOS Simulator,OS=12.4,name=iPhone Xs"
 		}
 	}
 
