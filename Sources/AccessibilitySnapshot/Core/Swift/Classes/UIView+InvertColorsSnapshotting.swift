@@ -24,18 +24,17 @@ extension UIView {
 
     public func drawHierarchyWithInvertedColors(in rect: CGRect, using context: UIGraphicsImageRendererContext) {
         if accessibilityIgnoresInvertColors {
-            drawHierarchy(in: rect, afterScreenUpdates: false)
+            drawHierarchy(in: rect, afterScreenUpdates: true)
 
         } else {
             let subviewsToDrawSeparately = subviews.filter { subview in
                 !subview.isHidden && subview.hasSubviewInHierarchyThatIgnoresInvertColors
             }
             subviewsToDrawSeparately.forEach { $0.isHidden = true }
-            CATransaction.flush()
 
             let renderer = UIGraphicsImageRenderer(bounds: bounds)
             let image = renderer.image { context in
-                drawHierarchy(in: bounds, afterScreenUpdates: false)
+                drawHierarchy(in: bounds, afterScreenUpdates: true)
             }
 
             let filter = CIFilter(name: "CIColorInvert")!
@@ -47,7 +46,6 @@ extension UIView {
             context.cgContext.draw(invertedCGImage, in: rect)
 
             subviewsToDrawSeparately.forEach { $0.isHidden = false }
-            CATransaction.flush()
 
             // Sort the visible subviews by their ordering in the draw stack. For the most part, the
             // position of views is determined by the ordering of `subviews`, with the exception of those
