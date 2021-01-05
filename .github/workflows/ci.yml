@@ -15,6 +15,8 @@ jobs:
         platform: ['iOS_14', 'iOS_13']
       fail-fast: false
     steps:
+      - name: List Available Runtimes
+        run: xcrun simctl list runtimes
       - name: Checkout Repo
         uses: actions/checkout@v2
       - name: Bundle Install
@@ -25,8 +27,6 @@ jobs:
       - name: Select Xcode Version (11.3.1)
         run: sudo xcode-select --switch /Applications/Xcode_11.3.1.app/Contents/Developer
         if: matrix.platform == 'iOS_13'
-      - name: List Available Runtimes
-        run: xcrun simctl list runtimes
       - name: Pod Install
         run: bundle exec --gemfile=Example/Gemfile pod install --project-directory=Example
       - name: Build and Test
