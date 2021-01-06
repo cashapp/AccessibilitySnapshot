@@ -12,6 +12,8 @@ import SwiftUI
 @available(iOS 13.0, *)
 extension View {
 
+    // should be removed again when AccessibilitySnapshot supports snapshotting
+    // native SwiftUI views, see AccessibilitySnapshot/issues/37
     func toVC() -> UIViewController {
         let viewController = UIViewController()
 
