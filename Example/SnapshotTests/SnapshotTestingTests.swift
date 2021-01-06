@@ -27,10 +27,10 @@ final class SnapshotTestingTests: XCTestCase {
 
     @available(iOS 13.0, *)
     func testSimpleSwiftUIConfiguration() throws {
-        try XCTSkipUnless(
-            isOperatingSystemAtLeast13(),
-            "SwiftUI Views are only supported with iOS 13 or later."
-        )
+        guard isOperatingSystemAtLeast13() else {
+            print("SwiftUI Views are only supported with iOS 13 or later.")
+            return
+        }
 
         let viewController = SwiftUIView().toVC()
         viewController.view.frame = UIScreen.main.bounds
@@ -39,10 +39,10 @@ final class SnapshotTestingTests: XCTestCase {
 
     @available(iOS 13.0, *)
     func testSimpleSwiftUIWithScrollViewConfiguration() throws {
-        try XCTSkipUnless(
-            isOperatingSystemAtLeast13(),
-            "SwiftUI Views are only supported with iOS 13 or later."
-        )
+        guard isOperatingSystemAtLeast13() else {
+            print("SwiftUI Views are only supported with iOS 13 or later.")
+            return
+        }
 
         let viewController = SwiftUIViewWithScrollView().toVC()
         viewController.view.frame = UIScreen.main.bounds
