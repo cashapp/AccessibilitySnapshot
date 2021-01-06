@@ -9,7 +9,7 @@ AccessibilitySnapshots makes it simple to add regression tests for accessibility
 
 ## Getting Started
 
-By default, AccessibilitySnapshot uses [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) to record snapshots and perform comparisons. Before setting up accessibility snapshot tests, make sure your project is set up for standard snapshot testing. Accessibility snapshot tests require that the test target has a host application. See the [Extensions](#extensions) section below for a list of other available snapshotting options.
+By default, AccessibilitySnapshot uses [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing) to record snapshots and perform comparisons. The framework also includes support for using [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) as the snapshotting engine instead. Before setting up accessibility snapshot tests, make sure your project is set up for standard snapshot testing. Accessibility snapshot tests require that the test target has a host application. See the [Extensions](#extensions) section below for a list of other available snapshotting options.
 
 ### CocoaPods
 
@@ -19,19 +19,81 @@ Install with [CocoaPods](https://cocoapods.org) by adding the following to your 
 pod 'AccessibilitySnapshot'
 ```
 
-To use only the core accessibility parser, add a dependency on the Core subspec alone.
+To use only the core accessibility parser, add a dependency on the Core subspec alone:
 
 ```ruby
 pod 'AccessibilitySnapshot/Core'
 ```
 
-Alternatively, if you wish to use Pointfree's SnapshotTesting library to perform image comparisons, then you should use the following subspec instead.
+Alternatively, if you wish to use [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) to perform image comparisons, you can add a dependency on the `iOSSnapshotTestCase` subspec instead (or in addition - you can use both in the same project):
 
 ```ruby
-pod 'AccessibilitySnapshot/SnapshotTesting'
+pod 'AccessibilitySnapshot/iOSSnapshotTestCase'
 ```
 
+### Swift Package Manager
+
+Install with [Swift Package Manager](https://swift.org/package-manager/) by adding the following to your `Package.swift`:
+
+```swift
+dependencies: [
+    .package(name: "AccessibilitySnapshot", url: "https://github.com/cashapp/AccessibilitySnapshot.git", from: "0.4.1"),
+]
+```
+
+Next, add AccessibilitySnapshot as a dependency to your test target:
+
+```swift
+targets: [
+    .target(name: "MyApp"),
+    .testTarget(name: "MyAppTests", dependencies: ["MyApp", "AccessibilitySnapshot"])
+]
+```
+
+To use only the core accessibility parser, add a dependency on the Core library alone:
+
+```swift
+targets: [
+    .target(name: "MyApp"),
+    .testTarget(name: "MyAppTests", dependencies: ["MyApp", "AccessibilitySnapshotCore"])
+]
+```
+
+We do not currently support AccessibilitySnapshot and [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) through Swift Package Manager.
+
 ## Usage
+
+AccessibilitySnapshot builds on top of existing snapshot frameworks to add support for snapshotting your app's accessibility. By default it uses the [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing) framework for snapshotting, but can be switched over to [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) as well.
+
+### Getting Started with SnapshotTesting
+
+AccessibilitySnapshot provides an `.accessibilityImage` snapshotting strategy that can be used with SnapshotTesting's snapshot assertions.
+
+```swift
+func testAccessibility() {
+    let view = MyView()
+    // Configure the view...
+
+    assertSnapshot(matching: view, as: .accessibilityImage)
+}
+```
+
+Snapshots can also be customized in a few ways, for example controlling when to include indicators for the accessibility activation point of each element. By default, these indicators are shown when the activation point is different than the default activation point for that view. You can override this behavior for each snapshot:
+
+```swift
+func testAccessibility() {
+    let view = MyView()
+    // Configure the view...
+
+    // Show indicators for every element.
+    assertSnapshot(matching: view, as: .accessibilityImage(showActivationPoints: .always))
+
+    // Don't show any indicators.
+    assertSnapshot(matching: view, as: .accessibilityImage(showActivationPoints: .never))
+}
+```
+
+### Getting Started with iOSSnapshotTestCase
 
 To run a snapshot test, simply call the `SnapshotVerifyAccessibility` method:
 
@@ -92,6 +154,8 @@ a pull request.
 ## Extensions
 
 Have you written your own extension? [Add it here](https://github.com/cashapp/AccessibilitySnapshot/edit/master/README.md) and submit a pull request!
+
+* [PlaybookAccessibilitySnapshot](https://github.com/playbook-ui/accessibility-snapshot-ios) brings accessibility snapshot testing support to [Playbook](https://github.com/playbook-ui/playbook-ios).
 
 ## License
 
