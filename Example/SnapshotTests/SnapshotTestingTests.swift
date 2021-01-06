@@ -26,14 +26,24 @@ final class SnapshotTestingTests: XCTestCase {
     // MARK: - Tests
 
     @available(iOS 13.0, *)
-    func testSimpleSwiftUIConfiguration() {
+    func testSimpleSwiftUIConfiguration() throws {
+        try XCTSkipUnless(
+            isOperatingSystemAtLeast13(),
+            "SwiftUI Views are only supported with iOS 13 or later."
+        )
+
         let viewController = SwiftUIView().toVC()
         viewController.view.frame = UIScreen.main.bounds
         assertSnapshot(matching: viewController, as: .accessibilityImage, named: nameForDevice())
     }
 
     @available(iOS 13.0, *)
-    func testSimpleSwiftUIWithScrollViewConfiguration() {
+    func testSimpleSwiftUIWithScrollViewConfiguration() throws {
+        try XCTSkipUnless(
+            isOperatingSystemAtLeast13(),
+            "SwiftUI Views are only supported with iOS 13 or later."
+        )
+
         let viewController = SwiftUIViewWithScrollView().toVC()
         viewController.view.frame = UIScreen.main.bounds
         assertSnapshot(matching: viewController, as: .accessibilityImage, named: nameForDevice())
@@ -147,6 +157,21 @@ final class SnapshotTestingTests: XCTestCase {
         return [baseName, deviceName]
             .compactMap { $0 }
             .joined(separator: "-")
+    }
+
+    /// To check if the operating system is at least iOS 13.
+    ///
+    /// This is needed to be able to skip tests which don't support SwiftUI for
+    /// example, because an `@available` check for the test case isn't enough to
+    /// skip the test on older iOS versions.
+    /// - Returns: A boolean whether the system is at least iOS 13 or not.
+    private func isOperatingSystemAtLeast13() -> Bool {
+        let iOS13 = OperatingSystemVersion(
+            majorVersion: 13,
+            minorVersion: 0,
+            patchVersion: 0
+        )
+        return ProcessInfo().isOperatingSystemAtLeast(iOS13)
     }
 
 }
