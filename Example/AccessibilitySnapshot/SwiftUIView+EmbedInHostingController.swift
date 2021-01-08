@@ -20,8 +20,8 @@ import UIKit
 @available(iOS 13.0, *)
 extension View {
 
-    // should be removed again when AccessibilitySnapshot supports snapshotting
-    // native SwiftUI views, see AccessibilitySnapshot/issues/37
+    // This method should be removed once we support snapshotting native SwiftUI views.
+    // See cashapp/AccessibilitySnapshot#37.
     func toVC() -> UIViewController {
         let viewController = UIViewController()
 
