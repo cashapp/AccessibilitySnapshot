@@ -406,7 +406,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 1130;
 				LastUpgradeCheck = 1030;
-				ORGANIZATIONNAME = CocoaPods;
+				ORGANIZATIONNAME = "Square Inc.";
 				TargetAttributes = {
 					3D881955246E03C00061DA6A = {
 						CreatedOnToolsVersion = 11.3;
