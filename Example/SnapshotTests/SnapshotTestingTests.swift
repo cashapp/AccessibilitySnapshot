@@ -32,7 +32,7 @@ final class SnapshotTestingTests: XCTestCase {
             return
         }
 
-        let viewController = SwiftUIView().toVC()
+        let viewController = SwiftUIView().embedInHostingController()
         viewController.view.frame = UIScreen.main.bounds
         assertSnapshot(matching: viewController, as: .accessibilityImage, named: nameForDevice())
     }
@@ -44,7 +44,7 @@ final class SnapshotTestingTests: XCTestCase {
             return
         }
 
-        let viewController = SwiftUIViewWithScrollView().toVC()
+        let viewController = SwiftUIViewWithScrollView().embedInHostingController()
         viewController.view.frame = UIScreen.main.bounds
         assertSnapshot(matching: viewController, as: .accessibilityImage, named: nameForDevice())
     }
