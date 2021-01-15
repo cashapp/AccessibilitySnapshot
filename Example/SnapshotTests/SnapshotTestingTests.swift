@@ -25,6 +25,8 @@ final class SnapshotTestingTests: XCTestCase {
 
     // MARK: - Tests
 
+    #if swift(>=5.1)
+
     @available(iOS 13.0, *)
     func testSimpleSwiftUIConfiguration() throws {
         guard isOperatingSystemAtLeast13() else {
@@ -48,6 +50,8 @@ final class SnapshotTestingTests: XCTestCase {
         viewController.view.frame = UIScreen.main.bounds
         assertSnapshot(matching: viewController, as: .accessibilityImage, named: nameForDevice())
     }
+
+    #endif
 
     func testSimpleConfiguration() {
         let viewController = ViewAccessibilityPropertiesViewController()
