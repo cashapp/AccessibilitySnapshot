@@ -14,8 +14,8 @@ target 'AccessibilitySnapshotDemo' do
 		pod 'AccessibilitySnapshot/SnapshotTesting', :path => '../AccessibilitySnapshot.podspec'
 
 		# SnapshotTesting dropped support for building with Xcode 10 in 1.8.0, so pin the version to 1.7 in order to
-		# run our tests against Xcode 10.
-		pod 'SnapshotTesting', '= 1.7.2'
+	    # run our tests against Xcode 10.
+	    pod 'SnapshotTesting', '= 1.7.2'
 	end
 
 	target 'UnitTests' do
