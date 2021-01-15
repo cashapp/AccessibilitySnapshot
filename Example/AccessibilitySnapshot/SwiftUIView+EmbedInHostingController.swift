@@ -14,6 +14,8 @@
 //  limitations under the License.
 //
 
+#if swift(>=5.1)
+
 import SwiftUI
 import UIKit
 
@@ -26,3 +28,5 @@ extension View {
         return UIHostingController(rootView: self)
     }
 }
+
+#endif
