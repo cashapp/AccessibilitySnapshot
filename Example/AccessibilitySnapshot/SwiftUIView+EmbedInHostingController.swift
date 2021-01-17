@@ -14,7 +14,7 @@
 //  limitations under the License.
 //
 
-#if swift(>=5.1)
+#if swift(>=5.1) && canImport(SwiftUI)
 
 import SwiftUI
 import UIKit

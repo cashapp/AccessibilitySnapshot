@@ -25,7 +25,7 @@ final class SnapshotTestingTests: XCTestCase {
 
     // MARK: - Tests
 
-    #if swift(>=5.1)
+    #if swift(>=5.1) && canImport(SwiftUI)
 
     @available(iOS 13.0, *)
     func testSimpleSwiftUIConfiguration() throws {
