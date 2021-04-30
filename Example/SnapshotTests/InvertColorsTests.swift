@@ -29,23 +29,6 @@ final class InvertColorsTests: SnapshotTestCase {
     }
 
     func testInvertColorsWithIdentifier() {
-//        let label = UILabel(frame: .zero)
-//        label.text = "Hello World"
-//        label.sizeToFit()
-//
-//        let view = UIView(frame: UIScreen.main.bounds)
-//        view.backgroundColor = .lightGray
-//        view.addSubview(label)
-//
-//        label.center = view.center
-//
-//        FBSnapshotVerifyView(view, identifier: "someIdentifier")
-////        FBSnapshotVerifyView(view.colorInvert(), identifier: "invertedColors")
-//        SnapshotVerifyWithInvertedColors(view, identifier: "invertedColors")
-//
-//        // Ensures the view has not been modified after calling SnapshotVerifyWithInvertedColors
-//        FBSnapshotVerifyView(view, identifier: "someIdentifier")
-
         let viewController = InvertColorsViewController()
         viewController.view.frame = UIScreen.main.bounds
 
