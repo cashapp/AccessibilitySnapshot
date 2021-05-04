@@ -27,6 +27,18 @@ final class InvertColorsViewController: AccessibilityViewController {
 
     private var notificationObserver: AnyObject?
 
+    // MARK: - Life Cycle
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+
+        updateStatusLabel()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     // MARK: - UIViewController
 
     override func viewDidLoad() {
