@@ -33,6 +33,8 @@ extension FBSnapshotTestCase {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
+    /// Defaults to `FBSnapshotVerifyViewWithOptions()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotVerifyAccessibility(
@@ -41,6 +43,7 @@ extension FBSnapshotTestCase {
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
+        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -68,7 +71,7 @@ extension FBSnapshotTestCase {
         containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
         containerView.sizeToFit()
 
-        FBSnapshotVerifyView(containerView, identifier: identifier, file: file, line: line)
+        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, file: file, line: line)
     }
 
     /// Snapshots the `view` using the specified content size category to test Dynamic Type.
@@ -83,12 +86,15 @@ extension FBSnapshotTestCase {
     /// - parameter contentSizeCategory: The content size category to use in the snapshot.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple snapshot tests
     /// in a given test method. Defaults to no identifier.
+    /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
+    /// Defaults to `FBSnapshotVerifyViewWithOptions()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerify(
         _ view: UIView,
         at contentSizeCategory: UIContentSizeCategory,
         identifier: String = "",
+        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -115,7 +121,7 @@ extension FBSnapshotTestCase {
         // will be able to change the text size in production.
         view.setNeedsLayout()
 
-        FBSnapshotVerifyView(view, identifier: identifier, file: file, line: line)
+        FBSnapshotVerifyView(view, identifier: identifier, suffixes: suffixes, file: file, line: line)
 
         // Restore the original content size category.
         let overriddenTraitCollection = view.traitCollection
@@ -133,11 +139,14 @@ extension FBSnapshotTestCase {
     /// - parameter view: The view that will be snapshotted.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple snapshot tests
     /// in a given test method. Defaults to no identifier.
+    /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
+    /// Defaults to `FBSnapshotVerifyViewWithOptions()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotVerifyWithInvertedColors(
         _ view: UIView,
         identifier: String = "",
+        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -167,7 +176,7 @@ extension FBSnapshotTestCase {
         }
 
         let imageView = UIImageView(image: image)
-        FBSnapshotVerifyView(imageView, file: file, line: line)
+        FBSnapshotVerifyView(imageView, suffixes: suffixes, file: file, line: line)
 
         statusUtility.unmockStatuses()
         postNotification()
