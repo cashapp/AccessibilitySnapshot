@@ -34,7 +34,7 @@ extension FBSnapshotTestCase {
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
-    /// Defaults to `FBSnapshotVerifyViewWithOptions()`.
+    /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotVerifyAccessibility(
@@ -87,7 +87,7 @@ extension FBSnapshotTestCase {
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple snapshot tests
     /// in a given test method. Defaults to no identifier.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
-    /// Defaults to `FBSnapshotVerifyViewWithOptions()`.
+    /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerify(
@@ -140,7 +140,7 @@ extension FBSnapshotTestCase {
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple snapshot tests
     /// in a given test method. Defaults to no identifier.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
-    /// Defaults to `FBSnapshotVerifyViewWithOptions()`.
+    /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotVerifyWithInvertedColors(
