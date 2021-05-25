@@ -90,6 +90,7 @@
     [view addSubview:label];
 
     SnapshotVerifyAccessibilityWithOptions(view, nil, YES, YES);
+    SnapshotVerifyAccessibilityWithOptionsAndTolerance(view, nil, YES, YES, 0, 0);
 }
 
 - (void)testSimpleViewWithActivationPointNever;
@@ -107,6 +108,7 @@
     label.accessibilityActivationPoint = CGPointMake(screenBounds.size.width / 2, screenBounds.size.height / 2 - 10);
 
     SnapshotVerifyAccessibilityWithOptions(view, nil, NO, YES);
+    SnapshotVerifyAccessibilityWithOptionsAndTolerance(view, nil, NO, YES, 0, 0);
 }
 
 - (void)testSimpleViewWithColorSnapshots;
@@ -124,6 +126,7 @@
     label.accessibilityActivationPoint = CGPointMake(screenBounds.size.width / 2, screenBounds.size.height / 2 - 10);
 
     SnapshotVerifyAccessibilityWithOptions(view, nil, NO, NO);
+    SnapshotVerifyAccessibilityWithOptionsAndTolerance(view, nil, NO, NO, 0, 0);
 }
 
 - (void)testViewWithInvertedColors;

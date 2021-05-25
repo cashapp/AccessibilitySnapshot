@@ -33,10 +33,10 @@ extension FBSnapshotTestCase {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
-    /// - parameter perPixelTolerance: The percentage a given pixel's R,G,B and A components can differ and still be considered 'identical'. Each color shade difference represents a 0.390625% change.
-    /// - parameter overallTolerance The percentage difference to still count as identical - 0 mean pixel perfect, 1 means I don't care.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
     /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter perPixelTolerance: The percentage a given pixel's R,G,B and A components can differ and still be considered 'identical'. Each color shade difference represents a 0.390625% change.
+    /// - parameter overallTolerance The percentage difference to still count as identical - 0 mean pixel perfect, 1 means I don't care.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotVerifyAccessibility(
@@ -45,9 +45,9 @@ extension FBSnapshotTestCase {
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
+        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         perPixelTolerance: CGFloat = 0,
         overallTolerance: CGFloat = 0,
-        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -78,9 +78,9 @@ extension FBSnapshotTestCase {
         FBSnapshotVerifyView(
           containerView,
           identifier: identifier,
+          suffixes: suffixes,
           perPixelTolerance: perPixelTolerance,
           overallTolerance: overallTolerance,
-          suffixes: suffixes,
           file: file,
           line: line
         )
@@ -98,19 +98,19 @@ extension FBSnapshotTestCase {
     /// - parameter contentSizeCategory: The content size category to use in the snapshot.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple snapshot tests
     /// in a given test method. Defaults to no identifier.
-    /// - parameter perPixelTolerance: The percentage a given pixel's R,G,B and A components can differ and still be considered 'identical'. Each color shade difference represents a 0.390625% change.
-    /// - parameter overallTolerance The percentage difference to still count as identical - 0 mean pixel perfect, 1 means I don't care.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
     /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter perPixelTolerance: The percentage a given pixel's R,G,B and A components can differ and still be considered 'identical'. Each color shade difference represents a 0.390625% change.
+    /// - parameter overallTolerance The percentage difference to still count as identical - 0 mean pixel perfect, 1 means I don't care.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerify(
         _ view: UIView,
         at contentSizeCategory: UIContentSizeCategory,
         identifier: String = "",
+        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         perPixelTolerance: CGFloat = 0,
         overallTolerance: CGFloat = 0,
-        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -140,9 +140,9 @@ extension FBSnapshotTestCase {
         FBSnapshotVerifyView(
           view,
           identifier: identifier,
+          suffixes: suffixes,
           perPixelTolerance: perPixelTolerance,
           overallTolerance: overallTolerance,
-          suffixes: suffixes,
           file: file,
           line: line
         )
@@ -163,18 +163,18 @@ extension FBSnapshotTestCase {
     /// - parameter view: The view that will be snapshotted.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple snapshot tests
     /// in a given test method. Defaults to no identifier.
-    /// - parameter perPixelTolerance: The percentage a given pixel's R,G,B and A components can differ and still be considered 'identical'. Each color shade difference represents a 0.390625% change.
-    /// - parameter overallTolerance The percentage difference to still count as identical - 0 mean pixel perfect, 1 means I don't care.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
     /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter perPixelTolerance: The percentage a given pixel's R,G,B and A components can differ and still be considered 'identical'. Each color shade difference represents a 0.390625% change.
+    /// - parameter overallTolerance The percentage difference to still count as identical - 0 mean pixel perfect, 1 means I don't care.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotVerifyWithInvertedColors(
         _ view: UIView,
         identifier: String = "",
+        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         perPixelTolerance: CGFloat = 0,
         overallTolerance: CGFloat = 0,
-        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -206,9 +206,9 @@ extension FBSnapshotTestCase {
         let imageView = UIImageView(image: image)
         FBSnapshotVerifyView(
           imageView,
+          suffixes: suffixes,
           perPixelTolerance: perPixelTolerance,
           overallTolerance: overallTolerance,
-          suffixes: suffixes,
           file: file,
           line: line
         )
