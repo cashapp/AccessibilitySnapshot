@@ -33,6 +33,8 @@ extension FBSnapshotTestCase {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter perPixelTolerance: The percentage a given pixel's R,G,B and A components can differ and still be considered 'identical'. Each color shade difference represents a 0.390625% change.
+    /// - parameter overallTolerance The percentage difference to still count as identical - 0 mean pixel perfect, 1 means I don't care.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
     /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
@@ -43,6 +45,8 @@ extension FBSnapshotTestCase {
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -71,7 +75,15 @@ extension FBSnapshotTestCase {
         containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
         containerView.sizeToFit()
 
-        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(
+          containerView,
+          identifier: identifier,
+          suffixes: suffixes,
+          perPixelTolerance: perPixelTolerance,
+          overallTolerance: overallTolerance,
+          file: file,
+          line: line
+        )
     }
 
     /// Snapshots the `view` using the specified content size category to test Dynamic Type.
@@ -86,6 +98,8 @@ extension FBSnapshotTestCase {
     /// - parameter contentSizeCategory: The content size category to use in the snapshot.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple snapshot tests
     /// in a given test method. Defaults to no identifier.
+    /// - parameter perPixelTolerance: The percentage a given pixel's R,G,B and A components can differ and still be considered 'identical'. Each color shade difference represents a 0.390625% change.
+    /// - parameter overallTolerance The percentage difference to still count as identical - 0 mean pixel perfect, 1 means I don't care.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
     /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
@@ -94,6 +108,8 @@ extension FBSnapshotTestCase {
         _ view: UIView,
         at contentSizeCategory: UIContentSizeCategory,
         identifier: String = "",
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -121,7 +137,15 @@ extension FBSnapshotTestCase {
         // will be able to change the text size in production.
         view.setNeedsLayout()
 
-        FBSnapshotVerifyView(view, identifier: identifier, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(
+          view,
+          identifier: identifier,
+          perPixelTolerance: perPixelTolerance,
+          overallTolerance: overallTolerance,
+          suffixes: suffixes,
+          file: file,
+          line: line
+        )
 
         // Restore the original content size category.
         let overriddenTraitCollection = view.traitCollection
@@ -139,6 +163,8 @@ extension FBSnapshotTestCase {
     /// - parameter view: The view that will be snapshotted.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple snapshot tests
     /// in a given test method. Defaults to no identifier.
+    /// - parameter perPixelTolerance: The percentage a given pixel's R,G,B and A components can differ and still be considered 'identical'. Each color shade difference represents a 0.390625% change.
+    /// - parameter overallTolerance The percentage difference to still count as identical - 0 mean pixel perfect, 1 means I don't care.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
     /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
@@ -146,6 +172,8 @@ extension FBSnapshotTestCase {
     public func SnapshotVerifyWithInvertedColors(
         _ view: UIView,
         identifier: String = "",
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -176,7 +204,14 @@ extension FBSnapshotTestCase {
         }
 
         let imageView = UIImageView(image: image)
-        FBSnapshotVerifyView(imageView, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(
+          imageView,
+          perPixelTolerance: perPixelTolerance,
+          overallTolerance: overallTolerance,
+          suffixes: suffixes,
+          file: file,
+          line: line
+        )
 
         statusUtility.unmockStatuses()
         postNotification()
