@@ -35,7 +35,7 @@ extension FBSnapshotTestCase {
         showActivationPoints: Bool,
         useMonochromeSnapshot: Bool
     ) -> String? {
-        return  🚫objc_snapshotVerifyAccessibility(
+        return 🚫objc_snapshotVerifyAccessibility(
             view,
             identifier: identifier,
             showActivationPoints: showActivationPoints,
@@ -105,7 +105,7 @@ extension FBSnapshotTestCase {
       _ view: UIView,
       identifier: String
     ) -> String? {
-      snapshotVerifyWithInvertedColors(view, identifier: identifier, perPixelTolerance: 0, overallTolerance: 0)
+      return snapshotVerifyWithInvertedColors(view, identifier: identifier, perPixelTolerance: 0, overallTolerance: 0)
     }
 
     @objc(snapshotVerifyWithInvertedColors:identifier:perPixelTolerance:overallTolerance:)
