@@ -78,9 +78,9 @@ extension FBSnapshotTestCase {
         FBSnapshotVerifyView(
           containerView,
           identifier: identifier,
-          suffixes: suffixes,
           perPixelTolerance: perPixelTolerance,
           overallTolerance: overallTolerance,
+          suffixes: suffixes,
           file: file,
           line: line
         )
