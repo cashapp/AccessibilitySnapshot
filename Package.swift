@@ -26,6 +26,12 @@ let package = Package(
             name: "AccessibilitySnapshotCore",
             targets: ["AccessibilitySnapshotCore"]
         ),
+        
+        // SnapshotTesting + Color Blindness Simulation
+        .library(
+            name: "AccessibilitySnapshot-ColorBlindness",
+            targets: ["AccessibilitySnapshot-ColorBlindness"]
+        ),
     ],
     dependencies: [
         .package(
@@ -64,5 +70,9 @@ let package = Package(
             dependencies: ["AccessibilitySnapshotCore", "iOSSnapshotTestCase", "FBSnapshotTestCase+Accessibility"],
             path: "Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC"
         ),
+        .target(
+            name: "AccessibilitySnapshot-ColorBlindness",
+            path: "Sources/ColorBlindness"
+        )
     ]
 )

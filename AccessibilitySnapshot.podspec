@@ -42,4 +42,13 @@ Pod::Spec.new do |s|
     ss.frameworks = 'XCTest'
     ss.weak_frameworks = 'XCTest'
   end
+
+  s.subspec 'ColorBlindness' do |ss|
+    ss.source_files = 'Sources/ColorBlindness/*.swift'
+
+    ss.dependency 'AccessibilitySnapshot/SnapshotTesting'
+  end
+
+  s.frameworks = 'XCTest'
+  s.weak_frameworks = 'XCTest'
 end
