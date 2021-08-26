@@ -30,6 +30,8 @@ Pod::Spec.new do |s|
 
     ss.dependency 'AccessibilitySnapshot/Core'
     ss.dependency 'iOSSnapshotTestCase', '~> 6.0'
+    ss.frameworks = 'XCTest'
+    ss.weak_frameworks = 'XCTest'
   end
 
   s.subspec 'SnapshotTesting' do |ss|
@@ -37,8 +39,7 @@ Pod::Spec.new do |s|
 
     ss.dependency 'AccessibilitySnapshot/Core'
     ss.dependency 'SnapshotTesting', '~> 1.0'
+    ss.frameworks = 'XCTest'
+    ss.weak_frameworks = 'XCTest'
   end
-
-  s.frameworks = 'XCTest'
-  s.weak_frameworks = 'XCTest'
 end

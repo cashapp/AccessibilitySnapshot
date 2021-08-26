@@ -14,7 +14,7 @@
 //  limitations under the License.
 //
 
-#import <XCTest/XCTest.h>
+#import <Foundation/Foundation.h>
 #import <dlfcn.h>
 
 
