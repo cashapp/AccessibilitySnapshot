@@ -16,6 +16,11 @@
 
 import FBSnapshotTestCase
 
+#if SWIFT_PACKAGE
+import AccessibilitySnapshotCore
+import AccessibilitySnapshotCore_ObjC
+#endif
+
 extension FBSnapshotTestCase {
 
     @objc(snapshotVerifyAccessibility:identifier:)

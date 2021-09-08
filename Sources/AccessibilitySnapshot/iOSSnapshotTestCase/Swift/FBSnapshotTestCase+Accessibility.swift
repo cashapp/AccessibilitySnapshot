@@ -17,6 +17,11 @@
 import FBSnapshotTestCase
 import XCTest
 
+#if SWIFT_PACKAGE
+import AccessibilitySnapshotCore
+import AccessibilitySnapshotCore_ObjC
+#endif
+
 extension FBSnapshotTestCase {
 
     /// Snapshots the `view` with colored overlays of each accessibility element it contains, as well as an
