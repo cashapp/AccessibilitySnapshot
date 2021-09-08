@@ -38,11 +38,11 @@ CHECKOUT OPTIONS:
     :git: https://github.com/square/Paralayout
 
 SPEC CHECKSUMS:
-  AccessibilitySnapshot: 5f0c199c03bc3b007ffe5caf37fef2bba53831b4
+  AccessibilitySnapshot: 258a4f554c19b5fa7783689ed8d61ae4680f3f78
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   Paralayout: f4d6727fca5b592eb93a7cc408e45404599a4b0a
   SnapshotTesting: 8caa6661fea7c8019d5b46de77c16bab99c36c5c
 
 PODFILE CHECKSUM: 9d965121b60425a32e1b4c884c4c6b7aff62fa52
 
-COCOAPODS: 1.9.1
+COCOAPODS: 1.11.0.rc.1
