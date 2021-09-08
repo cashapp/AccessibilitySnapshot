@@ -9,7 +9,7 @@ on:
 jobs:
   xcode-build:
     name: Xcode Build
-    runs-on: macOS-latest
+    runs-on: macOS-10.15
     strategy:
       matrix:
         platform: ['iOS_14', 'iOS_13', 'iOS_12']
@@ -40,7 +40,7 @@ jobs:
           path: .build/derivedData/**/Logs/Test/*.xcresult
   pod-lint:
     name: Pod Lint
-    runs-on: macOS-latest
+    runs-on: macOS-10.15
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
@@ -52,7 +52,7 @@ jobs:
         run: bundle exec --gemfile=Example/Gemfile pod lib lint --verbose --fail-fast
   spm:
     name: SPM Build
-    runs-on: macOS-latest
+    runs-on: macOS-11
     strategy:
       matrix:
         platform: ['iOS_14']
