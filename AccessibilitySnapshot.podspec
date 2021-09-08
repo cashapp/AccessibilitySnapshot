@@ -25,7 +25,7 @@ Pod::Spec.new do |s|
   s.subspec 'iOSSnapshotTestCase' do |ss|
     ss.source_files = 'Sources/AccessibilitySnapshot/iOSSnapshotTestCase/**/*.{swift,h,m}'
     ss.public_header_files = [
-      'Sources/AccessibilitySnapshot/iOSSnapshotTestCase/FBSnapshotTestCase_Accessibility.h',
+      'Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC/FBSnapshotTestCase_Accessibility.h',
     ]
 
     ss.dependency 'AccessibilitySnapshot/Core'

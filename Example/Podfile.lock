@@ -38,7 +38,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/square/Paralayout
 
 SPEC CHECKSUMS:
-  AccessibilitySnapshot: 1230b68542cc0d99356e7d7fddf6b6f1ba1acd77
+  AccessibilitySnapshot: 3d81921b0e21b814d55351e6de36a52555dbd8d1
   iOSSnapshotTestCase: 9ab44cb5aa62b84d31847f40680112e15ec579a6
   Paralayout: f4d6727fca5b592eb93a7cc408e45404599a4b0a
   SnapshotTesting: 8caa6661fea7c8019d5b46de77c16bab99c36c5c
