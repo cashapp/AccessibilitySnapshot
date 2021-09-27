@@ -15,6 +15,7 @@
 //
 
 import FBSnapshotTestCase
+import XCTest
 
 extension FBSnapshotTestCase {
 
@@ -68,7 +69,19 @@ extension FBSnapshotTestCase {
         containerView.center = window.center
         window.addSubview(containerView)
 
-        containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+        do {
+            try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+        } catch AccessibilitySnapshotView.RenderError.imageExceedsMaximumSize {
+            XCTFail(
+                "View is too large to render monochrome snapshot. Try setting useMonochromeSnapshot to false.",
+                file: file,
+                line: line
+            )
+            return
+        } catch {
+            XCTFail("Failed to render snapshot image", file: file, line: line)
+            return
+        }
         containerView.sizeToFit()
 
         FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, file: file, line: line)
