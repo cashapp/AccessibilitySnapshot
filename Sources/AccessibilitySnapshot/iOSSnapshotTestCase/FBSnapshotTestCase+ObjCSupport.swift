@@ -50,7 +50,7 @@ extension FBSnapshotTestCase {
         useMonochromeSnapshot: Bool
     ) -> String? {
         guard isRunningInHostApplication else {
-            return "Accessibility snapshot tests cannot be run in a test target without a host application"
+            return ErrorMessageFactory.errorMessageForMissingHostApplication
         }
 
         let containerView = AccessibilitySnapshotView(
@@ -66,10 +66,8 @@ extension FBSnapshotTestCase {
 
         do {
             try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
-        } catch AccessibilitySnapshotView.RenderError.imageExceedsMaximumSize {
-            return "View is too large to render monochrome snapshot. Try setting useMonochromeSnapshot to false."
         } catch {
-            return "Failed to render snapshot image"
+            return ErrorMessageFactory.errorMessageForAccessibilityParsingError(error)
         }
 
         containerView.sizeToFit()

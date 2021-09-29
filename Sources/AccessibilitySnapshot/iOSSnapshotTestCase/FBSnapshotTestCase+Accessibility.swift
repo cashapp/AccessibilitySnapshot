@@ -49,11 +49,7 @@ extension FBSnapshotTestCase {
         line: UInt = #line
     ) {
         guard isRunningInHostApplication else {
-            XCTFail(
-                "Accessibility snapshot tests cannot be run in a test target without a host application",
-                file: file,
-                line: line
-            )
+            XCTFail(ErrorMessageFactory.errorMessageForMissingHostApplication, file: file, line: line)
             return
         }
 
@@ -71,15 +67,8 @@ extension FBSnapshotTestCase {
 
         do {
             try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
-        } catch AccessibilitySnapshotView.RenderError.imageExceedsMaximumSize {
-            XCTFail(
-                "View is too large to render monochrome snapshot. Try setting useMonochromeSnapshot to false.",
-                file: file,
-                line: line
-            )
-            return
         } catch {
-            XCTFail("Failed to render snapshot image", file: file, line: line)
+            XCTFail(ErrorMessageFactory.errorMessageForAccessibilityParsingError(error), file: file, line: line)
             return
         }
         containerView.sizeToFit()

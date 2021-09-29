@@ -42,8 +42,16 @@ public final class AccessibilitySnapshotView: UIView {
 
     // MARK: - Public Types
 
-    public enum RenderError: Swift.Error {
-        case imageExceedsMaximumSize(imageSize: CGSize, maximumSize: CGSize)
+    public enum Error: Swift.Error {
+
+        /// An error indicating that the `containedView` is too large too snapshot using the specified rendering
+        /// parameters.
+        ///
+        /// - Note: This error is thrown due to filters failing. To avoid this error, try rendering the snapshot in
+        /// polychrome, reducing the size of the `containedView`, or running on a different iOS version. In particular,
+        /// this error is known to occur when rendering a monochrome snapshot on iOS 13.
+        case containedViewExceedsMaximumSize(viewSize: CGSize, maximumSize: CGSize)
+
     }
 
     // MARK: - Life Cycle
@@ -755,8 +763,8 @@ private extension UIView {
             // result in a blank image.
             let maximumSize = CGSize(width: 1365, height: 1365)
             if snapshot.size.width > maximumSize.width || snapshot.size.height > maximumSize.height {
-                throw AccessibilitySnapshotView.RenderError.imageExceedsMaximumSize(
-                    imageSize: snapshot.size,
+                throw AccessibilitySnapshotView.Error.containedViewExceedsMaximumSize(
+                    viewSize: snapshot.size,
                     maximumSize: maximumSize
                 )
             }
