@@ -144,6 +144,11 @@ You can also run accessibility snapshot tests from Objective-C:
 }
 ```
 
+## Requirements
+
+* Xcode 12.0 or later
+* iOS 12.0 or later
+
 ## Contributing
 
 We love our
