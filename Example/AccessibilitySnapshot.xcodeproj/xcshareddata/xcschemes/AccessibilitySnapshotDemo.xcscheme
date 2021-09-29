@@ -68,6 +68,9 @@
                   Identifier = "AccessibilityContainersTests/testDataTableWithUndefinedRowsAndColumns()">
                </Test>
                <Test
+                  Identifier = "AccessibilitySnapshotTests/testLargeViewThatRequiresTiling()">
+               </Test>
+               <Test
                   Identifier = "DefaultControlsTests/testDatePicker()">
                </Test>
                <Test
