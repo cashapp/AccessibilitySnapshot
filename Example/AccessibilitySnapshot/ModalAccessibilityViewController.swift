@@ -21,8 +21,8 @@ final class ModalAccessibilityViewController: AccessibilityViewController {
 
     // MARK: - Life Cycle
 
-    init(topLevelCount: Int, containerCount: Int) {
-        modalViews = (0..<topLevelCount).map { index in ModalView(index: index) }
+    init(topLevelCount: Int, containerCount: Int, modalAccessibilityMode: ModalAccessibilityMode) {
+        modalViews = (0..<topLevelCount).map { ModalView(index: $0, accessibilityMode: modalAccessibilityMode) }
         modalContainerViews = (0..<containerCount).map { _ in ModalContainerView() }
 
         super.init(nibName: nil, bundle: nil)
@@ -89,6 +89,14 @@ final class ModalAccessibilityViewController: AccessibilityViewController {
         view.applySubviewDistribution(distributionItems)
     }
 
+    // MARK: - Public Types
+
+    enum ModalAccessibilityMode {
+        case viewIsAccessible
+        case viewContainsAccessibleElement
+        case viewIsInaccessible
+    }
+
 }
 
 // MARK: -
@@ -99,16 +107,27 @@ private extension ModalAccessibilityViewController {
 
         // MARK: - Life Cycle
 
-        init(index: Int) {
+        init(index: Int, accessibilityMode: ModalAccessibilityMode) {
+            self.accessibilityMode = accessibilityMode
+
             super.init(frame: .zero)
 
             accessibilityViewIsModal = true
+            accessibilityLabel = "Modal View \(index)"
 
             backgroundColor = .lightGray
             layer.cornerRadius = 16
 
             label.text = "Modal \(index)"
             addSubview(label)
+
+            switch accessibilityMode {
+            case .viewIsAccessible:
+                isAccessibilityElement = true
+            case .viewContainsAccessibleElement,
+                 .viewIsInaccessible:
+                isAccessibilityElement = false
+            }
         }
 
         @available(*, unavailable)
@@ -118,6 +137,8 @@ private extension ModalAccessibilityViewController {
 
         // MARK: - Private Properties
 
+        private let accessibilityMode: ModalAccessibilityMode
+
         private let label: UILabel = .init()
 
         // MARK: - UIView
@@ -125,6 +146,14 @@ private extension ModalAccessibilityViewController {
         override func layoutSubviews() {
             label.sizeToFit()
             label.alignToSuperview(.center)
+
+            switch accessibilityMode {
+            case .viewContainsAccessibleElement,
+                 .viewIsAccessible:
+                label.isAccessibilityElement = true
+            case .viewIsInaccessible:
+                label.isAccessibilityElement = false
+            }
         }
 
         override func sizeThatFits(_ size: CGSize) -> CGSize {
@@ -157,7 +186,9 @@ private extension ModalAccessibilityViewController {
 
         // MARK: - Private Properties
 
-        private let modalViews: [ModalView] = (0..<2).map { index in ModalView(index: index) }
+        private let modalViews: [ModalView] = (0..<2).map { index in
+            ModalView(index: index, accessibilityMode: .viewContainsAccessibleElement)
+        }
 
         // MARK: - UIView
 
@@ -188,10 +219,15 @@ extension ModalAccessibilityViewController {
     static func makeConfigurationSelectionViewController(
         presentingViewController: UIViewController
     ) -> UIViewController {
-        func selectConfiguration(topLevelCount: Int, containerCount: Int) {
+        func selectConfiguration(
+            topLevelCount: Int,
+            containerCount: Int,
+            modalAccessibilityMode: ModalAccessibilityMode = .viewContainsAccessibleElement
+        ) {
             let viewController = ModalAccessibilityViewController(
                 topLevelCount: topLevelCount,
-                containerCount: containerCount
+                containerCount: containerCount,
+                modalAccessibilityMode: modalAccessibilityMode
             )
             presentingViewController.present(viewController, animated: true, completion: nil)
         }
@@ -200,6 +236,14 @@ extension ModalAccessibilityViewController {
 
         alertController.addAction(.init(title: "Single Modal", style: .default, handler: { _ in
             selectConfiguration(topLevelCount: 1, containerCount: 0)
+        }))
+
+        alertController.addAction(.init(title: "Single Directly Specified Modal", style: .default, handler: { _ in
+            selectConfiguration(topLevelCount: 1, containerCount: 0, modalAccessibilityMode: .viewIsAccessible)
+        }))
+
+        alertController.addAction(.init(title: "Single Inaccessible Modal", style: .default, handler: { _ in
+            selectConfiguration(topLevelCount: 1, containerCount: 0, modalAccessibilityMode: .viewIsInaccessible)
         }))
 
         alertController.addAction(.init(title: "Two Modals", style: .default, handler: { _ in
