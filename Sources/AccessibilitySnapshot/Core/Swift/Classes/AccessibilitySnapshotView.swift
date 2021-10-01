@@ -40,6 +40,20 @@ public enum ActivationPointDisplayMode {
 /// calculated properly, the view must already be in the view hierarchy.
 public final class AccessibilitySnapshotView: UIView {
 
+    // MARK: - Public Types
+
+    public enum Error: Swift.Error {
+
+        /// An error indicating that the `containedView` is too large too snapshot using the specified rendering
+        /// parameters.
+        ///
+        /// - Note: This error is thrown due to filters failing. To avoid this error, try rendering the snapshot in
+        /// polychrome, reducing the size of the `containedView`, or running on a different iOS version. In particular,
+        /// this error is known to occur when rendering a monochrome snapshot on iOS 13.
+        case containedViewExceedsMaximumSize(viewSize: CGSize, maximumSize: CGSize)
+
+    }
+
     // MARK: - Life Cycle
 
     /// Initializes a new snapshot container view.
@@ -94,7 +108,9 @@ public final class AccessibilitySnapshotView: UIView {
     /// Parse the `containedView`'s accessibility and add appropriate visual elements to represent it.
     ///
     /// This must be called _after_ the view is in the view hierarchy.
-    public func parseAccessibility(useMonochromeSnapshot: Bool) {
+    ///
+    /// - Throws: Throws a `RenderError` when the view fails to render a snapshot of the `containedView`.
+    public func parseAccessibility(useMonochromeSnapshot: Bool) throws {
         // Clean up any previous markers.
         self.displayMarkers.forEach {
             $0.legendView.removeFromSuperview()
@@ -113,7 +129,7 @@ public final class AccessibilitySnapshotView: UIView {
         containedView.setNeedsLayout()
         containedView.layoutIfNeeded()
 
-        snapshotView.image = containedView.renderToImage(
+        snapshotView.image = try containedView.renderToImage(
             monochrome: useMonochromeSnapshot,
             viewRenderingMode: viewRenderingMode
         )
@@ -717,7 +733,10 @@ private extension AccessibilitySnapshotView {
 
 private extension UIView {
 
-    func renderToImage(monochrome: Bool, viewRenderingMode: AccessibilitySnapshotView.ViewRenderingMode) -> UIImage {
+    func renderToImage(
+        monochrome: Bool,
+        viewRenderingMode: AccessibilitySnapshotView.ViewRenderingMode
+    ) throws -> UIImage {
         let renderer = UIGraphicsImageRenderer(bounds: bounds)
         let snapshot = renderer.image { context in
             switch viewRenderingMode {
@@ -730,14 +749,27 @@ private extension UIView {
         }
 
         if monochrome {
-            return monochromeSnapshot(for: snapshot) ?? snapshot
+            return try monochromeSnapshot(for: snapshot) ?? snapshot
 
         } else {
             return snapshot
         }
     }
 
-    private func monochromeSnapshot(for snapshot: UIImage) -> UIImage? {
+    private func monochromeSnapshot(for snapshot: UIImage) throws -> UIImage? {
+        if ProcessInfo().operatingSystemVersion.majorVersion == 13 {
+            // On iOS 13, the image filter silently fails for large images, "successfully" producing a blank output
+            // image. From testing, the maximum support size is 1365x1365 pt. Exceeding that in either dimension will
+            // result in a blank image.
+            let maximumSize = CGSize(width: 1365, height: 1365)
+            if snapshot.size.width > maximumSize.width || snapshot.size.height > maximumSize.height {
+                throw AccessibilitySnapshotView.Error.containedViewExceedsMaximumSize(
+                    viewSize: snapshot.size,
+                    maximumSize: maximumSize
+                )
+            }
+        }
+
         guard let inputImage = CIImage(image: snapshot) else {
             return nil
         }

@@ -50,7 +50,7 @@ extension FBSnapshotTestCase {
         useMonochromeSnapshot: Bool
     ) -> String? {
         guard isRunningInHostApplication else {
-            return "Accessibility snapshot tests cannot be run in a test target without a host application"
+            return ErrorMessageFactory.errorMessageForMissingHostApplication
         }
 
         let containerView = AccessibilitySnapshotView(
@@ -64,7 +64,12 @@ extension FBSnapshotTestCase {
         containerView.center = window.center
         window.addSubview(containerView)
 
-        containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+        do {
+            try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+        } catch {
+            return ErrorMessageFactory.errorMessageForAccessibilityParsingError(error)
+        }
+
         containerView.sizeToFit()
 
         return snapshotVerifyViewOrLayer(

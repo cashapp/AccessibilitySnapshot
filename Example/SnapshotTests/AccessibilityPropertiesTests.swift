@@ -16,6 +16,7 @@
 
 import AccessibilitySnapshot
 import FBSnapshotTestCase
+import Paralayout
 
 @testable import AccessibilitySnapshotDemo
 
@@ -61,6 +62,25 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         let customActionsViewController = AccessibilityCustomActionsViewController()
         customActionsViewController.view.frame = UIScreen.main.bounds
         SnapshotVerifyAccessibility(customActionsViewController.view)
+    }
+
+    func testLargeView() throws {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 1400, height: 1400))
+        view.backgroundColor = .white
+
+        let label = UILabel()
+        label.text = "Hello world"
+        label.textColor = .red
+        view.addSubview(label)
+
+        label.sizeToFit()
+        label.center = view.point(at: .center)
+
+        if ProcessInfo().operatingSystemVersion.majorVersion != 13 {
+            SnapshotVerifyAccessibility(view, identifier: "monochrome", useMonochromeSnapshot: true)
+        }
+
+        SnapshotVerifyAccessibility(view, identifier: "polychrome", useMonochromeSnapshot: false)
     }
 
 }

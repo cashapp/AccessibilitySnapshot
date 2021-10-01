@@ -67,7 +67,20 @@ extension Snapshotting where Value == UIView, Format == UIImage {
                 containerView.center = window.center
                 window.addSubview(containerView)
 
-                containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+                do {
+                    try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+                } catch AccessibilitySnapshotView.Error.containedViewExceedsMaximumSize {
+                    fatalError(
+                        """
+                        View is too large to render monochrome snapshot. Try setting useMonochromeSnapshot to false or \
+                        use a different iOS version. In particular, this is known to fail on iOS 13, but was fixed in \
+                        iOS 14.
+                        """
+                    )
+                } catch {
+                    fatalError("Failed to render snapshot image")
+                }
+
                 containerView.sizeToFit()
 
                 return containerView

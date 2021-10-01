@@ -15,6 +15,7 @@
 //
 
 import FBSnapshotTestCase
+import XCTest
 
 extension FBSnapshotTestCase {
 
@@ -48,11 +49,7 @@ extension FBSnapshotTestCase {
         line: UInt = #line
     ) {
         guard isRunningInHostApplication else {
-            XCTFail(
-                "Accessibility snapshot tests cannot be run in a test target without a host application",
-                file: file,
-                line: line
-            )
+            XCTFail(ErrorMessageFactory.errorMessageForMissingHostApplication, file: file, line: line)
             return
         }
 
@@ -68,7 +65,12 @@ extension FBSnapshotTestCase {
         containerView.center = window.center
         window.addSubview(containerView)
 
-        containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+        do {
+            try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+        } catch {
+            XCTFail(ErrorMessageFactory.errorMessageForAccessibilityParsingError(error), file: file, line: line)
+            return
+        }
         containerView.sizeToFit()
 
         FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, file: file, line: line)
