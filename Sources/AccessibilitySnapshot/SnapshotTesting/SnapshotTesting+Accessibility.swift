@@ -77,6 +77,13 @@ extension Snapshotting where Value == UIView, Format == UIImage {
                         iOS 14.
                         """
                     )
+                } catch AccessibilitySnapshotView.Error.containedViewHasUnsupportedTransform {
+                    fatalError(
+                        """
+                        View has an unsupported transform for the specified snapshot parameters. Try using an identity \
+                        transform or changing the view rendering mode to render the layer in the graphics context.
+                        """
+                    )
                 } catch {
                     fatalError("Failed to render snapshot image")
                 }

@@ -52,6 +52,14 @@ public final class AccessibilitySnapshotView: UIView {
         /// this error is known to occur when rendering a monochrome snapshot on iOS 13.
         case containedViewExceedsMaximumSize(viewSize: CGSize, maximumSize: CGSize)
 
+        /// An error indicating that the `containedView` has a transform that is not support while using the specified
+        /// rendering parameters.
+        ///
+        /// - Note: In particular, this error is known to occur when using a non-identity transform that requires
+        /// tiling. To avoid this error, try setting an identity transform on the `containedView` or using the
+        /// `.renderLayerInContext` view rendering mode
+        case containedViewHasUnsupportedTransform(transform: CATransform3D)
+
     }
 
     // MARK: - Life Cycle
@@ -738,14 +746,25 @@ private extension UIView {
         viewRenderingMode: AccessibilitySnapshotView.ViewRenderingMode
     ) throws -> UIImage {
         let renderer = UIGraphicsImageRenderer(bounds: bounds)
+
+        var error: Error?
+
         let snapshot = renderer.image { context in
             switch viewRenderingMode {
             case .drawHierarchyInRect:
-                drawHierarchy(in: bounds, afterScreenUpdates: true)
+                if bounds.width > UIView.tileSideLength || bounds.height > UIView.tileSideLength {
+                    drawTiledHierarchySnapshots(in: context, error: &error)
+                } else {
+                    drawHierarchy(in: bounds, afterScreenUpdates: true)
+                }
 
             case .renderLayerInContext:
                 layer.render(in: context.cgContext)
             }
+        }
+
+        if let error = error {
+            throw error
         }
 
         if monochrome {
@@ -793,6 +812,48 @@ private extension UIView {
 
         return UIImage(cgImage: cgImage)
     }
+
+    private func drawTiledHierarchySnapshots(in context: UIGraphicsImageRendererContext, error: inout Error?) {
+        guard CATransform3DIsIdentity(layer.transform) else {
+            error = AccessibilitySnapshotView.Error.containedViewHasUnsupportedTransform(transform: layer.transform)
+            return
+        }
+
+        let originalSuperview = superview
+        defer {
+            originalSuperview?.addSubview(self)
+        }
+
+        let frameView = UIView()
+        frameView.addSubview(self)
+
+        let bounds = self.bounds
+        var tileRect: CGRect = .zero
+
+        while tileRect.minY < bounds.maxY {
+            tileRect.origin.x = bounds.minX
+            tileRect.size.height = min(tileRect.minY + UIView.tileSideLength, bounds.maxY) - tileRect.minY
+
+            while tileRect.minX < bounds.maxX {
+                tileRect.size.width = min(tileRect.minX + UIView.tileSideLength, bounds.maxX) - tileRect.minX
+
+                frameView.frame.size = tileRect.size
+                frame.origin = CGPoint(x: -tileRect.minX, y: -tileRect.minY)
+
+                UIGraphicsImageRenderer(bounds: frameView.bounds)
+                    .image { _ in
+                        frameView.drawHierarchy(in: frameView.bounds, afterScreenUpdates: true)
+                    }
+                    .draw(at: tileRect.origin)
+
+                tileRect.origin.x += UIView.tileSideLength
+            }
+
+            tileRect.origin.y += UIView.tileSideLength
+        }
+    }
+
+    private static let tileSideLength: CGFloat = 2000
 
 }
 
