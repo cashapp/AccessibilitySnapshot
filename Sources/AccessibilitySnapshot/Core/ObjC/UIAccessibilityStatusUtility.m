@@ -105,7 +105,7 @@ int rebind_symbols(struct rebinding rebindings[], size_t rebindings_nel);
     [self.rerebindings removeAllObjects];
 }
 
-BOOL UIAccessibilityAlwaysEnabled() {
+BOOL UIAccessibilityAlwaysEnabled(void) {
     return true;
 }
 
