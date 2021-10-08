@@ -132,6 +132,30 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         XCTAssertEqual(viewController.parent, parent)
     }
 
+    func testViewAsSubviewOfViewInViewControllerHierarchy() {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+
+        let label = UILabel()
+        label.text = "Hello world"
+        label.textColor = .red
+        view.addSubview(label)
+
+        label.sizeToFit()
+        label.center = view.point(at: .center)
+
+        let viewController = UIViewController()
+        viewController.view.addSubview(view)
+
+        let parent = UIViewController()
+        parent.addChild(viewController)
+        parent.view.addSubview(viewController.view)
+
+        SnapshotVerifyAccessibility(view)
+
+        // Verify that the original state was restored correctly.
+        XCTAssertEqual(view.superview, viewController.view)
+    }
+
     // This test is currently disabled due to a bug in iOSSnapshotTestCase. See cashapp/AccessibilitySnapshot#75.
     func testLargeViewInViewControllerThatRequiresTiling() {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 3000, height: 3000))
