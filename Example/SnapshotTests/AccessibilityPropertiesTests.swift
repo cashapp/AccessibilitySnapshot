@@ -85,22 +85,10 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
 
     // This test is currently disabled due to a bug in iOSSnapshotTestCase. See cashapp/AccessibilitySnapshot#75.
     func testLargeViewThatRequiresTiling() throws {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 3000, height: 3000))
-
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.colors = [UIColor.blue.cgColor, UIColor.white.cgColor]
-        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
-        gradientLayer.endPoint = CGPoint(x: 1, y: 1)
-        view.layer.addSublayer(gradientLayer)
-        gradientLayer.frame = view.bounds
-
-        let label = UILabel()
-        label.text = "Hello world"
-        label.textColor = .red
-        view.addSubview(label)
-
-        label.sizeToFit()
-        label.center = view.point(at: .center)
+        let view = GradientBackgroundView(
+            frame: CGRect(x: 0, y: 0, width: 3000, height: 3000),
+            showSafeAreaInsets: true
+        )
 
         usingDrawViewHierarchyInRect {
             SnapshotVerifyAccessibility(view, useMonochromeSnapshot: false)
@@ -158,24 +146,13 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
 
     // This test is currently disabled due to a bug in iOSSnapshotTestCase. See cashapp/AccessibilitySnapshot#75.
     func testLargeViewInViewControllerThatRequiresTiling() {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 3000, height: 3000))
-
-        let gradientLayer = CAGradientLayer()
-        gradientLayer.colors = [UIColor.blue.cgColor, UIColor.white.cgColor]
-        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
-        gradientLayer.endPoint = CGPoint(x: 1, y: 1)
-        view.layer.addSublayer(gradientLayer)
-        gradientLayer.frame = view.bounds
-
-        let label = UILabel()
-        label.text = "Hello world"
-        label.textColor = .red
-        view.addSubview(label)
-
-        label.sizeToFit()
-        label.center = view.point(at: .center)
+        let view = GradientBackgroundView(
+            frame: CGRect(x: 0, y: 0, width: 3000, height: 3000),
+            showSafeAreaInsets: true
+        )
 
         let viewController = UIViewController()
+        viewController.additionalSafeAreaInsets = .init(top: 600, left: 1000, bottom: 300, right: 100)
         viewController.view = view
 
         let parent = UIViewController()
@@ -194,6 +171,70 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         usesDrawViewHierarchyInRect = true
         test()
         usesDrawViewHierarchyInRect = oldValue
+    }
+
+    // MARK: - Private Types
+
+    private final class GradientBackgroundView: UIView {
+
+        // MARK: - Life Cycle
+
+        init(frame: CGRect, showSafeAreaInsets: Bool) {
+            super.init(frame: frame)
+
+            gradientLayer.colors = [UIColor.blue.cgColor, UIColor.white.cgColor]
+            gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+            gradientLayer.endPoint = CGPoint(x: 1, y: 1)
+            layer.addSublayer(gradientLayer)
+
+            label.text = "Hello world"
+            label.textColor = .red
+            label.backgroundColor = .black
+            addSubview(label)
+
+            safeAreaView.layer.borderColor = UIColor.red.cgColor
+            safeAreaView.layer.borderWidth = 1
+            safeAreaView.isHidden = !showSafeAreaInsets
+            addSubview(safeAreaView)
+
+            layoutMargins = .init(top: 8, left: 8, bottom: 8, right: 8)
+            insetsLayoutMarginsFromSafeArea = true
+
+            layoutMarginsView.layer.borderColor = UIColor.green.cgColor
+            layoutMarginsView.layer.borderWidth = 0.5
+            layoutMarginsView.isHidden = !showSafeAreaInsets
+            addSubview(layoutMarginsView)
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        // MARK: - Private Properties
+
+        private let gradientLayer: CAGradientLayer = .init()
+
+        private let label: UILabel = .init()
+
+        private let safeAreaView: UIView = .init()
+
+        private let layoutMarginsView: UIView = .init()
+
+        // MARK: - UIView
+
+        override func layoutSubviews() {
+            gradientLayer.frame = bounds
+
+            let insetBounds = bounds.inset(by: safeAreaInsets)
+
+            label.sizeToFit()
+            label.center = CGPoint(x: insetBounds.midX, y: insetBounds.midY)
+
+            safeAreaView.frame = insetBounds
+            layoutMarginsView.frame = bounds.inset(by: layoutMargins)
+        }
+
     }
 
 }

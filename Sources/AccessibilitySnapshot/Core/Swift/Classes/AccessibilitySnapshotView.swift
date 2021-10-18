@@ -129,8 +129,8 @@ public final class AccessibilitySnapshotView: UIView {
         let viewController = containedView.next as? UIViewController
         let originalParent = viewController?.parent
         let originalSuperviewAndIndex = containedView.superviewWithSubviewIndex()
-        viewController?.removeFromParent()
 
+        viewController?.removeFromParent()
         addSubview(containedView)
 
         defer {
@@ -155,6 +155,10 @@ public final class AccessibilitySnapshotView: UIView {
             viewRenderingMode: viewRenderingMode
         )
         snapshotView.bounds.size = containedView.bounds.size
+
+        // Complete the layout pass after the view is restored to this container, in case it was modified during the
+        // rendering process (i.e. when the rendering is tiled and stitched).
+        containedView.layoutIfNeeded()
 
         let parser = AccessibilityHierarchyParser()
         let markers = parser.parseAccessibilityElements(in: containedView)
@@ -832,13 +836,44 @@ private extension UIView {
             return
         }
 
+        let originalSafeArea = bounds.inset(by: safeAreaInsets)
+
         let originalSuperview = superview
+        let originalOrigin = frame.origin
+        let originalAutoresizingMask = autoresizingMask
         defer {
             originalSuperview?.addSubview(self)
+            frame.origin = originalOrigin
+            autoresizingMask = originalAutoresizingMask
         }
 
-        let frameView = UIView()
-        frameView.addSubview(self)
+        let frameView = UIView(frame: frame)
+        originalSuperview?.addSubview(frameView)
+        defer {
+            frameView.removeFromSuperview()
+        }
+
+        autoresizingMask = []
+        frame.origin = .zero
+
+        let containerViewController = UIViewController()
+        let containerView = containerViewController.view!
+        containerView.frame = frame
+        containerView.autoresizingMask = []
+        containerView.addSubview(self)
+        frameView.addSubview(containerView)
+
+        // Run the run loop for one cycle so that the safe area changes caused by restructuring the view hierarhcy are
+        // propogated. Then calculate the required additional safe area insets to create the equivalent original safe
+        // area. This new change will be propogated automatically when we draw the hierarchy for the first time.
+        RunLoop.current.run(until: Date())
+        let currentSafeArea = containerView.convert(bounds.inset(by: safeAreaInsets), from: self)
+        containerViewController.additionalSafeAreaInsets = UIEdgeInsets(
+            top: originalSafeArea.minY - currentSafeArea.minY,
+            left: originalSafeArea.minX - currentSafeArea.minX,
+            bottom: currentSafeArea.maxY - originalSafeArea.maxY,
+            right: currentSafeArea.maxX - originalSafeArea.maxX
+        )
 
         let bounds = self.bounds
         var tileRect: CGRect = .zero
@@ -849,9 +884,13 @@ private extension UIView {
 
             while tileRect.minX < bounds.maxX {
                 tileRect.size.width = min(tileRect.minX + UIView.tileSideLength, bounds.maxX) - tileRect.minX
-
                 frameView.frame.size = tileRect.size
-                frame.origin = CGPoint(x: -tileRect.minX, y: -tileRect.minY)
+
+                // Move the origin of the `frameView` and `containerView` such that the frame is over the right area of
+                // the snapshotted view, but the snapshotted view stays fixed relative to the `frameView`'s superview
+                // (so the view's position on screen doesn't change).
+                frameView.frame.origin = CGPoint(x: tileRect.minX, y: tileRect.minY)
+                containerView.frame.origin = CGPoint(x: -tileRect.minX, y: -tileRect.minY)
 
                 UIGraphicsImageRenderer(bounds: frameView.bounds)
                     .image { _ in
