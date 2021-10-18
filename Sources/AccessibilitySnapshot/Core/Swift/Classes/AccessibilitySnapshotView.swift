@@ -126,10 +126,23 @@ public final class AccessibilitySnapshotView: UIView {
             $0.activationPointView?.removeFromSuperview()
         }
 
+        let viewController = containedView.next as? UIViewController
+        let originalParent = viewController?.parent
+        let originalSuperviewAndIndex = containedView.superviewWithSubviewIndex()
+        viewController?.removeFromParent()
+
         addSubview(containedView)
 
         defer {
             containedView.removeFromSuperview()
+
+            if let (originalSuperview, originalSubviewIndex) = originalSuperviewAndIndex {
+                originalSuperview.insertSubview(containedView, at: originalSubviewIndex)
+            }
+
+            if let viewController = viewController, let originalParent = originalParent {
+                originalParent.addChild(viewController)
+            }
         }
 
         // Force a layout pass after the view is in the hierarchy so that the conversion to screen coordinates works
@@ -887,6 +900,24 @@ private extension CGFloat {
     func ceilToPixel(in source: UIWindow?) -> CGFloat {
         let scale = source?.screen.scale ?? 1
         return ceil(self * scale) / scale
+    }
+
+}
+
+// MARK: -
+
+private extension UIView {
+
+    func superviewWithSubviewIndex() -> (UIView, Int)? {
+        guard let superview = superview else {
+            return nil
+        }
+
+        guard let index = superview.subviews.firstIndex(of: self) else {
+            fatalError("Internal inconsistency error: view has a superview, but is not a subview of the superview")
+        }
+
+        return (superview, index)
     }
 
 }
