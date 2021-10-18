@@ -863,6 +863,18 @@ private extension UIView {
         containerView.addSubview(self)
         frameView.addSubview(containerView)
 
+        // Run the run loop for one cycle so that the safe area changes caused by restructuring the view hierarhcy are
+        // propogated. Then calculate the required additional safe area insets to create the equivalent original safe
+        // area. This new change will be propogated automatically when we draw the hierarchy for the first time.
+        RunLoop.current.run(until: Date())
+        let currentSafeArea = containerView.convert(bounds.inset(by: safeAreaInsets), from: self)
+        containerViewController.additionalSafeAreaInsets = UIEdgeInsets(
+            top: originalSafeArea.minY - currentSafeArea.minY,
+            left: originalSafeArea.minX - currentSafeArea.minX,
+            bottom: currentSafeArea.maxY - originalSafeArea.maxY,
+            right: currentSafeArea.maxX - originalSafeArea.maxX
+        )
+
         let bounds = self.bounds
         var tileRect: CGRect = .zero
 
@@ -879,21 +891,6 @@ private extension UIView {
                 // (so the view's position on screen doesn't change).
                 frameView.frame.origin = CGPoint(x: tileRect.minX, y: tileRect.minY)
                 containerView.frame.origin = CGPoint(x: -tileRect.minX, y: -tileRect.minY)
-
-                // Reset the additional safe area insets and run the run loop for one cycle so that the safe area change
-                // propogates through the view hierarchy.
-                containerViewController.additionalSafeAreaInsets = .zero
-                RunLoop.current.run(until: Date())
-
-                // Calculate the required additional safe area insets to create the equivalent original safe area. This
-                // change will be propogated automatically when we draw the hierarchy.
-                let currentSafeArea = containerView.convert(bounds.inset(by: safeAreaInsets), from: self)
-                containerViewController.additionalSafeAreaInsets = UIEdgeInsets(
-                    top: originalSafeArea.minY - currentSafeArea.minY,
-                    left: originalSafeArea.minX - currentSafeArea.minX,
-                    bottom: currentSafeArea.maxY - originalSafeArea.maxY,
-                    right: currentSafeArea.maxX - originalSafeArea.maxX
-                )
 
                 UIGraphicsImageRenderer(bounds: frameView.bounds)
                     .image { _ in
