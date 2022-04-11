@@ -35,11 +35,32 @@ extension FBSnapshotTestCase {
         showActivationPoints: Bool,
         useMonochromeSnapshot: Bool
     ) -> String? {
+        return 🚫objc_snapshotVerifyAccessibility(
+            view,
+            identifier: identifier,
+            showActivationPoints: showActivationPoints,
+            useMonochromeSnapshot: useMonochromeSnapshot,
+            perPixelTolerance: 0,
+            overallTolerance: 0
+        )
+    }
+
+    @objc(snapshotVerifyAccessibility:identifier:showActivationPoints:useMonochromeSnapshot:perPixelTolerance:overallTolerance:)
+    private func 🚫objc_snapshotVerifyAccessibility(
+        _ view: UIView,
+        identifier: String,
+        showActivationPoints: Bool,
+        useMonochromeSnapshot: Bool,
+        perPixelTolerance: CGFloat,
+        overallTolerance: CGFloat
+    ) -> String? {
         return snapshotVerifyAccessibility(
             view,
             identifier: identifier,
             activationPointDisplayMode: showActivationPoints ? .always : .never,
-            useMonochromeSnapshot: useMonochromeSnapshot
+            useMonochromeSnapshot: useMonochromeSnapshot,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance
         )
     }
 
@@ -47,10 +68,12 @@ extension FBSnapshotTestCase {
         _ view: UIView,
         identifier: String,
         activationPointDisplayMode: ActivationPointDisplayMode,
-        useMonochromeSnapshot: Bool
+        useMonochromeSnapshot: Bool,
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0
     ) -> String? {
         guard isRunningInHostApplication else {
-            return ErrorMessageFactory.errorMessageForMissingHostApplication
+            return "Accessibility snapshot tests cannot be run in a test target without a host application"
         }
 
         let containerView = AccessibilitySnapshotView(
@@ -64,27 +87,34 @@ extension FBSnapshotTestCase {
         containerView.center = window.center
         window.addSubview(containerView)
 
-        do {
-            try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
-        } catch {
-            return ErrorMessageFactory.errorMessageForAccessibilityParsingError(error)
-        }
-
+        containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
         containerView.sizeToFit()
 
         return snapshotVerifyViewOrLayer(
             containerView,
             identifier: identifier,
-            suffixes: FBSnapshotTestCaseDefaultSuffixes(),
-            perPixelTolerance: 0,
-            overallTolerance: 0,
+            suffixes: FBSnapshotTestCaseDefaultSuffixes(), perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             defaultReferenceDirectory: FB_REFERENCE_IMAGE_DIR,
             defaultImageDiffDirectory: IMAGE_DIFF_DIR
         )
     }
 
     @objc(snapshotVerifyWithInvertedColors:identifier:)
-    private func snapshotVerifyWithInvertedColors(_ view: UIView, identifier: String) -> String? {
+    private func snapshotVerifyWithInvertedColors(
+      _ view: UIView,
+      identifier: String
+    ) -> String? {
+      return snapshotVerifyWithInvertedColors(view, identifier: identifier, perPixelTolerance: 0, overallTolerance: 0)
+    }
+
+    @objc(snapshotVerifyWithInvertedColors:identifier:perPixelTolerance:overallTolerance:)
+    private func snapshotVerifyWithInvertedColors(
+      _ view: UIView,
+      identifier: String,
+      perPixelTolerance: CGFloat,
+      overallTolerance: CGFloat
+    ) -> String? {
         func postNotification() {
             NotificationCenter.default.post(
                 name: UIAccessibility.invertColorsStatusDidChangeNotification,
@@ -114,9 +144,8 @@ extension FBSnapshotTestCase {
         let errorDescription = snapshotVerifyViewOrLayer(
             imageView,
             identifier: identifier,
-            suffixes: FBSnapshotTestCaseDefaultSuffixes(),
-            perPixelTolerance: 0,
-            overallTolerance: 0,
+            suffixes: FBSnapshotTestCaseDefaultSuffixes(), perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             defaultReferenceDirectory: FB_REFERENCE_IMAGE_DIR,
             defaultImageDiffDirectory: IMAGE_DIFF_DIR
         )
@@ -130,5 +159,4 @@ extension FBSnapshotTestCase {
 
         return errorDescription
     }
-
 }

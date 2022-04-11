@@ -42,6 +42,8 @@ extension FBSnapshotTestCase {
     /// order, repeating through the array as necessary.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter perPixelTolerance: The percentage a given pixel's R,G,B and A components can differ and still be considered 'identical'. Each color shade difference represents a 0.390625% change.
+    /// - parameter overallTolerance The percentage difference to still count as identical - 0 mean pixel perfect, 1 means I don't care.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotVerifyAccessibility(
@@ -51,6 +53,8 @@ extension FBSnapshotTestCase {
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -79,7 +83,15 @@ extension FBSnapshotTestCase {
         }
         containerView.sizeToFit()
 
-        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(
+          containerView,
+          identifier: identifier,
+          suffixes: suffixes,
+          perPixelTolerance: perPixelTolerance,
+          overallTolerance: overallTolerance,
+          file: file,
+          line: line
+        )
     }
 
     /// Snapshots the `view` using the specified content size category to test Dynamic Type.
@@ -96,6 +108,8 @@ extension FBSnapshotTestCase {
     /// in a given test method. Defaults to no identifier.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
     /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter perPixelTolerance: The percentage a given pixel's R,G,B and A components can differ and still be considered 'identical'. Each color shade difference represents a 0.390625% change.
+    /// - parameter overallTolerance The percentage difference to still count as identical - 0 mean pixel perfect, 1 means I don't care.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerify(
@@ -103,6 +117,8 @@ extension FBSnapshotTestCase {
         at contentSizeCategory: UIContentSizeCategory,
         identifier: String = "",
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -129,7 +145,15 @@ extension FBSnapshotTestCase {
         // will be able to change the text size in production.
         view.setNeedsLayout()
 
-        FBSnapshotVerifyView(view, identifier: identifier, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(
+          view,
+          identifier: identifier,
+          suffixes: suffixes,
+          perPixelTolerance: perPixelTolerance,
+          overallTolerance: overallTolerance,
+          file: file,
+          line: line
+        )
 
         // Restore the original content size category.
         let overriddenTraitCollection = view.traitCollection
@@ -149,12 +173,16 @@ extension FBSnapshotTestCase {
     /// in a given test method. Defaults to no identifier.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
     /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter perPixelTolerance: The percentage a given pixel's R,G,B and A components can differ and still be considered 'identical'. Each color shade difference represents a 0.390625% change.
+    /// - parameter overallTolerance The percentage difference to still count as identical - 0 mean pixel perfect, 1 means I don't care.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotVerifyWithInvertedColors(
         _ view: UIView,
         identifier: String = "",
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -184,7 +212,14 @@ extension FBSnapshotTestCase {
         }
 
         let imageView = UIImageView(image: image)
-        FBSnapshotVerifyView(imageView, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(
+          imageView,
+          suffixes: suffixes,
+          perPixelTolerance: perPixelTolerance,
+          overallTolerance: overallTolerance,
+          file: file,
+          line: line
+        )
 
         statusUtility.unmockStatuses()
         postNotification()
