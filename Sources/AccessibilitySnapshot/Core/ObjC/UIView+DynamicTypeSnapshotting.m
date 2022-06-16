@@ -55,7 +55,23 @@ static UIContentSizeCategory contentSizeCategoryOverride = nil;
 
 - (UITraitCollection *)AS_traitCollection;
 {
-    UITraitCollection *traitCollection = [self AS_traitCollection];
+    __block UITraitCollection *traitCollection;
+
+    if (@available(iOS 15, *)) {
+        // TODO: On iOS 15+ simulators there is a main queue assertion crash.
+        // Investigation led us to find there is some UIKit internal code calling traitCollection
+        // on a background thread which then causes a UIKit main thread exception (since traitCollection needs to be accessed from main).
+        // We have not been able to find a solution for it besides this hack to force the call to happen on the main thread.
+        if ([NSThread isMainThread]) {
+            traitCollection = [self AS_traitCollection];
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                traitCollection = [self AS_traitCollection];
+            });
+        }
+    } else {
+        traitCollection = [self AS_traitCollection];
+    }
 
     if (contentSizeCategoryOverride != nil) {
         UITraitCollection *contentSizeCategoryTraitCollection = [UITraitCollection traitCollectionWithPreferredContentSizeCategory:contentSizeCategoryOverride];
