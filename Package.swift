@@ -1,4 +1,4 @@
-// swift-tools-version:5.4
+// swift-tools-version:5.3
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -28,7 +28,7 @@ let package = Package(
         .package(
             name: "FBSnapshotTestCase",
             url: "https://github.com/uber/ios-snapshot-test-case.git",
-            .upToNextMajor(from: "7.0.0")
+            .upToNextMajor(from: "8.0.0")
         ),
         .package(
             name: "SnapshotTesting",

@@ -2,12 +2,12 @@
   "object": {
     "pins": [
       {
-        "package": "FBSnapshotTestCase",
+        "package": "iOSSnapshotTestCase",
         "repositoryURL": "https://github.com/uber/ios-snapshot-test-case.git",
         "state": {
           "branch": null,
-          "revision": "6743a701c996d8aa249e1acfbcb4fa7af4365ea6",
-          "version": "7.0.0"
+          "revision": "7b10770333a961be6e5a41c9ce04b8c6d3990126",
+          "version": "8.0.0"
         }
       },
       {
