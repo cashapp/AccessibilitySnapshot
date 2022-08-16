@@ -26,7 +26,7 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            name: "FBSnapshotTestCase",
+            name: "iOSSnapshotTestCase",
             url: "https://github.com/uber/ios-snapshot-test-case.git",
             .upToNextMajor(from: "8.0.0")
         ),
@@ -53,12 +53,12 @@ let package = Package(
         ),
         .target(
             name: "FBSnapshotTestCase+Accessibility",
-            dependencies: ["AccessibilitySnapshotCore", "FBSnapshotTestCase"],
+            dependencies: ["AccessibilitySnapshotCore", "iOSSnapshotTestCase"],
             path: "Sources/AccessibilitySnapshot/iOSSnapshotTestCase/Swift"
         ),
         .target(
             name: "FBSnapshotTestCase+Accessibility-ObjC",
-            dependencies: ["AccessibilitySnapshotCore", "FBSnapshotTestCase", "FBSnapshotTestCase+Accessibility"],
+            dependencies: ["AccessibilitySnapshotCore", "iOSSnapshotTestCase", "FBSnapshotTestCase+Accessibility"],
             path: "Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC"
         ),
     ]
