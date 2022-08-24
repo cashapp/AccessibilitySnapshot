@@ -55,6 +55,7 @@
 		607FACEC1AFB9204008FA782 /* AccessibilityPropertiesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* AccessibilityPropertiesTests.swift */; };
 		66E2CD14CD63946657E17B15 /* Pods_SnapshotTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A3192D7B9B16BD10FB517A2 /* Pods_SnapshotTests.framework */; };
 		C47F6C5316FB0C043BEB59F3 /* Pods_AccessibilitySnapshotDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A886964D2E787399E137105 /* Pods_AccessibilitySnapshotDemo.framework */; };
+		D24C117B28B4B81E0038FE93 /* AccessibilityContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D24C117A28B4B81E0038FE93 /* AccessibilityContainerViewController.swift */; };
 		D38F6F4E508A3D067D677F69 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BFCB4FD6BC17AB232B26E72 /* Pods_UnitTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -141,6 +142,7 @@
 		88C33CBF672C290CE1EE86AF /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		C78F90CE7A2A315AADF80144 /* Pods-SnapshotTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SnapshotTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SnapshotTests/Pods-SnapshotTests.debug.xcconfig"; sourceTree = "<group>"; };
 		CCFF2A604706B71DC0CBD38B /* Pods-AccessibilitySnapshotDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AccessibilitySnapshotDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-AccessibilitySnapshotDemo/Pods-AccessibilitySnapshotDemo.release.xcconfig"; sourceTree = "<group>"; };
+		D24C117A28B4B81E0038FE93 /* AccessibilityContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityContainerViewController.swift; sourceTree = "<group>"; };
 		DBA3D7413A13111BA7DE4750 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		DCFAC4866DBB341F92D0A40D /* Pods-SnapshotTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SnapshotTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SnapshotTests/Pods-SnapshotTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED63B7AD78B189E8940B6C80 /* Pods-AccessibilitySnapshotDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AccessibilitySnapshotDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AccessibilitySnapshotDemo/Pods-AccessibilitySnapshotDemo.debug.xcconfig"; sourceTree = "<group>"; };
@@ -191,6 +193,7 @@
 				3DBEAA5A2222953E00FAE61D /* SwitchControlViewController.swift */,
 				3DC488362212A7D4006D1E15 /* ModalAccessibilityViewController.swift */,
 				3DBEAA5E2223D0DA00FAE61D /* AccessibilityPathViewController.swift */,
+				D24C117A28B4B81E0038FE93 /* AccessibilityContainerViewController.swift */,
 				3D39BFB12239BEA5009C3EF4 /* ActivationPointViewController.swift */,
 				3DA12A3122405B9E00EB3C33 /* DataTableViewController.swift */,
 				3DBAC28E2242E7C700EF4D0A /* ListContainerViewController.swift */,
@@ -620,6 +623,7 @@
 				3DA12A3222405B9E00EB3C33 /* DataTableViewController.swift in Sources */,
 				3DEBF24E221018610065424F /* DefaultControlsViewController.swift in Sources */,
 				3FEF854F253846420072611F /* SwiftUIViewWithScrollView.swift in Sources */,
+				D24C117B28B4B81E0038FE93 /* AccessibilityContainerViewController.swift in Sources */,
 				3DF464FE220D594E0048D446 /* ElementSelectionViewController.swift in Sources */,
 				3DC488372212A7D4006D1E15 /* ModalAccessibilityViewController.swift in Sources */,
 				3DF46502220D7F9B0048D446 /* ElementOrderViewController.swift in Sources */,

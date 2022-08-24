@@ -44,6 +44,7 @@ final class RootViewController: UITableViewController {
                 )
             }),
             ("Element Order with Semantic Content", { _ in return UserIntefaceDirectionViewController() }),
+            ("Accessibility Containers", { _ in return AccessibilityContainerViewController() }),
             ("Modal Accessibility Views", { presentingViewController in
                 return ModalAccessibilityViewController.makeConfigurationSelectionViewController(
                     presentingViewController: presentingViewController
@@ -89,6 +90,7 @@ final class RootViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let viewController = accessibilityScreens[indexPath.row].1(self)
+        viewController.modalPresentationStyle = .fullScreen
         present(viewController, animated: true, completion: nil)
         tableView.deselectRow(at: indexPath, animated: true)
     }
