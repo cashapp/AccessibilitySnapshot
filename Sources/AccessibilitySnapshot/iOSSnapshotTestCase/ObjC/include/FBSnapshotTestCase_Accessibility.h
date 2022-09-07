@@ -14,12 +14,6 @@
 //  limitations under the License.
 //
 
-//#if SWIFT_PACKAGE
-@import iOSSnapshotTestCaseCore;
-//#else
-//#import <iOSSnapshotTestCaseCore/FBSnapshotTestCase.h>
-//#endif
-
 #define SnapshotVerifyAccessibility(view__, identifier__)\
     {\
         _Pragma("clang diagnostic push")\
