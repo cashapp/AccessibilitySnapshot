@@ -17,7 +17,10 @@ let package = Package(
         ),
         .library(
             name: "FBSnapshotTestCase+Accessibility",
-            targets: ["FBSnapshotTestCase+Accessibility"]
+            targets: [
+                "FBSnapshotTestCase+Accessibility",
+                "FBSnapshotTestCase+Accessibility-ObjC",
+            ]
         ),
         .library(
             name: "AccessibilitySnapshotCore",

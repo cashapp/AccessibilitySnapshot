@@ -14,7 +14,11 @@
 //  limitations under the License.
 //
 
-#import <FBSnapshotTestCase/FBSnapshotTestCase.h>
+//#if SWIFT_PACKAGE
+@import iOSSnapshotTestCaseCore;
+//#else
+//#import <iOSSnapshotTestCaseCore/FBSnapshotTestCase.h>
+//#endif
 
 #define SnapshotVerifyAccessibility(view__, identifier__)\
     {\
