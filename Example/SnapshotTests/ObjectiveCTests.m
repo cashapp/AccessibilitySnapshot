@@ -35,7 +35,6 @@
 
 - (void)testSimpleView;
 {
-    [self setRecordMode:YES];
     UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 50)];
 
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(25, 10, 150, 30)];
