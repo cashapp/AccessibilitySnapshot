@@ -16,6 +16,10 @@
 
 import Foundation
 
+#if SWIFT_PACKAGE
+import AccessibilitySnapshotCore
+#endif
+
 internal enum ErrorMessageFactory {
 
     static var errorMessageForMissingHostApplication: String {
