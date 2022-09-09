@@ -12,19 +12,15 @@ jobs:
     runs-on: macOS-11
     strategy:
       matrix:
-        platform: ['iOS_14']
+        platform: ['iOS_14','iOS_13']
       fail-fast: false
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v2
       - name: Bundle Install
         run: bundle install --gemfile=Example/Gemfile
-      - name: Select Xcode Version (12.5.1)
-        run: sudo xcode-select --switch /Applications/Xcode_12.5.1.app/Contents/Developer
-        if: matrix.platform == 'iOS_14'
-      - name: Select Xcode Version (11.7)
-        run: sudo xcode-select --switch /Applications/Xcode_11.7.app/Contents/Developer
-        if: matrix.platform == 'iOS_13'
+      - name: Select Xcode Version (13.2.1)
+        run: sudo xcode-select --switch /Applications/Xcode_13.2.1.app/Contents/Developer
       - name: Prepare Simulator Runtimes
         run: Scripts/github/prepare-simulators.sh ${{ matrix.platform }}
       - name: Pod Install
@@ -60,6 +56,6 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
       - name: Select Xcode Version
-        run: sudo xcode-select --switch /Applications/Xcode_12.5.1.app/Contents/Developer
+        run: sudo xcode-select --switch /Applications/Xcode_13.2.1.app/Contents/Developer
       - name: Build
         run: Scripts/build.swift spm ${{ matrix.platform }}

@@ -29,7 +29,6 @@
 - (void)setUp;
 {
     [super setUp];
-
     self.fileNameOptions = FBSnapshotTestCaseFileNameIncludeOptionOS | FBSnapshotTestCaseFileNameIncludeOptionScreenSize | FBSnapshotTestCaseFileNameIncludeOptionScreenScale;
 }
 
