@@ -76,7 +76,7 @@ extension FBSnapshotTestCase {
             containerView,
             identifier: identifier,
             suffixes: FBSnapshotTestCaseDefaultSuffixes(),
-            perPixelTolerance: 0,
+            perPixelTolerance: 0.02,
             overallTolerance: 0,
             defaultReferenceDirectory: FB_REFERENCE_IMAGE_DIR,
             defaultImageDiffDirectory: IMAGE_DIFF_DIR
@@ -115,7 +115,7 @@ extension FBSnapshotTestCase {
             imageView,
             identifier: identifier,
             suffixes: FBSnapshotTestCaseDefaultSuffixes(),
-            perPixelTolerance: 0,
+            perPixelTolerance: 0.02,
             overallTolerance: 0,
             defaultReferenceDirectory: FB_REFERENCE_IMAGE_DIR,
             defaultImageDiffDirectory: IMAGE_DIFF_DIR
