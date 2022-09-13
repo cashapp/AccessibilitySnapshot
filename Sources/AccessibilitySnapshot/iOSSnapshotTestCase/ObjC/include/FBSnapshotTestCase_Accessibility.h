@@ -14,8 +14,6 @@
 //  limitations under the License.
 //
 
-#import <FBSnapshotTestCase/FBSnapshotTestCase.h>
-
 #define SnapshotVerifyAccessibility(view__, identifier__)\
     {\
         _Pragma("clang diagnostic push")\

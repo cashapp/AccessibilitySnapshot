@@ -14,7 +14,13 @@
 //  limitations under the License.
 //
 
+#if SWIFT_PACKAGE
+import AccessibilitySnapshotCore
+import AccessibilitySnapshotCore_ObjC
+import iOSSnapshotTestCase
+#else
 import FBSnapshotTestCase
+#endif
 
 extension FBSnapshotTestCase {
 

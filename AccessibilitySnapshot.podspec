@@ -25,11 +25,11 @@ Pod::Spec.new do |s|
   s.subspec 'iOSSnapshotTestCase' do |ss|
     ss.source_files = 'Sources/AccessibilitySnapshot/iOSSnapshotTestCase/**/*.{swift,h,m}'
     ss.public_header_files = [
-      'Sources/AccessibilitySnapshot/iOSSnapshotTestCase/FBSnapshotTestCase_Accessibility.h',
+      'Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC/include/*.h',
     ]
 
     ss.dependency 'AccessibilitySnapshot/Core'
-    ss.dependency 'iOSSnapshotTestCase', '~> 6.0'
+    ss.dependency 'iOSSnapshotTestCase', '~> 8.0'
     ss.frameworks = 'XCTest'
     ss.weak_frameworks = 'XCTest'
   end
