@@ -85,8 +85,8 @@ extension FBSnapshotTestCase {
             return
         }
         containerView.sizeToFit()
-
-        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, file: file, line: line)
+        
+        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, perPixelTolerance: 0.02, file: file, line: line)
     }
 
     /// Snapshots the `view` using the specified content size category to test Dynamic Type.
