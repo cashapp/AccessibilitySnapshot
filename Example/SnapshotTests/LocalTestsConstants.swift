@@ -15,6 +15,7 @@
 //
 
 import Foundation
+import UIKit
 
 public class LocalTestsConstants: NSObject {
     

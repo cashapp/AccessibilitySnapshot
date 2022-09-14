@@ -16,6 +16,7 @@
 
 @import AccessibilitySnapshot;
 @import FBSnapshotTestCase;
+@import UIKit;
 @import XCTest;
 
 
