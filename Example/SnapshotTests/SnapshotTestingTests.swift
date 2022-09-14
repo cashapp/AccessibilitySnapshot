@@ -90,13 +90,13 @@ final class SnapshotTestingTests: XCTestCase {
 
         assertSnapshot(
             matching: view,
-            as: .accessibilityImage(useMonochromeSnapshot: false),
+            as: .accessibilityImage(useMonochromeSnapshot: false, precision:0.98),
             named: nameForDevice(baseName: "false")
         )
 
         assertSnapshot(
             matching: view,
-            as: .accessibilityImage(useMonochromeSnapshot: true),
+            as: .accessibilityImage(useMonochromeSnapshot: true, precision:0.98),
             named: nameForDevice(baseName: "true")
         )
     }
@@ -116,13 +116,13 @@ final class SnapshotTestingTests: XCTestCase {
 
         assertSnapshot(
             matching: container,
-            as: .accessibilityImage(drawHierarchyInKeyWindow: false),
+            as: .accessibilityImage(drawHierarchyInKeyWindow: false, precision:0.98),
             named: nameForDevice(baseName: "false")
         )
 
         assertSnapshot(
             matching: container,
-            as: .accessibilityImage(drawHierarchyInKeyWindow: true),
+            as: .accessibilityImage(drawHierarchyInKeyWindow: true, precision:0.98),
             named: nameForDevice(baseName: "true")
         )
     }

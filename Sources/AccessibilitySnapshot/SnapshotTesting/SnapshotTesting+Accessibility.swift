@@ -46,14 +46,15 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
-        markerColors: [UIColor] = []
+        markerColors: [UIColor] = [],
+        precision: Float = 1
     ) -> Snapshotting {
         guard isRunningInHostApplication else {
             fatalError("Accessibility snapshot tests cannot be run in a test target without a host application")
         }
 
         return Snapshotting<UIView, UIImage>
-            .image(drawHierarchyInKeyWindow: drawHierarchyInKeyWindow)
+            .image(drawHierarchyInKeyWindow: drawHierarchyInKeyWindow, precision: precision)
             .pullback { view in
                 let containerView = AccessibilitySnapshotView(
                     containedView: view,
