@@ -26,8 +26,11 @@
 
 @implementation ObjectiveCTests
 
+CGFloat perPixelTolerance = 0.01;
+
 - (void)setUp;
 {
+    
     [super setUp];
     
     self.fileNameOptions = FBSnapshotTestCaseFileNameIncludeOptionOS | FBSnapshotTestCaseFileNameIncludeOptionScreenSize | FBSnapshotTestCaseFileNameIncludeOptionScreenScale;
@@ -44,7 +47,7 @@
     label.textAlignment = NSTextAlignmentCenter;
     [view addSubview:label];
 
-    SnapshotVerifyAccessibility(view, nil, 0);
+    SnapshotVerifyAccessibility(view, nil, perPixelTolerance);
 }
 
 - (void)testSimpleViewWithIdentifier;
@@ -58,7 +61,7 @@
     label.textAlignment = NSTextAlignmentCenter;
     [view addSubview:label];
 
-    SnapshotVerifyAccessibility(view, @"identifier", 0);
+    SnapshotVerifyAccessibility(view, @"identifier", perPixelTolerance);
 }
 
 - (void)testSimpleViewWithActivationPointDefault;
@@ -75,7 +78,7 @@
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     label.accessibilityActivationPoint = CGPointMake(screenBounds.size.width / 2, screenBounds.size.height / 2 - 10);
 
-    SnapshotVerifyAccessibility(view, nil, 0);
+    SnapshotVerifyAccessibility(view, nil, perPixelTolerance);
 }
 
 - (void)testSimpleViewWithActivationPointAlways;
@@ -89,7 +92,7 @@
     label.textAlignment = NSTextAlignmentCenter;
     [view addSubview:label];
 
-    SnapshotVerifyAccessibilityWithOptions(view, nil, YES, YES, 0);
+    SnapshotVerifyAccessibilityWithOptions(view, nil, YES, YES, perPixelTolerance);
 }
 
 - (void)testSimpleViewWithActivationPointNever;
@@ -106,7 +109,7 @@
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     label.accessibilityActivationPoint = CGPointMake(screenBounds.size.width / 2, screenBounds.size.height / 2 - 10);
 
-    SnapshotVerifyAccessibilityWithOptions(view, nil, NO, YES, 0);
+    SnapshotVerifyAccessibilityWithOptions(view, nil, NO, YES, perPixelTolerance);
 }
 
 - (void)testSimpleViewWithColorSnapshots;

@@ -26,7 +26,8 @@ final class SwitchControlsTests: SnapshotTestCase {
         let container = ContainerView(control: control)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
-        SnapshotVerifyAccessibility(container)
+        SnapshotVerifyAccessibility(container,
+                                    perPixelTolerance: LocalTestsConstants.perPixelTolerance)
     }
 
     func testOff() {
@@ -58,7 +59,8 @@ final class SwitchControlsTests: SnapshotTestCase {
         let container = ContainerView(control: control)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
-        SnapshotVerifyAccessibility(container)
+        SnapshotVerifyAccessibility(container,
+                                    perPixelTolerance: LocalTestsConstants.perPixelTolerance)
     }
 
     func testOn_withLabelAndValue() {
@@ -70,7 +72,8 @@ final class SwitchControlsTests: SnapshotTestCase {
         let container = ContainerView(control: control)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
-        SnapshotVerifyAccessibility(container)
+        SnapshotVerifyAccessibility(container,
+                                    perPixelTolerance: LocalTestsConstants.perPixelTolerance)
     }
 
     func testOn_withLabelAndHint() {
@@ -82,7 +85,8 @@ final class SwitchControlsTests: SnapshotTestCase {
         let container = ContainerView(control: control)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
-        SnapshotVerifyAccessibility(container)
+        SnapshotVerifyAccessibility(container,
+                                    perPixelTolerance: LocalTestsConstants.perPixelTolerance)
     }
 
     func testOn_withLabelAndHintAndTraits() {
@@ -103,7 +107,8 @@ final class SwitchControlsTests: SnapshotTestCase {
         let container = ContainerView(control: control)
         container.frame.size = container.sizeThatFits(UIScreen.main.bounds.size)
 
-        SnapshotVerifyAccessibility(container)
+        SnapshotVerifyAccessibility(container,
+                                    perPixelTolerance: LocalTestsConstants.perPixelTolerance)
     }
 
     func testFakeSwitch() {
