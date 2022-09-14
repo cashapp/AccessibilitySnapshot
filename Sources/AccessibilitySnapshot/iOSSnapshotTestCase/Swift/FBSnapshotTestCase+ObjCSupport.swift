@@ -30,7 +30,7 @@ extension FBSnapshotTestCase {
             view,
             identifier: identifier,
             activationPointDisplayMode: .whenOverridden,
-            perPixelTolerance: 0,
+            perPixelTolerance: perPixelTolerance,
             useMonochromeSnapshot: true
         )
     }
