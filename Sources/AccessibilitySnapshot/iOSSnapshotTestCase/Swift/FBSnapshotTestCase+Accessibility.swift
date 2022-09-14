@@ -58,6 +58,7 @@ extension FBSnapshotTestCase {
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -86,7 +87,7 @@ extension FBSnapshotTestCase {
         }
         containerView.sizeToFit()
         
-        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, perPixelTolerance: 0.02, file: file, line: line)
+        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, perPixelTolerance: perPixelTolerance, file: file, line: line)
     }
 
     /// Snapshots the `view` using the specified content size category to test Dynamic Type.
@@ -110,6 +111,7 @@ extension FBSnapshotTestCase {
         at contentSizeCategory: UIContentSizeCategory,
         identifier: String = "",
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -136,7 +138,7 @@ extension FBSnapshotTestCase {
         // will be able to change the text size in production.
         view.setNeedsLayout()
 
-        FBSnapshotVerifyView(view, identifier: identifier, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(view, identifier: identifier, suffixes: suffixes, perPixelTolerance: perPixelTolerance, file: file, line: line)
 
         // Restore the original content size category.
         let overriddenTraitCollection = view.traitCollection
@@ -162,6 +164,7 @@ extension FBSnapshotTestCase {
         _ view: UIView,
         identifier: String = "",
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -191,7 +194,7 @@ extension FBSnapshotTestCase {
         }
 
         let imageView = UIImageView(image: image)
-        FBSnapshotVerifyView(imageView, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(imageView, suffixes: suffixes, perPixelTolerance: perPixelTolerance, file: file, line: line)
 
         statusUtility.unmockStatuses()
         postNotification()

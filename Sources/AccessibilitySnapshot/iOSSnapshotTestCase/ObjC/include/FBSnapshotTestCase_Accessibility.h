@@ -14,15 +14,15 @@
 //  limitations under the License.
 //
 
-#define SnapshotVerifyAccessibility(view__, identifier__)\
+#define SnapshotVerifyAccessibility(view__, identifier__, perPixelTolerance__)\
     {\
         _Pragma("clang diagnostic push")\
         _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\
-        SEL selector = @selector(snapshotVerifyAccessibility:identifier:);\
+        SEL selector = @selector(snapshotVerifyAccessibility:identifier:perPixelTolerance:);\
         _Pragma("clang diagnostic pop")\
-        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *);\
+        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, CGFloat);\
         SnapshotMethod snapshotVerifyAccessibility = (SnapshotMethod)[self methodForSelector:selector];\
-        NSString *errorDescription = snapshotVerifyAccessibility(self, selector, view__, identifier__ ?: @"");\
+        NSString *errorDescription = snapshotVerifyAccessibility(self, selector, view__, identifier__ ?: @"", perPixelTolerance__);\
         if (errorDescription == nil) {\
             XCTAssertTrue(YES);\
         } else {\
@@ -30,15 +30,15 @@
         }\
     }
 
-#define SnapshotVerifyAccessibilityWithOptions(view__, identifier__, showActivationPoints__, useMonochromeSnapshot__)\
+#define SnapshotVerifyAccessibilityWithOptions(view__, identifier__, showActivationPoints__, useMonochromeSnapshot__, perPixelTolerance__)\
     {\
         _Pragma("clang diagnostic push")\
         _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\
-        SEL selector = @selector(snapshotVerifyAccessibility:identifier:showActivationPoints:useMonochromeSnapshot:);\
+        SEL selector = @selector(snapshotVerifyAccessibility:identifier:showActivationPoints:useMonochromeSnapshot:perPixelTolerance:);\
         _Pragma("clang diagnostic pop")\
-        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, BOOL, BOOL);\
+        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, BOOL, BOOL, CGFloat);\
         SnapshotMethod snapshotVerifyAccessibility = (SnapshotMethod)[self methodForSelector:selector];\
-        NSString *errorDescription = snapshotVerifyAccessibility(self, selector, view__, identifier__ ?: @"", showActivationPoints__, useMonochromeSnapshot__);\
+        NSString *errorDescription = snapshotVerifyAccessibility(self, selector, view__, identifier__ ?: @"", showActivationPoints__, useMonochromeSnapshot__, perPixelTolerance__);\
         if (errorDescription == nil) {\
             XCTAssertTrue(YES);\
         } else {\
@@ -46,15 +46,15 @@
         }\
     }
 
-#define SnapshotVerifyWithInvertedColors(view__, identifier__)\
+#define SnapshotVerifyWithInvertedColors(view__, identifier__, perPixelTolerance__)\
     {\
         _Pragma("clang diagnostic push")\
         _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\
-        SEL selector = @selector(snapshotVerifyWithInvertedColors:identifier:);\
+        SEL selector = @selector(snapshotVerifyWithInvertedColors:identifier:perPixelTolerance:);\
         _Pragma("clang diagnostic pop")\
-        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *);\
+        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, CGFloat);\
         SnapshotMethod snapshotVerifyWithInvertedColors = (SnapshotMethod)[self methodForSelector:selector];\
-        NSString *errorDescription = snapshotVerifyWithInvertedColors(self, selector, view__, identifier__ ?: @"");\
+        NSString *errorDescription = snapshotVerifyWithInvertedColors(self, selector, view__, identifier__ ?: @"", perPixelTolerance__);\
         if (errorDescription == nil) {\
             XCTAssertTrue(YES);\
         } else {\

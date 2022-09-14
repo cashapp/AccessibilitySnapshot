@@ -24,27 +24,30 @@ import FBSnapshotTestCase
 
 extension FBSnapshotTestCase {
 
-    @objc(snapshotVerifyAccessibility:identifier:)
-    private func 🚫objc_snapshotVerifyAccessibility(_ view: UIView, identifier: String) -> String? {
+    @objc(snapshotVerifyAccessibility:identifier:perPixelTolerance:)
+    private func 🚫objc_snapshotVerifyAccessibility(_ view: UIView, identifier: String, perPixelTolerance: CGFloat) -> String? {
         return snapshotVerifyAccessibility(
             view,
             identifier: identifier,
             activationPointDisplayMode: .whenOverridden,
+            perPixelTolerance: 0,
             useMonochromeSnapshot: true
         )
     }
 
-    @objc(snapshotVerifyAccessibility:identifier:showActivationPoints:useMonochromeSnapshot:)
+    @objc(snapshotVerifyAccessibility:identifier:showActivationPoints:useMonochromeSnapshot:perPixelTolerance:)
     private func 🚫objc_snapshotVerifyAccessibility(
         _ view: UIView,
         identifier: String,
         showActivationPoints: Bool,
-        useMonochromeSnapshot: Bool
+        useMonochromeSnapshot: Bool,
+        perPixelTolerance: CGFloat
     ) -> String? {
         return snapshotVerifyAccessibility(
             view,
             identifier: identifier,
             activationPointDisplayMode: showActivationPoints ? .always : .never,
+            perPixelTolerance: perPixelTolerance,
             useMonochromeSnapshot: useMonochromeSnapshot
         )
     }
@@ -53,6 +56,7 @@ extension FBSnapshotTestCase {
         _ view: UIView,
         identifier: String,
         activationPointDisplayMode: ActivationPointDisplayMode,
+        perPixelTolerance: CGFloat,
         useMonochromeSnapshot: Bool
     ) -> String? {
         guard isRunningInHostApplication else {
@@ -82,15 +86,15 @@ extension FBSnapshotTestCase {
             containerView,
             identifier: identifier,
             suffixes: FBSnapshotTestCaseDefaultSuffixes(),
-            perPixelTolerance: 0.02,
+            perPixelTolerance: perPixelTolerance,
             overallTolerance: 0,
             defaultReferenceDirectory: FB_REFERENCE_IMAGE_DIR,
             defaultImageDiffDirectory: IMAGE_DIFF_DIR
         )
     }
 
-    @objc(snapshotVerifyWithInvertedColors:identifier:)
-    private func snapshotVerifyWithInvertedColors(_ view: UIView, identifier: String) -> String? {
+    @objc(snapshotVerifyWithInvertedColors:identifier:perPixelTolerance:)
+    private func snapshotVerifyWithInvertedColors(_ view: UIView, identifier: String, perPixelTolerance: CGFloat) -> String? {
         func postNotification() {
             NotificationCenter.default.post(
                 name: UIAccessibility.invertColorsStatusDidChangeNotification,
@@ -121,7 +125,7 @@ extension FBSnapshotTestCase {
             imageView,
             identifier: identifier,
             suffixes: FBSnapshotTestCaseDefaultSuffixes(),
-            perPixelTolerance: 0.02,
+            perPixelTolerance: perPixelTolerance,
             overallTolerance: 0,
             defaultReferenceDirectory: FB_REFERENCE_IMAGE_DIR,
             defaultImageDiffDirectory: IMAGE_DIFF_DIR

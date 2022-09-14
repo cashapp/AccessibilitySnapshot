@@ -44,7 +44,7 @@
     label.textAlignment = NSTextAlignmentCenter;
     [view addSubview:label];
 
-    SnapshotVerifyAccessibility(view, nil);
+    SnapshotVerifyAccessibility(view, nil, 0);
 }
 
 - (void)testSimpleViewWithIdentifier;
@@ -58,7 +58,7 @@
     label.textAlignment = NSTextAlignmentCenter;
     [view addSubview:label];
 
-    SnapshotVerifyAccessibility(view, @"identifier");
+    SnapshotVerifyAccessibility(view, @"identifier", 0);
 }
 
 - (void)testSimpleViewWithActivationPointDefault;
@@ -75,7 +75,7 @@
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     label.accessibilityActivationPoint = CGPointMake(screenBounds.size.width / 2, screenBounds.size.height / 2 - 10);
 
-    SnapshotVerifyAccessibility(view, nil);
+    SnapshotVerifyAccessibility(view, nil, 0);
 }
 
 - (void)testSimpleViewWithActivationPointAlways;
@@ -89,7 +89,7 @@
     label.textAlignment = NSTextAlignmentCenter;
     [view addSubview:label];
 
-    SnapshotVerifyAccessibilityWithOptions(view, nil, YES, YES);
+    SnapshotVerifyAccessibilityWithOptions(view, nil, YES, YES, 0);
 }
 
 - (void)testSimpleViewWithActivationPointNever;
@@ -106,7 +106,7 @@
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     label.accessibilityActivationPoint = CGPointMake(screenBounds.size.width / 2, screenBounds.size.height / 2 - 10);
 
-    SnapshotVerifyAccessibilityWithOptions(view, nil, NO, YES);
+    SnapshotVerifyAccessibilityWithOptions(view, nil, NO, YES, 0);
 }
 
 - (void)testSimpleViewWithColorSnapshots;
@@ -123,7 +123,7 @@
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     label.accessibilityActivationPoint = CGPointMake(screenBounds.size.width / 2, screenBounds.size.height / 2 - 10);
 
-    SnapshotVerifyAccessibilityWithOptions(view, nil, NO, NO);
+    SnapshotVerifyAccessibilityWithOptions(view, nil, NO, NO, 0);
 }
 
 - (void)testViewWithInvertedColors;
@@ -137,7 +137,7 @@
     [subview setAccessibilityIgnoresInvertColors:YES];
     [view addSubview:subview];
 
-    SnapshotVerifyWithInvertedColors(view, nil);
+    SnapshotVerifyWithInvertedColors(view, nil, 0);
 }
 
 @end
