@@ -27,7 +27,7 @@
 
 @implementation ObjectiveCTests
 
-CGFloat perPixelTolerance = 0.01;
+CGFloat perPixelTolerance = 0.02;
 
 - (void)setUp;
 {
