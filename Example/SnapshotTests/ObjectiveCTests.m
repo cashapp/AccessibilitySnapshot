@@ -48,7 +48,7 @@ CGFloat perPixelTolerance = 0.02;
     label.textAlignment = NSTextAlignmentCenter;
     [view addSubview:label];
 
-    SnapshotVerifyAccessibility(view, nil, perPixelTolerance);
+    SnapshotVerifyAccessibilityWithPerPixelTolerance(view, nil, perPixelTolerance);
 }
 
 - (void)testSimpleViewWithIdentifier;
@@ -62,7 +62,7 @@ CGFloat perPixelTolerance = 0.02;
     label.textAlignment = NSTextAlignmentCenter;
     [view addSubview:label];
 
-    SnapshotVerifyAccessibility(view, @"identifier", perPixelTolerance);
+    SnapshotVerifyAccessibilityWithPerPixelTolerance(view, @"identifier", perPixelTolerance);
 }
 
 - (void)testSimpleViewWithActivationPointDefault;
@@ -79,7 +79,7 @@ CGFloat perPixelTolerance = 0.02;
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     label.accessibilityActivationPoint = CGPointMake(screenBounds.size.width / 2, screenBounds.size.height / 2 - 10);
 
-    SnapshotVerifyAccessibility(view, nil, perPixelTolerance);
+    SnapshotVerifyAccessibilityWithPerPixelTolerance(view, nil, perPixelTolerance);
 }
 
 - (void)testSimpleViewWithActivationPointAlways;
@@ -127,7 +127,7 @@ CGFloat perPixelTolerance = 0.02;
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     label.accessibilityActivationPoint = CGPointMake(screenBounds.size.width / 2, screenBounds.size.height / 2 - 10);
 
-    SnapshotVerifyAccessibilityWithOptions(view, nil, NO, NO, 0);
+    SnapshotVerifyAccessibilityWithOptions(view, nil, NO, NO, perPixelTolerance);
 }
 
 - (void)testViewWithInvertedColors;
@@ -141,7 +141,7 @@ CGFloat perPixelTolerance = 0.02;
     [subview setAccessibilityIgnoresInvertColors:YES];
     [view addSubview:subview];
 
-    SnapshotVerifyWithInvertedColors(view, nil, 0);
+    SnapshotVerifyWithInvertedColorsAndPerPixelTolerance(view, nil, 0);
 }
 
 @end

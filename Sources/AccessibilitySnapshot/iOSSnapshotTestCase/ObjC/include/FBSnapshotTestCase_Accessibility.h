@@ -14,7 +14,23 @@
 //  limitations under the License.
 //
 
-#define SnapshotVerifyAccessibility(view__, identifier__, perPixelTolerance__)\
+#define SnapshotVerifyAccessibility(view__, identifier__)\
+    {\
+        _Pragma("clang diagnostic push")\
+        _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\
+        SEL selector = @selector(snapshotVerifyAccessibility:identifier:perPixelTolerance:);\
+        _Pragma("clang diagnostic pop")\
+        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, CGFloat);\
+        SnapshotMethod snapshotVerifyAccessibility = (SnapshotMethod)[self methodForSelector:selector];\
+        NSString *errorDescription = snapshotVerifyAccessibility(self, selector, view__, identifier__ ?: @"", 0);\
+        if (errorDescription == nil) {\
+            XCTAssertTrue(YES);\
+        } else {\
+            XCTFail("%@", errorDescription);\
+        }\
+    }
+
+#define SnapshotVerifyAccessibilityWithPerPixelTolerance(view__, identifier__, perPixelTolerance__)\
     {\
         _Pragma("clang diagnostic push")\
         _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\
@@ -46,7 +62,23 @@
         }\
     }
 
-#define SnapshotVerifyWithInvertedColors(view__, identifier__, perPixelTolerance__)\
+#define SnapshotVerifyWithInvertedColors(view__, identifier__)\
+    {\
+        _Pragma("clang diagnostic push")\
+        _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\
+        SEL selector = @selector(snapshotVerifyWithInvertedColors:identifier:perPixelTolerance:);\
+        _Pragma("clang diagnostic pop")\
+        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, CGFloat);\
+        SnapshotMethod snapshotVerifyWithInvertedColors = (SnapshotMethod)[self methodForSelector:selector];\
+        NSString *errorDescription = snapshotVerifyWithInvertedColors(self, selector, view__, identifier__ ?: @"", 0);\
+        if (errorDescription == nil) {\
+            XCTAssertTrue(YES);\
+        } else {\
+            XCTFail("%@", errorDescription);\
+        }\
+    }
+
+#define SnapshotVerifyWithInvertedColorsAndPerPixelTolerance(view__, identifier__, perPixelTolerance__)\
     {\
         _Pragma("clang diagnostic push")\
         _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\

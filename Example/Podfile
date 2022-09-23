@@ -13,7 +13,7 @@ target 'AccessibilitySnapshotDemo' do
 		pod 'AccessibilitySnapshot/iOSSnapshotTestCase', :path => '../AccessibilitySnapshot.podspec'
 		pod 'AccessibilitySnapshot/SnapshotTesting', :path => '../AccessibilitySnapshot.podspec'
 
-		pod 'SnapshotTesting', '= 1.9.0'
+		pod 'SnapshotTesting', '~> 1.9'
 	end
 
 	target 'UnitTests' do

@@ -23,7 +23,7 @@ public class LocalTestsConstants: NSObject {
      This float ranges from 0 to 1 and will be used to calculate how precise a snapshot test will be,
      where 1 means all pixels should match, and 0 means that none of them need to match.
      */
-    static public let testPrecision: CGFloat = 0.9
+    static public let testPrecision: CGFloat = 0.98
     
     /**
      In these local tests, we will use test precision to calculate pixel tolerance.
