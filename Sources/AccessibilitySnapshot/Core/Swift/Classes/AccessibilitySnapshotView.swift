@@ -16,6 +16,7 @@
 
 import CoreImage
 import UIKit
+import QuartzCore
 
 public enum ActivationPointDisplayMode {
 
@@ -73,16 +74,20 @@ public final class AccessibilitySnapshotView: UIView {
     /// order, repeating through the array as necessary.
     /// - parameter activationPointDisplayMode: Controls when to show indicators for elements' accessibility activation
     /// points.
+    /// - parameter caTransactionCongfiguration: The `CATransaction` configuration to utilize while laying out the
+    /// content view. When `nil`, no custom `CATransaction` will be utilized during layout.
     public init(
         containedView: UIView,
         viewRenderingMode: ViewRenderingMode,
         markerColors: [UIColor] = defaultMarkerColors,
-        activationPointDisplayMode: ActivationPointDisplayMode
+        activationPointDisplayMode: ActivationPointDisplayMode,
+        caTransactionConfiguration: CATransactionConfiguration? = nil
     ) {
         self.containedView = containedView
         self.viewRenderingMode = viewRenderingMode
         self.markerColors = markerColors.isEmpty ? AccessibilitySnapshotView.defaultMarkerColors : markerColors
         self.activationPointDisplayMode = activationPointDisplayMode
+        self.caTransactionConfiguration = caTransactionConfiguration
 
         super.init(frame: containedView.bounds)
 
@@ -111,6 +116,8 @@ public final class AccessibilitySnapshotView: UIView {
 
     private var displayMarkers: [DisplayMarker] = []
 
+    private let caTransactionConfiguration: CATransactionConfiguration?
+
     // MARK: - Public Methods
 
     /// Parse the `containedView`'s accessibility and add appropriate visual elements to represent it.
@@ -131,7 +138,12 @@ public final class AccessibilitySnapshotView: UIView {
         let originalSuperviewAndIndex = containedView.superviewWithSubviewIndex()
 
         viewController?.removeFromParent()
-        addSubview(containedView)
+        // Adding the containedView as a subview can trigger didMoveToWindow() and/or didMoveToSuperview() which view
+        // subclasses may utilize to begin CALayer animations.
+        // Use the CATransactionConfiguration to perform this operation to assist with those usecases.
+        CATransaction.perform(configuration: caTransactionConfiguration) {
+            addSubview(containedView)
+        }
 
         defer {
             containedView.removeFromSuperview()
@@ -148,7 +160,9 @@ public final class AccessibilitySnapshotView: UIView {
         // Force a layout pass after the view is in the hierarchy so that the conversion to screen coordinates works
         // correctly.
         containedView.setNeedsLayout()
-        containedView.layoutIfNeeded()
+        CATransaction.perform(configuration: caTransactionConfiguration) {
+            containedView.layoutIfNeeded()
+        }
 
         snapshotView.image = try containedView.renderToImage(
             monochrome: useMonochromeSnapshot,
@@ -158,7 +172,9 @@ public final class AccessibilitySnapshotView: UIView {
 
         // Complete the layout pass after the view is restored to this container, in case it was modified during the
         // rendering process (i.e. when the rendering is tiled and stitched).
-        containedView.layoutIfNeeded()
+        CATransaction.perform(configuration: caTransactionConfiguration) {
+            containedView.layoutIfNeeded()
+        }
 
         let parser = AccessibilityHierarchyParser()
         let markers = parser.parseAccessibilityElements(in: containedView)

@@ -47,6 +47,8 @@ extension FBSnapshotTestCase {
     /// read certain views. Defaults to `true`.
     /// - parameter markerColors: An array of colors to use for the highlighted regions. These colors will be used in
     /// order, repeating through the array as necessary.
+    /// - parameter caTransactionCongfiguration: The `CATransaction` configuration to utilize while laying out the
+    /// content view. When `nil`, no custom `CATransaction` will be utilized during layout.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
@@ -57,6 +59,7 @@ extension FBSnapshotTestCase {
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
+        caTransactionCongfiguration: CATransactionCongfiguration? = nil,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -70,13 +73,19 @@ extension FBSnapshotTestCase {
             containedView: view,
             viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
             markerColors: markerColors,
-            activationPointDisplayMode: activationPointDisplayMode
+            activationPointDisplayMode: activationPointDisplayMode,
+            caTransactionCongfiguration: caTransactionCongfiguration
         )
 
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.makeKeyAndVisible()
         containerView.center = window.center
-        window.addSubview(containerView)
+        // Adding the containedView as a subview can trigger didMoveToWindow() and/or didMoveToSuperview() which view
+        // subclasses may utilize to begin CALayer animations.
+        // Use the CATransactionConfiguration to perform this operation to assist with those usecases.
+        CATransaction.perform(configuration: caTransactionCongfiguration) {
+            window.addSubview(containerView)
+        }
 
         do {
             try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)

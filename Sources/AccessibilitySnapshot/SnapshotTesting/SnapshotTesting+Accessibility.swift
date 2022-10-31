@@ -42,11 +42,14 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
     /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays
+    /// - parameter caTransactionCongfiguration: The `CATransaction` configuration to utilize while laying out the
+    /// content view. When `nil`, no custom `CATransaction` will be utilized during layout.
     public static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
-        markerColors: [UIColor] = []
+        markerColors: [UIColor] = [],
+        caTransactionConfiguration: CATransactionConfiguration? = nil
     ) -> Snapshotting {
         guard isRunningInHostApplication else {
             fatalError("Accessibility snapshot tests cannot be run in a test target without a host application")
@@ -59,13 +62,19 @@ extension Snapshotting where Value == UIView, Format == UIImage {
                     containedView: view,
                     viewRenderingMode: drawHierarchyInKeyWindow ? .drawHierarchyInRect : .renderLayerInContext,
                     markerColors: markerColors,
-                    activationPointDisplayMode: activationPointDisplayMode
+                    activationPointDisplayMode: activationPointDisplayMode,
+                    caTransactionConfiguration: caTransactionConfiguration
                 )
 
                 let window = UIWindow(frame: UIScreen.main.bounds)
                 window.makeKeyAndVisible()
                 containerView.center = window.center
-                window.addSubview(containerView)
+                // Adding the containedView as a subview can trigger didMoveToWindow() and/or didMoveToSuperview() which view
+                // subclasses may utilize to begin CALayer animations.
+                // Use the CATransactionConfiguration to perform this operation to assist with those usecases.
+                CATransaction.perform(configuration: caTransactionConfiguration) {
+                    window.addSubview(containerView)
+                }
 
                 do {
                     try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
