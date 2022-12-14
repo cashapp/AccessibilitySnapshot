@@ -59,7 +59,14 @@ targets: [
 ]
 ```
 
-We do not currently support AccessibilitySnapshot and [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) through Swift Package Manager.
+To use [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) to perform image comparisons, add a dependency on `FBSnapshotTestCase+Accessibility` for Swift testing or `FBSnapshotTestCase+Accessibility-ObjC` for Objective-C.
+
+```swift
+targets: [
+    .target(name: "MyApp"),
+    .testTarget(name: "MyAppTests", dependencies: ["MyApp", "FBSnapshotTestCase+Accessibility"])
+]
+```
 
 ## Usage
 
