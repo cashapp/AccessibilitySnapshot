@@ -18,8 +18,8 @@ import UIKit
 
 extension UIImage {
 
-    public func applyFilterMatrix(_ matrixType: MatrixTypes) -> UIImage? {
-        let matrix = matrixType.createMatrix()
+    public func applyColorBlindFilter(_ colorBlindnessType: ColorBlindnessType) -> UIImage? {
+        let matrix = colorBlindnessType.createMatrix()
 
         guard let imageRef = cgImage else {
             return nil

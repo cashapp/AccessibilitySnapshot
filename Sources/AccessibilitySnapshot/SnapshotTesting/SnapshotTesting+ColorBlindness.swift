@@ -23,10 +23,10 @@ import UIKit
 public extension Snapshotting where Value == UIImage, Format == UIImage {
 
     static func accessibilityImage(
-        simulateColorBlindness type: MatrixTypes
+        simulateColorBlindness type: ColorBlindnessType
     ) -> Snapshotting {
         return Snapshotting<UIImage, UIImage>.image.pullback { image in
-            image.applyFilterMatrix(type)!
+            image.applyColorBlindFilter(type)!
         }
     }
 
@@ -37,7 +37,7 @@ public extension Snapshotting where Value == UIImage, Format == UIImage {
 public extension Snapshotting where Value == UIViewController, Format == UIImage {
 
     static func accessibilityImage(
-        simulateColorBlindness type: MatrixTypes,
+        simulateColorBlindness type: ColorBlindnessType,
         on config: ViewImageConfig,
         precision: Float = 1,
         size: CGSize? = nil,
@@ -51,7 +51,7 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
                 view: viewController.view,
                 viewController: viewController
             ).map {
-                $0.applyFilterMatrix(type)!
+                $0.applyColorBlindFilter(type)!
             }
         }
     }
@@ -63,7 +63,7 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
 public extension Snapshotting where Value == UIView, Format == UIImage {
 
     static func accessibilityImage(
-        simulateColorBlindness type: MatrixTypes,
+        simulateColorBlindness type: ColorBlindnessType,
         on config: ViewImageConfig,
         precision: Float = 1,
         size: CGSize? = nil,
@@ -77,7 +77,7 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
                 view: view,
                 viewController: .init()
             ).map {
-                $0.applyFilterMatrix(type)!
+                $0.applyColorBlindFilter(type)!
             }
         }
     }

@@ -16,7 +16,7 @@
 
 import UIKit
 
-struct Matrix {
+struct ImageFilterMatrix {
 
     let red: [CGFloat]
     let green: [CGFloat]
