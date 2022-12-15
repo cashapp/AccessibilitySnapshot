@@ -42,7 +42,4 @@ Pod::Spec.new do |s|
     ss.frameworks = 'XCTest'
     ss.weak_frameworks = 'XCTest'
   end
-
-  s.frameworks = 'XCTest'
-  s.weak_frameworks = 'XCTest'
 end
