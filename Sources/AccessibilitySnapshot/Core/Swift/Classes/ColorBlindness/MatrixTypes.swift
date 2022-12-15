@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 Square Inc.
+//  Copyright 2022 Square Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -17,30 +17,31 @@
 import Foundation
 
 public enum MatrixTypes: String, CaseIterable {
-    /// Colour blindness to red.
+
+    /// Color blindness to red.
     case protanopia
-    
-    /// Reduced sensitivity to red
+
+    /// Reduced sensitivity to red.
     case protanomaly
-    
-    /// Colour blindness to green
+
+    /// Color blindness to green.
     case deuteranopia
-    
-    /// Reduced sensitivity to green
+
+    /// Reduced sensitivity to green.
     case deuteranomaly
-    
-    /// Colour blindness to blue
+
+    /// Color blindness to blue.
     case tritanopia
-    
-    /// Reduced sensitivity to blue
+
+    /// Reduced sensitivity to blue.
     case tritanomaly
-    
-    /// Monochromacy (total colour blindness)
+
+    /// Monochromacy (total color blindness).
     case achromatopsia
-    
-    /// Reduced sensitivity to all colours
+
+    /// Reduced sensitivity to all colors.
     case achromatomaly
-    
+
     /// Create a RGBA filter matrix for the different color blindness simulations.
     internal func createMatrix() -> Matrix {
         switch self {
@@ -51,7 +52,7 @@ public enum MatrixTypes: String, CaseIterable {
                 blue:  [ 0,     0.242, 0.758, 0, 0 ],
                 alpha: [ 0,     0,     0,     1, 0 ]
             )
-            
+
         case .protanomaly:
             return Matrix(
                 red:   [ 0.817, 0.183, 0,     0, 0 ],
@@ -59,7 +60,7 @@ public enum MatrixTypes: String, CaseIterable {
                 blue:  [ 0,     0.125, 0.875, 0, 0 ],
                 alpha: [ 0,     0,     0,     1, 0 ]
             )
-            
+
         case .deuteranopia:
             return Matrix(
                 red:   [ 0.625, 0.375, 0,     0, 0 ],
@@ -67,7 +68,7 @@ public enum MatrixTypes: String, CaseIterable {
                 blue:  [ 0,     0.3,   0.7,   0, 0 ],
                 alpha: [ 0,     0,     0,     1, 0 ]
             )
-            
+
         case .deuteranomaly:
             return Matrix(
                 red:   [ 0.8,   0.2,   0,     0, 0 ],
@@ -75,7 +76,7 @@ public enum MatrixTypes: String, CaseIterable {
                 blue:  [ 0,     0.142, 0.858, 0, 0 ],
                 alpha: [ 0,     0,     0,     1, 0 ]
             )
-            
+
         case .tritanopia:
             return Matrix(
                 red:   [ 0.95,  0.05,  0,     0, 0 ],
@@ -83,7 +84,7 @@ public enum MatrixTypes: String, CaseIterable {
                 blue:  [ 0,     0.475, 0.525, 0, 0 ],
                 alpha: [ 0,     0,     0,     1, 0 ]
             )
-            
+
         case .tritanomaly:
             return Matrix(
                 red:   [ 0.967, 0.033, 0,     0, 0 ],
@@ -91,7 +92,7 @@ public enum MatrixTypes: String, CaseIterable {
                 blue:  [ 0,     0.183, 0.817, 0, 0 ],
                 alpha: [ 0,     0,     0,     1, 0 ]
             )
-            
+
         case .achromatopsia:
             return Matrix(
                 red:   [ 0.299, 0.587, 0.144, 0, 0 ],
@@ -99,7 +100,7 @@ public enum MatrixTypes: String, CaseIterable {
                 blue:  [ 0.299, 0.587, 0.144, 0, 0 ],
                 alpha: [ 0,     0,     0,     1, 0 ]
             )
-            
+
         case .achromatomaly:
             return Matrix(
                 red:   [ 0.618, 0.320, 0.062, 0, 0 ],
@@ -109,4 +110,5 @@ public enum MatrixTypes: String, CaseIterable {
             )
         }
     }
+
 }

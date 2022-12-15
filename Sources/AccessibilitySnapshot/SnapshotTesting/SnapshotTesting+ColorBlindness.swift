@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 Square Inc.
+//  Copyright 2022 Square Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -14,12 +14,14 @@
 //  limitations under the License.
 //
 
-@testable import SnapshotTesting
 import UIKit
+
+@testable import SnapshotTesting
 
 // MARK: - UIImage
 
 public extension Snapshotting where Value == UIImage, Format == UIImage {
+
     static func accessibilityImage(
         simulateColorBlindness type: MatrixTypes
     ) -> Snapshotting {
@@ -27,11 +29,13 @@ public extension Snapshotting where Value == UIImage, Format == UIImage {
             image.applyFilterMatrix(type)!
         }
     }
+
 }
 
 // MARK: - UIViewController
 
 public extension Snapshotting where Value == UIViewController, Format == UIImage {
+
     static func accessibilityImage(
         simulateColorBlindness type: MatrixTypes,
         on config: ViewImageConfig,
@@ -51,11 +55,13 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
             }
         }
     }
+
 }
 
 // MARK: - UIView
 
 public extension Snapshotting where Value == UIView, Format == UIImage {
+
     static func accessibilityImage(
         simulateColorBlindness type: MatrixTypes,
         on config: ViewImageConfig,
@@ -75,4 +81,5 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
             }
         }
     }
+
 }
