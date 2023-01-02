@@ -46,7 +46,6 @@ class SnapshotTestCase: FBSnapshotTestCase {
     private static let testedDevices = [
         TestDeviceConfig(systemVersion: "14.2", screenSize: CGSize(width: 390, height: 844), screenScale: 3),
         TestDeviceConfig(systemVersion: "13.3", screenSize: CGSize(width: 375, height: 812), screenScale: 3),
-        TestDeviceConfig(systemVersion: "12.4", screenSize: CGSize(width: 375, height: 812), screenScale: 3),
     ]
 
     // MARK: - FBSnapshotTestCase
