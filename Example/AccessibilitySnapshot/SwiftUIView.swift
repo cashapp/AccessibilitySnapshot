@@ -18,7 +18,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, *)
 fileprivate struct Circle: View {
     var body: some View {
         Rectangle()
@@ -28,7 +27,6 @@ fileprivate struct Circle: View {
     }
 }
 
-@available(iOS 13.0, *)
 struct SwiftUIView: View {
     var body: some View {
         VStack(spacing: 30) {
@@ -85,7 +83,6 @@ struct SwiftUIView: View {
     }
 }
 
-@available(iOS 13.0, *)
 struct SwiftUIView_Previews: PreviewProvider {
     static var previews: some View {
         SwiftUIView()

@@ -19,7 +19,6 @@
 import SwiftUI
 import UIKit
 
-@available(iOS 13.0, *)
 extension View {
 
     // This method should be removed once we support snapshotting native SwiftUI views.
