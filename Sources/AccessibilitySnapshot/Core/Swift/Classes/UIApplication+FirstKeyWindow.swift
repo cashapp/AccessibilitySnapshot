@@ -1,5 +1,5 @@
 //
-//  Copyright 2021 Square Inc.
+//  Copyright 2023 Square Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -14,18 +14,17 @@
 //  limitations under the License.
 //
 
-#if swift(>=5.1) && canImport(SwiftUI)
-
-import SwiftUI
 import UIKit
 
-extension View {
 
-    // This method should be removed once we support snapshotting native SwiftUI views.
-    // See cashapp/AccessibilitySnapshot#37.
-    func embedInHostingController() -> UIViewController {
-        return UIHostingController(rootView: self)
+extension UIApplication {
+
+    public var firstKeyWindow: UIWindow? {
+        UIApplication
+            .shared
+            .connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .flatMap { $0.windows }
+            .first { $0.isKeyWindow }
     }
 }
-
-#endif

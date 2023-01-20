@@ -101,7 +101,7 @@ extension FBSnapshotTestCase {
 
         let requiresWindow = (view.window == nil && !(view is UIWindow))
         if requiresWindow {
-            let window = UIApplication.shared.keyWindow ?? UIWindow(frame: UIScreen.main.bounds)
+            let window = UIApplication.shared.firstKeyWindow ?? UIWindow(frame: UIScreen.main.bounds)
             window.addSubview(view)
         }
 
