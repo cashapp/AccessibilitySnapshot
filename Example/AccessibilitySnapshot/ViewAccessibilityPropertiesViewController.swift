@@ -48,6 +48,10 @@ final class ViewAccessibilityPropertiesViewController: AccessibilityViewControll
 
     // MARK: - UIViewController
 
+    override func loadView() {
+        view = View()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -98,22 +102,30 @@ final class ViewAccessibilityPropertiesViewController: AccessibilityViewControll
         views[7].accessibilityHint = "Hint"
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+}
 
-        for subview in views {
-            subview.frame.size = CGSize(width: 30, height: 30)
-            subview.layer.cornerRadius = 15
+extension ViewAccessibilityPropertiesViewController {
+
+    final class View: UIView {
+
+        // MARK: - UIView
+
+        override func layoutSubviews() {
+            for subview in subviews {
+                subview.bounds.size = CGSize(width: 30, height: 30)
+                subview.layer.cornerRadius = 15
+            }
+
+            let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            for subview in subviews {
+                distributionSpecifiers.append(subview)
+                distributionSpecifiers.append(1.flexible)
+            }
+            applySubviewDistribution(distributionSpecifiers)
         }
 
-        let statusBarHeight = UIApplication.shared.statusBarFrame.height
-
-        var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-        for subview in views {
-            distributionSpecifiers.append(subview)
-            distributionSpecifiers.append(1.flexible)
-        }
-        view.applySubviewDistribution(distributionSpecifiers)
     }
 
 }

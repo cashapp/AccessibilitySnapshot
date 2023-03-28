@@ -19,49 +19,61 @@ import UIKit
 
 final class AccessibilityCustomActionsViewController: AccessibilityViewController {
 
-    // MARK: - Life Cycle
-
-    init() {
-        self.views = [
-            .init(includeLabel: true, includeHint: true),
-            .init(includeLabel: true, includeHint: false),
-            .init(includeLabel: false, includeHint: true),
-            .init(includeLabel: false, includeHint: false),
-        ]
-
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    // MARK: - Private Properties
-
-    private let views: [CustomActionView]
-
     // MARK: - UIViewController
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        views.forEach(view.addSubview)
+    override func loadView() {
+        view = View(
+            views: [
+                .init(includeLabel: true, includeHint: true),
+                .init(includeLabel: true, includeHint: false),
+                .init(includeLabel: false, includeHint: true),
+                .init(includeLabel: false, includeHint: false),
+            ]
+        )
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+}
 
-        views.forEach { $0.frame.size = .init(width: view.bounds.width / 2, height: 50) }
+// MARK: -
 
-        let statusBarHeight = UIApplication.shared.statusBarFrame.height
+private extension AccessibilityCustomActionsViewController {
 
-        var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-        for subview in views {
-            distributionSpecifiers.append(subview)
-            distributionSpecifiers.append(1.flexible)
+    final class View: UIView {
+
+        // MARK: - Life Cycle
+
+        init(views: [CustomActionView], frame: CGRect = .zero) {
+            self.views = views
+
+            super.init(frame: frame)
+
+            views.forEach(addSubview)
         }
-        view.applySubviewDistribution(distributionSpecifiers)
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        // MARK: - Private Properties
+
+        private let views: [CustomActionView]
+
+        // MARK: - UIView
+
+        override func layoutSubviews() {
+            views.forEach { $0.frame.size = .init(width: bounds.width / 2, height: 50) }
+
+            let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            for subview in views {
+                distributionSpecifiers.append(subview)
+                distributionSpecifiers.append(1.flexible)
+            }
+            applySubviewDistribution(distributionSpecifiers)
+        }
+
     }
 
 }
