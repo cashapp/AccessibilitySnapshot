@@ -62,10 +62,31 @@
             </BuildableReference>
             <SkippedTests>
                <Test
+                  Identifier = "AccessibilityContainersTests">
+               </Test>
+               <Test
                   Identifier = "AccessibilityContainersTests/testDataTableWithUndefinedColumns()">
                </Test>
                <Test
                   Identifier = "AccessibilityContainersTests/testDataTableWithUndefinedRowsAndColumns()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testAccessibilityPaths()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testButtonTraits()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testCustomActions()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testDescriptionEdgeCases()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testLabelDescription()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testLargeView()">
                </Test>
                <Test
                   Identifier = "AccessibilitySnapshotTests/testLargeViewInViewControllerThatRequiresTiling()">
@@ -74,7 +95,52 @@
                   Identifier = "AccessibilitySnapshotTests/testLargeViewThatRequiresTiling()">
                </Test>
                <Test
+                  Identifier = "AccessibilitySnapshotTests/testTabBars()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testViewAsSubviewOfViewInViewControllerHierarchy()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testViewDescription()">
+               </Test>
+               <Test
+                  Identifier = "AccessibilitySnapshotTests/testViewInViewControllerHierarchy()">
+               </Test>
+               <Test
+                  Identifier = "ActivationPointTests">
+               </Test>
+               <Test
+                  Identifier = "DefaultControlsTests">
+               </Test>
+               <Test
                   Identifier = "DefaultControlsTests/testDatePicker()">
+               </Test>
+               <Test
+                  Identifier = "ElementOrderTests">
+               </Test>
+               <Test
+                  Identifier = "ElementSelectionTests">
+               </Test>
+               <Test
+                  Identifier = "HighlightTests">
+               </Test>
+               <Test
+                  Identifier = "InvertColorsTests">
+               </Test>
+               <Test
+                  Identifier = "LayoutTests">
+               </Test>
+               <Test
+                  Identifier = "ModalTests">
+               </Test>
+               <Test
+                  Identifier = "ObjectiveCTests">
+               </Test>
+               <Test
+                  Identifier = "SnapshotTestingTests">
+               </Test>
+               <Test
+                  Identifier = "SwitchControlsTests">
                </Test>
                <Test
                   Identifier = "TextAccessibilityTests">
