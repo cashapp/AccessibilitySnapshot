@@ -58,6 +58,7 @@ extension FBSnapshotTestCase {
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -86,7 +87,14 @@ extension FBSnapshotTestCase {
         }
         containerView.sizeToFit()
 
-        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(
+            containerView,
+            identifier: identifier,
+            suffixes: suffixes,
+            overallTolerance: overallTolerance,
+            file: file,
+            line: line
+        )
     }
 
     /// Snapshots the `view` using the specified content size category to test Dynamic Type.

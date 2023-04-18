@@ -120,6 +120,122 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         XCTAssertEqual(viewController.parent, parent)
     }
 
+
+
+
+
+
+    func testMockPrecisionView() {
+        let viewController = MockPrecisionViewController()
+
+        let navController = UINavigationController(rootViewController: viewController)
+        navController.view.bounds.size = UIScreen.main.bounds.size
+
+//        recordMode = true
+        SnapshotVerifyAccessibility(navController.view, overallTolerance: 0)
+    }
+
+    final class MockPrecisionViewController: UITableViewController {
+
+        init() {
+            super.init(style: .plain)
+
+            navigationItem.title = "Precision"
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+            return 10
+        }
+
+        override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+            return MockPrecisionCell()
+        }
+
+        override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+            return 72
+        }
+
+    }
+
+    final class MockPrecisionCell: UITableViewCell {
+
+        init() {
+            super.init(style: .default, reuseIdentifier: nil)
+
+            backView.backgroundColor = .white
+            backView.layer.shadowRadius = 4
+            backView.layer.shadowOpacity = 0.05
+            backView.layer.shadowColor = UIColor.black.cgColor
+            backView.layer.cornerRadius = 8
+            addSubview(backView)
+
+            iconView.backgroundColor = .red
+            addSubview(iconView)
+
+            titleLabel.text = "Hello world"
+            titleLabel.textColor = .black
+            addSubview(titleLabel)
+
+            subtitleLabel.text = "Here's some more text"
+            subtitleLabel.textColor = .darkGray
+            addSubview(subtitleLabel)
+
+            addSubview(toggle)
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        private let backView: UIView = .init()
+        private let iconView: UIView = .init()
+        private let titleLabel: UILabel = .init()
+        private let subtitleLabel: UILabel = .init()
+        private let toggle: UISwitch = .init()
+
+        override func layoutSubviews() {
+            backView.frame = bounds.insetBy(dx: 8, dy: 4)
+
+            iconView.bounds.size = .init(width: 32, height: 32)
+
+            iconView.transform = .identity
+            iconView.align(.leftCenter, withSuperviewPosition: .leftCenter, horizontalOffset: 32)
+            iconView.transform = .init(rotationAngle: .pi / 4 - 0.01)
+
+            titleLabel.sizeToFit()
+            subtitleLabel.sizeToFit()
+
+            applySubviewDistribution(
+                [1.flexible, titleLabel, 16.fixed, subtitleLabel, 1.flexible],
+                inRect: bounds.slice(from: .minXEdge, amount: iconView.frame.maxX + 16).remainder,
+                alignment: .leading(inset: 0)
+            )
+
+            toggle.sizeToFit()
+            toggle.align(.rightCenter, withSuperviewPosition: .rightCenter, horizontalOffset: -16)
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     func testViewAsSubviewOfViewInViewControllerHierarchy() {
         let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
 
