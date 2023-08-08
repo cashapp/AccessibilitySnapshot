@@ -24,6 +24,4 @@ FOUNDATION_EXPORT const unsigned char AccessibilitySnapshotCoreVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <AccessibilitySnapshotCore/PublicHeader.h>
 
-#import "UIApplication+DynamicTypeSnapshotting.h"
-#import "UIView+DynamicTypeSnapshotting.h"
 #import "UIAccessibilityStatusUtility.h"

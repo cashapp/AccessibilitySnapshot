@@ -89,63 +89,6 @@ extension FBSnapshotTestCase {
         FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, file: file, line: line)
     }
 
-    /// Snapshots the `view` using the specified content size category to test Dynamic Type.
-    ///
-    /// When `recordMode` is true, records a snapshot of the view. When `recordMode` is false, performs a comparison with the
-    /// existing snapshot.
-    ///
-    /// In preparation for beta release, this method has been marked internal since it is still under development. Once
-    /// it has been completed, it should be made `public`.
-    ///
-    /// - parameter view: The view that will be snapshotted.
-    /// - parameter contentSizeCategory: The content size category to use in the snapshot.
-    /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple snapshot tests
-    /// in a given test method. Defaults to no identifier.
-    /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
-    /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
-    /// - parameter file: The file in which the test result should be attributed.
-    /// - parameter line: The line in which the test result should be attributed.
-    func SnapshotVerify(
-        _ view: UIView,
-        at contentSizeCategory: UIContentSizeCategory,
-        identifier: String = "",
-        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
-        file: StaticString = #file,
-        line: UInt = #line
-    ) {
-        func postNotification() {
-            NotificationCenter.default.post(
-                name: UIContentSizeCategory.didChangeNotification,
-                object: UIScreen.main,
-                userInfo: [
-                    UIContentSizeCategory.newValueUserInfoKey: UIApplication.shared.preferredContentSizeCategory,
-                    "UIContentSizeCategoryTextLegibilityEnabledKey": false,
-                ]
-            )
-        }
-
-        let originalTraitCollection = view.traitCollection
-        UIView.setPreferredContentSizeCategoryOverride(contentSizeCategory)
-        view.processChange(from: originalTraitCollection)
-        postNotification()
-
-        // TODO: This doesn't quite match what actually happens when the Dynamic Type setting changes. There are a few different ways
-        // to change Dynamic Type (via the Accessibility Inspector in a simulator, exiting the app and changing the size in
-        // Settings.app, or via a control in Control Center on a device) and they each hit a slightly different path when it comes to
-        // resizing views. We should probably try to match the Control Center path since that is the most dynamic way actual users
-        // will be able to change the text size in production.
-        view.setNeedsLayout()
-
-        FBSnapshotVerifyView(view, identifier: identifier, suffixes: suffixes, file: file, line: line)
-
-        // Restore the original content size category.
-        let overriddenTraitCollection = view.traitCollection
-        UIView.setPreferredContentSizeCategoryOverride(nil)
-        view.processChange(from: overriddenTraitCollection)
-        postNotification()
-        view.setNeedsLayout()
-    }
-
     /// Snapshots the `view` simulating the way it will appear with Smart Invert Colors enabled.
     ///
     /// When `recordMode` is true, records a snapshot of the view. When `recordMode` is false, performs a comparison with the
