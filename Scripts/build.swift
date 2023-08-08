@@ -70,6 +70,7 @@ enum Platform: String, CustomStringConvertible {
 enum Task: String, CustomStringConvertible {
 	case spm
 	case xcode
+    case carthage
 
 	var workspace: String? {
 		switch self {
@@ -77,6 +78,8 @@ enum Task: String, CustomStringConvertible {
 			return nil
 		case .xcode:
 			return "Example/AccessibilitySnapshot.xcworkspace"
+        case .carthage:
+            return nil
 		}
 	}
 
@@ -86,6 +89,8 @@ enum Task: String, CustomStringConvertible {
 			return nil
 		case .xcode:
 			return nil
+        case .carthage:
+            return "Sources/AccessibilitySnapshotCore.xcodeproj"
 		}
 	}
 
@@ -95,6 +100,8 @@ enum Task: String, CustomStringConvertible {
 			return "AccessibilitySnapshot"
 		case .xcode:
 			return "AccessibilitySnapshotDemo"
+        case .carthage:
+            return "AccessibilitySnapshotCore"
 		}
 	}
 
@@ -104,6 +111,8 @@ enum Task: String, CustomStringConvertible {
 			return false
 		case .xcode:
 			return true
+        case .carthage:
+            return false
 		}
 	}
 
