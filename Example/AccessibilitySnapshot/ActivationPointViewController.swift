@@ -19,44 +19,69 @@ import UIKit
 
 final class ActivationPointViewController: AccessibilityViewController {
 
-    // MARK: - Private Properties
-
-    // A button for demonstrating what a standard activation point looks like.
-    private let button: UIButton = .init()
-
-    private let customActivationPointView: CustomActivationPointView = .init()
-
-    private var views: [UIView] {
-        return [
-            button,
-            customActivationPointView,
-        ]
+    override func loadView() {
+        view = View()
     }
 
-    // MARK: - UIViewController
+}
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+// MARK: -
 
-        button.setTitle("Do Something", for: .normal)
-        button.setTitleColor(.black, for: .normal)
+private extension ActivationPointViewController {
 
-        views.forEach { view.addSubview($0) }
-    }
+    final class View: UIView {
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+        // MARK: - Life Cycle
 
-        views.forEach { $0.frame.size = $0.sizeThatFits(view.bounds.size) }
+        override init(frame: CGRect) {
+            super.init(frame: frame)
 
-        let statusBarHeight = UIApplication.shared.statusBarFrame.height
+            button.setTitle("Do Something", for: .normal)
+            button.setTitleColor(.black, for: .normal)
+            addSubview(button)
 
-        var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-        for subview in views {
-            distributionSpecifiers.append(subview)
-            distributionSpecifiers.append(1.flexible)
+            addSubview(customActivationPointView)
         }
-        view.applySubviewDistribution(distributionSpecifiers)
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        // MARK: - Private Properties
+
+        // A button for demonstrating what a standard activation point looks like.
+        private let button: UIButton = .init()
+
+        private let customActivationPointView: CustomActivationPointView = .init()
+
+        private var views: [UIView] {
+            return [
+                button,
+                customActivationPointView,
+            ]
+        }
+
+        // MARK: - UIView
+
+        override func layoutSubviews() {
+            button.resize(toFit: bounds.size)
+            customActivationPointView.resize(toFit: bounds.size)
+
+            let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+
+            applySubviewDistribution(
+                [
+                    statusBarHeight.fixed,
+                    1.flexible,
+                    button,
+                    1.flexible,
+                    customActivationPointView,
+                    1.flexible,
+                ]
+            )
+        }
+
     }
 
 }
