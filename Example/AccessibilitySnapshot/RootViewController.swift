@@ -89,6 +89,7 @@ final class RootViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let viewController = accessibilityScreens[indexPath.row].1(self)
+        viewController.modalPresentationStyle = .fullScreen
         present(viewController, animated: true, completion: nil)
         tableView.deselectRow(at: indexPath, animated: true)
     }
