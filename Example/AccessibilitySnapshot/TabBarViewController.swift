@@ -126,7 +126,7 @@ extension TabBarViewController {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
-            applySubviewDistribution(distributionSpecifiers)
+            applyVerticalSubviewDistribution(distributionSpecifiers)
         }
 
     }
@@ -205,7 +205,7 @@ private final class TabBarTraitView: UIView {
 
     override func layoutSubviews() {
         tabs.forEach { $0.frame.size.height = bounds.height }
-        spreadOutSubviews(tabs, margin: 0)
+        horizontallySpreadSubviews(tabs, margin: 0)
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
@@ -270,13 +270,13 @@ private final class TabBarTraitView: UIView {
             outerLabelContainer.frame = bounds
 
             leftLabel.sizeToFit()
-            leftLabel.alignToSuperview(.leftCenter, inset: 4)
+            leftLabel.capInsetsAlignmentProxy.align(withSuperview: .leftCenter, inset: 4)
 
             rightLabel.sizeToFit()
-            rightLabel.alignToSuperview(.rightCenter, inset: 4)
+            rightLabel.capInsetsAlignmentProxy.align(withSuperview: .rightCenter, inset: 4)
 
             middleLabel.sizeToFit()
-            middleLabel.alignToSuperview(.center)
+            middleLabel.capInsetsAlignmentProxy.align(withSuperview: .center)
         }
 
     }
@@ -352,7 +352,7 @@ private final class TabBarTraitContainerView: UIView {
     override func layoutSubviews() {
         itemLabels.forEach { $0.frame.size.height = bounds.height }
 
-        spreadOutSubviews(itemLabels, margin: 0)
+        horizontallySpreadSubviews(itemLabels, margin: 0)
 
         for (label, element) in zip(itemLabels, accessibilityElements as! [UIAccessibilityElement]) {
             element.accessibilityFrameInContainerSpace = label.frame

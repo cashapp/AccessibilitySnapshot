@@ -113,11 +113,11 @@ private extension InvertColorsViewController {
         override func layoutSubviews() {
             let nestedViews: [UIView] = [self] + nestedSubviews
             for (containingView, subview) in zip(nestedViews.dropLast(), nestedViews.dropFirst()) {
-                subview.frame = containingView.bounds.inset(left: 30, top: 60, right: 30, bottom: 60)
+                subview.frame = containingView.bounds.insetBy(left: 30, top: 60, right: 30, bottom: 60)
             }
 
             statusLabel.sizeToFit()
-            statusLabel.alignToSuperview(.topCenter, inset: 20)
+            statusLabel.capInsetsAlignmentProxy.align(withSuperview: .topCenter, inset: 20)
         }
 
     }

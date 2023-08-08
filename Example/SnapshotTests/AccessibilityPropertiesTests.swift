@@ -74,7 +74,7 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         view.addSubview(label)
 
         label.sizeToFit()
-        label.center = view.point(at: .center)
+        label.align(withSuperview: .center)
 
         if ProcessInfo().operatingSystemVersion.majorVersion != 13 {
             SnapshotVerifyAccessibility(view, identifier: "monochrome", useMonochromeSnapshot: true)
@@ -104,7 +104,7 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         view.addSubview(label)
 
         label.sizeToFit()
-        label.center = view.point(at: .center)
+        label.align(withSuperview: .center)
 
         let viewController = UIViewController()
         viewController.view = view
@@ -129,7 +129,7 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         view.addSubview(label)
 
         label.sizeToFit()
-        label.center = view.point(at: .center)
+        label.align(withSuperview: .center)
 
         let viewController = UIViewController()
         viewController.view.addSubview(view)

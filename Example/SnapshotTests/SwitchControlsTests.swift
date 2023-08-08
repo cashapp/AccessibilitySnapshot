@@ -174,7 +174,7 @@ private final class ContainerView: UIView {
 
     override func layoutSubviews() {
         control.frame.size = control.sizeThatFits(bounds.insetBy(dx: 10, dy: 10).size)
-        control.alignToSuperview(.center)
+        control.align(withSuperview: .center)
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {

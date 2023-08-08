@@ -117,7 +117,7 @@ private extension ElementOrderViewController {
                     )
 
                 case .container, .viewWithAccessibleSubviews:
-                    view.alignToSuperview(.center)
+                    view.align(withSuperview: .center)
                 }
             }
         }

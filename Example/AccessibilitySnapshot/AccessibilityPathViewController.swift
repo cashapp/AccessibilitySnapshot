@@ -117,7 +117,7 @@ private extension AccessibilityPathViewController {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
-            applySubviewDistribution(distributionSpecifiers)
+            applyVerticalSubviewDistribution(distributionSpecifiers)
         }
 
     }

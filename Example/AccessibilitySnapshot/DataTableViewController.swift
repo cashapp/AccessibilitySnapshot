@@ -147,7 +147,7 @@ private extension DataTableViewController {
                 width: CGFloat(accessibilityColumnCount()),
                 height: CGFloat(accessibilityRowCount())
             ).rect(
-                toFit: bounds.inset(left: 20, top: 20, right: 20, bottom: 20),
+                toFit: bounds.insetBy(left: 20, top: 20, right: 20, bottom: 20),
                 at: .center,
                 in: self
             )
@@ -167,7 +167,7 @@ private extension DataTableViewController {
             }
 
             notACell.sizeToFit()
-            notACell.alignToSuperview(.topCenter, inset: 60)
+            notACell.capInsetsAlignmentProxy.align(withSuperview: .topCenter, inset: 60)
         }
 
         // MARK: - UIAccessibility

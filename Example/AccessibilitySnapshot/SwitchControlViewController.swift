@@ -145,7 +145,7 @@ private extension SwitchControlViewController {
                     1.flexible,
                 ]
             )
-            applySubviewDistribution(distributionSpecifiers)
+            applyVerticalSubviewDistribution(distributionSpecifiers)
         }
 
     }

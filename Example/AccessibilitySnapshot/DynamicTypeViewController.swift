@@ -64,14 +64,14 @@ final class DynamicTypeViewController: AccessibilityViewController {
 
         views.forEach { $0.frame.size = $0.sizeThatFits(view.bounds.size) }
 
-        let statusBarHeight = UIApplication.shared.statusBarFrame.height
+        let statusBarHeight = view.window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
         var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
         for subview in views {
             distributionSpecifiers.append(subview)
             distributionSpecifiers.append(1.flexible)
         }
-        view.applySubviewDistribution(distributionSpecifiers)
+        view.applyVerticalSubviewDistribution(distributionSpecifiers)
     }
 
 }

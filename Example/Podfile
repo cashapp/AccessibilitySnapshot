@@ -3,9 +3,7 @@ use_modular_headers!
 platform :ios, '13.0'
 
 target 'AccessibilitySnapshotDemo' do
-	# Paralayout does not support Xcode 12 in the current release version. Support will be added in 1.0 (see
-	# square/Paralayout#23), so once that's released we can switch back to the release version.
-	pod 'Paralayout', :git => 'https://github.com/square/Paralayout'
+	pod 'Paralayout', '= 1.0.0-rc.5'
 
 	target 'SnapshotTests' do
 		inherit! :search_paths

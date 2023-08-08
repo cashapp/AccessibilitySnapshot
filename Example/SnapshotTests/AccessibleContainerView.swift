@@ -60,7 +60,7 @@ final class AccessibleContainerView: UIView {
         distribution.removeLast()
         distribution.append(outerMargin.fixed)
 
-        applySubviewDistribution(distribution, axis: .horizontal)
+        applyHorizontalSubviewDistribution(distribution)
     }
 
     override func sizeThatFits(_ size: CGSize) -> CGSize {
