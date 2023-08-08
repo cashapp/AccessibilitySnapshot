@@ -22,10 +22,10 @@ final class ModalAccessibilityViewController: AccessibilityViewController {
     // MARK: - Life Cycle
 
     init(topLevelCount: Int, containerCount: Int, modalAccessibilityMode: ModalAccessibilityMode) {
-        modalViews = (0..<topLevelCount).map { ModalView(index: $0, accessibilityMode: modalAccessibilityMode) }
-        modalContainerViews = (0..<containerCount).map { _ in ModalContainerView() }
-
         super.init(nibName: nil, bundle: nil)
+
+        rootView.modalViews = (0..<topLevelCount).map { ModalView(index: $0, accessibilityMode: modalAccessibilityMode) }
+        rootView.modalContainerViews = (0..<containerCount).map { _ in ModalContainerView() }
     }
 
     @available(*, unavailable)
@@ -35,58 +35,14 @@ final class ModalAccessibilityViewController: AccessibilityViewController {
 
     // MARK: - Private Properties
 
-    private let views: [UIView] = (0..<4).map { _ in UIView() }
-
-    private let modalViews: [ModalView]
-
-    private let modalContainerViews: [ModalContainerView]
+    private var rootView: View {
+        return view as! View
+    }
 
     // MARK: - UIViewController
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        views.forEach { subview in
-            subview.frame.size = CGSize(width: 64, height: 64)
-            subview.layer.cornerRadius = 32
-            subview.backgroundColor = .lightGray
-
-            subview.isAccessibilityElement = true
-            subview.accessibilityLabel = "Don't Read Me"
-
-            view.addSubview(subview)
-        }
-
-        modalViews.forEach { view.addSubview($0) }
-
-        modalContainerViews.forEach { view.addSubview($0) }
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        views[0].alignToSuperview(.topLeft, inset: 20)
-        views[1].alignToSuperview(.topRight, inset: 20)
-        views[2].alignToSuperview(.bottomRight, inset: 20)
-        views[3].alignToSuperview(.bottomLeft, inset: 20)
-
-        var distributionItems: [ViewDistributionSpecifying] = [1.flexible]
-
-        modalViews.forEach { modal in
-            modal.sizeToFit()
-            distributionItems.append(modal)
-            distributionItems.append((0.5).flexible)
-        }
-
-        modalContainerViews.forEach { container in
-            container.sizeToFit()
-            distributionItems.append(container)
-            distributionItems.append((0.5).flexible)
-        }
-
-        _ = distributionItems.dropLast()
-        distributionItems.append(1.flexible)
-        view.applySubviewDistribution(distributionItems)
+    override func loadView() {
+        view = View()
     }
 
     // MARK: - Public Types
@@ -95,6 +51,83 @@ final class ModalAccessibilityViewController: AccessibilityViewController {
         case viewIsAccessible
         case viewContainsAccessibleElement
         case viewIsInaccessible
+    }
+
+}
+
+// MARK: -
+
+private extension ModalAccessibilityViewController {
+
+    final class View: UIView {
+
+        // MARK: - Life Cycle
+
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+
+            views.forEach { subview in
+                subview.frame.size = CGSize(width: 64, height: 64)
+                subview.layer.cornerRadius = 32
+                subview.backgroundColor = .lightGray
+
+                subview.isAccessibilityElement = true
+                subview.accessibilityLabel = "Don't Read Me"
+
+                addSubview(subview)
+            }
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        // MARK: - Public Properties
+
+        let views: [UIView] = (0..<4).map { _ in UIView() }
+
+        var modalViews: [ModalView] = [] {
+            didSet {
+                oldValue.forEach { $0.removeFromSuperview() }
+                modalViews.forEach { addSubview($0) }
+            }
+        }
+
+        var modalContainerViews: [ModalContainerView] = [] {
+            didSet {
+                oldValue.forEach { $0.removeFromSuperview() }
+                modalContainerViews.forEach { addSubview($0) }
+            }
+        }
+
+        // MARK: - UIView
+
+        override func layoutSubviews() {
+            views[0].alignToSuperview(.topLeft, inset: 20)
+            views[1].alignToSuperview(.topRight, inset: 20)
+            views[2].alignToSuperview(.bottomRight, inset: 20)
+            views[3].alignToSuperview(.bottomLeft, inset: 20)
+
+            var distributionItems: [ViewDistributionSpecifying] = [1.flexible]
+
+            modalViews.forEach { modal in
+                modal.sizeToFit()
+                distributionItems.append(modal)
+                distributionItems.append((0.5).flexible)
+            }
+
+            modalContainerViews.forEach { container in
+                container.sizeToFit()
+                distributionItems.append(container)
+                distributionItems.append((0.5).flexible)
+            }
+
+            _ = distributionItems.dropLast()
+            distributionItems.append(1.flexible)
+            applySubviewDistribution(distributionItems)
+        }
+
     }
 
 }
