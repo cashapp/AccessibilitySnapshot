@@ -1,6 +1,6 @@
 # AccessibilitySnapshot
 
-[![CI Status](https://img.shields.io/travis/CashApp/AccessibilitySnapshot.svg?style=flat)](https://travis-ci.org/CashApp/AccessibilitySnapshot)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/CashApp/AccessibilitySnapshot/ci.yml?branch=master)](https://github.com/CashApp/AccessibilitySnapshot/actions?query=workflow%3ACI+branch%3Amaster)
 [![Version](https://img.shields.io/cocoapods/v/AccessibilitySnapshot.svg?style=flat)](https://cocoapods.org/pods/AccessibilitySnapshot)
 [![License](https://img.shields.io/cocoapods/l/AccessibilitySnapshot.svg?style=flat)](https://cocoapods.org/pods/AccessibilitySnapshot)
 [![Platform](https://img.shields.io/cocoapods/p/AccessibilitySnapshot.svg?style=flat)](https://cocoapods.org/pods/AccessibilitySnapshot)
