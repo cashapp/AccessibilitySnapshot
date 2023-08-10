@@ -44,9 +44,15 @@ final class LabelAccessibilityPropertiesViewController: AccessibilityViewControl
 
     // MARK: - Private Properties
 
-    private let labels = (0..<8).map { _ in UILabel() }
+    private var labels: [UILabel] {
+        return (view as! View).labels
+    }
 
     // MARK: - UIViewController
+
+    override func loadView() {
+        view = View()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -100,19 +106,44 @@ final class LabelAccessibilityPropertiesViewController: AccessibilityViewControl
         labels[7].accessibilityHint = "Hint"
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+}
 
-        labels.forEach { $0.sizeToFit() }
+// MARK: -
 
-        let statusBarHeight = UIApplication.shared.statusBarFrame.height
+extension LabelAccessibilityPropertiesViewController {
 
-        var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-        for label in labels {
-            distributionSpecifiers.append(label)
-            distributionSpecifiers.append(1.flexible)
+    final class View: UIView {
+
+        // MARK: - Life Cycle
+
+        override init(frame: CGRect) {
+            super.init(frame: frame)
         }
-        view.applySubviewDistribution(distributionSpecifiers)
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        // MARK: - Public Properties
+
+        let labels = (0..<8).map { _ in UILabel() }
+
+        // MARK: - UIView
+
+        override func layoutSubviews() {
+            labels.forEach { $0.sizeToFit() }
+
+            let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            for label in labels {
+                distributionSpecifiers.append(label)
+                distributionSpecifiers.append(1.flexible)
+            }
+            applySubviewDistribution(distributionSpecifiers)
+        }
+
     }
 
 }

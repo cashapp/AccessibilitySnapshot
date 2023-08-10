@@ -38,9 +38,15 @@ final class DescriptionEdgeCasesViewController: AccessibilityViewController {
 
     // MARK: - Private Properties
 
-    private let views = (0..<5).map { _ in UIView() }
+    private var views: [UIView] {
+        return (view as! View).views
+    }
 
     // MARK: - UIViewController
+
+    override func loadView() {
+        view = View()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,7 +54,6 @@ final class DescriptionEdgeCasesViewController: AccessibilityViewController {
         for subview in views {
             subview.backgroundColor = .lightGray
             subview.isAccessibilityElement = true
-            view.addSubview(subview)
         }
 
         // View with hint only and adjustable trait.
@@ -71,22 +76,49 @@ final class DescriptionEdgeCasesViewController: AccessibilityViewController {
         views[4].accessibilityTraits = .button
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+}
 
-        for subview in views {
-            subview.frame.size = CGSize(width: 30, height: 30)
-            subview.layer.cornerRadius = 15
+// MARK: -
+
+extension DescriptionEdgeCasesViewController {
+
+    final class View: UIView {
+
+        // MARK: - Life Cycle
+
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+
+            views.forEach(addSubview(_:))
         }
 
-        let statusBarHeight = UIApplication.shared.statusBarFrame.height
-
-        var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-        for subview in views {
-            distributionSpecifiers.append(subview)
-            distributionSpecifiers.append(1.flexible)
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
         }
-        view.applySubviewDistribution(distributionSpecifiers)
+
+        // MARK: - Public Properties
+
+        let views = (0..<5).map { _ in UIView() }
+
+        // MARK: - UIView
+
+        override func layoutSubviews() {
+            for subview in views {
+                subview.bounds.size = CGSize(width: 30, height: 30)
+                subview.layer.cornerRadius = 15
+            }
+
+            let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            for subview in views {
+                distributionSpecifiers.append(subview)
+                distributionSpecifiers.append(1.flexible)
+            }
+            applySubviewDistribution(distributionSpecifiers)
+        }
+
     }
 
 }

@@ -82,9 +82,15 @@ final class ButtonAccessibilityTraitsViewController: AccessibilityViewController
 
     // MARK: - Private Properties
 
-    private let buttons = (0..<27).map { _ in UIButton() }
+    private var buttons: [UIButton] {
+        return (view as! View).buttons
+    }
 
     // MARK: - UIViewController
+
+    override func loadView() {
+        view = View()
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,7 +101,6 @@ final class ButtonAccessibilityTraitsViewController: AccessibilityViewController
             button.setTitle(numberFormatter.string(from: NSNumber(value: (index + 1))), for: .normal)
             button.setTitleColor(.black, for: .normal)
             button.isAccessibilityElement = true
-            view.addSubview(button)
         }
 
         view.accessibilityElements = buttons
@@ -156,42 +161,69 @@ final class ButtonAccessibilityTraitsViewController: AccessibilityViewController
         buttons[26].accessibilityTraits = accessibilityTraits.reduce(.none, { $0.union($1) })
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+}
 
-        buttons.forEach { $0.sizeToFit() }
+// MARK: -
 
-        let statusBarHeight = UIApplication.shared.statusBarFrame.height
+extension ButtonAccessibilityTraitsViewController {
 
-        let additionalButtonSpacers = (buttons.count % 3 == 0) ? 0 : (3 - (buttons.count % 3))
-        let buttonsPerColumn = (buttons.count + additionalButtonSpacers) / 3
+    final class View: UIView {
 
-        let outerMargin = view.bounds.width / 5
+        // MARK: - Life Cycle
 
-        var leftColSubviewDistribution: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-        for button in buttons[0..<buttonsPerColumn] {
-            leftColSubviewDistribution.append(button)
-            leftColSubviewDistribution.append(1.flexible)
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+
+            buttons.forEach(addSubview(_:))
         }
-        view.applySubviewDistribution(leftColSubviewDistribution, alignment: .leading(inset: outerMargin))
 
-        var centerColSubviewDistribution: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-        for button in buttons[buttonsPerColumn..<(2 * buttonsPerColumn)] {
-            centerColSubviewDistribution.append(button)
-            centerColSubviewDistribution.append(1.flexible)
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
         }
-        view.applySubviewDistribution(centerColSubviewDistribution)
 
-        var rightColSubviewDistribution: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-        for button in buttons[(2 * buttonsPerColumn)..<buttons.count] {
-            rightColSubviewDistribution.append(button)
-            rightColSubviewDistribution.append(1.flexible)
+        // MARK: - Public Properties
+
+        let buttons = (0..<27).map { _ in UIButton() }
+
+        // MARK: - UIView
+
+        override func layoutSubviews() {
+            buttons.forEach { $0.sizeToFit() }
+
+            let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+
+            let additionalButtonSpacers = (buttons.count % 3 == 0) ? 0 : (3 - (buttons.count % 3))
+            let buttonsPerColumn = (buttons.count + additionalButtonSpacers) / 3
+
+            let outerMargin = bounds.width / 5
+
+            var leftColSubviewDistribution: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            for button in buttons[0..<buttonsPerColumn] {
+                leftColSubviewDistribution.append(button)
+                leftColSubviewDistribution.append(1.flexible)
+            }
+            applySubviewDistribution(leftColSubviewDistribution, alignment: .leading(inset: outerMargin))
+
+            var centerColSubviewDistribution: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            for button in buttons[buttonsPerColumn..<(2 * buttonsPerColumn)] {
+                centerColSubviewDistribution.append(button)
+                centerColSubviewDistribution.append(1.flexible)
+            }
+            applySubviewDistribution(centerColSubviewDistribution)
+
+            var rightColSubviewDistribution: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            for button in buttons[(2 * buttonsPerColumn)..<buttons.count] {
+                rightColSubviewDistribution.append(button)
+                rightColSubviewDistribution.append(1.flexible)
+            }
+            for _ in 0..<additionalButtonSpacers {
+                rightColSubviewDistribution.append(buttons[0].frame.height.fixed)
+                rightColSubviewDistribution.append(1.flexible)
+            }
+            applySubviewDistribution(rightColSubviewDistribution, alignment: .trailing(inset: outerMargin))
         }
-        for _ in 0..<additionalButtonSpacers {
-            rightColSubviewDistribution.append(buttons[0].frame.height.fixed)
-            rightColSubviewDistribution.append(1.flexible)
-        }
-        view.applySubviewDistribution(rightColSubviewDistribution, alignment: .trailing(inset: outerMargin))
+
     }
 
 }
