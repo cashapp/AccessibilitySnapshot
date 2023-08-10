@@ -46,7 +46,9 @@ final class ElementSelectionViewController: AccessibilityViewController {
     // MARK: - Life Cycle
 
     init(configurations: [ViewConfiguration]) {
-        views = configurations.map { configuration in
+        super.init(nibName: nil, bundle: nil)
+
+        rootView.views = configurations.map { configuration in
             let view: UIView
             switch configuration {
             case let .accessibilityElement(accessibilityElementsHidden: accessibilityElementsHidden, isHidden: isHidden):
@@ -70,15 +72,13 @@ final class ElementSelectionViewController: AccessibilityViewController {
                 view.isHidden = isHidden
             }
 
-            view.frame.size = CGSize(width: 64, height: 64)
+            view.bounds.size = CGSize(width: 64, height: 64)
             view.layer.cornerRadius = 32
             view.backgroundColor = .lightGray
             view.accessibilityLabel = "Lorem ipsum"
 
             return view
         }
-
-        super.init(nibName: nil, bundle: nil)
     }
 
     @available(*, unavailable)
@@ -88,27 +88,14 @@ final class ElementSelectionViewController: AccessibilityViewController {
 
     // MARK: - Private Properties
 
-    private let views: [UIView]
+    private var rootView: View {
+        return view as! View
+    }
 
     // MARK: - UIViewController
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        views.forEach { view.addSubview($0) }
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        let statusBarHeight = UIApplication.shared.statusBarFrame.height
-
-        var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-        for subview in views {
-            distributionSpecifiers.append(subview)
-            distributionSpecifiers.append(1.flexible)
-        }
-        view.applySubviewDistribution(distributionSpecifiers)
+    override func loadView() {
+        view = View()
     }
 
 }
@@ -206,6 +193,38 @@ extension ElementSelectionViewController {
         }
 
         return alertController
+    }
+
+}
+
+// MARK: -
+
+private extension ElementSelectionViewController {
+
+    final class View: UIView {
+
+        // MARK: - Public Properties
+
+        var views: [UIView] = [] {
+            didSet {
+                oldValue.forEach { $0.removeFromSuperview() }
+                views.forEach { addSubview($0) }
+            }
+        }
+
+        // MARK: - UIView
+
+        override func layoutSubviews() {
+            let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
+
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            for subview in views {
+                distributionSpecifiers.append(subview)
+                distributionSpecifiers.append(1.flexible)
+            }
+            applySubviewDistribution(distributionSpecifiers)
+        }
+
     }
 
 }
