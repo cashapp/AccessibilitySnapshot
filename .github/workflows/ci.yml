@@ -60,3 +60,17 @@ jobs:
         run: sudo xcode-select --switch /Applications/Xcode_12.5.1.app/Contents/Developer
       - name: Build
         run: Scripts/build.swift spm ${{ matrix.platform }}
+  carthage:
+    name: Carthage Build
+    runs-on: macOS-11
+    strategy:
+      matrix:
+        platform: ['iOS_14']
+      fail-fast: false
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+      - name: Select Xcode Version (12.5.1)
+        run: sudo xcode-select --switch /Applications/Xcode_12.5.1.app/Contents/Developer
+      - name: Build
+        run: Scripts/build.swift carthage ${{ matrix.platform }}
