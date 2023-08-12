@@ -38,7 +38,9 @@ final class ElementOrderViewController: AccessibilityViewController {
     // MARK: - Life Cycle
 
     init(configurations: [ViewConfiguration]) {
-        views = configurations.enumerated().map { index, configuration in
+        super.init(nibName: nil, bundle: nil)
+
+        rootView.views = configurations.enumerated().map { index, configuration in
             let view: UIView
             switch configuration {
             case .element:
@@ -64,8 +66,6 @@ final class ElementOrderViewController: AccessibilityViewController {
 
             return (view, configuration)
         }
-
-        super.init(nibName: nil, bundle: nil)
     }
 
     @available(*, unavailable)
@@ -75,34 +75,53 @@ final class ElementOrderViewController: AccessibilityViewController {
 
     // MARK: - Private Properties
 
-    private let views: [(UIView, ViewConfiguration)]
+    private var rootView: View {
+        return view as! View
+    }
 
     // MARK: - UIViewController
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        views.forEach { view.addSubview($0.0) }
+    override func loadView() {
+        view = View()
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
+}
 
-        views.forEach {
-            let (view, configuration) = $0
-            switch configuration {
-            case let .element(offset):
-                view.align(
-                    .center,
-                    withSuperviewPosition: .center,
-                    horizontalOffset: offset.horizontal,
-                    verticalOffset: offset.vertical
-                )
+// MARK: -
 
-            case .container, .viewWithAccessibleSubviews:
-                view.alignToSuperview(.center)
+private extension ElementOrderViewController {
+
+    final class View: UIView {
+
+        // MARK: - Public Properties
+
+        var views: [(UIView, ViewConfiguration)] = [] {
+            didSet {
+                oldValue.forEach { $0.0.removeFromSuperview() }
+                views.forEach { addSubview($0.0) }
             }
         }
+
+        // MARK: - UIView
+
+        override func layoutSubviews() {
+            views.forEach {
+                let (view, configuration) = $0
+                switch configuration {
+                case let .element(offset):
+                    view.align(
+                        .center,
+                        withSuperviewPosition: .center,
+                        horizontalOffset: offset.horizontal,
+                        verticalOffset: offset.vertical
+                    )
+
+                case .container, .viewWithAccessibleSubviews:
+                    view.alignToSuperview(.center)
+                }
+            }
+        }
+
     }
 
 }
