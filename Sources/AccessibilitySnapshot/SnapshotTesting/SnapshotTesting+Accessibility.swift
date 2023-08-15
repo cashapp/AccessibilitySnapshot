@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 Square Inc.
+//  Copyright 2023 Block Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -48,50 +48,15 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = []
     ) -> Snapshotting {
-        guard isRunningInHostApplication else {
-            fatalError("Accessibility snapshot tests cannot be run in a test target without a host application")
-        }
-
-        return Snapshotting<UIView, UIImage>
-            .image(drawHierarchyInKeyWindow: drawHierarchyInKeyWindow)
-            .pullback { view in
-                let containerView = AccessibilitySnapshotView(
-                    containedView: view,
-                    viewRenderingMode: drawHierarchyInKeyWindow ? .drawHierarchyInRect : .renderLayerInContext,
-                    markerColors: markerColors,
-                    activationPointDisplayMode: activationPointDisplayMode
-                )
-
-                let window = UIWindow(frame: UIScreen.main.bounds)
-                window.makeKeyAndVisible()
-                containerView.center = window.center
-                window.addSubview(containerView)
-
-                do {
-                    try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
-                } catch AccessibilitySnapshotView.Error.containedViewExceedsMaximumSize {
-                    fatalError(
-                        """
-                        View is too large to render monochrome snapshot. Try setting useMonochromeSnapshot to false or \
-                        use a different iOS version. In particular, this is known to fail on iOS 13, but was fixed in \
-                        iOS 14.
-                        """
-                    )
-                } catch AccessibilitySnapshotView.Error.containedViewHasUnsupportedTransform {
-                    fatalError(
-                        """
-                        View has an unsupported transform for the specified snapshot parameters. Try using an identity \
-                        transform or changing the view rendering mode to render the layer in the graphics context.
-                        """
-                    )
-                } catch {
-                    fatalError("Failed to render snapshot image")
-                }
-
-                containerView.sizeToFit()
-
-                return containerView
-            }
+        // For now this calls through to the imprecise variant, but should eventually use an alternate comparison
+        // algorithm that... TODO
+        return .impreciseAccessibilityImage(
+            showActivationPoints: activationPointDisplayMode,
+            useMonochromeSnapshot: useMonochromeSnapshot,
+            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+            markerColors: markerColors,
+            precision: 1
+        )
     }
 
     /// Snapshots the current view using the specified content size category to test Dynamic Type.
@@ -110,42 +75,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
 
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
     public static var imageWithSmartInvert: Snapshotting {
-       func postNotification() {
-            NotificationCenter.default.post(
-                name: UIAccessibility.invertColorsStatusDidChangeNotification,
-                object: nil,
-                userInfo: nil
-            )
-        }
-
-        return Snapshotting<UIImage, UIImage>.image.pullback { view in
-            let requiresWindow = (view.window == nil && !(view is UIWindow))
-
-            if requiresWindow {
-                let window = UIApplication.shared.firstKeyWindow ?? UIWindow(frame: UIScreen.main.bounds)
-                window.addSubview(view)
-            }
-
-            view.layoutIfNeeded()
-
-            let statusUtility = UIAccessibilityStatusUtility()
-            statusUtility.mockInvertColorsStatus()
-            postNotification()
-
-            let renderer = UIGraphicsImageRenderer(bounds: view.bounds)
-            let image = renderer.image { context in
-                view.drawHierarchyWithInvertedColors(in: view.bounds, using: context)
-            }
-
-            statusUtility.unmockStatuses()
-            postNotification()
-
-            if requiresWindow {
-                view.removeFromSuperview()
-            }
-
-            return image
-        }
+        return .impreciseImageWithSmartInvert(precision: 1)
     }
 
     // MARK: - Internal Properties
