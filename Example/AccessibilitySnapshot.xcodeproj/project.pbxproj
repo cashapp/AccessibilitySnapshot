@@ -20,6 +20,7 @@
 		3D3F2E142263E6B900F7608E /* InvertColorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3F2E132263E6B900F7608E /* InvertColorsViewController.swift */; };
 		3D3F2E162263E94D00F7608E /* InvertColorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D3F2E152263E94D00F7608E /* InvertColorsTests.swift */; };
 		3D4674682116A3F100278B57 /* ViewAccessibilityPropertiesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4674672116A3F100278B57 /* ViewAccessibilityPropertiesViewController.swift */; };
+		3D9334942A8B2E520078A142 /* ImpreciseObjectiveCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3D9334932A8B2E520078A142 /* ImpreciseObjectiveCTests.m */; };
 		3D9894F9213509C8006C16F6 /* DescriptionEdgeCasesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9894F8213509C8006C16F6 /* DescriptionEdgeCasesViewController.swift */; };
 		3DA12A3222405B9E00EB3C33 /* DataTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DA12A3122405B9E00EB3C33 /* DataTableViewController.swift */; };
 		3DBAC28722406EBB00EF4D0A /* AccessibilityContainersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBAC28622406EBB00EF4D0A /* AccessibilityContainersTests.swift */; };
@@ -94,6 +95,7 @@
 		3D4674672116A3F100278B57 /* ViewAccessibilityPropertiesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewAccessibilityPropertiesViewController.swift; sourceTree = "<group>"; };
 		3D881956246E03C00061DA6A /* UnitTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = UnitTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3D88195A246E03C00061DA6A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3D9334932A8B2E520078A142 /* ImpreciseObjectiveCTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImpreciseObjectiveCTests.m; sourceTree = "<group>"; };
 		3D9894F8213509C8006C16F6 /* DescriptionEdgeCasesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DescriptionEdgeCasesViewController.swift; sourceTree = "<group>"; };
 		3DA12A3122405B9E00EB3C33 /* DataTableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTableViewController.swift; sourceTree = "<group>"; };
 		3DBAC28622406EBB00EF4D0A /* AccessibilityContainersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityContainersTests.swift; sourceTree = "<group>"; };
@@ -294,6 +296,7 @@
 			isa = PBXGroup;
 			children = (
 				3D13DB512221124000066519 /* ObjectiveCTests.m */,
+				3D9334932A8B2E520078A142 /* ImpreciseObjectiveCTests.m */,
 				3DBAC28622406EBB00EF4D0A /* AccessibilityContainersTests.swift */,
 				607FACEB1AFB9204008FA782 /* AccessibilityPropertiesTests.swift */,
 				3D39BFAF2239BC42009C3EF4 /* ActivationPointTests.swift */,
@@ -637,6 +640,7 @@
 				3D220A2B252AF72900359C1E /* AccessibleContainerView.swift in Sources */,
 				1635CE4E251EAC6700907101 /* SnapshotTestingTests.swift in Sources */,
 				3DBEAA5D2223C0CE00FAE61D /* SwitchControlsTests.swift in Sources */,
+				3D9334942A8B2E520078A142 /* ImpreciseObjectiveCTests.m in Sources */,
 				3DF46500220D5FB00048D446 /* ElementSelectionTests.swift in Sources */,
 				3DBAC28722406EBB00EF4D0A /* AccessibilityContainersTests.swift in Sources */,
 				3DC488392212B40C006D1E15 /* ModalTests.swift in Sources */,
