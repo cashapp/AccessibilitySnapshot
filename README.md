@@ -5,7 +5,11 @@
 [![License](https://img.shields.io/cocoapods/l/AccessibilitySnapshot.svg?style=flat)](https://cocoapods.org/pods/AccessibilitySnapshot)
 [![Platform](https://img.shields.io/cocoapods/p/AccessibilitySnapshot.svg?style=flat)](https://cocoapods.org/pods/AccessibilitySnapshot)
 
-AccessibilitySnapshots makes it simple to add regression tests for accessibility in UIKit.
+AccessibilitySnapshot makes it simple to add regression tests for accessibility in iOS apps. The framework builds on the idea of snapshot testing to provide snapshots of the accessibility hierarchy.
+
+<p align="center">
+    <img src="Documentation/Assets/HeroSample.png">
+</p>
 
 ## Getting Started
 
