@@ -36,6 +36,10 @@ extension FBSnapshotTestCase {
     /// hierarchy to its original state as much as possible, but is not guaranteed to be without side effects (for
     /// example if something observes changes in the view hierarchy).
     ///
+    /// - Warning: Using a `perPixelTolerance` or `overallTolerance` greater than `0` may result in allowing regressions
+    /// through. Prefer using `perPixelTolerance` over `overallTolerance` where possible, and only raise the tolerances
+    /// to the extent needed to allow your tests to pass across multiple machines.
+    ///
     /// - parameter view: The view that will be snapshotted.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple
     /// snapshot tests in a given test method. Defaults to no identifier.
@@ -49,15 +53,23 @@ extension FBSnapshotTestCase {
     /// order, repeating through the array as necessary.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
-    public func SnapshotVerifyAccessibility(
+    public func SnapshotImpreciseVerifyAccessibility(
         _ view: UIView,
         identifier: String = "",
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -86,7 +98,15 @@ extension FBSnapshotTestCase {
         }
         containerView.sizeToFit()
 
-        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(
+            containerView,
+            identifier: identifier,
+            suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
+            file: file,
+            line: line
+        )
     }
 
     /// Snapshots the `view` simulating the way it will appear with Smart Invert Colors enabled.
@@ -94,17 +114,29 @@ extension FBSnapshotTestCase {
     /// When `recordMode` is true, records a snapshot of the view. When `recordMode` is false, performs a comparison with the
     /// existing snapshot.
     ///
+    /// - Warning: Using a `perPixelTolerance` or `overallTolerance` greater than `0` may result in allowing regressions
+    /// through. Prefer using `perPixelTolerance` over `overallTolerance` where possible, and only raise the tolerances
+    /// to the extent needed to allow your tests to pass across multiple machines.
+    ///
     /// - parameter view: The view that will be snapshotted.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple snapshot tests
     /// in a given test method. Defaults to no identifier.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
     /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
-    public func SnapshotVerifyWithInvertedColors(
+    public func SnapshotImpreciseVerifyWithInvertedColors(
         _ view: UIView,
         identifier: String = "",
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -142,16 +174,6 @@ extension FBSnapshotTestCase {
         if requiresWindow {
             view.removeFromSuperview()
         }
-    }
-
-    // MARK: - Internal Properties
-
-    var isRunningInHostApplication: Bool {
-        // The tests must be run in a host application in order for the accessibility properties to be populated
-        // correctly. The `UIApplication.shared` singleton is non-optional, but will be uninitialized when the tests are
-        // running outside of a host application, so we can use this check to determine whether we have a test host.
-        let hostApplication: UIApplication? = UIApplication.shared
-        return (hostApplication != nil)
     }
 
 }
