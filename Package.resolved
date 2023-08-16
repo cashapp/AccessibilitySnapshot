@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "Paralayout",
+        "repositoryURL": "https://github.com/square/Paralayout.git",
+        "state": {
+          "branch": null,
+          "revision": "97e7454d087618a254d88a5e0766c8b3b1c67225",
+          "version": "1.0.0-rc.5"
+        }
+      },
+      {
         "package": "SnapshotTesting",
         "repositoryURL": "https://github.com/pointfreeco/swift-snapshot-testing.git",
         "state": {

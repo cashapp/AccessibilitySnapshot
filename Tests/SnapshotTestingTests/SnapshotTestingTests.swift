@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 Square Inc.
+//  Copyright 2023 Block Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
 import AccessibilitySnapshot
 import SnapshotTesting
 import XCTest
-
-@testable import AccessibilitySnapshotDemo
 
 /// Tests covering the integration between the core components of AccessibilitySnapshot and SnapshotTesting.
 final class SnapshotTestingTests: XCTestCase {

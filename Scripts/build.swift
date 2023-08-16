@@ -101,7 +101,7 @@ enum Task: String, CustomStringConvertible {
 	var shouldRunTests: Bool {
 		switch self {
 		case .spm:
-			return false
+			return true
 		case .xcode:
 			return true
 		}

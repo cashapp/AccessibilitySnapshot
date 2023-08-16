@@ -38,6 +38,11 @@ let package = Package(
             url: "https://github.com/pointfreeco/swift-snapshot-testing.git",
             .upToNextMajor(from: "1.8.0")
         ),
+        .package(
+            name: "Paralayout",
+            url: "https://github.com/square/Paralayout.git",
+            from: "1.0.0-rc.5"
+        ),
     ],
     targets: [
         .target(
@@ -63,6 +68,11 @@ let package = Package(
             name: "FBSnapshotTestCase+Accessibility-ObjC",
             dependencies: ["AccessibilitySnapshotCore", "iOSSnapshotTestCase", "FBSnapshotTestCase+Accessibility"],
             path: "Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC"
+        ),
+        .testTarget(
+            name: "SnapshotTestingTests",
+            dependencies: ["AccessibilitySnapshot", "Paralayout"],
+            exclude: ["__Snapshots__"]
         ),
     ]
 )

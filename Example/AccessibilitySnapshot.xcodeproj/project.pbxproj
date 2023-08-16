@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1635CE4E251EAC6700907101 /* SnapshotTestingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1635CE4D251EAC6700907101 /* SnapshotTestingTests.swift */; };
 		3D04B6D6211558B0006218A4 /* AccessibilityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D04B6D5211558B0006218A4 /* AccessibilityViewController.swift */; };
 		3D04B6D921155942006218A4 /* LabelAccessibilityPropertiesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D04B6D821155942006218A4 /* LabelAccessibilityPropertiesViewController.swift */; };
 		3D04B6DB21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D04B6DA21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift */; };
@@ -43,9 +42,6 @@
 		3DF46500220D5FB00048D446 /* ElementSelectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF464FF220D5FB00048D446 /* ElementSelectionTests.swift */; };
 		3DF46502220D7F9B0048D446 /* ElementOrderViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF46501220D7F9B0048D446 /* ElementOrderViewController.swift */; };
 		3DF46504220D8C500048D446 /* ElementOrderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF46503220D8C500048D446 /* ElementOrderTests.swift */; };
-		3F8E5DB92535B25000276B32 /* SwiftUIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F8E5DB82535B25000276B32 /* SwiftUIView.swift */; };
-		3FEF854A2538455D0072611F /* SwiftUIView+EmbedInHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FEF85492538455D0072611F /* SwiftUIView+EmbedInHostingController.swift */; };
-		3FEF854F253846420072611F /* SwiftUIViewWithScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FEF854E253846420072611F /* SwiftUIViewWithScrollView.swift */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* RootViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* RootViewController.swift */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
@@ -75,7 +71,6 @@
 
 /* Begin PBXFileReference section */
 		0BFCB4FD6BC17AB232B26E72 /* Pods_UnitTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_UnitTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		1635CE4D251EAC6700907101 /* SnapshotTestingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotTestingTests.swift; sourceTree = "<group>"; };
 		358D84DCD315110A89BD052E /* Pods-UnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-UnitTests/Pods-UnitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		3A3192D7B9B16BD10FB517A2 /* Pods_SnapshotTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SnapshotTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B8EB28BD6E6A6332C5D3115 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
@@ -118,9 +113,6 @@
 		3DF464FF220D5FB00048D446 /* ElementSelectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementSelectionTests.swift; sourceTree = "<group>"; };
 		3DF46501220D7F9B0048D446 /* ElementOrderViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementOrderViewController.swift; sourceTree = "<group>"; };
 		3DF46503220D8C500048D446 /* ElementOrderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementOrderTests.swift; sourceTree = "<group>"; };
-		3F8E5DB82535B25000276B32 /* SwiftUIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIView.swift; sourceTree = "<group>"; usesTabs = 0; };
-		3FEF85492538455D0072611F /* SwiftUIView+EmbedInHostingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SwiftUIView+EmbedInHostingController.swift"; sourceTree = "<group>"; };
-		3FEF854E253846420072611F /* SwiftUIViewWithScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIViewWithScrollView.swift; sourceTree = "<group>"; };
 		4BB19B0B12930973E91DD3A1 /* Pods-AccessibilitySnapshotTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AccessibilitySnapshotTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AccessibilitySnapshotTests/Pods-AccessibilitySnapshotTests.debug.xcconfig"; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* AccessibilitySnapshotDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AccessibilitySnapshotDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -174,8 +166,6 @@
 			isa = PBXGroup;
 			children = (
 				3D4674672116A3F100278B57 /* ViewAccessibilityPropertiesViewController.swift */,
-				3F8E5DB82535B25000276B32 /* SwiftUIView.swift */,
-				3FEF854E253846420072611F /* SwiftUIViewWithScrollView.swift */,
 				3D39BFAB223314C1009C3EF4 /* TabBarViewController.swift */,
 				3D04B6D821155942006218A4 /* LabelAccessibilityPropertiesViewController.swift */,
 				3D04B6DA21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift */,
@@ -274,7 +264,6 @@
 				3D04B6D5211558B0006218A4 /* AccessibilityViewController.swift */,
 				3D04B6D72115592B006218A4 /* Accessibility Screens */,
 				607FACD31AFB9204008FA782 /* Supporting Files */,
-				3FEF85492538455D0072611F /* SwiftUIView+EmbedInHostingController.swift */,
 			);
 			name = AccessibilitySnapshotDemo;
 			path = AccessibilitySnapshot;
@@ -305,7 +294,6 @@
 				3DC2C67721F4478A003184E4 /* LayoutTests.swift */,
 				3DC488382212B40C006D1E15 /* ModalTests.swift */,
 				3DF464FB220D4F430048D446 /* SnapshotTestCase.swift */,
-				1635CE4D251EAC6700907101 /* SnapshotTestingTests.swift */,
 				3DBEAA5C2223C0CE00FAE61D /* SwitchControlsTests.swift */,
 				3D220A29252AF70600359C1E /* Utilities */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
@@ -600,7 +588,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				607FACD81AFB9204008FA782 /* RootViewController.swift in Sources */,
-				3F8E5DB92535B25000276B32 /* SwiftUIView.swift in Sources */,
 				3DBEAA5F2223D0DA00FAE61D /* AccessibilityPathViewController.swift in Sources */,
 				3D4674682116A3F100278B57 /* ViewAccessibilityPropertiesViewController.swift in Sources */,
 				3D39BFB22239BEA6009C3EF4 /* ActivationPointViewController.swift in Sources */,
@@ -612,12 +599,10 @@
 				3D04B6D921155942006218A4 /* LabelAccessibilityPropertiesViewController.swift in Sources */,
 				3DA12A3222405B9E00EB3C33 /* DataTableViewController.swift in Sources */,
 				3DEBF24E221018610065424F /* DefaultControlsViewController.swift in Sources */,
-				3FEF854F253846420072611F /* SwiftUIViewWithScrollView.swift in Sources */,
 				3DF464FE220D594E0048D446 /* ElementSelectionViewController.swift in Sources */,
 				3DC488372212A7D4006D1E15 /* ModalAccessibilityViewController.swift in Sources */,
 				3DF46502220D7F9B0048D446 /* ElementOrderViewController.swift in Sources */,
 				3DDE7FF624C6D6BF00999ABA /* AccessibilityCustomActionsViewController.swift in Sources */,
-				3FEF854A2538455D0072611F /* SwiftUIView+EmbedInHostingController.swift in Sources */,
 				3DBAC28F2242E7C700EF4D0A /* ListContainerViewController.swift in Sources */,
 				3DBEAA5B2222953E00FAE61D /* SwitchControlViewController.swift in Sources */,
 				3DBAC2912242F9B200EF4D0A /* LandmarkContainerViewController.swift in Sources */,
@@ -635,7 +620,6 @@
 				3DF464FC220D4F430048D446 /* SnapshotTestCase.swift in Sources */,
 				3D3F2E162263E94D00F7608E /* InvertColorsTests.swift in Sources */,
 				3D220A2B252AF72900359C1E /* AccessibleContainerView.swift in Sources */,
-				1635CE4E251EAC6700907101 /* SnapshotTestingTests.swift in Sources */,
 				3DBEAA5D2223C0CE00FAE61D /* SwitchControlsTests.swift in Sources */,
 				3DF46500220D5FB00048D446 /* ElementSelectionTests.swift in Sources */,
 				3DBAC28722406EBB00EF4D0A /* AccessibilityContainersTests.swift in Sources */,
