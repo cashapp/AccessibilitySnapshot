@@ -138,10 +138,10 @@ extension LabelAccessibilityPropertiesViewController {
 
             var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
             for label in labels {
-                distributionSpecifiers.append(label)
+                distributionSpecifiers.append(label.distributionItemUsingCapInsets)
                 distributionSpecifiers.append(1.flexible)
             }
-            applySubviewDistribution(distributionSpecifiers)
+            applyVerticalSubviewDistribution(distributionSpecifiers)
         }
 
     }

@@ -65,12 +65,12 @@ private extension ActivationPointViewController {
         // MARK: - UIView
 
         override func layoutSubviews() {
-            button.resize(toFit: bounds.size)
-            customActivationPointView.resize(toFit: bounds.size)
+            button.sizeToFit(bounds.size)
+            customActivationPointView.sizeToFit(bounds.size)
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            applySubviewDistribution(
+            applyVerticalSubviewDistribution(
                 [
                     statusBarHeight.fixed,
                     1.flexible,
@@ -122,8 +122,8 @@ private extension ActivationPointViewController {
             label.sizeToFit()
             switchButton.sizeToFit()
 
-            label.alignToSuperview(.leftCenter, inset: 32)
-            switchButton.alignToSuperview(.rightCenter, inset: 32)
+            label.align(withSuperview: .leftCenter, inset: 32)
+            switchButton.align(withSuperview: .rightCenter, inset: 32)
 
             label.isAccessibilityElement = false
         }
@@ -150,7 +150,8 @@ private extension ActivationPointViewController {
             get {
                 // Set the activation point to the center of switch so tapping the parent element toggles the switch.
                 return Position.center.point(
-                    in: UIAccessibility.convertToScreenCoordinates(switchButton.frame, in: self)
+                    in: UIAccessibility.convertToScreenCoordinates(switchButton.frame, in: self),
+                    layoutDirection: effectiveUserInterfaceLayoutDirection
                 )
             }
             set {

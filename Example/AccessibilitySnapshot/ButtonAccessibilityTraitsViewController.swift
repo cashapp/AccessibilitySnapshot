@@ -203,14 +203,17 @@ extension ButtonAccessibilityTraitsViewController {
                 leftColSubviewDistribution.append(button)
                 leftColSubviewDistribution.append(1.flexible)
             }
-            applySubviewDistribution(leftColSubviewDistribution, alignment: .leading(inset: outerMargin))
+            applyVerticalSubviewDistribution(
+                leftColSubviewDistribution,
+                orthogonalAlignment: .leading(inset: outerMargin)
+            )
 
             var centerColSubviewDistribution: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
             for button in buttons[buttonsPerColumn..<(2 * buttonsPerColumn)] {
                 centerColSubviewDistribution.append(button)
                 centerColSubviewDistribution.append(1.flexible)
             }
-            applySubviewDistribution(centerColSubviewDistribution)
+            applyVerticalSubviewDistribution(centerColSubviewDistribution)
 
             var rightColSubviewDistribution: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
             for button in buttons[(2 * buttonsPerColumn)..<buttons.count] {
@@ -221,7 +224,10 @@ extension ButtonAccessibilityTraitsViewController {
                 rightColSubviewDistribution.append(buttons[0].frame.height.fixed)
                 rightColSubviewDistribution.append(1.flexible)
             }
-            applySubviewDistribution(rightColSubviewDistribution, alignment: .trailing(inset: outerMargin))
+            applyVerticalSubviewDistribution(
+                rightColSubviewDistribution,
+                orthogonalAlignment: .trailing(inset: outerMargin)
+            )
         }
 
     }

@@ -56,21 +56,21 @@ private extension LandmarkContainerViewController {
 
         // MARK: - Private Properties
 
-        private let views: [UIView]
+        private let views: [UILabel]
 
         // MARK: - UIView
 
         override func layoutSubviews() {
             views.forEach { $0.sizeToFit() }
 
-            let statusBarHeight = UIApplication.shared.statusBarFrame.height
+            let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
             var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
             for subview in views {
-                distributionSpecifiers.append(subview)
+                distributionSpecifiers.append(subview.distributionItemUsingCapInsets)
                 distributionSpecifiers.append(1.flexible)
             }
-            applySubviewDistribution(distributionSpecifiers)
+            applyVerticalSubviewDistribution(distributionSpecifiers)
         }
 
         // MARK: - UIAccessibility

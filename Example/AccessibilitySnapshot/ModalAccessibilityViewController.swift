@@ -104,10 +104,10 @@ private extension ModalAccessibilityViewController {
         // MARK: - UIView
 
         override func layoutSubviews() {
-            views[0].alignToSuperview(.topLeft, inset: 20)
-            views[1].alignToSuperview(.topRight, inset: 20)
-            views[2].alignToSuperview(.bottomRight, inset: 20)
-            views[3].alignToSuperview(.bottomLeft, inset: 20)
+            views[0].align(withSuperview: .topLeft, inset: 20)
+            views[1].align(withSuperview: .topRight, inset: 20)
+            views[2].align(withSuperview: .bottomRight, inset: 20)
+            views[3].align(withSuperview: .bottomLeft, inset: 20)
 
             var distributionItems: [ViewDistributionSpecifying] = [1.flexible]
 
@@ -125,7 +125,7 @@ private extension ModalAccessibilityViewController {
 
             _ = distributionItems.dropLast()
             distributionItems.append(1.flexible)
-            applySubviewDistribution(distributionItems)
+            applyVerticalSubviewDistribution(distributionItems)
         }
 
     }
@@ -178,7 +178,7 @@ private extension ModalAccessibilityViewController {
 
         override func layoutSubviews() {
             label.sizeToFit()
-            label.alignToSuperview(.center)
+            label.align(withSuperview: .center)
 
             switch accessibilityMode {
             case .viewContainsAccessibleElement,
@@ -227,13 +227,15 @@ private extension ModalAccessibilityViewController {
 
         override func layoutSubviews() {
             modalViews.forEach { $0.sizeToFit() }
-            applySubviewDistribution([
-                10.fixed,
-                modalViews[0],
-                10.fixed,
-                modalViews[1],
-                10.fixed,
-            ])
+            applyVerticalSubviewDistribution(
+                [
+                    10.fixed,
+                    modalViews[0],
+                    10.fixed,
+                    modalViews[1],
+                    10.fixed,
+                ]
+            )
         }
 
         override func sizeThatFits(_ size: CGSize) -> CGSize {

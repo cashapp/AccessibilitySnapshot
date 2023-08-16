@@ -62,7 +62,7 @@ private extension AccessibilityCustomActionsViewController {
         // MARK: - UIView
 
         override func layoutSubviews() {
-            views.forEach { $0.frame.size = .init(width: bounds.width / 2, height: 50) }
+            views.forEach { $0.bounds.size = .init(width: bounds.width / 2, height: 50) }
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
@@ -71,7 +71,7 @@ private extension AccessibilityCustomActionsViewController {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
-            applySubviewDistribution(distributionSpecifiers)
+            applyVerticalSubviewDistribution(distributionSpecifiers)
         }
 
     }

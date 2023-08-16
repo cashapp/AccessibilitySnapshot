@@ -74,7 +74,7 @@ private extension UserIntefaceDirectionViewController {
         // MARK: - UIView
 
         override func layoutSubviews() {
-            let statusBarHeight = UIApplication.shared.statusBarFrame.height
+            let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
             var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
             for subview in [unspecifiedView, playbackView, spatialView, forceLeftToRightView, forceRightToLeftView] {
@@ -82,7 +82,7 @@ private extension UserIntefaceDirectionViewController {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
-            applySubviewDistribution(distributionSpecifiers)
+            applyVerticalSubviewDistribution(distributionSpecifiers)
         }
 
     }
@@ -125,7 +125,7 @@ private extension UserIntefaceDirectionViewController {
         // MARK: - UIView
 
         override func layoutSubviews() {
-            applySubviewDistribution(subviews, axis: .horizontal)
+            applyHorizontalSubviewDistribution(subviews)
         }
 
     }
