@@ -1,5 +1,5 @@
 //
-//  Copyright 2022 Square Inc.
+//  Copyright 2023 Block Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -20,13 +20,13 @@ import UIKit
 
 // MARK: - UIImage
 
-public extension Snapshotting where Value == UIImage, Format == UIImage {
+extension Snapshotting where Value == UIImage, Format == UIImage {
 
-    static func accessibilityImage(
+    public static func image(
         simulateColorBlindness type: ColorBlindnessType
     ) -> Snapshotting {
         return Snapshotting<UIImage, UIImage>.image.pullback { image in
-            image.applyColorBlindFilter(type)!
+            image.applyColorBlindFilter(type)
         }
     }
 
@@ -34,24 +34,22 @@ public extension Snapshotting where Value == UIImage, Format == UIImage {
 
 // MARK: - UIViewController
 
-public extension Snapshotting where Value == UIViewController, Format == UIImage {
+extension Snapshotting where Value == UIViewController, Format == UIImage {
 
-    static func accessibilityImage(
+    public static func image(
         simulateColorBlindness type: ColorBlindnessType,
-        on config: ViewImageConfig,
-        precision: Float = 1,
-        size: CGSize? = nil,
-        traits: UITraitCollection = .init()
+        drawHierarchyInKeyWindow: Bool = false,
+        on config: ViewImageConfig? = nil
     ) -> Snapshotting {
-        return SimplySnapshotting.image(precision: precision).asyncPullback { viewController in
+        return SimplySnapshotting.image.asyncPullback { viewController in
             snapshotView(
-                config: size.map { .init(safeArea: config.safeArea, size: $0, traits: config.traits) } ?? config,
-                drawHierarchyInKeyWindow: false,
-                traits: traits,
+                config: config ?? .init(size: viewController.view.bounds.size),
+                drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+                traits: config?.traits ?? .init(),
                 view: viewController.view,
                 viewController: viewController
             ).map {
-                $0.applyColorBlindFilter(type)!
+                $0.applyColorBlindFilter(type)
             }
         }
     }
@@ -60,24 +58,22 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
 
 // MARK: - UIView
 
-public extension Snapshotting where Value == UIView, Format == UIImage {
+extension Snapshotting where Value == UIView, Format == UIImage {
 
-    static func accessibilityImage(
+    public static func image(
         simulateColorBlindness type: ColorBlindnessType,
-        on config: ViewImageConfig,
-        precision: Float = 1,
-        size: CGSize? = nil,
-        traits: UITraitCollection = .init()
+        drawHierarchyInKeyWindow: Bool = false,
+        on config: ViewImageConfig? = nil
     ) -> Snapshotting {
-        return SimplySnapshotting.image(precision: precision).asyncPullback { view in
+        return SimplySnapshotting.image.asyncPullback { view in
             snapshotView(
-                config: size.map { .init(safeArea: config.safeArea, size: $0, traits: config.traits) } ?? config,
-                drawHierarchyInKeyWindow: false,
-                traits: traits,
+                config: config ?? .init(size: view.bounds.size),
+                drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+                traits: config?.traits ?? .init(),
                 view: view,
                 viewController: .init()
             ).map {
-                $0.applyColorBlindFilter(type)!
+                $0.applyColorBlindFilter(type)
             }
         }
     }

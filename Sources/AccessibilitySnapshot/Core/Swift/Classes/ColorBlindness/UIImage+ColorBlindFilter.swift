@@ -1,5 +1,5 @@
 //
-//  Copyright 2022 Square Inc.
+//  Copyright 2023 Block Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,11 +18,14 @@ import UIKit
 
 extension UIImage {
 
-    public func applyColorBlindFilter(_ colorBlindnessType: ColorBlindnessType) -> UIImage? {
+    /// Applies a color blind filter to the receiver and returns the resulting image.
+    ///
+    /// - Precondition: The receiver must be backed by a `CGImage`.
+    public func applyColorBlindFilter(_ colorBlindnessType: ColorBlindnessType) -> UIImage {
         let matrix = colorBlindnessType.createMatrix()
 
         guard let imageRef = cgImage else {
-            return nil
+            fatalError("Cannot apply color blind filter to an image not backed by a CGImage")
         }
 
         let width = imageRef.width
@@ -49,7 +52,7 @@ extension UIImage {
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
         ) else {
             // This should never actually happen.
-            return nil
+            fatalError("Failed to create context for color blind filter")
         }
 
         // Draw the image into our CoreGraphics context
@@ -68,7 +71,11 @@ extension UIImage {
         }
 
         // Retrieve the image from the in-memory context
-        return context.makeImage().map(UIImage.init(cgImage:))
+        guard let result = context.makeImage() else {
+            fatalError("Failed to generate image from color blind filter context")
+        }
+
+        return UIImage(cgImage: result)
     }
 
 }

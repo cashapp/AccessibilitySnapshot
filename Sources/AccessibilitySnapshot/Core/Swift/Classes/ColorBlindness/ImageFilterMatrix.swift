@@ -1,5 +1,5 @@
 //
-//  Copyright 2022 Square Inc.
+//  Copyright 2023 Block Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ struct ImageFilterMatrix {
     ///
     /// - Precondition: Each colour array **MUST** contain exactly five values.
     ///
-    /// See https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feColorMatrix for more information.
+    /// See <https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feColorMatrix> for more information.
     init(red: [CGFloat], green: [CGFloat], blue: [CGFloat], alpha: [CGFloat]) {
         precondition(red.count == 5)
         precondition(green.count == 5)

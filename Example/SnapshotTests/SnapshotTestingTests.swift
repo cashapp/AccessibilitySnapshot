@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 Square Inc.
+//  Copyright 2023 Block Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -136,6 +136,16 @@ final class SnapshotTestingTests: XCTestCase {
         let viewController = InvertColorsViewController()
         viewController.view.frame = UIScreen.main.bounds
         assertSnapshot(matching: viewController, as: .imageWithSmartInvert, named: nameForDevice())
+    }
+
+    func testColorBlindFilters() {
+        let viewController = ColorPaletteViewController()
+        viewController.view.frame = UIScreen.main.bounds
+        assertSnapshot(
+            matching: viewController,
+            as: .image(simulateColorBlindness: .achromatomaly),
+            named: nameForDevice(baseName: "achromatomaly")
+        )
     }
 
     // MARK: - Private Methods
