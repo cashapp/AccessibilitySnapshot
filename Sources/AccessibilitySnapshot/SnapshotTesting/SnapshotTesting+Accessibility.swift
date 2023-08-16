@@ -94,20 +94,6 @@ extension Snapshotting where Value == UIView, Format == UIImage {
             }
     }
 
-    /// Snapshots the current view using the specified content size category to test Dynamic Type.
-    ///
-    /// This method has been marked internal since it is still under development. Once it has been completed, it should
-    /// be made `public`.
-    ///
-    /// - parameter contentSizeCategory: The content size category to use in the snapshot
-    static func image(
-        at contentSizeCategory: UIContentSizeCategory
-    ) -> Snapshotting {
-        return Snapshotting<UIView, UIImage>.image(
-            traits: .init(preferredContentSizeCategory: contentSizeCategory)
-        )
-    }
-
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
     public static var imageWithSmartInvert: Snapshotting {
        func postNotification() {
@@ -192,24 +178,6 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
                 useMonochromeSnapshot: useMonochromeSnapshot,
                 drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
                 markerColors: markerColors
-            )
-            .pullback { viewController in
-                viewController.view
-            }
-    }
-
-    /// Snapshots the current view using the specified content size category to test Dynamic Type.
-    ///
-    /// This method has been marked internal since it is still under development. Once it has been completed, it should
-    /// be made `public`.
-    ///
-    /// - parameter contentSizeCategory: The content size category to use in the snapshot
-    static func image(
-        at contentSizeCategory: UIContentSizeCategory
-    ) -> Snapshotting {
-        return Snapshotting<UIView, UIImage>
-            .image(
-                traits: .init(preferredContentSizeCategory: contentSizeCategory)
             )
             .pullback { viewController in
                 viewController.view

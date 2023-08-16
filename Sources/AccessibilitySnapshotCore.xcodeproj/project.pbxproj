@@ -18,12 +18,8 @@
 		EF4D52012A55A68500FF0E46 /* UIView+InvertColorsSnapshotting.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51D52A55A4A400FF0E46 /* UIView+InvertColorsSnapshotting.swift */; };
 		EF4D52022A55A68500FF0E46 /* AccessibilitySnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51D72A55A4A400FF0E46 /* AccessibilitySnapshotView.swift */; };
 		EF4D52042A55A69A00FF0E46 /* ASAccessibilityEnabler.m in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51E32A55A4A400FF0E46 /* ASAccessibilityEnabler.m */; };
-		EF4D52062A55A69A00FF0E46 /* UIView+DynamicTypeSnapshotting.m in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51E42A55A4A400FF0E46 /* UIView+DynamicTypeSnapshotting.m */; };
 		EF4D52072A55A69A00FF0E46 /* UIAccessibilityStatusUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51E52A55A4A400FF0E46 /* UIAccessibilityStatusUtility.m */; };
-		EF4D52082A55A6A100FF0E46 /* UIApplication+DynamicTypeSnapshotting.m in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51E92A55A4A400FF0E46 /* UIApplication+DynamicTypeSnapshotting.m */; };
-		EF4D52092A55A6D000FF0E46 /* UIApplication+DynamicTypeSnapshotting.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4D51E22A55A4A400FF0E46 /* UIApplication+DynamicTypeSnapshotting.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		EF4D520A2A55A6D000FF0E46 /* UIAccessibilityStatusUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4D51E82A55A4A400FF0E46 /* UIAccessibilityStatusUtility.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EF4D520B2A55A6D000FF0E46 /* UIView+DynamicTypeSnapshotting.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4D51E72A55A4A400FF0E46 /* UIView+DynamicTypeSnapshotting.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,13 +44,9 @@
 		EF4D51DE2A55A4A400FF0E46 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		EF4D51DF2A55A4A400FF0E46 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		EF4D51E02A55A4A400FF0E46 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
-		EF4D51E22A55A4A400FF0E46 /* UIApplication+DynamicTypeSnapshotting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIApplication+DynamicTypeSnapshotting.h"; sourceTree = "<group>"; };
 		EF4D51E32A55A4A400FF0E46 /* ASAccessibilityEnabler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ASAccessibilityEnabler.m; sourceTree = "<group>"; };
-		EF4D51E42A55A4A400FF0E46 /* UIView+DynamicTypeSnapshotting.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+DynamicTypeSnapshotting.m"; sourceTree = "<group>"; };
 		EF4D51E52A55A4A400FF0E46 /* UIAccessibilityStatusUtility.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UIAccessibilityStatusUtility.m; sourceTree = "<group>"; };
-		EF4D51E72A55A4A400FF0E46 /* UIView+DynamicTypeSnapshotting.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+DynamicTypeSnapshotting.h"; sourceTree = "<group>"; };
 		EF4D51E82A55A4A400FF0E46 /* UIAccessibilityStatusUtility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIAccessibilityStatusUtility.h; sourceTree = "<group>"; };
-		EF4D51E92A55A4A400FF0E46 /* UIApplication+DynamicTypeSnapshotting.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+DynamicTypeSnapshotting.m"; sourceTree = "<group>"; };
 		EF4D51EF2A55A51D00FF0E46 /* AccessibilitySnapshotCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AccessibilitySnapshotCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF4D51F22A55A51D00FF0E46 /* AccessibilitySnapshotCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AccessibilitySnapshotCore.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -130,12 +122,9 @@
 		EF4D51E12A55A4A400FF0E46 /* ObjC */ = {
 			isa = PBXGroup;
 			children = (
-				EF4D51E22A55A4A400FF0E46 /* UIApplication+DynamicTypeSnapshotting.h */,
 				EF4D51E32A55A4A400FF0E46 /* ASAccessibilityEnabler.m */,
-				EF4D51E42A55A4A400FF0E46 /* UIView+DynamicTypeSnapshotting.m */,
 				EF4D51E52A55A4A400FF0E46 /* UIAccessibilityStatusUtility.m */,
 				EF4D51E62A55A4A400FF0E46 /* include */,
-				EF4D51E92A55A4A400FF0E46 /* UIApplication+DynamicTypeSnapshotting.m */,
 			);
 			path = ObjC;
 			sourceTree = "<group>";
@@ -143,7 +132,6 @@
 		EF4D51E62A55A4A400FF0E46 /* include */ = {
 			isa = PBXGroup;
 			children = (
-				EF4D51E72A55A4A400FF0E46 /* UIView+DynamicTypeSnapshotting.h */,
 				EF4D51E82A55A4A400FF0E46 /* UIAccessibilityStatusUtility.h */,
 			);
 			path = include;
@@ -175,8 +163,6 @@
 			files = (
 				EF4D51F32A55A51D00FF0E46 /* AccessibilitySnapshotCore.h in Headers */,
 				EF4D520A2A55A6D000FF0E46 /* UIAccessibilityStatusUtility.h in Headers */,
-				EF4D520B2A55A6D000FF0E46 /* UIView+DynamicTypeSnapshotting.h in Headers */,
-				EF4D52092A55A6D000FF0E46 /* UIApplication+DynamicTypeSnapshotting.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -289,8 +275,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF4D52082A55A6A100FF0E46 /* UIApplication+DynamicTypeSnapshotting.m in Sources */,
-				EF4D52062A55A69A00FF0E46 /* UIView+DynamicTypeSnapshotting.m in Sources */,
 				EF4D51FF2A55A68500FF0E46 /* AccessibilityHierarchyParser.swift in Sources */,
 				EF4D52012A55A68500FF0E46 /* UIView+InvertColorsSnapshotting.swift in Sources */,
 				EF4D51FE2A55A68500FF0E46 /* UIAccessibility+SnapshotAdditions.swift in Sources */,
@@ -363,7 +347,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = K7C399XTGR;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -435,7 +419,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = K7C399XTGR;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -508,7 +492,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
@@ -548,6 +532,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.carthage.AccessibilitySnapshotCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -593,7 +578,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -626,6 +611,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = org.carthage.AccessibilitySnapshotCore;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = NO;
 				SWIFT_COMPILATION_MODE = wholemodule;
