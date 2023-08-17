@@ -457,17 +457,22 @@ private extension AccessibilitySnapshotView {
             // to show the "Actions Available" text, since this makes our layout simpler when we align to the marker.
             let showActionsAvailableInDescription = (marker.description.isEmpty && !marker.customActions.isEmpty)
 
-            if !marker.customActions.isEmpty {
-                self.customActionsView = .init(
+            self.customActionsView = {
+                guard !marker.customActions.isEmpty else { return nil }
+                
+                return .init(
                     actionsAvailableText: showActionsAvailableInDescription
                         ? nil
                         : Strings.actionsAvailableText(for: marker.accessibilityLanguage),
                     customActions: marker.customActions
                 )
-
-            } else {
-                self.customActionsView = nil
-            }
+            }()
+            
+            self.inputsView = {
+                guard let inputs = marker.inputs, inputs.count > 0 else { return nil }
+                
+                return .init(titles: inputs, color: color)
+            }()
 
             super.init(frame: .zero)
 
@@ -483,6 +488,7 @@ private extension AccessibilitySnapshotView {
 
             hintLabel.map(addSubview)
             customActionsView.map(addSubview)
+            inputsView.map(addSubview)
         }
 
         @available(*, unavailable)
@@ -499,6 +505,8 @@ private extension AccessibilitySnapshotView {
         private let hintLabel: UILabel?
 
         private let customActionsView: CustomActionsView?
+        
+        private let inputsView: PillsView?
 
         // MARK: - UIView
 
@@ -518,6 +526,8 @@ private extension AccessibilitySnapshotView {
             let hintLabelSize = hintLabel?.sizeThatFits(labelSizeToFit) ?? .zero
 
             let customActionsSize = customActionsView?.sizeThatFits(labelSizeToFit) ?? .zero
+            
+            let inputsViewSize = inputsView?.sizeThatFits(labelSizeToFit) ?? .zero
 
             let widthComponents = [
                 Metrics.markerSize,
@@ -525,15 +535,17 @@ private extension AccessibilitySnapshotView {
                 max(
                     descriptionLabelSize.width,
                     hintLabelSize.width,
-                    customActionsSize.width
+                    customActionsSize.width,
+                    inputsViewSize.width
                 ),
             ]
 
             let heightComponents = [
                 markerSizeAboveDescriptionLabel,
                 descriptionLabelSize.height,
-                (hintLabelSize.height == 0 ? 0 : hintLabelSize.height + Metrics.descriptionLabelToHintLabelSpacing),
-                (customActionsSize.height == 0 ? 0 : customActionsSize.height + Metrics.labelToCustomActionsSpacing),
+                (hintLabelSize.height == 0 ? 0 : hintLabelSize.height + Metrics.interSectionSpacing),
+                (customActionsSize.height == 0 ? 0 : customActionsSize.height + Metrics.interSectionSpacing),
+                (inputsViewSize.height == 0 ? 0 : inputsViewSize.height + Metrics.interSectionSpacing)
             ]
 
             return CGSize(
@@ -570,7 +582,7 @@ private extension AccessibilitySnapshotView {
                 hintLabel.bounds.size = hintLabel.sizeThatFits(labelSizeToFit)
                 hintLabel.frame.origin = .init(
                     x: descriptionLabel.frame.minX,
-                    y: descriptionLabel.frame.maxY + Metrics.descriptionLabelToHintLabelSpacing
+                    y: descriptionLabel.frame.maxY + Metrics.interSectionSpacing
                 )
             }
 
@@ -580,7 +592,17 @@ private extension AccessibilitySnapshotView {
                 customActionsView.bounds.size = customActionsView.sizeThatFits(labelSizeToFit)
                 customActionsView.frame.origin = .init(
                     x: alignmentLabel.frame.minX,
-                    y: alignmentLabel.frame.maxY + Metrics.labelToCustomActionsSpacing
+                    y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
+                )
+            }
+            
+            if let inputsView {
+                let alignmentControl = customActionsView ?? hintLabel ?? descriptionLabel
+                
+                inputsView.bounds.size = inputsView.sizeThatFits(labelSizeToFit)
+                inputsView.frame.origin = .init(
+                    x: alignmentControl.frame.minX,
+                    y: alignmentControl.frame.maxY + Metrics.interSectionSpacing
                 )
             }
         }
@@ -593,8 +615,7 @@ private extension AccessibilitySnapshotView {
 
             static let markerSize: CGFloat = 14
             static let markerToLabelSpacing: CGFloat = 16
-            static let descriptionLabelToHintLabelSpacing: CGFloat = 4
-            static let labelToCustomActionsSpacing: CGFloat = 4
+            static let interSectionSpacing: CGFloat = 4
 
             static let descriptionLabelFont = UIFont.systemFont(ofSize: 12)
             static let hintLabelFont = UIFont.italicSystemFont(ofSize: 12)

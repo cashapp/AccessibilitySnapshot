@@ -18,8 +18,8 @@ import UIKit
 
 extension NSObject {
 
-    /// Returns a tuple consisting of the `description`, and optionally a `hint`, that VoiceOver will read for the object.
-    func accessibilityDescription(context: AccessibilityHierarchyParser.Context?) -> (description: String, hint: String?) {
+    /// Returns a tuple consisting of the `description`, (optionally) a `hint` that VoiceOver will read for the object, and (optionally) input strings that can be used by Voice Control.
+    func accessibilityDescription(context: AccessibilityHierarchyParser.Context?) -> (description: String, hint: String?, inputs: [String]?) {
         var accessibilityDescription = accessibilityLabelOverride(for: context) ?? accessibilityLabel ?? ""
 
         var hintDescription = accessibilityHint?.nonEmpty()
@@ -167,8 +167,8 @@ extension NSObject {
         if let context = context {
             switch context {
             case let .series(index: index, count: count),
-                 let .tabBarItem(index: index, count: count, item: _),
-                 let .tab(index: index, count: count):
+                let .tabBarItem(index: index, count: count, item: _),
+                let .tab(index: index, count: count):
                 accessibilityDescription = String(format:
                     strings.seriesContextFormat,
                     accessibilityDescription,
@@ -234,8 +234,13 @@ extension NSObject {
                 hintDescription = strings.adjustableTraitHint
             }
         }
+        
+        let inputs: [String]? = {
+            guard accessibilityUserInputLabels.count > 0 else { return nil }
+            return accessibilityUserInputLabels
+        }()
 
-        return (accessibilityDescription, hintDescription)
+        return (accessibilityDescription, hintDescription, inputs)
     }
 
     // MARK: - Private Methods

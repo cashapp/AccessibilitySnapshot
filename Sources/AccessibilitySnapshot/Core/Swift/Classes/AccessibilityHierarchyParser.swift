@@ -38,6 +38,9 @@ public struct AccessibilityMarker {
 
     /// A hint that will be read by VoiceOver if focus remains on the element after the `description` is read.
     public var hint: String?
+    
+    /// The labels that will be used by Voice Control for user input.
+    public var inputs: [String]?
 
     /// The shape that will be highlighted on screen while the element is in focus.
     public var shape: Shape
@@ -184,13 +187,14 @@ public final class AccessibilityHierarchyParser {
         }
 
         return accessibilityElements.map { element in
-            let (description, hint) = element.object.accessibilityDescription(context: element.context)
+            let (description, hint, inputs) = element.object.accessibilityDescription(context: element.context)
 
             let activationPoint = element.object.accessibilityActivationPoint
 
             return AccessibilityMarker(
                 description: description,
                 hint: hint,
+                inputs: inputs,
                 shape: accessibilityShape(for: element.object, in: root),
                 activationPoint: root.convert(activationPoint, from: nil),
                 usesDefaultActivationPoint: (activationPoint == defaultActivationPoint(for: element.object)),
