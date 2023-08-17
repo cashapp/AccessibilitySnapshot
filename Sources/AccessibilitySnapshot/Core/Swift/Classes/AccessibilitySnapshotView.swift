@@ -596,11 +596,11 @@ private extension AccessibilitySnapshotView {
                 )
             }
             
-            if let inputsView {
+            if let inputsView = inputsView {
                 let alignmentControl = customActionsView ?? hintLabel ?? descriptionLabel
                 
                 inputsView.bounds.size = inputsView.sizeThatFits(labelSizeToFit)
-                inputsView.frame.origin = .init(
+                inputsView.frame.origin = CGPoint(
                     x: alignmentControl.frame.minX,
                     y: alignmentControl.frame.maxY + Metrics.interSectionSpacing
                 )
