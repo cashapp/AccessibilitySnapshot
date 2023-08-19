@@ -8,8 +8,8 @@ http_archive(
 
 http_archive(
     name = "ios_snapshot_test_case",
-    url = "https://github.com/uber/ios-snapshot-test-case/archive/refs/tags/8.0.0.tar.gz",
-    strip_prefix = "ios-snapshot-test-case-8.0.0",
+    url = "https://github.com/uber/ios-snapshot-test-case/archive/57b023c8bb3df361e2fae01532cd066ec0b65d2e.zip",
+    strip_prefix = "ios-snapshot-test-case-57b023c8bb3df361e2fae01532cd066ec0b65d2e",
 )
 
 load(
