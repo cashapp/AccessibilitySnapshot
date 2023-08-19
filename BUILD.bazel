@@ -1,0 +1,78 @@
+load(
+    "@build_bazel_rules_swift//swift:swift.bzl",
+    "swift_library",
+    "swift_test",
+)
+
+load(
+    "@build_bazel_rules_apple//apple:ios.bzl",
+    "ios_framework",
+    "ios_unit_test",
+)
+
+objc_library(
+    name = "AccessibilitySnapshotCoreObjC.lib",
+    module_name = "AccessibilitySnapshotCore_ObjC",
+    srcs = glob(["Sources/AccessibilitySnapshot/Core/ObjC/**/*"], allow_empty = False),
+    deps = [],
+    defines = [
+        "BAZEL_PACKAGE"
+    ],
+)
+
+swift_library(
+    name = "AccessibilitySnapshotCoreSwift.lib",
+    module_name = "AccessibilitySnapshotCore",
+    srcs = glob(["Sources/AccessibilitySnapshot/Core/Swift/**/*.swift"], allow_empty = False),
+    deps = [":AccessibilitySnapshotCoreObjC.lib"],
+    defines = [
+        "BAZEL_PACKAGE"
+    ],
+)
+
+swift_library(
+    name = "AccessibilitySnapshot_iOSSnapshotTestCase_Swift.lib",
+    srcs = glob(["Sources/AccessibilitySnapshot/iOSSnapshotTestCase/Swift/**/*.swift"]),
+    deps = [
+        ":AccessibilitySnapshotCoreSwift.lib",
+        ":AccessibilitySnapshotCoreObjC.lib",
+        "@ios_snapshot_test_case//:iOSSnapshotTestCase",
+    ],
+    testonly = True,
+    defines = [
+        "BAZEL_PACKAGE"
+    ],
+)
+
+objc_library(
+    name = "AccessibilitySnapshot_iOSSnapshotTestCase_ObjC.lib",
+    module_name = "AccessibilitySnapshot",
+    srcs = glob(["Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC/**/*.{h,m}"]),
+    deps = [":AccessibilitySnapshot_iOSSnapshotTestCase_Swift.lib"],
+    testonly = True,
+    defines = [
+        "BAZEL_PACKAGE"
+    ],
+)
+
+ios_framework(
+    name = "AccessibilitySnapshotCore",
+    deps = [":AccessibilitySnapshotCoreSwift.lib"],
+    visibility = ["//visibility:public"],
+    bundle_id = "com.squareup.AccessibilitySnapshotCore",
+    infoplists = ["Sources/Info.plist"],
+    minimum_os_version = "13.0",
+    resources = glob(["Sources/AccessibilitySnapshot/Core/Swift/Assets/**/*"], allow_empty = False),
+    families = ["iphone", "ipad"],
+)
+
+ios_framework(
+    name = "AccessibilitySnapshot_iOSSnapshotTestCase",
+    deps = [":AccessibilitySnapshot_iOSSnapshotTestCase_ObjC.lib"],
+    visibility = ["//visibility:public"],
+    bundle_id = "com.squareup.AccessibilitySnapshot",
+    infoplists = ["Sources/Info.plist"],
+    minimum_os_version = "13.0",
+    families = ["iphone", "ipad"],
+    testonly = True,
+)
