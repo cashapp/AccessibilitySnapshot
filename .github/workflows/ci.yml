@@ -68,3 +68,13 @@ jobs:
         uses: actions/checkout@v3
       - name: Build
         run: carthage build --no-skip-current --platform iOS --use-xcframeworks
+  bazel:
+    name: Bazel Build
+    runs-on: macOS-13
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: Build (Core)
+        run: bazel build AccessibilitySnapshotCore
+      - name: Build (iOSSnapshotTestCase Extension)
+        run: bazel build AccessibilitySnapshot_iOSSnapshotTestCase
