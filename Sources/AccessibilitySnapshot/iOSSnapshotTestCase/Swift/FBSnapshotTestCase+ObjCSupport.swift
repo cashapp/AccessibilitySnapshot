@@ -67,7 +67,8 @@ extension FBSnapshotTestCase {
         activationPointDisplayMode: ActivationPointDisplayMode,
         useMonochromeSnapshot: Bool,
         perPixelTolerance: CGFloat,
-        overallTolerance: CGFloat
+        overallTolerance: CGFloat,
+        showInputs: Bool = true
     ) -> String? {
         guard isRunningInHostApplication else {
             return ErrorMessageFactory.errorMessageForMissingHostApplication
@@ -76,7 +77,8 @@ extension FBSnapshotTestCase {
         let containerView = AccessibilitySnapshotView(
             containedView: view,
             viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
-            activationPointDisplayMode: activationPointDisplayMode
+            activationPointDisplayMode: activationPointDisplayMode,
+            showInputs: showInputs
         )
 
         let window = UIWindow(frame: UIScreen.main.bounds)

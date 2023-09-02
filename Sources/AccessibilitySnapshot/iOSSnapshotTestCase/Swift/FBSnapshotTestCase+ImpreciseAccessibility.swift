@@ -59,6 +59,7 @@ extension FBSnapshotTestCase {
     /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
     /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
     /// where `0` means no pixels may change and `1` means all pixels may change.
+    /// - parameter showInputs: Controls when to show elements' accessibility user input labels (used by Voice Control).
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotImpreciseVerifyAccessibility(
@@ -70,6 +71,7 @@ extension FBSnapshotTestCase {
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         perPixelTolerance: CGFloat = 0,
         overallTolerance: CGFloat = 0,
+        showInputs: Bool = true,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -82,7 +84,8 @@ extension FBSnapshotTestCase {
             containedView: view,
             viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
             markerColors: markerColors,
-            activationPointDisplayMode: activationPointDisplayMode
+            activationPointDisplayMode: activationPointDisplayMode,
+            showInputs: showInputs
         )
 
         let window = UIWindow(frame: UIScreen.main.bounds)
