@@ -19,13 +19,11 @@ import UIKit
 internal extension AccessibilitySnapshotView {
     
     fileprivate enum Metrics {
-        static let verticalSpacing: CGFloat = 4
-        static let pillHorizontalPadding: CGFloat = 4
+        static let pillHorizontalPadding: CGFloat = 6
         static let pillVerticalPadding: CGFloat = 2
         static let pillHorizontalMargin: CGFloat = 4
         static let pillVerticalMargin: CGFloat = 4
         static let pillCornerRadius: CGFloat = 6
-        static let pillBorderWidth: CGFloat = 2
         static let font: UIFont = .systemFont(ofSize: 12)
     }
     
@@ -47,15 +45,14 @@ internal extension AccessibilitySnapshotView {
         }
         
         private func setUpView(title: String, color: UIColor) {
+            backgroundColor = .init(white: 0.8, alpha: 1.0)
             layer.cornerRadius = Metrics.pillCornerRadius
-            layer.borderWidth = Metrics.pillBorderWidth
-            layer.borderColor = color.cgColor
             clipsToBounds = true
             
             label.text = title
             label.numberOfLines = 1
             label.textAlignment = .center
-            label.textColor = .init(white: 0.3, alpha: 1.0)
+            label.textColor = .init(white: 0.2, alpha: 1.0)
             label.lineBreakMode = .byTruncatingTail
             label.font = Metrics.font
             
@@ -102,46 +99,46 @@ internal extension AccessibilitySnapshotView {
         }
         
         override func sizeThatFits(_ size: CGSize) -> CGSize {
-            var offset: (CGFloat, CGFloat) = (0.0, 0.0) // (offsetX, offsetY)
+            var offset = CGPoint(x: 0.0, y: 0.0)
             
             pills.forEach {
                 let sizeThatFits = $0.sizeThatFits(size)
                 
-                let willPillFitInCurrentLine = sizeThatFits.width <= size.width - offset.0
+                let willPillFitInCurrentLine = sizeThatFits.width <= size.width - offset.x
                 
                 if willPillFitInCurrentLine {
-                    offset.0 += sizeThatFits.width + Metrics.pillHorizontalMargin
+                    offset.x += sizeThatFits.width + Metrics.pillHorizontalMargin
                 } else {
                     // if pill won't fit in current line, start a new line
-                    offset.0 = sizeThatFits.width + Metrics.pillHorizontalMargin
-                    offset.1 += sizeThatFits.height + Metrics.pillVerticalMargin
+                    offset.x = sizeThatFits.width + Metrics.pillHorizontalMargin
+                    offset.y += sizeThatFits.height + Metrics.pillVerticalMargin
                 }
             }
             
             return .init(
                 width: size.width,
-                height: offset.1 + (pills.last?.bounds.size.height ?? .zero)
+                height: offset.y + (pills.last?.bounds.size.height ?? .zero)
             )
         }
         
         override func layoutSubviews() {
-            var offset: (CGFloat, CGFloat) = (0.0, 0.0) // (offsetX, offsetY)
+            var offset = CGPoint(x: 0.0, y: 0.0)
             
             pills.forEach {
                 let pillSize = $0.sizeThatFits(bounds.size)
                 let currentPillWidth = pillSize.width
                 let currentPillHeight = pillSize.height
                 
-                let willPillFitInCurrentLine = currentPillWidth <= bounds.size.width - offset.0
+                let willPillFitInCurrentLine = currentPillWidth <= bounds.size.width - offset.x
                 
                 if willPillFitInCurrentLine {
-                    $0.frame.origin = CGPoint(x: offset.0, y: offset.1)
-                    offset.0 += $0.frame.maxX + Metrics.pillHorizontalMargin
+                    $0.frame.origin = CGPoint(x: offset.x, y: offset.y)
+                    offset.x += $0.frame.maxX + Metrics.pillHorizontalMargin
                 } else {
                     // if pill won't fit in current line, start a new line
-                    offset.1 += currentPillHeight + Metrics.pillVerticalMargin
-                    $0.frame.origin = CGPoint(x: 0.0, y: offset.1)
-                    offset.0 = $0.frame.maxX + Metrics.pillHorizontalMargin
+                    offset.y += currentPillHeight + Metrics.pillVerticalMargin
+                    $0.frame.origin = CGPoint(x: 0.0, y: offset.y)
+                    offset.x = $0.frame.maxX + Metrics.pillHorizontalMargin
                 }
                 
                 $0.frame.size = pillSize
