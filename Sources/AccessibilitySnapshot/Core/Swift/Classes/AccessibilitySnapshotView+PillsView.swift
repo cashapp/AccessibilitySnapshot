@@ -133,12 +133,12 @@ internal extension AccessibilitySnapshotView {
                 
                 if willPillFitInCurrentLine {
                     $0.frame.origin = CGPoint(x: offset.x, y: offset.y)
-                    offset.x += $0.frame.maxX + Metrics.pillHorizontalMargin
+                    offset.x += pillSize.width + Metrics.pillHorizontalMargin
                 } else {
                     // if pill won't fit in current line, start a new line
                     offset.y += currentPillHeight + Metrics.pillVerticalMargin
                     $0.frame.origin = CGPoint(x: 0.0, y: offset.y)
-                    offset.x = $0.frame.maxX + Metrics.pillHorizontalMargin
+                    offset.x = pillSize.width + Metrics.pillHorizontalMargin
                 }
                 
                 $0.frame.size = pillSize
