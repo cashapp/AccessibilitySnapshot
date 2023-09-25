@@ -167,8 +167,8 @@ extension NSObject {
         if let context = context {
             switch context {
             case let .series(index: index, count: count),
-                let .tabBarItem(index: index, count: count, item: _),
-                let .tab(index: index, count: count):
+                 let .tabBarItem(index: index, count: count, item: _),
+                 let .tab(index: index, count: count):
                 accessibilityDescription = String(format:
                     strings.seriesContextFormat,
                     accessibilityDescription,
