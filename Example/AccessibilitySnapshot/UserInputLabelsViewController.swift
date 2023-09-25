@@ -52,7 +52,6 @@ private extension UserInputLabelsViewController {
             let formatter = NumberFormatter()
             formatter.numberStyle = .spellOut
             
-            
             manyLabelsButton.accessibilityUserInputLabels = [Int](1...20).map { formatter.string(for: $0)!.capitalized }
             
             _ = buttons.map {
