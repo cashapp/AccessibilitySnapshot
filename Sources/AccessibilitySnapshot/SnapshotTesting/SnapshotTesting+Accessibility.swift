@@ -42,13 +42,13 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
     /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays
-    /// - parameter showInputs: Controls when to show elements' accessibility user input labels (used by Voice Control).
+    /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice Control).
     public static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = [],
-        showInputs: Bool = true
+        showUserInputLabels: Bool = true
     ) -> Snapshotting {
         guard isRunningInHostApplication else {
             fatalError("Accessibility snapshot tests cannot be run in a test target without a host application")
@@ -62,7 +62,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
                     viewRenderingMode: drawHierarchyInKeyWindow ? .drawHierarchyInRect : .renderLayerInContext,
                     markerColors: markerColors,
                     activationPointDisplayMode: activationPointDisplayMode,
-                    showInputs: showInputs
+                    showUserInputLabels: showUserInputLabels
                 )
 
                 let window = UIWindow(frame: UIScreen.main.bounds)

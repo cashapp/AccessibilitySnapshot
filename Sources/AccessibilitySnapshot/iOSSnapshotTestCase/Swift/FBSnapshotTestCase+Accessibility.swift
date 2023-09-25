@@ -49,7 +49,7 @@ extension FBSnapshotTestCase {
     /// order, repeating through the array as necessary.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
-    /// - parameter showInputs: Controls when to show elements' accessibility user input labels (used by Voice Control).
+    /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice Control).
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotVerifyAccessibility(
@@ -59,7 +59,7 @@ extension FBSnapshotTestCase {
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
-        showInputs: Bool = true,
+        showUserInputLabels: Bool = true,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -73,7 +73,7 @@ extension FBSnapshotTestCase {
             viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
             markerColors: markerColors,
             activationPointDisplayMode: activationPointDisplayMode,
-            showInputs: showInputs
+            showUserInputLabels: showUserInputLabels
         )
 
         let window = UIWindow(frame: UIScreen.main.bounds)

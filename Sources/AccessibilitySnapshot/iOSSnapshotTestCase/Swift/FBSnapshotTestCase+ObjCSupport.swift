@@ -68,7 +68,7 @@ extension FBSnapshotTestCase {
         useMonochromeSnapshot: Bool,
         perPixelTolerance: CGFloat,
         overallTolerance: CGFloat,
-        showInputs: Bool = true
+        showUserInputLabels: Bool = true
     ) -> String? {
         guard isRunningInHostApplication else {
             return ErrorMessageFactory.errorMessageForMissingHostApplication
@@ -78,7 +78,7 @@ extension FBSnapshotTestCase {
             containedView: view,
             viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
             activationPointDisplayMode: activationPointDisplayMode,
-            showInputs: showInputs
+            showUserInputLabels: showUserInputLabels
         )
 
         let window = UIWindow(frame: UIScreen.main.bounds)

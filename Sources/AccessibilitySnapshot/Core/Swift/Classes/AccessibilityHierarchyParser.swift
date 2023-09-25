@@ -40,7 +40,7 @@ public struct AccessibilityMarker {
     public var hint: String?
     
     /// The labels that will be used by Voice Control for user input.
-    public var inputs: [String]?
+    public var userInputLabels: [String]?
 
     /// The shape that will be highlighted on screen while the element is in focus.
     public var shape: Shape
@@ -187,14 +187,14 @@ public final class AccessibilityHierarchyParser {
         }
 
         return accessibilityElements.map { element in
-            let (description, hint, inputs) = element.object.accessibilityDescription(context: element.context)
+            let (description, hint, userInputLabels) = element.object.accessibilityDescription(context: element.context)
 
             let activationPoint = element.object.accessibilityActivationPoint
 
             return AccessibilityMarker(
                 description: description,
                 hint: hint,
-                inputs: inputs,
+                userInputLabels: userInputLabels,
                 shape: accessibilityShape(for: element.object, in: root),
                 activationPoint: root.convert(activationPoint, from: nil),
                 usesDefaultActivationPoint: (activationPoint == defaultActivationPoint(for: element.object)),

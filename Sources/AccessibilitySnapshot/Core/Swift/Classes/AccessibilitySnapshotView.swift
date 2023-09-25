@@ -73,19 +73,19 @@ public final class AccessibilitySnapshotView: UIView {
     /// order, repeating through the array as necessary.
     /// - parameter activationPointDisplayMode: Controls when to show indicators for elements' accessibility activation
     /// points.
-    /// - parameter showInputs: Controls when to show elements' accessibility user input labels (used by Voice Control).
+    /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice Control).
     public init(
         containedView: UIView,
         viewRenderingMode: ViewRenderingMode,
         markerColors: [UIColor] = defaultMarkerColors,
         activationPointDisplayMode: ActivationPointDisplayMode,
-        showInputs: Bool
+        showUserInputLabels: Bool
     ) {
         self.containedView = containedView
         self.viewRenderingMode = viewRenderingMode
         self.markerColors = markerColors.isEmpty ? AccessibilitySnapshotView.defaultMarkerColors : markerColors
         self.activationPointDisplayMode = activationPointDisplayMode
-        self.showInputs = showInputs
+        self.showUserInputLabels = showUserInputLabels
 
         super.init(frame: containedView.bounds)
 
@@ -112,7 +112,7 @@ public final class AccessibilitySnapshotView: UIView {
 
     private let activationPointDisplayMode: ActivationPointDisplayMode
 
-    private let showInputs: Bool
+    private let showUserInputLabels: Bool
 
     private var displayMarkers: [DisplayMarker] = []
 
@@ -172,7 +172,7 @@ public final class AccessibilitySnapshotView: UIView {
         for (index, marker) in markers.enumerated() {
             let color = markerColors[index % markerColors.count]
 
-            let legendView = LegendView(marker: marker, color: color, showInputs: showInputs)
+            let legendView = LegendView(marker: marker, color: color, showUserInputLabels: showUserInputLabels)
             addSubview(legendView)
 
             let overlayView = UIView()
@@ -448,7 +448,7 @@ private extension AccessibilitySnapshotView {
 
         // MARK: - Life Cycle
 
-        init(marker: AccessibilityMarker, color: UIColor, showInputs: Bool) {
+        init(marker: AccessibilityMarker, color: UIColor, showUserInputLabels: Bool) {
             self.hintLabel = marker.hint.map {
                 let label = UILabel()
                 label.text = $0
@@ -473,10 +473,10 @@ private extension AccessibilitySnapshotView {
                 )
             }()
             
-            self.inputsView = {
-                guard showInputs, let inputs = marker.inputs, inputs.count > 0 else { return nil }
+            self.userInputLabelsView = {
+                guard showUserInputLabels, let userInputLabels = marker.userInputLabels, userInputLabels.count > 0 else { return nil }
                 
-                return .init(titles: inputs, color: color)
+                return .init(titles: userInputLabels, color: color)
             }()
 
             super.init(frame: .zero)
@@ -493,7 +493,7 @@ private extension AccessibilitySnapshotView {
 
             hintLabel.map(addSubview)
             customActionsView.map(addSubview)
-            inputsView.map(addSubview)
+            userInputLabelsView.map(addSubview)
         }
 
         @available(*, unavailable)
@@ -511,7 +511,7 @@ private extension AccessibilitySnapshotView {
 
         private let customActionsView: CustomActionsView?
         
-        private let inputsView: PillsView?
+        private let userInputLabelsView: PillsView?
 
         // MARK: - UIView
 
@@ -532,7 +532,7 @@ private extension AccessibilitySnapshotView {
 
             let customActionsSize = customActionsView?.sizeThatFits(labelSizeToFit) ?? .zero
             
-            let inputsViewSize = inputsView?.sizeThatFits(labelSizeToFit) ?? .zero
+            let userInputLabelsViewSize = userInputLabelsView?.sizeThatFits(labelSizeToFit) ?? .zero
 
             let widthComponents = [
                 Metrics.markerSize,
@@ -541,7 +541,7 @@ private extension AccessibilitySnapshotView {
                     descriptionLabelSize.width,
                     hintLabelSize.width,
                     customActionsSize.width,
-                    inputsViewSize.width
+                    userInputLabelsViewSize.width
                 ),
             ]
 
@@ -550,7 +550,7 @@ private extension AccessibilitySnapshotView {
                 descriptionLabelSize.height,
                 (hintLabelSize.height == 0 ? 0 : hintLabelSize.height + Metrics.interSectionSpacing),
                 (customActionsSize.height == 0 ? 0 : customActionsSize.height + Metrics.interSectionSpacing),
-                (inputsViewSize.height == 0 ? 0 : inputsViewSize.height + Metrics.interSectionSpacing)
+                (userInputLabelsViewSize.height == 0 ? 0 : userInputLabelsViewSize.height + Metrics.interSectionSpacing)
             ]
 
             return CGSize(
@@ -601,11 +601,11 @@ private extension AccessibilitySnapshotView {
                 )
             }
             
-            if let inputsView = inputsView {
+            if let userInputLabelsView = userInputLabelsView {
                 let alignmentControl = customActionsView ?? hintLabel ?? descriptionLabel
                 
-                inputsView.bounds.size = inputsView.sizeThatFits(labelSizeToFit)
-                inputsView.frame.origin = CGPoint(
+                userInputLabelsView.bounds.size = userInputLabelsView.sizeThatFits(labelSizeToFit)
+                userInputLabelsView.frame.origin = CGPoint(
                     x: alignmentControl.frame.minX,
                     y: alignmentControl.frame.maxY + Metrics.interSectionSpacing
                 )
