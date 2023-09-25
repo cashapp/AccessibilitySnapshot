@@ -38,16 +38,6 @@ private extension ActivationPointViewController {
 
             button.setTitle("Do Something", for: .normal)
             button.setTitleColor(.black, for: .normal)
-            button.accessibilityUserInputLabels = [
-                "User Input Label 1",
-                "User Input Label 2",
-                "A Really Really Really Really Long User Input Label"
-            ]
-            
-            let action1 = UIAccessibilityCustomAction(name: "Action 1") { _ in return false }
-            let action2 = UIAccessibilityCustomAction(name: "Action 2") { _ in return true }
-            
-            button.accessibilityCustomActions = [action1, action2]
             addSubview(button)
 
             addSubview(customActivationPointView)
