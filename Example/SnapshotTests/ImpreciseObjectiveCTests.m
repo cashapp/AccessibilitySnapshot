@@ -72,7 +72,7 @@
     label.textAlignment = NSTextAlignmentCenter;
     [view addSubview:label];
 
-    SnapshotImpreciseVerifyAccessibilityWithOptions(view, nil, YES, YES, 0, 0);
+    SnapshotImpreciseVerifyAccessibilityWithOptions(view, nil, YES, YES, 0, 0, NO);
 }
 
 - (void)testViewWithInvertedColors;
