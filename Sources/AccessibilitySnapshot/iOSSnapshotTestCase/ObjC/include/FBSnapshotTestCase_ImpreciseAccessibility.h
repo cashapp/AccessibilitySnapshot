@@ -30,15 +30,15 @@
         }\
     }
 
-#define SnapshotImpreciseVerifyAccessibilityWithOptions(view__, identifier__, showActivationPoints__, useMonochromeSnapshot__, perPixelTolerance__, overallTolerance__)\
+#define SnapshotImpreciseVerifyAccessibilityWithOptions(view__, identifier__, showActivationPoints__, useMonochromeSnapshot__, perPixelTolerance__, overallTolerance__, showUserInputLabels__)\
     {\
         _Pragma("clang diagnostic push")\
         _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\
-        SEL selector = @selector(snapshotVerifyAccessibility:identifier:showActivationPoints:useMonochromeSnapshot:perPixelTolerance:overallTolerance:);\
+        SEL selector = @selector(snapshotVerifyAccessibility:identifier:showActivationPoints:useMonochromeSnapshot:perPixelTolerance:overallTolerance:showUserInputLabels);\
         _Pragma("clang diagnostic pop")\
         typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, BOOL, BOOL, CGFloat, CGFloat);\
         SnapshotMethod snapshotVerifyAccessibility = (SnapshotMethod)[self methodForSelector:selector];\
-        NSString *errorDescription = snapshotVerifyAccessibility(self, selector, view__, identifier__ ?: @"", showActivationPoints__, useMonochromeSnapshot__, perPixelTolerance__, overallTolerance__);\
+        NSString *errorDescription = snapshotVerifyAccessibility(self, selector, view__, identifier__ ?: @"", showActivationPoints__, useMonochromeSnapshot__, perPixelTolerance__, overallTolerance__. showUserInputLabels__);\
         if (errorDescription == nil) {\
             XCTAssertTrue(YES);\
         } else {\
