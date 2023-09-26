@@ -474,7 +474,7 @@ private extension AccessibilitySnapshotView {
             }()
             
             self.userInputLabelsView = {
-                guard showUserInputLabels, let userInputLabels = marker.userInputLabels, userInputLabels.count > 0 else { return nil }
+                guard marker.isAccessibilityInteractive, showUserInputLabels, let userInputLabels = marker.userInputLabels, userInputLabels.count > 0 else { return nil }
                 
                 return .init(titles: userInputLabels, color: color)
             }()

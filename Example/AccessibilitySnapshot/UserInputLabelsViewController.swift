@@ -41,9 +41,10 @@ private extension UserInputLabelsViewController {
             manyLabelsButton.setTitle("Many labels", for: .normal)
             longLabelButton.setTitle("Long label", for: .normal)
             
-            oneLabelButton.accessibilityUserInputLabels = [
-                "One Input Label",
-            ]
+            nonInteractiveLabel.text = "Non-interactive"
+            nonInteractiveLabel.accessibilityUserInputLabels = ["Non-interactive label"]
+            
+            oneLabelButton.accessibilityUserInputLabels = ["One Input Label"]
             
             longLabelButton.accessibilityUserInputLabels = [
                 "A Really Really Really Really Really Long Label"
@@ -58,6 +59,8 @@ private extension UserInputLabelsViewController {
                 $0.setTitleColor(.black, for: .normal)
                 addSubview($0)
             }
+            
+            addSubview(nonInteractiveLabel)
         }
 
         @available(*, unavailable)
@@ -71,6 +74,7 @@ private extension UserInputLabelsViewController {
         private let oneLabelButton: UIButton = .init()
         private let manyLabelsButton: UIButton = .init()
         private let longLabelButton: UIButton = .init()
+        private let nonInteractiveLabel: UILabel = .init()
 
         private var buttons: [UIButton] {
             return [
@@ -87,6 +91,8 @@ private extension UserInputLabelsViewController {
             _ = buttons.map {
                 $0.sizeToFit(bounds.size)
             }
+            
+            nonInteractiveLabel.sizeToFit(bounds.size)
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
@@ -101,6 +107,8 @@ private extension UserInputLabelsViewController {
                     manyLabelsButton,
                     1.flexible,
                     longLabelButton,
+                    1.flexible,
+                    nonInteractiveLabel,
                     1.flexible,
                 ]
             )

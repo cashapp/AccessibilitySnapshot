@@ -60,6 +60,9 @@ public struct AccessibilityMarker {
 
     /// The language code of the language used to localize strings in the description.
     public var accessibilityLanguage: String?
+    
+    /// Indicates whether the accessibility element performs an action due to user interaction
+    public var isAccessibilityInteractive: Bool
 
 }
 
@@ -199,7 +202,8 @@ public final class AccessibilityHierarchyParser {
                 activationPoint: root.convert(activationPoint, from: nil),
                 usesDefaultActivationPoint: (activationPoint == defaultActivationPoint(for: element.object)),
                 customActions: element.object.accessibilityCustomActions?.map { $0.name } ?? [],
-                accessibilityLanguage: element.object.accessibilityLanguage
+                accessibilityLanguage: element.object.accessibilityLanguage,
+                isAccessibilityInteractive: element.object.accessibilityRespondsToUserInteraction
             )
         }
     }
