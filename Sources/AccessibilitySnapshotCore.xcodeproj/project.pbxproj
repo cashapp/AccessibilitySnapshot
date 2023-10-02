@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8342DC102A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8342DC0F2A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift */; };
 		EF28C2D92A55CA3A00D78303 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF4D51DF2A55A4A400FF0E46 /* Images.xcassets */; };
 		EF28C2DA2A55CA4600D78303 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EF4D51DC2A55A4A400FF0E46 /* Localizable.strings */; };
 		EF28C2DB2A55CA5800D78303 /* AccessibilitySnapshot.bundle in Resources */ = {isa = PBXBuildFile; fileRef = EF28C2D52A55CA2700D78303 /* AccessibilitySnapshot.bundle */; };
@@ -33,6 +34,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8342DC0F2A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AccessibilitySnapshotView+PillsView.swift"; sourceTree = "<group>"; };
 		EF28C2D52A55CA2700D78303 /* AccessibilitySnapshot.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AccessibilitySnapshot.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF4D51D52A55A4A400FF0E46 /* UIView+InvertColorsSnapshotting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+InvertColorsSnapshotting.swift"; sourceTree = "<group>"; };
 		EF4D51D62A55A4A400FF0E46 /* UIAccessibility+SnapshotAdditions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAccessibility+SnapshotAdditions.swift"; sourceTree = "<group>"; };
@@ -100,6 +102,7 @@
 		EF4D51D42A55A4A400FF0E46 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				8342DC0F2A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift */,
 				EF4D51D52A55A4A400FF0E46 /* UIView+InvertColorsSnapshotting.swift */,
 				EF4D51D62A55A4A400FF0E46 /* UIAccessibility+SnapshotAdditions.swift */,
 				EF4D51D72A55A4A400FF0E46 /* AccessibilitySnapshotView.swift */,
@@ -279,6 +282,7 @@
 				EF4D52012A55A68500FF0E46 /* UIView+InvertColorsSnapshotting.swift in Sources */,
 				EF4D51FE2A55A68500FF0E46 /* UIAccessibility+SnapshotAdditions.swift in Sources */,
 				EF4D51FD2A55A68500FF0E46 /* String+Localization.swift in Sources */,
+				8342DC102A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift in Sources */,
 				EF4D52002A55A68500FF0E46 /* UIApplication+FirstKeyWindow.swift in Sources */,
 				EF4D52042A55A69A00FF0E46 /* ASAccessibilityEnabler.m in Sources */,
 				EF4D52022A55A68500FF0E46 /* AccessibilitySnapshotView.swift in Sources */,

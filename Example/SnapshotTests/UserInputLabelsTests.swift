@@ -14,17 +14,16 @@
 //  limitations under the License.
 //
 
-import UIKit
+import AccessibilitySnapshot
+import FBSnapshotTestCase
 
+@testable import AccessibilitySnapshotDemo
 
-extension UIApplication {
+final class UserInputLabelsTests: SnapshotTestCase {
 
-    public var firstKeyWindow: UIWindow? {
-        UIApplication
-            .shared
-            .connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .flatMap { $0.windows }
-            .first { $0.isKeyWindow }
+    func testUserInputLabels() {
+        let viewController = UserInputLabelsViewController()
+        viewController.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(viewController.view)
     }
 }

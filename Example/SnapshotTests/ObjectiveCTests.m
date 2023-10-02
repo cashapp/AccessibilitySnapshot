@@ -89,7 +89,7 @@
     label.textAlignment = NSTextAlignmentCenter;
     [view addSubview:label];
 
-    SnapshotVerifyAccessibilityWithOptions(view, nil, YES, YES);
+    SnapshotVerifyAccessibilityWithOptions(view, nil, YES, YES, NO);
 }
 
 - (void)testSimpleViewWithActivationPointNever;
@@ -106,7 +106,7 @@
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     label.accessibilityActivationPoint = CGPointMake(screenBounds.size.width / 2, screenBounds.size.height / 2 - 10);
 
-    SnapshotVerifyAccessibilityWithOptions(view, nil, NO, YES);
+    SnapshotVerifyAccessibilityWithOptions(view, nil, NO, YES, NO);
 }
 
 - (void)testSimpleViewWithColorSnapshots;
@@ -123,7 +123,7 @@
     CGRect screenBounds = [[UIScreen mainScreen] bounds];
     label.accessibilityActivationPoint = CGPointMake(screenBounds.size.width / 2, screenBounds.size.height / 2 - 10);
 
-    SnapshotVerifyAccessibilityWithOptions(view, nil, NO, NO);
+    SnapshotVerifyAccessibilityWithOptions(view, nil, NO, NO, NO);
 }
 
 - (void)testViewWithInvertedColors;

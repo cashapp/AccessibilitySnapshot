@@ -37,18 +37,20 @@ extension FBSnapshotTestCase {
             activationPointDisplayMode: .whenOverridden,
             useMonochromeSnapshot: true,
             perPixelTolerance: perPixelTolerance,
-            overallTolerance: overallTolerance
+            overallTolerance: overallTolerance,
+            showUserInputLabels: true
         )
     }
 
-    @objc(snapshotVerifyAccessibility:identifier:showActivationPoints:useMonochromeSnapshot:perPixelTolerance:overallTolerance:)
+    @objc(snapshotVerifyAccessibility:identifier:showActivationPoints:useMonochromeSnapshot:perPixelTolerance:overallTolerance:showUserInputLabels:)
     private func 🚫objc_snapshotVerifyAccessibility(
         _ view: UIView,
         identifier: String,
         showActivationPoints: Bool,
         useMonochromeSnapshot: Bool,
         perPixelTolerance: CGFloat,
-        overallTolerance: CGFloat
+        overallTolerance: CGFloat,
+        showUserInputLabels: Bool
     ) -> String? {
         return snapshotVerifyAccessibility(
             view,
@@ -56,7 +58,8 @@ extension FBSnapshotTestCase {
             activationPointDisplayMode: showActivationPoints ? .always : .never,
             useMonochromeSnapshot: useMonochromeSnapshot,
             perPixelTolerance: perPixelTolerance,
-            overallTolerance: overallTolerance
+            overallTolerance: overallTolerance,
+            showUserInputLabels: showUserInputLabels
         )
     }
 
@@ -67,7 +70,8 @@ extension FBSnapshotTestCase {
         activationPointDisplayMode: ActivationPointDisplayMode,
         useMonochromeSnapshot: Bool,
         perPixelTolerance: CGFloat,
-        overallTolerance: CGFloat
+        overallTolerance: CGFloat,
+        showUserInputLabels: Bool
     ) -> String? {
         guard isRunningInHostApplication else {
             return ErrorMessageFactory.errorMessageForMissingHostApplication
@@ -76,7 +80,8 @@ extension FBSnapshotTestCase {
         let containerView = AccessibilitySnapshotView(
             containedView: view,
             viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
-            activationPointDisplayMode: activationPointDisplayMode
+            activationPointDisplayMode: activationPointDisplayMode,
+            showUserInputLabels: showUserInputLabels
         )
 
         let window = UIWindow(frame: UIScreen.main.bounds)
