@@ -81,7 +81,6 @@ extension AccessibilitySnapshotView {
             super.init(frame: .zero)
             
             pills.forEach {
-                $0.sizeToFit()
                 addSubview($0)
             }
         }
@@ -110,7 +109,7 @@ extension AccessibilitySnapshotView {
             
             return .init(
                 width: size.width,
-                height: offset.y + (pills.last?.bounds.size.height ?? .zero)
+                height: offset.y +  (pills.last?.sizeThatFits(size).height ?? .zero)
             )
         }
         
