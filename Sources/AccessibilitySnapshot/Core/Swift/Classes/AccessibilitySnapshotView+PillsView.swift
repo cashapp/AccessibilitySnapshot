@@ -19,8 +19,7 @@ import UIKit
 internal extension AccessibilitySnapshotView {
     
     fileprivate enum Metrics {
-        static let pillHorizontalPadding: CGFloat = 6
-        static let pillVerticalPadding: CGFloat = 2
+        static let pillPadding = UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6)
         static let pillHorizontalMargin: CGFloat = 4
         static let pillVerticalMargin: CGFloat = 4
         static let pillCornerRadius: CGFloat = 6
@@ -61,21 +60,16 @@ internal extension AccessibilitySnapshotView {
         
         override func sizeThatFits(_ size: CGSize) -> CGSize {
             let labelSize = label.sizeThatFits(size)
-            let width: CGFloat = .minimum(size.width, labelSize.width + Metrics.pillHorizontalPadding * 2)
+            let width: CGFloat = .minimum(size.width, labelSize.width + Metrics.pillPadding.left + Metrics.pillPadding.right)
             
             return .init(
                 width: width,
-                height: labelSize.height + Metrics.pillVerticalPadding * 2
+                height: labelSize.height + Metrics.pillPadding.top + Metrics.pillPadding.bottom
             )
         }
         
         override func layoutSubviews() {
-            label.frame = CGRect(
-                x: bounds.minX + Metrics.pillHorizontalPadding,
-                y: bounds.minY + Metrics.pillVerticalPadding,
-                width: bounds.maxX - 2 * Metrics.pillHorizontalPadding,
-                height: bounds.maxY - 2 * Metrics.pillVerticalPadding
-            )
+            label.frame = bounds.inset(by: Metrics.pillPadding)
         }
     }
     
