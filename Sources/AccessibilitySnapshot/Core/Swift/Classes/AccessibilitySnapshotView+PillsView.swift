@@ -26,7 +26,7 @@ extension AccessibilitySnapshotView {
         static let font: UIFont = .systemFont(ofSize: 12)
     }
     
-    private class PillView: UIView {
+    private final class PillView: UIView {
         private let label: UILabel = .init()
         
         init(
