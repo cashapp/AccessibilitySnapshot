@@ -30,12 +30,11 @@ internal extension AccessibilitySnapshotView {
         private let label: UILabel = .init()
         
         init(
-            title: String,
-            color: UIColor
+            title: String
         ) {
             super.init(frame: .zero)
             
-            setUpView(title: title, color: color)
+            setUpView(title: title)
         }
         
         @available(*, unavailable)
@@ -43,7 +42,7 @@ internal extension AccessibilitySnapshotView {
             fatalError("init(coder:) has not been implemented")
         }
         
-        private func setUpView(title: String, color: UIColor) {
+        private func setUpView(title: String) {
             backgroundColor = .init(white: 0.8, alpha: 1.0)
             layer.cornerRadius = Metrics.pillCornerRadius
             clipsToBounds = true
@@ -77,7 +76,7 @@ internal extension AccessibilitySnapshotView {
         private let pills: [PillView]
         
         init(titles: [String], color: UIColor) {
-            pills = titles.map { PillView(title: $0, color: color) }
+            pills = titles.map { PillView(title: $0) }
             
             super.init(frame: .zero)
             
