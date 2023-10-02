@@ -55,7 +55,7 @@ private extension UserInputLabelsViewController {
             
             manyLabelsButton.accessibilityUserInputLabels = [Int](1...20).map { formatter.string(for: $0)!.capitalized }
             
-            _ = buttons.map {
+            buttons.forEach {
                 $0.setTitleColor(.black, for: .normal)
                 addSubview($0)
             }
@@ -88,7 +88,7 @@ private extension UserInputLabelsViewController {
         // MARK: - UIView
 
         override func layoutSubviews() {
-            _ = buttons.map {
+            buttons.forEach {
                 $0.sizeToFit(bounds.size)
             }
             
