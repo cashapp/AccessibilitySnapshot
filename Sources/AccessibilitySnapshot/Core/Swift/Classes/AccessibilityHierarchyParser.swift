@@ -190,8 +190,15 @@ public final class AccessibilityHierarchyParser {
             let (description, hint) = element.object.accessibilityDescription(context: element.context)
             
             let userInputLabels: [String]? = {
-                guard element.object.accessibilityRespondsToUserInteraction, element.object.accessibilityUserInputLabels.count > 0 else { return nil }
-                return element.object.accessibilityUserInputLabels
+                guard
+                    element.object.accessibilityRespondsToUserInteraction,
+                    let userInputLabels = element.object.accessibilityUserInputLabels,
+                    !userInputLabels.isEmpty
+                else {
+                    return nil
+                }
+
+                return userInputLabels
             }()
 
             let activationPoint = element.object.accessibilityActivationPoint
