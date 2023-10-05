@@ -43,25 +43,28 @@ private extension SwitchControlViewController {
             switchControls[1].isOn = false
 
             switchControls[2].isOn = true
-            switchControls[2].accessibilityLabel = "Label"
+            switchControls[2].isEnabled = false
 
-            switchControls[3].isOn = false
+            switchControls[3].isOn = true
             switchControls[3].accessibilityLabel = "Label"
 
-            switchControls[4].isOn = true
+            switchControls[4].isOn = false
             switchControls[4].accessibilityLabel = "Label"
-            switchControls[4].accessibilityValue = "Value"
 
             switchControls[5].isOn = true
             switchControls[5].accessibilityLabel = "Label"
             switchControls[5].accessibilityValue = "Value"
-            switchControls[5].accessibilityHint = "Hint"
 
-            switchControls[6].isOn = false
+            switchControls[6].isOn = true
             switchControls[6].accessibilityLabel = "Label"
             switchControls[6].accessibilityValue = "Value"
             switchControls[6].accessibilityHint = "Hint"
-            switchControls[6].accessibilityTraits.insert([
+
+            switchControls[7].isOn = false
+            switchControls[7].accessibilityLabel = "Label"
+            switchControls[7].accessibilityValue = "Value"
+            switchControls[7].accessibilityHint = "Hint"
+            switchControls[7].accessibilityTraits.insert([
                 .selected,
                 .button,
                 .header,
@@ -71,11 +74,11 @@ private extension SwitchControlViewController {
                 .searchField,
             ])
 
-            switchControls[7].isOn = false
-            switchControls[7].accessibilityLabel = "Label"
-            switchControls[7].accessibilityValue = "Value"
-            switchControls[7].accessibilityHint = "Hint"
-            switchControls[7].accessibilityTraits.insert([
+            switchControls[8].isOn = false
+            switchControls[8].accessibilityLabel = "Label"
+            switchControls[8].accessibilityValue = "Value"
+            switchControls[8].accessibilityHint = "Hint"
+            switchControls[8].accessibilityTraits.insert([
                 .selected,
                 .notEnabled,
                 .button,
@@ -117,7 +120,7 @@ private extension SwitchControlViewController {
 
         // MARK: - Private Properties
 
-        private let switchControls: [UISwitch] = (0..<8).map { _ in UISwitch() }
+        private let switchControls: [UISwitch] = (0..<9).map { _ in UISwitch() }
 
         /// UIView with the switch button trait that acts like a switch, but is not a UISwitch.
         private let fakeSwitchView: UIView = .init()

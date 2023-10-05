@@ -40,6 +40,12 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         SnapshotVerifyAccessibility(buttonTraitsViewController.view)
     }
 
+    func testSwitchControls() {
+        let switchControlViewController = SwitchControlViewController()
+        switchControlViewController.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(switchControlViewController.view)
+    }
+
     func testDescriptionEdgeCases() {
         let descriptionEdgeCasesViewController = DescriptionEdgeCasesViewController()
         descriptionEdgeCasesViewController.view.frame = UIScreen.main.bounds
