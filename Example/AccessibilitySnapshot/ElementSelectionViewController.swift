@@ -107,10 +107,74 @@ extension ElementSelectionViewController {
     static func makeConfigurationSelectionViewController(
         presentingViewController: UIViewController
     ) -> UIViewController {
-        return makeAlertControllerForElementSelection(
-            presentingViewController: presentingViewController,
-            existingConfigurations: []
+        func selectConfigurations(_ configurations: [ElementSelectionViewController.ViewConfiguration]) {
+            let elementSelectionViewController = ElementSelectionViewController(configurations: configurations)
+            elementSelectionViewController.modalPresentationStyle = .fullScreen
+            presentingViewController.present(elementSelectionViewController, animated: true, completion: nil)
+        }
+
+        let alertController = UIAlertController(
+            title: nil,
+            message: nil,
+            preferredStyle: .actionSheet
         )
+
+        alertController.addAction(.init(title: "Two Accessibility Elements", style: .default) { _ in
+            selectConfigurations(.twoAccessibilityElements)
+        })
+
+        alertController.addAction(.init(title: "Accessibility Element with Elements Hidden", style: .default) { _ in
+            selectConfigurations(.accessibilityElementWithElementsHidden)
+        })
+
+        alertController.addAction(.init(title: "Accessibility Element Hidden", style: .default) { _ in
+            selectConfigurations(.accessibilityElementHidden)
+        })
+
+        alertController.addAction(.init(title: "No Accessibility Elements", style: .default) { _ in
+            selectConfigurations(.noAccessibilityElements)
+        })
+
+        alertController.addAction(.init(title: "Mixed Accessibility Elements", style: .default) { _ in
+            selectConfigurations(.mixedAccessibilityElements)
+        })
+
+        alertController.addAction(.init(title: "Accessibility Container", style: .default) { _ in
+            selectConfigurations(.accessibilityContainer)
+        })
+
+        alertController.addAction(.init(title: "Accessibility Container With Elements Hidden", style: .default) { _ in
+            selectConfigurations(.accessibilityContainerWithElementsHidden)
+        })
+
+        alertController.addAction(.init(title: "Accessibility Container Hidden", style: .default) { _ in
+            selectConfigurations(.accessibilityContainerHidden)
+        })
+
+        alertController.addAction(.init(title: "Grouped Views", style: .default) { _ in
+            selectConfigurations(.groupedViews)
+        })
+
+        alertController.addAction(.init(title: "Grouped Views In Parent That Hides Elements", style: .default) { _ in
+            selectConfigurations(.groupedViewsInParentThatHidesElements)
+        })
+
+        alertController.addAction(.init(title: "Grouped Views In Hidden Parent", style: .default) { _ in
+            selectConfigurations(.groupedViewsInHiddenParent)
+        })
+
+        alertController.addAction(.init(title: "Custom", style: .default, handler: { _ in
+            presentingViewController.present(
+                makeAlertControllerForElementSelection(
+                    presentingViewController: presentingViewController,
+                    existingConfigurations: []
+                ),
+                animated: true,
+                completion: nil
+            )
+        }))
+
+        return alertController
     }
 
     private static func makeAlertControllerForElementSelection(
@@ -193,6 +257,90 @@ extension ElementSelectionViewController {
         }
 
         return alertController
+    }
+
+}
+
+// MARK: -
+
+extension Array where Element == ElementSelectionViewController.ViewConfiguration {
+
+    static var twoAccessibilityElements: [Element] {
+        return [
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
+        ]
+    }
+
+    static var accessibilityElementWithElementsHidden: [Element] {
+        return [
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
+            .accessibilityElement(accessibilityElementsHidden: true, isHidden: false),
+        ]
+    }
+
+    static var accessibilityElementHidden: [Element] {
+        return [
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: true),
+        ]
+    }
+
+    static var noAccessibilityElements: [Element] {
+        return [
+            .nonAccessibilityElement,
+            .nonAccessibilityElement,
+        ]
+    }
+
+    static var mixedAccessibilityElements: [Element] {
+        return [
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
+            .nonAccessibilityElement,
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
+            .nonAccessibilityElement,
+        ]
+    }
+
+    static var accessibilityContainer: [Element] {
+        return [
+            .accessibilityContainer(accessibilityElementsHidden: false, isHidden: false),
+        ]
+    }
+
+    static var accessibilityContainerWithElementsHidden: [Element] {
+        return [
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
+            .accessibilityContainer(accessibilityElementsHidden: true, isHidden: false),
+        ]
+    }
+
+    static var accessibilityContainerHidden: [Element] {
+        return [
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
+            .accessibilityContainer(accessibilityElementsHidden: false, isHidden: true),
+        ]
+    }
+
+    static var groupedViews: [Element] {
+        return [
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
+            .viewWithAccessibleSubviews(accessibilityElementsHidden: false, isHidden: false),
+        ]
+    }
+
+    static var groupedViewsInParentThatHidesElements: [Element] {
+        return [
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
+            .viewWithAccessibleSubviews(accessibilityElementsHidden: true, isHidden: false),
+        ]
+    }
+
+    static var groupedViewsInHiddenParent: [Element] {
+        return [
+            .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
+            .viewWithAccessibleSubviews(accessibilityElementsHidden: false, isHidden: true),
+        ]
     }
 
 }
