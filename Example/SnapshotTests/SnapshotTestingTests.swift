@@ -25,21 +25,21 @@ final class SnapshotTestingTests: XCTestCase {
 
     // MARK: - Tests
 
-    #if swift(>=5.1) && canImport(SwiftUI)
-
     func testSimpleSwiftUIConfiguration() throws {
-        let viewController = SwiftUIView().embedInHostingController()
-        viewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: viewController, as: .accessibilityImage, named: nameForDevice())
+        assertSnapshot(
+            matching: SwiftUIView(),
+            as: .accessibilityImage(size: UIScreen.main.bounds.size),
+            named: nameForDevice()
+        )
     }
 
     func testSimpleSwiftUIWithScrollViewConfiguration() throws {
-        let viewController = SwiftUIViewWithScrollView().embedInHostingController()
-        viewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: viewController, as: .accessibilityImage, named: nameForDevice())
+        assertSnapshot(
+            matching: SwiftUIViewWithScrollView(),
+            as: .accessibilityImage(size: UIScreen.main.bounds.size),
+            named: nameForDevice()
+        )
     }
-
-    #endif
 
     func testSimpleConfiguration() {
         let viewController = ViewAccessibilityPropertiesViewController()
