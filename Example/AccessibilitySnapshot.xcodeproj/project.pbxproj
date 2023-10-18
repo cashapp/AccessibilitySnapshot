@@ -36,6 +36,7 @@
 		3DD4D5A5246E051300D4C416 /* UIAccessibilityStatusUtilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DD4D5A2246E051300D4C416 /* UIAccessibilityStatusUtilityTests.swift */; };
 		3DD4D5A6246E051300D4C416 /* UIAccessibilityStatusUtilityObjCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3DD4D5A3246E051300D4C416 /* UIAccessibilityStatusUtilityObjCTests.m */; };
 		3DDE7FF624C6D6BF00999ABA /* AccessibilityCustomActionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DDE7FF524C6D6BF00999ABA /* AccessibilityCustomActionsViewController.swift */; };
+		3DE3720F2ADFD90B00C89AD8 /* SwiftUISnapshotTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DE3720E2ADFD90B00C89AD8 /* SwiftUISnapshotTests.swift */; };
 		3DEBF24E221018610065424F /* DefaultControlsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEBF24D221018610065424F /* DefaultControlsViewController.swift */; };
 		3DEBF25022101EE40065424F /* DefaultControlsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DEBF24F22101EE40065424F /* DefaultControlsTests.swift */; };
 		3DF464FC220D4F430048D446 /* SnapshotTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DF464FB220D4F430048D446 /* SnapshotTestCase.swift */; };
@@ -112,6 +113,7 @@
 		3DD4D5A2246E051300D4C416 /* UIAccessibilityStatusUtilityTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIAccessibilityStatusUtilityTests.swift; sourceTree = "<group>"; };
 		3DD4D5A3246E051300D4C416 /* UIAccessibilityStatusUtilityObjCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UIAccessibilityStatusUtilityObjCTests.m; sourceTree = "<group>"; };
 		3DDE7FF524C6D6BF00999ABA /* AccessibilityCustomActionsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityCustomActionsViewController.swift; sourceTree = "<group>"; };
+		3DE3720E2ADFD90B00C89AD8 /* SwiftUISnapshotTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUISnapshotTests.swift; sourceTree = "<group>"; };
 		3DEBF24D221018610065424F /* DefaultControlsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultControlsViewController.swift; sourceTree = "<group>"; };
 		3DEBF24F22101EE40065424F /* DefaultControlsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultControlsTests.swift; sourceTree = "<group>"; };
 		3DF464FB220D4F430048D446 /* SnapshotTestCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotTestCase.swift; sourceTree = "<group>"; };
@@ -310,6 +312,7 @@
 				3DC488382212B40C006D1E15 /* ModalTests.swift */,
 				3DF464FB220D4F430048D446 /* SnapshotTestCase.swift */,
 				1635CE4D251EAC6700907101 /* SnapshotTestingTests.swift */,
+				3DE3720E2ADFD90B00C89AD8 /* SwiftUISnapshotTests.swift */,
 				3D220A29252AF70600359C1E /* Utilities */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 			);
@@ -641,6 +644,7 @@
 				1635CE4E251EAC6700907101 /* SnapshotTestingTests.swift in Sources */,
 				3D9334942A8B2E520078A142 /* ImpreciseObjectiveCTests.m in Sources */,
 				3DF46500220D5FB00048D446 /* ElementSelectionTests.swift in Sources */,
+				3DE3720F2ADFD90B00C89AD8 /* SwiftUISnapshotTests.swift in Sources */,
 				3DBAC28722406EBB00EF4D0A /* AccessibilityContainersTests.swift in Sources */,
 				3DC488392212B40C006D1E15 /* ModalTests.swift in Sources */,
 				607FACEC1AFB9204008FA782 /* AccessibilityPropertiesTests.swift in Sources */,
