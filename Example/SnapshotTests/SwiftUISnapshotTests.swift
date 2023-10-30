@@ -1,5 +1,5 @@
 //
-//  Copyright 2021 Square Inc.
+//  Copyright 2023 Block Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -14,18 +14,19 @@
 //  limitations under the License.
 //
 
-#if swift(>=5.1) && canImport(SwiftUI)
+import AccessibilitySnapshot
+import FBSnapshotTestCase
 
-import SwiftUI
-import UIKit
+@testable import AccessibilitySnapshotDemo
 
-extension View {
+final class SwiftUISnapshotTests: SnapshotTestCase {
 
-    // This method should be removed once we support snapshotting native SwiftUI views.
-    // See cashapp/AccessibilitySnapshot#37.
-    func embedInHostingController() -> UIViewController {
-        return UIHostingController(rootView: self)
+    func testSimpleView() {
+        SnapshotVerifyAccessibility(SwiftUIView(), size: UIScreen.main.bounds.size)
     }
-}
 
-#endif
+    func testSimpleViewAtSizeThatFits() {
+        SnapshotVerifyAccessibility(SwiftUIView())
+    }
+
+}

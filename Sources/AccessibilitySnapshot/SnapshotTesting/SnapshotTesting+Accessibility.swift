@@ -41,8 +41,9 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     /// read certain views. Defaults to `true`.
     /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
-    /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays
-    /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice Control).
+    /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays.
+    /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
+    /// Control).
     public static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
@@ -168,19 +169,23 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     /// read certain views. Defaults to `true`.
     /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
-    /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays
+    /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays.
+    /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
+    /// Control).
     public static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
-        markerColors: [UIColor] = []
+        markerColors: [UIColor] = [],
+        showUserInputLabels: Bool = true
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>
             .accessibilityImage(
                 showActivationPoints: activationPointDisplayMode,
                 useMonochromeSnapshot: useMonochromeSnapshot,
                 drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
-                markerColors: markerColors
+                markerColors: markerColors,
+                showUserInputLabels: showUserInputLabels
             )
             .pullback { viewController in
                 viewController.view
