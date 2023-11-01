@@ -1,3 +1,6 @@
+ruby '3.2.2'
+source 'https://rubygems.org'
+
 def cocoapods_gem(name, gem_name = name.downcase, **opts)
   gem gem_name, git: "https://github.com/CocoaPods/#{name}", **opts
 end
