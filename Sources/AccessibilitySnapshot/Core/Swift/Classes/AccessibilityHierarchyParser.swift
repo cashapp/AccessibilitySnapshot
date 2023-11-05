@@ -604,9 +604,14 @@ private extension NSObject {
                     )
                 )
             }
+
+            let explicitlyOrdered = accessibilityElements.contains {
+                "\(type(of: $0))" != "UILayoutContainerView"
+            }
+
             recursiveAccessibilityHierarchy.append(.group(
                 accessibilityHierarchyOfElements,
-                explicitlyOrdered: true,
+                explicitlyOrdered: explicitlyOrdered,
                 frameOverrideProvider: (overridesElementFrame(with: contextProvider) ? self : nil)
             ))
 
