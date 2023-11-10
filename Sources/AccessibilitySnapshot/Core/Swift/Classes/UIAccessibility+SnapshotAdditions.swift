@@ -107,19 +107,23 @@ extension NSObject {
         }
 
         if accessibilityTraits.contains(.switchButton) {
-            if let `self` = self as? UISwitch {
-                if self.isOn {
-                    traitSpecifiers.append(strings.switchButtonOnTraitName)
-                } else {
-                    traitSpecifiers.append(strings.switchButtonOffTraitName)
-                }
+            if accessibilityTraits.contains(.button) {
+                // An element can have the private switch button trait without being a UISwitch (for example, by passing
+                // through the traits of a contained switch). In this case, VoiceOver will still read the "Switch
+                // Button." trait, but only if the element's traits also include the `.button` trait.
+                traitSpecifiers.append(strings.switchButtonTraitName)
+            }
 
-            } else if accessibilityTraits.contains(.button) {
-                // An element can have the private switch button trait without being a UISwitch (for example, by passing through
-                // the traits of a contained switch). In this case, VoiceOver will still read the "Switch Button." trait, but
-                // will not read whether or not the switch is turned on. If the element's traits do not also include the `.button`
-                // trait, VoiceOver will not read the trait description.
-                traitSpecifiers.append(strings.switchButtonStatelessTraitName)
+            switch accessibilityValue {
+            case "1":
+                traitSpecifiers.append(strings.switchButtonOnStateName)
+            case "0":
+                traitSpecifiers.append(strings.switchButtonOffStateName)
+            case "2":
+                traitSpecifiers.append(strings.switchButtonMixedStateName)
+            default:
+                // When the switch button trait is set, unknown accessibility values are omitted from the description.
+                break
             }
         }
 
@@ -304,11 +308,13 @@ extension NSObject {
 
         let searchFieldTraitName: String
 
-        let switchButtonOnTraitName: String
+        let switchButtonTraitName: String
 
-        let switchButtonOffTraitName: String
+        let switchButtonOnStateName: String
 
-        let switchButtonStatelessTraitName: String
+        let switchButtonOffStateName: String
+
+        let switchButtonMixedStateName: String
 
         let switchButtonTraitHint: String
 
@@ -396,19 +402,24 @@ extension NSObject {
                 comment: "Description for the 'search field' accessibility trait",
                 locale: locale
             )
-            self.switchButtonOnTraitName = "Switch Button. On.".localized(
+            self.switchButtonTraitName = "Switch Button.".localized(
+                key: "trait.switch_button.description",
+                comment: "Description for the 'switch button' accessibility trait",
+                locale: locale
+            )
+            self.switchButtonOnStateName = "On.".localized(
                 key: "trait.switch_button.state_on.description",
                 comment: "Description for the 'switch button' accessibility trait, when the switch is on",
                 locale: locale
             )
-            self.switchButtonOffTraitName = "Switch Button. Off.".localized(
+            self.switchButtonOffStateName = "Off.".localized(
                 key: "trait.switch_button.state_off.description",
                 comment: "Description for the 'switch button' accessibility trait, when the switch is off",
                 locale: locale
             )
-            self.switchButtonStatelessTraitName = "Switch Button.".localized(
-                key: "trait.switch_button.state_unspecified.description",
-                comment: "Description for the 'switch button' accessibility trait, when the state of the switch cannot be determined",
+            self.switchButtonMixedStateName = "Mixed.".localized(
+                key: "trait.switch_button.state_mixed.description",
+                comment: "Description for the 'switch button' accessibility trait, when the switch is in a mixed state",
                 locale: locale
             )
             self.switchButtonTraitHint = "Double tap to toggle setting.".localized(

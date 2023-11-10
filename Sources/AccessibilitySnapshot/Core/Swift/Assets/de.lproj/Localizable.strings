@@ -35,13 +35,16 @@
 "trait.search_field.description" = "Suchfeld.";
 
 /* Description for the 'switch button' accessibility trait, when the switch is on */
-"trait.switch_button.state_on.description" = "Umschalttaste. Ein.";
+"trait.switch_button.state_on.description" = "Ein.";
 
 /* Description for the 'switch button' accessibility trait, when the switch is off */
-"trait.switch_button.state_off.description" = "Umschalttaste. Aus.";
+"trait.switch_button.state_off.description" = "Aus.";
 
-/* Description for the 'switch button' accessibility trait, when the state of the switch cannot be determined */
-"trait.switch_button.state_unspecified.description" = "Umschalttaste.";
+/* Description for the 'switch button' accessibility trait, when the switch is in a mixed state */
+"trait.switch_button.state_mixed.description" = "Gemischt.";
+
+/* Description for the 'switch button' accessibility trait */
+"trait.switch_button.description" = "Umschalttaste.";
 
 /* Hint describing how to use elements with the 'switch button' accessibility trait */
 "trait.switch_button.hint" = "Zum Umschalten Doppeltippen.";

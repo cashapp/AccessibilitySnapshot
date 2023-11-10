@@ -35,13 +35,16 @@
 "trait.search_field.description" = "Search Field.";
 
 /* Description for the 'switch button' accessibility trait, when the switch is on */
-"trait.switch_button.state_on.description" = "Switch Button. On.";
+"trait.switch_button.state_on.description" = "On.";
 
 /* Description for the 'switch button' accessibility trait, when the switch is off */
-"trait.switch_button.state_off.description" = "Switch Button. Off.";
+"trait.switch_button.state_off.description" = "Off.";
 
-/* Description for the 'switch button' accessibility trait, when the state of the switch cannot be determined */
-"trait.switch_button.state_unspecified.description" = "Switch Button.";
+/* Description for the 'switch button' accessibility trait, when the switch is in a mixed state */
+"trait.switch_button.state_mixed.description" = "Mixed.";
+
+/* Description for the 'switch button' accessibility trait */
+"trait.switch_button.description" = "Switch Button.";
 
 /* Hint describing how to use elements with the 'switch button' accessibility trait */
 "trait.switch_button.hint" = "Double tap to toggle setting.";
