@@ -91,26 +91,36 @@ private extension SwitchControlViewController {
 
             switchControls.forEach { addSubview($0) }
 
-            // Add a fake switch that has the switch button trait only, but is not a UISwitch.
-            fakeSwitchView.isAccessibilityElement = true
-            fakeSwitchView.accessibilityLabel = "Fake Label"
-            fakeSwitchView.accessibilityValue = "Value"
-            fakeSwitchView.accessibilityTraits.insert(UIAccessibilityTraits(rawValue: 0x0020000000000000))
-            fakeSwitchView.frame.size = .init(width: 48, height: 32)
-            fakeSwitchView.backgroundColor = .lightGray
-            fakeSwitchView.layer.cornerRadius = 16
-            addSubview(fakeSwitchView)
+            let switchTrait = UIAccessibilityTraits(rawValue: 0x0020000000000000)
 
-            // Add a fake switch that has the switch button and button traits, but is not a UISwitch.
-            fakeSwitchButton.isAccessibilityElement = true
-            fakeSwitchButton.accessibilityLabel = "Fake Label"
-            fakeSwitchButton.accessibilityValue = "Value"
-            fakeSwitchButton.accessibilityTraits.insert(.button)
-            fakeSwitchButton.accessibilityTraits.insert(UIAccessibilityTraits(rawValue: 0x0020000000000000))
-            fakeSwitchButton.frame.size = .init(width: 48, height: 32)
-            fakeSwitchButton.backgroundColor = .lightGray
-            fakeSwitchButton.layer.cornerRadius = 16
-            addSubview(fakeSwitchButton)
+            // Add a fake switch that has the switch button trait only, but is not a UISwitch.
+            for fakeSwitchView in fakeSwitchViews {
+                fakeSwitchView.isAccessibilityElement = true
+                fakeSwitchView.accessibilityLabel = "Fake Label"
+                fakeSwitchView.frame.size = .init(width: 48, height: 32)
+                fakeSwitchView.backgroundColor = .lightGray
+                fakeSwitchView.layer.cornerRadius = 16
+            }
+
+            fakeSwitchViews[0].accessibilityValue = "1"
+            fakeSwitchViews[0].accessibilityTraits = [switchTrait, .button]
+
+            fakeSwitchViews[1].accessibilityValue = "0"
+            fakeSwitchViews[1].accessibilityTraits = [switchTrait, .button]
+
+            fakeSwitchViews[2].accessibilityValue = "2"
+            fakeSwitchViews[2].accessibilityTraits = [switchTrait, .button]
+
+            fakeSwitchViews[3].accessibilityValue = "1"
+            fakeSwitchViews[3].accessibilityTraits = [switchTrait]
+
+            fakeSwitchViews[4].accessibilityValue = "3"
+            fakeSwitchViews[4].accessibilityTraits = [switchTrait]
+
+            fakeSwitchViews[5].accessibilityValue = "Value"
+            fakeSwitchViews[5].accessibilityTraits = [.button, switchTrait]
+
+            fakeSwitchViews.forEach { addSubview($0) }
         }
 
         @available(*, unavailable)
@@ -122,11 +132,8 @@ private extension SwitchControlViewController {
 
         private let switchControls: [UISwitch] = (0..<9).map { _ in UISwitch() }
 
-        /// UIView with the switch button trait that acts like a switch, but is not a UISwitch.
-        private let fakeSwitchView: UIView = .init()
-
-        /// UIView with the button and switch button traits that acts like a switch, but is not a UISwitch.
-        private let fakeSwitchButton: UIView = .init()
+        /// `UIView`s with the switch button trait that act like a switch, but aren't actually switches.
+        private let fakeSwitchViews: [UIView] = (0..<6).map { _ in UIView() }
 
         // MARK: - UIView
 
@@ -136,18 +143,10 @@ private extension SwitchControlViewController {
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
             var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-            for subview in switchControls {
+            for subview in (switchControls + fakeSwitchViews) {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
-            distributionSpecifiers.append(
-                contentsOf: [
-                    fakeSwitchView.distributionItem,
-                    1.flexible,
-                    fakeSwitchButton.distributionItem,
-                    1.flexible,
-                ]
-            )
             applyVerticalSubviewDistribution(distributionSpecifiers)
         }
 

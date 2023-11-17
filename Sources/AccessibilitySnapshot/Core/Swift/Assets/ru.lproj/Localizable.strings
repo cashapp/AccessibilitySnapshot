@@ -35,13 +35,16 @@
 "trait.search_field.description" = "Поле поиска.";
 
 /* Description for the 'switch button' accessibility trait, when the switch is on */
-"trait.switch_button.state_on.description" = "Кнопка-переключатель. Вкл.";
+"trait.switch_button.state_on.description" = "Вкл.";
 
 /* Description for the 'switch button' accessibility trait, when the switch is off */
-"trait.switch_button.state_off.description" = "Кнопка-переключатель. Выкл.";
+"trait.switch_button.state_off.description" = "Выкл.";
 
-/* Description for the 'switch button' accessibility trait, when the state of the switch cannot be determined */
-"trait.switch_button.state_unspecified.description" = "Кнопка-переключатель.";
+/* Description for the 'switch button' accessibility trait, when the switch is in a mixed state */
+"trait.switch_button.state_mixed.description" = "Смешанно.";
+
+/* Description for the 'switch button' accessibility trait */
+"trait.switch_button.description" = "Кнопка-переключатель.";
 
 /* Hint describing how to use elements with the 'switch button' accessibility trait */
 "trait.switch_button.hint" = "Коснитесь дважды, чтобы переключить настройку.";
