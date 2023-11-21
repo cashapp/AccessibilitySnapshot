@@ -833,22 +833,18 @@ private final class CustomContentView: UIView {
 
     // MARK: - Life Cycle
     
-    init(customContentText: String?, customContent: [(String, String)]) {
+    init(customContentText: String?, customContent: [(String, String, Bool)]) {
         
-        contentLabels = customContent.map { content in
+        contentLabels = customContent.map { (label, value, isImportant) in
             let iconLabel = UILabel()
             iconLabel.text = "↓"
             iconLabel.font = Metrics.font
             iconLabel.numberOfLines = 0
             
             let customContentLabel = UILabel()
-            customContentLabel.font = Metrics.font
+            customContentLabel.font = isImportant ? Metrics.boldFont : Metrics.font
             customContentLabel.numberOfLines = 0
-            customContentLabel.text = {
-                let label = content.0
-                let value = content.1
-                return "\(label): \(value)"
-            }()
+            customContentLabel.text = "\(label): \(value)"
             
             return (iconLabel, customContentLabel)
         }
@@ -894,7 +890,7 @@ private final class CustomContentView: UIView {
         }
 
         let descriptionWidthToFit = [
-            Metrics.actionIconInset,
+            Metrics.contentIconInset,
             firstIconLabel.sizeThatFits(size).width,
             Metrics.iconToDescriptionSpacing,
         ].reduce(size.width, -)
@@ -929,7 +925,7 @@ private final class CustomContentView: UIView {
 
         // All of the icon labels should be the same size, so we only need to calculate the description width once.
         let descriptionWidthToFit = [
-            Metrics.actionIconInset,
+            Metrics.contentIconInset,
             firstIconLabel.bounds.width,
             Metrics.iconToDescriptionSpacing,
         ].reduce(bounds.width, -)
@@ -937,7 +933,7 @@ private final class CustomContentView: UIView {
 
         firstDescriptionLabel.bounds.size = firstDescriptionLabel.sizeThatFits(descriptionSizeToFit)
 
-        firstIconLabel.frame.origin = .init(x: Metrics.actionIconInset, y: firstPairYPosition)
+        firstIconLabel.frame.origin = .init(x: Metrics.contentIconInset, y: firstPairYPosition)
 
         let descriptionXPosition = firstIconLabel.frame.maxX + Metrics.iconToDescriptionSpacing
 
@@ -950,7 +946,7 @@ private final class CustomContentView: UIView {
 
             let yPosition = previousDescriptionLabel.frame.maxY + Metrics.verticalSpacing
 
-            iconLabel.frame.origin = .init(x: Metrics.actionIconInset, y: yPosition)
+            iconLabel.frame.origin = .init(x: Metrics.contentIconInset, y: yPosition)
             descriptionLabel.frame.origin = .init(x: descriptionXPosition, y: yPosition)
         }
     }
@@ -960,10 +956,11 @@ private final class CustomContentView: UIView {
     private enum Metrics {
 
         static let verticalSpacing: CGFloat = 4
-        static let actionIconInset: CGFloat = 4
+        static let contentIconInset: CGFloat = 4
         static let iconToDescriptionSpacing: CGFloat = 4
 
         static let font: UIFont = .systemFont(ofSize: 12)
+        static let boldFont: UIFont = .boldSystemFont(ofSize: 12)
 
     }
 }

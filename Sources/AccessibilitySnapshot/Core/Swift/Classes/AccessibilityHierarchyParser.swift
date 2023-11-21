@@ -59,7 +59,7 @@ public struct AccessibilityMarker {
     public var customActions: [String]
     
     /// The names of the custom content included by the element.
-    public var customContent: [(label:String, value: String)]
+    public var customContent: [(label:String, value: String, isImportant:Bool)]
 
     /// The language code of the language used to localize strings in the description.
     public var accessibilityLanguage: String?
@@ -711,19 +711,19 @@ extension UIView {
 
 
 extension NSObject {
-    var customContent: [(String, String)] {
+    var customContent: [(label: String, value: String, isImportant:Bool)] {
         if #available(iOS 14.0, *) {
             if let provider = self as? AXCustomContentProvider {
                 if #available(iOS 17.0, *) {
                     if let customContentBlock = provider.accessibilityCustomContentBlock, let content = customContentBlock?() {
                             return content.map { content in
-                                return (content.label, content.value)
+                                return (content.label, content.value, content.importance == .high)
                             }
                         }
                     }
                 
                 return provider.accessibilityCustomContent.map { content in
-                    return (content.label, content.value)
+                    return (content.label, content.value, content.importance == .high)
                 }
             }
         }
