@@ -26,7 +26,7 @@ final class RootViewController: UITableViewController {
     // MARK: - Life Cycle
 
     init() {
-        self.accessibilityScreens = [
+        var accessibilityScreens = [
             ("View Accessibility Properties", { _ in return ViewAccessibilityPropertiesViewController() }),
             ("Label Accessibility Properties", { _ in return LabelAccessibilityPropertiesViewController() }),
             ("Button Accessibility Traits", { _ in return ButtonAccessibilityTraitsViewController() }),
@@ -66,7 +66,11 @@ final class RootViewController: UITableViewController {
             ("Text View", { _ in return TextViewViewController() }),
             ("SwiftUI Text Entry", { _ in return UIHostingController(rootView: SwiftUITextEntry()) }),
         ]
-
+        if #available(iOS 14.0, *) {
+            accessibilityScreens.append( ("Accessibility Custom Content", { _ in return AccessibilityCustomContentViewController() }))
+        }
+        self.accessibilityScreens = accessibilityScreens
+        
         super.init(nibName: nil, bundle: nil)
     }
 

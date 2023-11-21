@@ -82,6 +82,9 @@
 /* Description for an accessibility element indicating that it has custom actions available */
 "custom_actions.description" = "Aktionen verfügbar";
 
+/* Description for an accessibility element indicating that it has additional custom content available */
+"custom_content.description" = "Weiterhin inhalte verfügbar";
+
 /* Description for the 'text entry' accessibility trait */
 "trait.text_field.description" = "Textfeld.";
 
