@@ -54,6 +54,7 @@
 		66E2CD14CD63946657E17B15 /* Pods_SnapshotTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A3192D7B9B16BD10FB517A2 /* Pods_SnapshotTests.framework */; };
 		83A295842AC22D9D00DFBE4F /* UserInputLabelsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A295832AC22D9D00DFBE4F /* UserInputLabelsViewController.swift */; };
 		83A295862AC22EEE00DFBE4F /* UserInputLabelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A295852AC22EEE00DFBE4F /* UserInputLabelsTests.swift */; };
+		AC725B842B06D07E009AD59B /* AccessibilityCustomContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC725B832B06D07E009AD59B /* AccessibilityCustomContentViewController.swift */; };
 		C47F6C5316FB0C043BEB59F3 /* Pods_AccessibilitySnapshotDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A886964D2E787399E137105 /* Pods_AccessibilitySnapshotDemo.framework */; };
 		D38F6F4E508A3D067D677F69 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BFCB4FD6BC17AB232B26E72 /* Pods_UnitTests.framework */; };
 /* End PBXBuildFile section */
@@ -139,6 +140,7 @@
 		83A295832AC22D9D00DFBE4F /* UserInputLabelsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserInputLabelsViewController.swift; sourceTree = "<group>"; };
 		83A295852AC22EEE00DFBE4F /* UserInputLabelsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserInputLabelsTests.swift; sourceTree = "<group>"; };
 		88C33CBF672C290CE1EE86AF /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		AC725B832B06D07E009AD59B /* AccessibilityCustomContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityCustomContentViewController.swift; sourceTree = "<group>"; };
 		C78F90CE7A2A315AADF80144 /* Pods-SnapshotTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SnapshotTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SnapshotTests/Pods-SnapshotTests.debug.xcconfig"; sourceTree = "<group>"; };
 		CCFF2A604706B71DC0CBD38B /* Pods-AccessibilitySnapshotDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AccessibilitySnapshotDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-AccessibilitySnapshotDemo/Pods-AccessibilitySnapshotDemo.release.xcconfig"; sourceTree = "<group>"; };
 		DBA3D7413A13111BA7DE4750 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -198,6 +200,7 @@
 				3DBAC2902242F9B200EF4D0A /* LandmarkContainerViewController.swift */,
 				3D3F2E132263E6B900F7608E /* InvertColorsViewController.swift */,
 				3DDE7FF524C6D6BF00999ABA /* AccessibilityCustomActionsViewController.swift */,
+				AC725B832B06D07E009AD59B /* AccessibilityCustomContentViewController.swift */,
 			);
 			name = "Accessibility Screens";
 			sourceTree = "<group>";
@@ -625,6 +628,7 @@
 				3DF46502220D7F9B0048D446 /* ElementOrderViewController.swift in Sources */,
 				3DDE7FF624C6D6BF00999ABA /* AccessibilityCustomActionsViewController.swift in Sources */,
 				3DBAC28F2242E7C700EF4D0A /* ListContainerViewController.swift in Sources */,
+				AC725B842B06D07E009AD59B /* AccessibilityCustomContentViewController.swift in Sources */,
 				3DBEAA5B2222953E00FAE61D /* SwitchControlViewController.swift in Sources */,
 				3DBAC2912242F9B200EF4D0A /* LandmarkContainerViewController.swift in Sources */,
 				3D39BFAC223314C1009C3EF4 /* TabBarViewController.swift in Sources */,

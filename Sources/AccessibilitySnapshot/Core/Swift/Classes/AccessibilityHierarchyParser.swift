@@ -57,6 +57,9 @@ public struct AccessibilityMarker {
 
     /// The names of the custom actions supported by the element.
     public var customActions: [String]
+    
+    /// The names of the custom content included by the element.
+    public var customContent: [(label:String, value: String)]
 
     /// The language code of the language used to localize strings in the description.
     public var accessibilityLanguage: String?
@@ -211,6 +214,7 @@ public final class AccessibilityHierarchyParser {
                 activationPoint: root.convert(activationPoint, from: nil),
                 usesDefaultActivationPoint: (activationPoint == defaultActivationPoint(for: element.object)),
                 customActions: element.object.accessibilityCustomActions?.map { $0.name } ?? [],
+                customContent: element.object.customContent,
                 accessibilityLanguage: element.object.accessibilityLanguage
             )
         }
@@ -700,5 +704,30 @@ extension UIView {
         newPath.apply(transform)
         return newPath
     }
+    
 
+
+}
+
+
+extension NSObject {
+    var customContent: [(String, String)] {
+        if #available(iOS 14.0, *) {
+            if let provider = self as? AXCustomContentProvider {
+                if #available(iOS 17.0, *) {
+                    if let customContentBlock = provider.accessibilityCustomContentBlock, let content = customContentBlock?() {
+                            return content.map { content in
+                                return (content.label, content.value)
+                            }
+                        }
+                    }
+                
+                return provider.accessibilityCustomContent.map { content in
+                    return (content.label, content.value)
+                }
+            }
+        }
+        
+        return []
+    }
 }

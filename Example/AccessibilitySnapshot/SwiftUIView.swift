@@ -77,6 +77,24 @@ struct SwiftUIView: View {
                 .accessibility(label: Text("Label"))
                 .accessibility(value: Text("Value"))
                 .accessibility(hint: Text("Hint"))
+            
+            if #available(iOS 14.0, *) {
+                // View with label, value, hint, and Custom Actions.
+                Circle()
+                    .accessibility(label: Text("Label"))
+                    .accessibility(value: Text("Value"))
+                    .accessibility(hint: Text("Hint"))
+                    .accessibilityAction(named: "Custom") {}
+            }
+            
+            if #available(iOS 15.0, *) {
+                // View with label, value, hint, and Custom Content.
+                Circle()
+                    .accessibility(label: Text("Label"))
+                    .accessibility(value: Text("Value"))
+                    .accessibility(hint: Text("Hint"))
+                    .accessibilityCustomContent("Key", "Value")
+            }
 
             Spacer()
         }

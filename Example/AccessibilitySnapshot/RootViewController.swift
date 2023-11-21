@@ -52,6 +52,12 @@ final class RootViewController: UITableViewController {
             ("Accessibility Paths", { _ in return AccessibilityPathViewController() }),
             ("Accessibility Activation Point", { _ in return ActivationPointViewController() }),
             ("Accessibility Custom Actions", { _ in return AccessibilityCustomActionsViewController() }),
+            ("Accessibility Custom Content", {
+                if #available(iOS 14.0, *) {
+                    return AccessibilityCustomContentViewController()
+                } else {
+                    return $0
+                } }),
             ("Data Table", { presentingViewController in
                 return DataTableViewController.makeConfigurationSelectionViewController(
                     presentingViewController: presentingViewController
@@ -62,6 +68,7 @@ final class RootViewController: UITableViewController {
             ("Invert Colors", { _ in return InvertColorsViewController() }),
             ("User Input Labels", { _ in return UserInputLabelsViewController() }),
         ]
+        
 
         super.init(nibName: nil, bundle: nil)
     }
