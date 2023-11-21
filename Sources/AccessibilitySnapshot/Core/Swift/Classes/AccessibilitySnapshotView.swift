@@ -844,7 +844,10 @@ private final class CustomContentView: UIView {
             let customContentLabel = UILabel()
             customContentLabel.font = isImportant ? Metrics.boldFont : Metrics.font
             customContentLabel.numberOfLines = 0
-            customContentLabel.text = "\(label): \(value)"
+            customContentLabel.text = {
+                guard !value.isEmpty else { return label }
+                return "\(label): \(value)"
+            }()
             
             return (iconLabel, customContentLabel)
         }
