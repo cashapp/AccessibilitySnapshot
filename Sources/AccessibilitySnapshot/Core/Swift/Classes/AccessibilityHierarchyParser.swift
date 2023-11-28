@@ -606,7 +606,10 @@ private extension NSObject {
             }
 
             let explicitlyOrdered = accessibilityElements.contains {
-                "\(type(of: $0))" != "UILayoutContainerView"
+                let elementType = "\(type(of: $0))"
+
+                return elementType != "UILayoutContainerView" &&
+                    elementType != "UpdateCoalescingCollectionView"
             }
 
             recursiveAccessibilityHierarchy.append(.group(

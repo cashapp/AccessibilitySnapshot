@@ -203,6 +203,19 @@ final class SnapshotTestingTests: XCTestCase {
 )
 }
 
+    @available(iOS 15.0, *)
+    func testListWithSections() {
+        let viewController = SwiftUIViewWithListWithSections().embedInHostingController()
+
+        viewController.view.frame = UIScreen.main.bounds
+
+        assertSnapshot(
+          matching: viewController,
+          as: .accessibilityImage,
+          named: nameForDevice()
+        )
+    }
+
     // MARK: - Private Methods
 
     private func nameForDevice(baseName: String? = nil) -> String {
