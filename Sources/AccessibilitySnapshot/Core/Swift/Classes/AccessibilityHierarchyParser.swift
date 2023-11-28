@@ -605,11 +605,13 @@ private extension NSObject {
                 )
             }
 
-            let explicitlyOrdered = accessibilityElements.contains {
-                let elementType = "\(type(of: $0))"
+            let explicitOrderingExceptionList = [
+                "UILayoutContainerView",
+                "UpdateCoalescingCollectionView",
+            ]
 
-                return elementType != "UILayoutContainerView" &&
-                    elementType != "UpdateCoalescingCollectionView"
+            let explicitlyOrdered = accessibilityElements.contains {
+                explicitOrderingExceptionList.contains("\(type(of: $0))") == false
             }
 
             recursiveAccessibilityHierarchy.append(.group(
