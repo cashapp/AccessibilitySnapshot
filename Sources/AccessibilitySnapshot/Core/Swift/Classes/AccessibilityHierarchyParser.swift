@@ -715,9 +715,11 @@ extension NSObject {
         if #available(iOS 14.0, *) {
             if let provider = self as? AXCustomContentProvider {
                 if #available(iOS 17.0, *) {
-                    if let customContentBlock = provider.accessibilityCustomContentBlock, let content = customContentBlock?() {
-                            return content.map { content in
-                                return (content.label, content.value, content.importance == .high)
+                    if let customContentBlock = provider.accessibilityCustomContentBlock {
+                            if let content = customContentBlock?() {
+                                return content.map { content in
+                                    return (content.label, content.value, content.importance == .high)
+                                }
                             }
                         }
                     }
