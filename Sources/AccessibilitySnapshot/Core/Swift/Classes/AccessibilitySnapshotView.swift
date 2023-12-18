@@ -488,6 +488,7 @@ private extension AccessibilitySnapshotView {
                 ? Strings.actionsAvailableText(for: marker.accessibilityLanguage)
                 : marker.description
             descriptionLabel.font = Metrics.descriptionLabelFont
+            descriptionLabel.textColor = .black
             descriptionLabel.numberOfLines = 0
             addSubview(descriptionLabel)
 
@@ -652,11 +653,13 @@ private extension AccessibilitySnapshotView {
                 let iconLabel = UILabel()
                 iconLabel.text = "↓"
                 iconLabel.font = Metrics.font
+                iconLabel.textColor = .black
                 iconLabel.numberOfLines = 0
 
                 let actionDescriptionLabel = UILabel()
                 actionDescriptionLabel.text = $0
                 actionDescriptionLabel.font = Metrics.font
+                actionDescriptionLabel.textColor = .black
                 actionDescriptionLabel.numberOfLines = 0
 
                 return (iconLabel, actionDescriptionLabel)
@@ -666,6 +669,7 @@ private extension AccessibilitySnapshotView {
                 let label = UILabel()
                 label.text = actionsAvailableText
                 label.font = Metrics.font
+                label.textColor = .black
                 self.actionsAvailableLabel = label
 
             } else {
