@@ -91,4 +91,4 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
       - name: Build
-        run: carthage build --no-skip-current --platform iOS --use-xcframeworks
+        run: carthage build --no-skip-current --platform iOS --use-xcframeworks --verbose
