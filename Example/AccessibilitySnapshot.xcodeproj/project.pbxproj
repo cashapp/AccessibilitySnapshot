@@ -10,6 +10,10 @@
 		1104A8CF2B580AC500B6715F /* SwiftUITextEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1104A8CE2B580AC500B6715F /* SwiftUITextEntry.swift */; };
 		1104A8D12B595FF600B6715F /* TextFieldViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1104A8D02B595FF600B6715F /* TextFieldViewController.swift */; };
 		112909BC2B63E57B00B4EBEB /* TextViewViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 112909BB2B63E57B00B4EBEB /* TextViewViewController.swift */; };
+		11C417F22B8E1F6A00850291 /* SwiftUIViewWithNavigationStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C417EE2B8E1F6A00850291 /* SwiftUIViewWithNavigationStack.swift */; };
+		11C417F32B8E1F6A00850291 /* SwiftUIView+EmbedInHostingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C417EF2B8E1F6A00850291 /* SwiftUIView+EmbedInHostingController.swift */; };
+		11C417F42B8E1F6A00850291 /* SwiftUIViewWithListWithSections.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C417F02B8E1F6A00850291 /* SwiftUIViewWithListWithSections.swift */; };
+		11C417F52B8E1F6A00850291 /* SwiftUIViewWithNavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11C417F12B8E1F6A00850291 /* SwiftUIViewWithNavigationView.swift */; };
 		1635CE4E251EAC6700907101 /* SnapshotTestingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1635CE4D251EAC6700907101 /* SnapshotTestingTests.swift */; };
 		3D04B6D6211558B0006218A4 /* AccessibilityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D04B6D5211558B0006218A4 /* AccessibilityViewController.swift */; };
 		3D04B6D921155942006218A4 /* LabelAccessibilityPropertiesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D04B6D821155942006218A4 /* LabelAccessibilityPropertiesViewController.swift */; };
@@ -84,6 +88,10 @@
 		1104A8CE2B580AC500B6715F /* SwiftUITextEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUITextEntry.swift; sourceTree = "<group>"; };
 		1104A8D02B595FF600B6715F /* TextFieldViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldViewController.swift; sourceTree = "<group>"; };
 		112909BB2B63E57B00B4EBEB /* TextViewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewViewController.swift; sourceTree = "<group>"; };
+		11C417EE2B8E1F6A00850291 /* SwiftUIViewWithNavigationStack.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIViewWithNavigationStack.swift; sourceTree = "<group>"; };
+		11C417EF2B8E1F6A00850291 /* SwiftUIView+EmbedInHostingController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SwiftUIView+EmbedInHostingController.swift"; sourceTree = "<group>"; };
+		11C417F02B8E1F6A00850291 /* SwiftUIViewWithListWithSections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIViewWithListWithSections.swift; sourceTree = "<group>"; };
+		11C417F12B8E1F6A00850291 /* SwiftUIViewWithNavigationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIViewWithNavigationView.swift; sourceTree = "<group>"; };
 		1635CE4D251EAC6700907101 /* SnapshotTestingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotTestingTests.swift; sourceTree = "<group>"; };
 		358D84DCD315110A89BD052E /* Pods-UnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-UnitTests/Pods-UnitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		3A3192D7B9B16BD10FB517A2 /* Pods_SnapshotTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SnapshotTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -192,6 +200,10 @@
 				1104A8CE2B580AC500B6715F /* SwiftUITextEntry.swift */,
 				3F8E5DB82535B25000276B32 /* SwiftUIView.swift */,
 				3FEF854E253846420072611F /* SwiftUIViewWithScrollView.swift */,
+				11C417EF2B8E1F6A00850291 /* SwiftUIView+EmbedInHostingController.swift */,
+				11C417F02B8E1F6A00850291 /* SwiftUIViewWithListWithSections.swift */,
+				11C417EE2B8E1F6A00850291 /* SwiftUIViewWithNavigationStack.swift */,
+				11C417F12B8E1F6A00850291 /* SwiftUIViewWithNavigationView.swift */,
 				3D39BFAB223314C1009C3EF4 /* TabBarViewController.swift */,
 				3D04B6D821155942006218A4 /* LabelAccessibilityPropertiesViewController.swift */,
 				3D04B6DA21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift */,
@@ -629,6 +641,7 @@
 				3D9894F9213509C8006C16F6 /* DescriptionEdgeCasesViewController.swift in Sources */,
 				83A295842AC22D9D00DFBE4F /* UserInputLabelsViewController.swift in Sources */,
 				3D3F2E142263E6B900F7608E /* InvertColorsViewController.swift in Sources */,
+				11C417F32B8E1F6A00850291 /* SwiftUIView+EmbedInHostingController.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 				3D0AC55C222DD70A00B6F1C1 /* UserInterfaceDirectionViewController.swift in Sources */,
 				3D04B6D6211558B0006218A4 /* AccessibilityViewController.swift in Sources */,
@@ -640,13 +653,16 @@
 				3DF464FE220D594E0048D446 /* ElementSelectionViewController.swift in Sources */,
 				3DC488372212A7D4006D1E15 /* ModalAccessibilityViewController.swift in Sources */,
 				3DF46502220D7F9B0048D446 /* ElementOrderViewController.swift in Sources */,
+				11C417F22B8E1F6A00850291 /* SwiftUIViewWithNavigationStack.swift in Sources */,
 				112909BC2B63E57B00B4EBEB /* TextViewViewController.swift in Sources */,
 				3DDE7FF624C6D6BF00999ABA /* AccessibilityCustomActionsViewController.swift in Sources */,
 				3DBAC28F2242E7C700EF4D0A /* ListContainerViewController.swift in Sources */,
 				3DBEAA5B2222953E00FAE61D /* SwitchControlViewController.swift in Sources */,
+				11C417F52B8E1F6A00850291 /* SwiftUIViewWithNavigationView.swift in Sources */,
 				3DBAC2912242F9B200EF4D0A /* LandmarkContainerViewController.swift in Sources */,
 				1104A8CF2B580AC500B6715F /* SwiftUITextEntry.swift in Sources */,
 				3D39BFAC223314C1009C3EF4 /* TabBarViewController.swift in Sources */,
+				11C417F42B8E1F6A00850291 /* SwiftUIViewWithListWithSections.swift in Sources */,
 				3D04B6DB21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

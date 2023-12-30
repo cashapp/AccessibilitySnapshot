@@ -177,7 +177,7 @@ final class SnapshotTestingTests: XCTestCase {
         )
     }
 
-@available(iOS 16.0, *)
+    @available(iOS 16.0, *)
     func testNavigationStack() {
         let viewController = SwiftUIViewWithNavigationStack().embedInHostingController()
 
@@ -200,8 +200,8 @@ final class SnapshotTestingTests: XCTestCase {
           matching: viewController,
           as: .accessibilityImage,
           named: nameForDevice()
-)
-}
+        )
+    }
 
     @available(iOS 15.0, *)
     func testListWithSections() {
