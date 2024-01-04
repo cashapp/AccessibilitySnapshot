@@ -27,6 +27,15 @@ public enum HitTargetSnapshotUtility {
     /// * Regions that hit test to `nil` will be darkened.
     /// * Regions that hit test to another view will be highlighted using one of the specified `colors`.
     ///
+    /// By default this snapshot is very slow (on the order of 50 seconds for a full screen snapshot) since it hit tests
+    /// every pixel in the view to achieve a perfectly accurate result. As a performance optimization, you can trade off
+    /// greatly increased performance for the possibility of missing very thin views by defining the maximum height of
+    /// a missed region you are okay with missing (`maxPermissibleMissedRegionHeight`). In particular, this might miss
+    /// views of the specified height or less which have the same hit target both above and below the view. Setting this
+    /// value to 1 pt improves the run time by almost (1 / scale factor), i.e. a 65% improvement for a 3x scale device,
+    /// so this trade-off is often worth it. Increasing the value from there will continue to decrease the run time, but
+    /// you quickly get diminishing returns.
+    ///
     /// - parameter view: The base view to be tested against.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
@@ -34,11 +43,14 @@ public enum HitTargetSnapshotUtility {
     /// - parameter viewRenderingMode: The rendering method to use when snapshotting the `view`.
     /// - parameter colors: An array of colors to use for the highlighted regions. These colors will be used in order,
     /// repeating through the array as necessary and avoiding adjacent regions using the same color when possible.
+    /// - parameter maxPermissibleMissedRegionHeight: The maximum height for which it is permissible to "miss" a view.
+    /// Value must be a positive integer.
     public static func generateSnapshotImage(
         for view: UIView,
         useMonochromeSnapshot: Bool,
         viewRenderingMode: AccessibilitySnapshotView.ViewRenderingMode,
-        colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors
+        colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        maxPermissibleMissedRegionHeight: CGFloat = 0
     ) throws -> UIImage {
         let colors = colors.map { $0.withAlphaComponent(0.2) }
 
@@ -55,6 +67,8 @@ public enum HitTargetSnapshotUtility {
 
             var viewToColorMap: [UIView: UIColor] = [:]
             let pixelWidth: CGFloat = 1 / UIScreen.main.scale
+
+            let maxPermissibleMissedRegionHeight = max(pixelWidth, floor(maxPermissibleMissedRegionHeight))
 
             func drawScanLineSegment(
                 for hitView: UIView?,
@@ -156,16 +170,22 @@ public enum HitTargetSnapshotUtility {
             // Step through every full point along the Y axis and check if it's equal to the above line. If so, draw the
             // line at a full point width. If not, step through the pixel lines and draw each individually.
             var previousScanLine: (y: CGFloat, scanLine: ScanLine)? = nil
-            for y in stride(from: bounds.minY, to: bounds.maxY, by: 1) {
+            for y in stride(from: bounds.minY, to: bounds.maxY, by: maxPermissibleMissedRegionHeight) {
                 let fullScanLine = scanLine(y: y + touchOffset)
 
                 if let previousScanLine = previousScanLine, scanLinesEqual(fullScanLine, previousScanLine.scanLine) {
-                    drawScanLine(previousScanLine.scanLine, y: previousScanLine.y, lineHeight: 1)
+                    drawScanLine(
+                        previousScanLine.scanLine,
+                        y: previousScanLine.y,
+                        lineHeight: maxPermissibleMissedRegionHeight
+                    )
+
                 } else if let previousScanLine = previousScanLine {
                     drawScanLine(previousScanLine.scanLine, y: previousScanLine.y, lineHeight: pixelWidth)
                     for lineY in stride(from: previousScanLine.y + pixelWidth, to: y - stopEpsilon, by: pixelWidth) {
                         drawScanLine(scanLine(y: lineY + touchOffset), y: lineY, lineHeight: pixelWidth)
                     }
+
                 } else {
                     // No-op. We'll draw this on the next iteration.
                 }
@@ -173,7 +193,8 @@ public enum HitTargetSnapshotUtility {
                 previousScanLine = (y, fullScanLine)
             }
 
-            // Draw the final full scan line and any trailing pixel lines (if the bounds.height isn't divisible by 1).
+            // Draw the final full scan line and any trailing pixel lines (if the bounds.height isn't divisible by the
+            // maxPermissibleMissedRegionHeight).
             if let previousScanLine = previousScanLine {
                 drawScanLine(previousScanLine.scanLine, y: previousScanLine.y, lineHeight: pixelWidth)
 

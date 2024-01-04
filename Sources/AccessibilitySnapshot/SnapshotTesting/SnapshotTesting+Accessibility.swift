@@ -146,6 +146,15 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     /// * Regions that hit test to `nil` will be darkened.
     /// * Regions that hit test to another view will be highlighted using one of the specified `colors`.
     ///
+    /// By default this snapshot is very slow (on the order of 50 seconds for a full screen snapshot) since it hit tests
+    /// every pixel in the view to achieve a perfectly accurate result. As a performance optimization, you can trade off
+    /// greatly increased performance for the possibility of missing very thin views by defining the maximum height of
+    /// a missed region you are okay with missing (`maxPermissibleMissedRegionHeight`). In particular, this might miss
+    /// views of the specified height or less which have the same hit target both above and below the view. Setting this
+    /// value to 1 pt improves the run time by almost (1 / scale factor), i.e. a 65% improvement for a 3x scale device,
+    /// so this trade-off is often worth it. Increasing the value from there will continue to decrease the run time, but
+    /// you quickly get diminishing returns.
+    ///
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the view should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views.
@@ -159,6 +168,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        maxPermissibleMissedRegionHeight: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) -> Snapshotting {
@@ -177,7 +187,8 @@ extension Snapshotting where Value == UIView, Format == UIImage {
                     for: view,
                     useMonochromeSnapshot: useMonochromeSnapshot,
                     viewRenderingMode: (drawHierarchyInKeyWindow ? .drawHierarchyInRect : .renderLayerInContext),
-                    colors: colors
+                    colors: colors,
+                    maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight
                 )
 
                 if requiresWindow {
