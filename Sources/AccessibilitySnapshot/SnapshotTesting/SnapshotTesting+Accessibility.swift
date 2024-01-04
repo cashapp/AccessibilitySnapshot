@@ -138,6 +138,78 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         }
     }
 
+    /// Snapshots the view with hit target regions highlighted.
+    ///
+    /// The hit target regions are highlighted using the following rules:
+    ///
+    /// * Regions that hit test to the base view will not be highlighted.
+    /// * Regions that hit test to `nil` will be darkened.
+    /// * Regions that hit test to another view will be highlighted using one of the specified `colors`.
+    ///
+    /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the view should be monochrome. Using a
+    /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
+    /// read certain views.
+    /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
+    /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
+    /// - parameter colors: An array of colors to use for the highlighted regions. These colors will be used in order,
+    /// repeating through the array as necessary and avoiding adjacent regions using the same color when possible.
+    /// - parameter file: The file in which errors should be attributed.
+    /// - parameter line: The line in which errors should be attributed.
+    public static func imageWithHitTargets(
+        useMonochromeSnapshot: Bool = true,
+        drawHierarchyInKeyWindow: Bool = false,
+        colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> Snapshotting {
+        return Snapshotting<UIImage, UIImage>.image.pullback { view in
+            // Some implementations of hit testing rely on the window, so install the view in a window if needed.
+            let requiresWindow = (view.window == nil && !(view is UIWindow))
+            if requiresWindow {
+                let window = UIApplication.shared.firstKeyWindow ?? UIWindow(frame: UIScreen.main.bounds)
+                window.addSubview(view)
+            }
+
+            view.layoutIfNeeded()
+
+            do {
+                let image = try HitTargetSnapshotUtility.generateSnapshotImage(
+                    for: view,
+                    useMonochromeSnapshot: useMonochromeSnapshot,
+                    viewRenderingMode: (drawHierarchyInKeyWindow ? .drawHierarchyInRect : .renderLayerInContext),
+                    colors: colors
+                )
+
+                if requiresWindow {
+                    view.removeFromSuperview()
+                }
+
+                return image
+            } catch AccessibilitySnapshotView.Error.containedViewExceedsMaximumSize {
+                fatalError(
+                    """
+                    View is too large to render monochrome snapshot. Try setting useMonochromeSnapshot to false or \
+                    use a different iOS version. In particular, this is known to fail on iOS 13, but was fixed in \
+                    iOS 14.
+                    """,
+                    file: file,
+                    line: line
+                )
+            } catch AccessibilitySnapshotView.Error.containedViewHasUnsupportedTransform {
+                fatalError(
+                    """
+                    View has an unsupported transform for the specified snapshot parameters. Try using an identity \
+                    transform or changing the view rendering mode to render the layer in the graphics context.
+                    """,
+                    file: file,
+                    line: line
+                )
+            } catch {
+                fatalError("Failed to render snapshot image", file: file, line: line)
+            }
+        }
+    }
+
     // MARK: - Internal Properties
 
     internal static var isRunningInHostApplication: Bool {
@@ -197,6 +269,43 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
         return Snapshotting<UIView, UIImage>.imageWithSmartInvert.pullback { viewController in
             viewController.view
         }
+    }
+
+    /// Snapshots the view controller with hit target regions highlighted.
+    ///
+    /// The hit target regions are highlighted using the following rules:
+    ///
+    /// * Regions that hit test to the base view (the view controller's `view`) will not be highlighted.
+    /// * Regions that hit test to `nil` will be darkened.
+    /// * Regions that hit test to another view will be highlighted using one of the specified `colors`.
+    ///
+    /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the view should be monochrome. Using a
+    /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
+    /// read certain views.
+    /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
+    /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
+    /// - parameter colors: An array of colors to use for the highlighted regions. These colors will be used in order,
+    /// repeating through the array as necessary and avoiding adjacent regions using the same color when possible.
+    /// - parameter file: The file in which errors should be attributed.
+    /// - parameter line: The line in which errors should be attributed.
+    public static func imageWithHitTargets(
+        useMonochromeSnapshot: Bool = true,
+        drawHierarchyInKeyWindow: Bool = false,
+        colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) -> Snapshotting {
+        return Snapshotting<UIView, UIImage>
+            .imageWithHitTargets(
+                useMonochromeSnapshot: useMonochromeSnapshot,
+                drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+                colors: colors,
+                file: file,
+                line: line
+            )
+            .pullback { viewController in
+                viewController.view
+            }
     }
 
 }

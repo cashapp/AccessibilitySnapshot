@@ -179,4 +179,78 @@ extension FBSnapshotTestCase {
         }
     }
 
+    /// Snapshots the `view` with hit target regions highlighted.
+    ///
+    /// The hit target regions are highlighted using the following rules:
+    ///
+    /// * Regions that hit test to the base view (`view`) will not be highlighted.
+    /// * Regions that hit test to `nil` will be darkened.
+    /// * Regions that hit test to another view will be highlighted using one of the specified `colors`.
+    ///
+    /// - parameter view: The view to be snapshotted.
+    /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple\
+    /// snapshot tests in a given test method. Defaults to no identifier.
+    /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
+    /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
+    /// read certain views.
+    /// - parameter colors: An array of colors to use for the highlighted regions. These colors will be used in order,
+    /// repeating through the array as necessary and avoiding adjacent regions using the same color when possible.
+    /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
+    /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
+    /// - parameter file: The file in which the test result should be attributed.
+    /// - parameter line: The line in which the test result should be attributed.
+    public func SnapshotImpreciseVerifyWithHitTargets(
+        _ view: UIView,
+        identifier: String = "",
+        useMonochromeSnapshot: Bool = true,
+        colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        // Some implementations of hit testing rely on the window, so install the view in a window if needed.
+        let requiresWindow = (view.window == nil && !(view is UIWindow))
+        if requiresWindow {
+            let window = UIApplication.shared.firstKeyWindow ?? UIWindow(frame: UIScreen.main.bounds)
+            window.addSubview(view)
+        }
+
+        view.layoutIfNeeded()
+
+        let image: UIImage
+        do {
+            image = try HitTargetSnapshotUtility.generateSnapshotImage(
+                for: view,
+                useMonochromeSnapshot: useMonochromeSnapshot,
+                viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
+                colors: colors
+            )
+        } catch {
+           XCTFail(ErrorMessageFactory.errorMessageForAccessibilityParsingError(error), file: file, line: line)
+           return
+       }
+
+        FBSnapshotVerifyView(
+            UIImageView(image: image),
+            identifier: identifier,
+            suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
+            file: file,
+            line: line
+        )
+
+        if requiresWindow {
+            view.removeFromSuperview()
+        }
+    }
+
 }

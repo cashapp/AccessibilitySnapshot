@@ -138,6 +138,12 @@ final class SnapshotTestingTests: XCTestCase {
         assertSnapshot(matching: viewController, as: .imageWithSmartInvert, named: nameForDevice())
     }
 
+    func testHitTargets() {
+        let viewController = ButtonAccessibilityTraitsViewController()
+        viewController.view.frame = UIScreen.main.bounds
+        assertSnapshot(matching: viewController, as: .imageWithHitTargets(), named: nameForDevice())
+    }
+
     // MARK: - Private Methods
 
     private func nameForDevice(baseName: String? = nil) -> String {

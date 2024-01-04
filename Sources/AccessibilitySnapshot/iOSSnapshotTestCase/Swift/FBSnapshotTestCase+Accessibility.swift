@@ -49,7 +49,8 @@ extension FBSnapshotTestCase {
     /// order, repeating through the array as necessary.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
-    /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice Control).
+    /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
+    /// Control).
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotVerifyAccessibility(
@@ -94,14 +95,14 @@ extension FBSnapshotTestCase {
 
     /// Snapshots the `view` simulating the way it will appear with Smart Invert Colors enabled.
     ///
-    /// When `recordMode` is true, records a snapshot of the view. When `recordMode` is false, performs a comparison with the
-    /// existing snapshot.
+    /// When `recordMode` is true, records a snapshot of the view. When `recordMode` is false, performs a comparison
+    /// with the existing snapshot.
     ///
     /// - parameter view: The view that will be snapshotted.
-    /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple snapshot tests
-    /// in a given test method. Defaults to no identifier.
-    /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images directory.
-    /// Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple
+    /// snapshot tests in a given test method. Defaults to no identifier.
+    /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
+    /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     public func SnapshotVerifyWithInvertedColors(
@@ -145,6 +146,48 @@ extension FBSnapshotTestCase {
         if requiresWindow {
             view.removeFromSuperview()
         }
+    }
+
+    /// Snapshots the `view` with hit target regions highlighted.
+    ///
+    /// The hit target regions are highlighted using the following rules:
+    ///
+    /// * Regions that hit test to the base view (`view`) will not be highlighted.
+    /// * Regions that hit test to `nil` will be darkened.
+    /// * Regions that hit test to another view will be highlighted using one of the specified `colors`.
+    ///
+    /// - parameter view: The view to be snapshotted.
+    /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple\
+    /// snapshot tests in a given test method. Defaults to no identifier.
+    /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
+    /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
+    /// read certain views.
+    /// - parameter colors: An array of colors to use for the highlighted regions. These colors will be used in order,
+    /// repeating through the array as necessary and avoiding adjacent regions using the same color when possible.
+    /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
+    /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter file: The file in which the test result should be attributed.
+    /// - parameter line: The line in which the test result should be attributed.
+    public func SnapshotVerifyWithHitTargets(
+        _ view: UIView,
+        identifier: String = "",
+        useMonochromeSnapshot: Bool = true,
+        colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        SnapshotImpreciseVerifyWithHitTargets(
+            view,
+            identifier: identifier,
+            useMonochromeSnapshot: useMonochromeSnapshot,
+            colors: colors,
+            suffixes: suffixes,
+            perPixelTolerance: 0,
+            overallTolerance: 0,
+            file: file,
+            line: line
+        )
     }
 
     // MARK: - Internal Properties

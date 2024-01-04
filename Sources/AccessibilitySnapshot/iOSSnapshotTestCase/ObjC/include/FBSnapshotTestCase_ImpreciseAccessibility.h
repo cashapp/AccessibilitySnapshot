@@ -61,3 +61,19 @@
             XCTFail("%@", errorDescription);\
         }\
     }
+
+#define SnapshotImpreciseVerifyWithHitTargets(view__, identifier__, useMonochromeSnapshot__, perPixelTolerance__, overallTolerance__)\
+    {\
+        _Pragma("clang diagnostic push")\
+        _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\
+        SEL selector = @selector(snapshotVerifyWithHitTargets:identifier:useMonochromeSnapshot:perPixelTolerance:overallTolerance:);\
+        _Pragma("clang diagnostic pop")\
+        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, BOOL, CGFloat, CGFloat);\
+        SnapshotMethod snapshotVerifyWithHitTargets = (SnapshotMethod)[self methodForSelector:selector];\
+        NSString *errorDescription = snapshotVerifyWithInvertedColors(self, selector, view__, identifier__ ?: @"", useMonochromeSnapshot__, perPixelTolerance__, overallTolerance__);\
+        if (errorDescription == nil) {\
+            XCTAssertTrue(YES);\
+        } else {\
+            XCTFail("%@", errorDescription);\
+        }\
+    }

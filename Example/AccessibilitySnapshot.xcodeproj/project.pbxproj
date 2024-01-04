@@ -55,6 +55,7 @@
 		83A295842AC22D9D00DFBE4F /* UserInputLabelsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A295832AC22D9D00DFBE4F /* UserInputLabelsViewController.swift */; };
 		83A295862AC22EEE00DFBE4F /* UserInputLabelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A295852AC22EEE00DFBE4F /* UserInputLabelsTests.swift */; };
 		C47F6C5316FB0C043BEB59F3 /* Pods_AccessibilitySnapshotDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A886964D2E787399E137105 /* Pods_AccessibilitySnapshotDemo.framework */; };
+		D2F76EED2945C879000A453F /* HitTargetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F76EEC2945C879000A453F /* HitTargetTests.swift */; };
 		D38F6F4E508A3D067D677F69 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BFCB4FD6BC17AB232B26E72 /* Pods_UnitTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -141,6 +142,7 @@
 		88C33CBF672C290CE1EE86AF /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		C78F90CE7A2A315AADF80144 /* Pods-SnapshotTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SnapshotTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SnapshotTests/Pods-SnapshotTests.debug.xcconfig"; sourceTree = "<group>"; };
 		CCFF2A604706B71DC0CBD38B /* Pods-AccessibilitySnapshotDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AccessibilitySnapshotDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-AccessibilitySnapshotDemo/Pods-AccessibilitySnapshotDemo.release.xcconfig"; sourceTree = "<group>"; };
+		D2F76EEC2945C879000A453F /* HitTargetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HitTargetTests.swift; sourceTree = "<group>"; };
 		DBA3D7413A13111BA7DE4750 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
 		DCFAC4866DBB341F92D0A40D /* Pods-SnapshotTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SnapshotTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-SnapshotTests/Pods-SnapshotTests.release.xcconfig"; sourceTree = "<group>"; };
 		ED63B7AD78B189E8940B6C80 /* Pods-AccessibilitySnapshotDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AccessibilitySnapshotDemo.debug.xcconfig"; path = "Pods/Target Support Files/Pods-AccessibilitySnapshotDemo/Pods-AccessibilitySnapshotDemo.debug.xcconfig"; sourceTree = "<group>"; };
@@ -302,6 +304,7 @@
 				3D9334932A8B2E520078A142 /* ImpreciseObjectiveCTests.m */,
 				3DBAC28622406EBB00EF4D0A /* AccessibilityContainersTests.swift */,
 				607FACEB1AFB9204008FA782 /* AccessibilityPropertiesTests.swift */,
+				D2F76EEC2945C879000A453F /* HitTargetTests.swift */,
 				3D39BFAF2239BC42009C3EF4 /* ActivationPointTests.swift */,
 				3DEBF24F22101EE40065424F /* DefaultControlsTests.swift */,
 				3DF46503220D8C500048D446 /* ElementOrderTests.swift */,
@@ -651,6 +654,7 @@
 				3D39BFB02239BC42009C3EF4 /* ActivationPointTests.swift in Sources */,
 				3DC2C67921F4478A003184E4 /* LayoutTests.swift in Sources */,
 				83A295862AC22EEE00DFBE4F /* UserInputLabelsTests.swift in Sources */,
+				D2F76EED2945C879000A453F /* HitTargetTests.swift in Sources */,
 				3DF46504220D8C500048D446 /* ElementOrderTests.swift in Sources */,
 				3DEBF25022101EE40065424F /* DefaultControlsTests.swift in Sources */,
 			);

@@ -77,6 +77,9 @@
                   Identifier = "DefaultControlsTests/testDatePicker()">
                </Test>
                <Test
+                  Identifier = "HitTargetTests/testPerformance()">
+               </Test>
+               <Test
                   Identifier = "TextAccessibilityTests">
                </Test>
             </SkippedTests>
