@@ -50,6 +50,7 @@ final class HitTargetTests: SnapshotTestCase {
                     for: buttonTraitsViewController.view,
                     useMonochromeSnapshot: true,
                     viewRenderingMode: .drawHierarchyInRect,
+                    maxPermissibleMissedRegionWidth: 4,
                     maxPermissibleMissedRegionHeight: 4
                 )
             } catch {

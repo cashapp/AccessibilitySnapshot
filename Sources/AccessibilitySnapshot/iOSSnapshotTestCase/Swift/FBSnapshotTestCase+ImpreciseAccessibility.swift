@@ -189,12 +189,16 @@ extension FBSnapshotTestCase {
     ///
     /// By default this snapshot is very slow (on the order of 50 seconds for a full screen snapshot) since it hit tests
     /// every pixel in the view to achieve a perfectly accurate result. As a performance optimization, you can trade off
-    /// greatly increased performance for the possibility of missing very thin views by defining the maximum height of
-    /// a missed region you are okay with missing (`maxPermissibleMissedRegionHeight`). In particular, this might miss
-    /// views of the specified height or less which have the same hit target both above and below the view. Setting this
-    /// value to 1 pt improves the run time by almost (1 / scale factor), i.e. a 65% improvement for a 3x scale device,
-    /// so this trade-off is often worth it. Increasing the value from there will continue to decrease the run time, but
-    /// you quickly get diminishing returns.
+    /// greatly increased performance for the possibility of missing very thin views by defining the maximum width and
+    /// height of a region you are okay with missing (`maxPermissibleMissedRegion{Width,Height}`). In particular, this
+    /// might miss hit regions of the specified width/height or less **which have the same hit target both above and
+    /// below the region**. Note these are independent controls - a region could be missed if it falls beneath either of
+    /// these thresholds, not both. Setting the either value alone to 1 pt improves the run time by almost (1 / scale
+    /// factor), i.e. a 65% improvement for a 3x scale device, and setting both to 1 pt improves the run time by an
+    /// additional (1 / scale factor), i.e. an ~88% improvement for a 3x scale device, so this trade-off is often worth
+    /// it. Increasing the value from there will continue to decrease the run time, but you quickly get diminishing
+    /// returns, so you likely won't ever want to go above 2-4 pt and should stick to 0 or 1 pt unless you have a large
+    /// number of snapshots.
     ///
     /// - parameter view: The view to be snapshotted.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple\
@@ -204,6 +208,8 @@ extension FBSnapshotTestCase {
     /// read certain views.
     /// - parameter colors: An array of colors to use for the highlighted regions. These colors will be used in order,
     /// repeating through the array as necessary and avoiding adjacent regions using the same color when possible.
+    /// - parameter maxPermissibleMissedRegionWidth: The maximum width for which it is permissible to "miss" a view.
+    /// Value must be a positive integer.
     /// - parameter maxPermissibleMissedRegionHeight: The maximum height for which it is permissible to "miss" a view.
     /// Value must be a positive integer.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
@@ -221,6 +227,7 @@ extension FBSnapshotTestCase {
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
         colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        maxPermissibleMissedRegionWidth: CGFloat = 0,
         maxPermissibleMissedRegionHeight: CGFloat = 0,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         perPixelTolerance: CGFloat = 0,
@@ -244,6 +251,7 @@ extension FBSnapshotTestCase {
                 useMonochromeSnapshot: useMonochromeSnapshot,
                 viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
                 colors: colors,
+                maxPermissibleMissedRegionWidth: maxPermissibleMissedRegionWidth,
                 maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight
             )
         } catch {

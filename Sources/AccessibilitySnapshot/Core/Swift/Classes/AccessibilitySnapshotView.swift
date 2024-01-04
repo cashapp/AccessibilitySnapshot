@@ -59,6 +59,9 @@ public final class AccessibilitySnapshotView: UIView {
         /// `.renderLayerInContext` view rendering mode
         case containedViewHasUnsupportedTransform(transform: CATransform3D)
 
+        /// An error indicating the `containedView` has an invalid size due to the `width` and/or `height` being zero.
+        case containedViewHasZeroSize(viewSize: CGSize)
+
     }
 
     // MARK: - Life Cycle
