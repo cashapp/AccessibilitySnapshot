@@ -56,7 +56,7 @@ public enum HitTargetSnapshotUtility {
             var viewToColorMap: [UIView: UIColor] = [:]
             let pixelWidth: CGFloat = 1 / UIScreen.main.scale
 
-            func drawScanLine(
+            func drawScanLineSegment(
                 for hitView: UIView?,
                 startingAtX: CGFloat,
                 endingAtX: CGFloat,
@@ -95,13 +95,15 @@ public enum HitTargetSnapshotUtility {
 
             let touchOffset = pixelWidth / 2
 
-            // Step through every pixel along the Y axis.
-            for y in stride(from: bounds.minY, to: bounds.maxY, by: pixelWidth) {
+            typealias ScanLine = [(xRange: ClosedRange<CGFloat>, view: UIView?)]
+
+            func scanLine(y: CGFloat) -> ScanLine {
+                var scanLine: ScanLine = []
                 var lastHit: (CGFloat, UIView?)? = nil
 
                 // Step through every pixel along the X axis.
                 for x in stride(from: bounds.minX, to: bounds.maxX, by: pixelWidth) {
-                    let hitView = view.hitTest(CGPoint(x: x + touchOffset, y: y + touchOffset), with: nil)
+                    let hitView = view.hitTest(CGPoint(x: x + touchOffset, y: y), with: nil)
 
                     if let lastHit = lastHit, hitView == lastHit.1 {
                         // We're still hitting the same view. Keep scanning.
@@ -109,13 +111,7 @@ public enum HitTargetSnapshotUtility {
 
                     } else if let previousHit = lastHit {
                         // We've moved on to a new view, so draw the scan line for the previous view.
-                        drawScanLine(
-                            for: previousHit.1,
-                            startingAtX: previousHit.0,
-                            endingAtX: x,
-                            y: y,
-                            lineHeight: pixelWidth
-                        )
+                        scanLine.append(((previousHit.0...x), previousHit.1))
                         lastHit = (x, hitView)
 
                     } else {
@@ -126,14 +122,28 @@ public enum HitTargetSnapshotUtility {
 
                 // Finish the scan line if necessary.
                 if let lastHit = lastHit, let lastHitView = lastHit.1 {
-                    drawScanLine(
-                        for: lastHitView,
-                        startingAtX: lastHit.0,
-                        endingAtX: bounds.maxX,
+                    scanLine.append(((lastHit.0...bounds.maxX), lastHitView))
+                }
+
+                return scanLine
+            }
+
+            func drawScanLine(_ scanLine: ScanLine, y: CGFloat, lineHeight: CGFloat) {
+                for segment in scanLine {
+                    drawScanLineSegment(
+                        for: segment.view,
+                        startingAtX: segment.xRange.lowerBound,
+                        endingAtX: segment.xRange.upperBound,
                         y: y,
-                        lineHeight: pixelWidth
+                        lineHeight: lineHeight
                     )
                 }
+            }
+
+            // Step through every pixel along the Y axis.
+            for y in stride(from: bounds.minY, to: bounds.maxY, by: pixelWidth) {
+                let scanLine = scanLine(y: y + touchOffset)
+                drawScanLine(scanLine, y: y, lineHeight: pixelWidth)
             }
         }
     }
