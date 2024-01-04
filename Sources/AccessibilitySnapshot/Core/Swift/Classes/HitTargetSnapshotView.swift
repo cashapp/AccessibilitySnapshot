@@ -140,10 +140,46 @@ public enum HitTargetSnapshotUtility {
                 }
             }
 
-            // Step through every pixel along the Y axis.
-            for y in stride(from: bounds.minY, to: bounds.maxY, by: pixelWidth) {
-                let scanLine = scanLine(y: y + touchOffset)
-                drawScanLine(scanLine, y: y, lineHeight: pixelWidth)
+            func scanLinesEqual(_ a: ScanLine, _ b: ScanLine) -> Bool {
+                return a.count == b.count
+                    && zip(a, b).allSatisfy { aSegment, bSegment in
+                        aSegment.xRange == bSegment.xRange && aSegment.view === bSegment.view
+                    }
+            }
+
+            // In some cases striding by 1/3 can result in the `to` value being included due to a floating point rouding
+            // error, in particular when dealing with bounds with a negative y origin. By striding to a value slightly
+            // less than the desired stop (small enough to be less than the density of any screen in the foreseeable
+            // future), we can avoid this rounding problem.
+            let stopEpsilon: CGFloat = 0.0001
+
+            // Step through every full point along the Y axis and check if it's equal to the above line. If so, draw the
+            // line at a full point width. If not, step through the pixel lines and draw each individually.
+            var previousScanLine: (y: CGFloat, scanLine: ScanLine)? = nil
+            for y in stride(from: bounds.minY, to: bounds.maxY, by: 1) {
+                let fullScanLine = scanLine(y: y + touchOffset)
+
+                if let previousScanLine = previousScanLine, scanLinesEqual(fullScanLine, previousScanLine.scanLine) {
+                    drawScanLine(previousScanLine.scanLine, y: previousScanLine.y, lineHeight: 1)
+                } else if let previousScanLine = previousScanLine {
+                    drawScanLine(previousScanLine.scanLine, y: previousScanLine.y, lineHeight: pixelWidth)
+                    for lineY in stride(from: previousScanLine.y + pixelWidth, to: y - stopEpsilon, by: pixelWidth) {
+                        drawScanLine(scanLine(y: lineY + touchOffset), y: lineY, lineHeight: pixelWidth)
+                    }
+                } else {
+                    // No-op. We'll draw this on the next iteration.
+                }
+
+                previousScanLine = (y, fullScanLine)
+            }
+
+            // Draw the final full scan line and any trailing pixel lines (if the bounds.height isn't divisible by 1).
+            if let previousScanLine = previousScanLine {
+                drawScanLine(previousScanLine.scanLine, y: previousScanLine.y, lineHeight: pixelWidth)
+
+                for lineY in stride(from: previousScanLine.y + pixelWidth, to: bounds.maxY, by: pixelWidth) {
+                    drawScanLine(scanLine(y: lineY + touchOffset), y: lineY, lineHeight: pixelWidth)
+                }
             }
         }
     }
