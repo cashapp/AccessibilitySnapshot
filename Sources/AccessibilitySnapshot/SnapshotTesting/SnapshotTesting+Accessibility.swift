@@ -41,6 +41,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     /// read certain views. Defaults to `true`.
     /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
+    /// - parameter precision: The percentage of pixels that must match.
     /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays.
     /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
     /// Control).
@@ -48,6 +49,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
+        precision: Float = 1.0,
         markerColors: [UIColor] = [],
         showUserInputLabels: Bool = true
     ) -> Snapshotting {
@@ -56,7 +58,10 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         }
 
         return Snapshotting<UIView, UIImage>
-            .image(drawHierarchyInKeyWindow: drawHierarchyInKeyWindow)
+            .image(
+                drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+                precision: precision
+            )
             .pullback { view in
                 let containerView = AccessibilitySnapshotView(
                     containedView: view,
