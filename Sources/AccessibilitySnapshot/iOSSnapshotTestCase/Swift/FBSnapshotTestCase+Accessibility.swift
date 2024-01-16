@@ -137,7 +137,7 @@ extension FBSnapshotTestCase {
         }
 
         let imageView = UIImageView(image: image)
-        FBSnapshotVerifyView(imageView, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(imageView, identifier: identifier, suffixes: suffixes, file: file, line: line)
 
         statusUtility.unmockStatuses()
         postNotification()
