@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3D63420F2B589032003FB4D3 /* SnapshotAndLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D63420E2B589032003FB4D3 /* SnapshotAndLegendView.swift */; };
 		3D9D41882B355E970033460C /* HitTargetSnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9D41862B355E970033460C /* HitTargetSnapshotView.swift */; };
 		3D9D41892B355E970033460C /* UIView+ImageRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9D41872B355E970033460C /* UIView+ImageRendering.swift */; };
 		8342DC102A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8342DC0F2A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift */; };
@@ -36,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3D63420E2B589032003FB4D3 /* SnapshotAndLegendView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotAndLegendView.swift; sourceTree = "<group>"; };
 		3D9D41862B355E970033460C /* HitTargetSnapshotView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HitTargetSnapshotView.swift; sourceTree = "<group>"; };
 		3D9D41872B355E970033460C /* UIView+ImageRendering.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+ImageRendering.swift"; sourceTree = "<group>"; };
 		8342DC0F2A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AccessibilitySnapshotView+PillsView.swift"; sourceTree = "<group>"; };
@@ -106,6 +108,7 @@
 		EF4D51D42A55A4A400FF0E46 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				3D63420E2B589032003FB4D3 /* SnapshotAndLegendView.swift */,
 				3D9D41862B355E970033460C /* HitTargetSnapshotView.swift */,
 				3D9D41872B355E970033460C /* UIView+ImageRendering.swift */,
 				8342DC0F2A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift */,
@@ -295,6 +298,7 @@
 				EF4D52042A55A69A00FF0E46 /* ASAccessibilityEnabler.m in Sources */,
 				EF4D52022A55A68500FF0E46 /* AccessibilitySnapshotView.swift in Sources */,
 				EF4D52072A55A69A00FF0E46 /* UIAccessibilityStatusUtility.m in Sources */,
+				3D63420F2B589032003FB4D3 /* SnapshotAndLegendView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -73,7 +73,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
 
                 do {
                     try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
-                } catch AccessibilitySnapshotView.Error.containedViewExceedsMaximumSize {
+                } catch ImageRenderingError.containedViewExceedsMaximumSize {
                     fatalError(
                         """
                         View is too large to render monochrome snapshot. Try setting useMonochromeSnapshot to false or \
@@ -81,7 +81,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
                         iOS 14.
                         """
                     )
-                } catch AccessibilitySnapshotView.Error.containedViewHasUnsupportedTransform {
+                } catch ImageRenderingError.containedViewHasUnsupportedTransform {
                     fatalError(
                         """
                         View has an unsupported transform for the specified snapshot parameters. Try using an identity \
@@ -206,7 +206,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
                 }
 
                 return image
-            } catch AccessibilitySnapshotView.Error.containedViewExceedsMaximumSize {
+            } catch ImageRenderingError.containedViewExceedsMaximumSize {
                 fatalError(
                     """
                     View is too large to render monochrome snapshot. Try setting useMonochromeSnapshot to false or \
@@ -216,7 +216,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
                     file: file,
                     line: line
                 )
-            } catch AccessibilitySnapshotView.Error.containedViewHasUnsupportedTransform {
+            } catch ImageRenderingError.containedViewHasUnsupportedTransform {
                 fatalError(
                     """
                     View has an unsupported transform for the specified snapshot parameters. Try using an identity \

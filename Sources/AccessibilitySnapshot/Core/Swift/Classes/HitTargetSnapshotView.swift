@@ -70,7 +70,7 @@ public enum HitTargetSnapshotUtility {
         )
 
         guard view.bounds.width > 0 && view.bounds.height > 0 else {
-            throw AccessibilitySnapshotView.Error.containedViewHasZeroSize(viewSize: view.bounds.size)
+            throw ImageRenderingError.containedViewHasZeroSize(viewSize: view.bounds.size)
         }
 
         return renderer.image { context in

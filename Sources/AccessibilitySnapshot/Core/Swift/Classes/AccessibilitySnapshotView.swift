@@ -37,32 +37,7 @@ public enum ActivationPointDisplayMode {
 ///
 /// The overlays and legend will be added when `parseAccessibility()` is called. In order for the coordinates to be
 /// calculated properly, the view must already be in the view hierarchy.
-public final class AccessibilitySnapshotView: UIView {
-
-    // MARK: - Public Types
-
-    public enum Error: Swift.Error {
-
-        /// An error indicating that the `containedView` is too large too snapshot using the specified rendering
-        /// parameters.
-        ///
-        /// - Note: This error is thrown due to filters failing. To avoid this error, try rendering the snapshot in
-        /// polychrome, reducing the size of the `containedView`, or running on a different iOS version. In particular,
-        /// this error is known to occur when rendering a monochrome snapshot on iOS 13.
-        case containedViewExceedsMaximumSize(viewSize: CGSize, maximumSize: CGSize)
-
-        /// An error indicating that the `containedView` has a transform that is not support while using the specified
-        /// rendering parameters.
-        ///
-        /// - Note: In particular, this error is known to occur when using a non-identity transform that requires
-        /// tiling. To avoid this error, try setting an identity transform on the `containedView` or using the
-        /// `.renderLayerInContext` view rendering mode
-        case containedViewHasUnsupportedTransform(transform: CATransform3D)
-
-        /// An error indicating the `containedView` has an invalid size due to the `width` and/or `height` being zero.
-        case containedViewHasZeroSize(viewSize: CGSize)
-
-    }
+public final class AccessibilitySnapshotView: SnapshotAndLegendView {
 
     // MARK: - Life Cycle
 
@@ -91,9 +66,6 @@ public final class AccessibilitySnapshotView: UIView {
 
         super.init(frame: containedView.bounds)
 
-        snapshotView.clipsToBounds = true
-        addSubview(snapshotView)
-
         backgroundColor = .init(white: 0.9, alpha: 1.0)
     }
 
@@ -102,13 +74,21 @@ public final class AccessibilitySnapshotView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - SnapshotAndLegendView
+
+    override var legendViews: [UIView] {
+        return displayMarkers.map { $0.legendView }
+    }
+
+    override var minimumLegendWidth: CGFloat {
+        return LegendView.Metrics.minimumWidth
+    }
+
     // MARK: - Private Properties
 
     private let containedView: UIView
 
     private let viewRenderingMode: ViewRenderingMode
-
-    private let snapshotView: UIImageView = .init()
 
     private let markerColors: [UIColor]
 
@@ -234,156 +214,6 @@ public final class AccessibilitySnapshotView: UIView {
         self.displayMarkers = displayMarkers
     }
 
-    // MARK: - UIView
-
-    public override func layoutSubviews() {
-        let legendViews = displayMarkers.map { $0.legendView }
-
-        switch legendLocation(viewSize: snapshotView.bounds.size) {
-        case let .bottom(width: availableLegendWidth):
-            snapshotView.frame.origin.y = bounds.minY
-            snapshotView.frame.origin.x = ((bounds.width - snapshotView.frame.width) / 2).floorToPixel(in: window)
-
-            var nextLegendY = snapshotView.frame.maxY + Metrics.legendInsets.top
-            for legendView in legendViews {
-                legendView.bounds.size = legendView.sizeThatFits(
-                    .init(width: availableLegendWidth, height: .greatestFiniteMagnitude)
-                )
-                legendView.frame.origin = .init(x: Metrics.legendInsets.left, y: nextLegendY)
-                nextLegendY += legendView.frame.height + Metrics.legendVerticalSpacing
-            }
-
-        case let .right(height: availableLegendHeight):
-            snapshotView.frame.origin = .zero
-
-            var nextLegendOrigin: CGPoint = .init(
-                x: snapshotView.frame.maxX + Metrics.legendInsets.left,
-                y: Metrics.legendInsets.top
-            )
-
-            let maxYBoundary = bounds.minY + availableLegendHeight
-
-            for legendView in legendViews {
-                legendView.bounds.size = legendView.sizeThatFits(
-                    .init(width: LegendView.Metrics.minimumWidth, height: availableLegendHeight)
-                )
-
-                if nextLegendOrigin.y + legendView.bounds.height <= maxYBoundary {
-                    legendView.frame.origin = nextLegendOrigin
-                    nextLegendOrigin.y += legendView.bounds.height + Metrics.legendVerticalSpacing
-
-                } else {
-                    legendView.frame.origin = .init(
-                        x: nextLegendOrigin.x + LegendView.Metrics.minimumWidth + Metrics.legendHorizontalSpacing,
-                        y: Metrics.legendInsets.top
-                    )
-                    nextLegendOrigin = .init(
-                        x: legendView.frame.minX,
-                        y: legendView.frame.maxY + Metrics.legendVerticalSpacing
-                    )
-                }
-            }
-        }
-    }
-
-    public override func sizeThatFits(_ size: CGSize) -> CGSize {
-        guard !displayMarkers.isEmpty else {
-            return snapshotView.bounds.size
-        }
-
-        switch legendLocation(viewSize: snapshotView.bounds.size) {
-        case let .bottom(width: availableWidth):
-            let legendViewSizes = displayMarkers.map {
-                $0.legendView.sizeThatFits(.init(width: availableWidth, height: .greatestFiniteMagnitude))
-            }
-
-            let widestLegendView = legendViewSizes
-                .map { $0.width }
-                .reduce(0, max)
-
-            let legendHeight = legendViewSizes
-                .map { $0.height }
-                .reduce(-Metrics.legendVerticalSpacing, { $0 + $1 + Metrics.legendVerticalSpacing })
-
-            let width = max(
-                snapshotView.frame.width,
-                widestLegendView + Metrics.legendInsets.left + Metrics.legendInsets.right,
-                Metrics.minimumWidth
-            )
-
-            let heightComponents = [
-                snapshotView.frame.height,
-                Metrics.legendInsets.top,
-                legendHeight,
-                Metrics.legendInsets.bottom,
-            ]
-
-            return CGSize(
-                width: width.ceilToPixel(in: window),
-                height: heightComponents.reduce(0, +).ceilToPixel(in: window)
-            )
-
-        case let .right(height: availableHeight):
-            let legendViewSizes = displayMarkers.map {
-                $0.legendView.sizeThatFits(.init(width: LegendView.Metrics.minimumWidth, height: availableHeight))
-            }
-
-            var columnHeights = [-Metrics.legendVerticalSpacing]
-            var lastColumnIndex = 0
-
-            for legendViewSize in legendViewSizes {
-                let lastColumnHeight = columnHeights[lastColumnIndex]
-                let heightByAddingLegendView = lastColumnHeight + Metrics.legendVerticalSpacing + legendViewSize.height
-
-                if heightByAddingLegendView <= availableHeight {
-                    columnHeights[lastColumnIndex] = heightByAddingLegendView
-
-                } else {
-                    columnHeights.append(legendViewSize.height)
-                    lastColumnIndex += 1
-                }
-            }
-
-            let widthComponents = [
-                snapshotView.bounds.width,
-                Metrics.legendInsets.left,
-                CGFloat(columnHeights.count) * LegendView.Metrics.minimumWidth,
-                CGFloat(columnHeights.count - 1) * Metrics.legendHorizontalSpacing,
-                Metrics.legendInsets.right,
-            ]
-
-            let maxLegendViewHeight = legendViewSizes.reduce(0, { max($0, $1.height) })
-            let height = max(
-                snapshotView.bounds.height,
-                maxLegendViewHeight + Metrics.legendInsets.top + Metrics.legendInsets.bottom
-            )
-
-            return CGSize(
-                width: widthComponents.reduce(0, +),
-                height: height
-            )
-        }
-    }
-
-    // MARK: - Private Methods
-
-    private func legendLocation(viewSize: CGSize) -> LegendLocation {
-        let aspectRatio = viewSize.width / viewSize.height
-
-        if aspectRatio > 1 || viewSize.width < Metrics.minimumWidth {
-            // Wide views should display the legend underneath the snapshotted view. Small views are an exception, as
-            // all views smaller than the minimum width should display the legend underneath.
-            let contentWidth = max(viewSize.width, Metrics.minimumWidth)
-            let availableWidth = contentWidth - Metrics.legendInsets.left - Metrics.legendInsets.right
-            return .bottom(width: availableWidth)
-
-        } else {
-            // Tall views that meet the minimum height requirement should display the legend to the right of the
-            // snapshotted view.
-            return .right(height: viewSize.height - Metrics.legendInsets.top - Metrics.legendInsets.bottom)
-        }
-    }
-
     // MARK: - Public Static Properties
 
     public static let defaultMarkerColors: [UIColor] = [ .cyan, .magenta, .green, .blue, .yellow, .purple, .orange ]
@@ -399,28 +229,6 @@ public final class AccessibilitySnapshotView: UIView {
         var overlayView: UIView
 
         var activationPointView: UIView?
-
-    }
-
-    private enum LegendLocation {
-
-        case bottom(width: CGFloat)
-
-        case right(height: CGFloat)
-
-    }
-
-    private enum Metrics {
-
-        static var minimumWidth: CGFloat {
-            return LegendView.Metrics.minimumWidth + legendInsets.left + legendInsets.right
-        }
-
-        static let legendInsets: UIEdgeInsets = .init(top: 16, left: 16, bottom: 16, right: 16)
-
-        static let legendHorizontalSpacing: CGFloat = 16
-
-        static let legendVerticalSpacing: CGFloat = 16
 
     }
 
@@ -801,22 +609,6 @@ private extension Bundle {
         return Bundle(url: resources)!
         #endif
     }()
-
-}
-
-// MARK: -
-
-private extension CGFloat {
-
-    func floorToPixel(in source: UIWindow?) -> CGFloat {
-        let scale = source?.screen.scale ?? 1
-        return floor(self * scale) / scale
-    }
-
-    func ceilToPixel(in source: UIWindow?) -> CGFloat {
-        let scale = source?.screen.scale ?? 1
-        return ceil(self * scale) / scale
-    }
 
 }
 

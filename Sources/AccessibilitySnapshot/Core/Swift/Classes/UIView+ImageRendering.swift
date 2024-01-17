@@ -17,6 +17,29 @@
 import CoreImage
 import UIKit
 
+public enum ImageRenderingError: Swift.Error {
+
+    /// An error indicating that the `containedView` is too large too snapshot using the specified rendering
+    /// parameters.
+    ///
+    /// - Note: This error is thrown due to filters failing. To avoid this error, try rendering the snapshot in
+    /// polychrome, reducing the size of the `containedView`, or running on a different iOS version. In particular,
+    /// this error is known to occur when rendering a monochrome snapshot on iOS 13.
+    case containedViewExceedsMaximumSize(viewSize: CGSize, maximumSize: CGSize)
+
+    /// An error indicating that the `containedView` has a transform that is not support while using the specified
+    /// rendering parameters.
+    ///
+    /// - Note: In particular, this error is known to occur when using a non-identity transform that requires
+    /// tiling. To avoid this error, try setting an identity transform on the `containedView` or using the
+    /// `.renderLayerInContext` view rendering mode
+    case containedViewHasUnsupportedTransform(transform: CATransform3D)
+
+    /// An error indicating the `containedView` has an invalid size due to the `width` and/or `height` being zero.
+    case containedViewHasZeroSize(viewSize: CGSize)
+
+}
+
 extension UIView {
 
     func renderToImage(
@@ -60,7 +83,7 @@ extension UIView {
             // result in a blank image.
             let maximumSize = CGSize(width: 1365, height: 1365)
             if snapshot.size.width > maximumSize.width || snapshot.size.height > maximumSize.height {
-                throw AccessibilitySnapshotView.Error.containedViewExceedsMaximumSize(
+                throw ImageRenderingError.containedViewExceedsMaximumSize(
                     viewSize: snapshot.size,
                     maximumSize: maximumSize
                 )
@@ -93,7 +116,7 @@ extension UIView {
 
     private func drawTiledHierarchySnapshots(in context: UIGraphicsImageRendererContext, error: inout Error?) {
         guard CATransform3DIsIdentity(layer.transform) else {
-            error = AccessibilitySnapshotView.Error.containedViewHasUnsupportedTransform(transform: layer.transform)
+            error = ImageRenderingError.containedViewHasUnsupportedTransform(transform: layer.transform)
             return
         }
 
