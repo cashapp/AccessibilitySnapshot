@@ -17,6 +17,9 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2.2'
       - name: Bundle Install
         run: bundle install --gemfile=Example/Gemfile
       - name: Prepare Simulator Runtimes
@@ -41,6 +44,9 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2.2'
       - name: Bundle Install
         run: bundle install --gemfile=Example/Gemfile
       - name: Select Xcode Version (12.5.1)
@@ -64,6 +70,9 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2.2'
       - name: Bundle Install
         run: bundle install --gemfile=Example/Gemfile
       - name: Pod Install
