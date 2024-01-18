@@ -33,6 +33,14 @@ final class InvertColorsViewController: AccessibilityViewController {
         view = View()
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        // This additional call to updateStatusLabel() is needed because
+        // of a view life cycle issue with the snapshot test framework
+        updateStatusLabel()
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
