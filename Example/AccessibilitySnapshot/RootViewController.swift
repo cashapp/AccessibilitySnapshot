@@ -14,6 +14,7 @@
 //  limitations under the License.
 //
 
+import SwiftUI
 import UIKit
 
 final class RootViewController: UITableViewController {
@@ -61,6 +62,8 @@ final class RootViewController: UITableViewController {
             ("Landmark Container", { _ in return LandmarkContainerViewController() }),
             ("Invert Colors", { _ in return InvertColorsViewController() }),
             ("User Input Labels", { _ in return UserInputLabelsViewController() }),
+            ("Text Entry", { _ in return TextInputsViewController() }),
+            ("SwiftUI Text Entry", { _ in return UIHostingController(rootView: SwiftUITextEntry()) }),
         ]
 
         super.init(nibName: nil, bundle: nil)

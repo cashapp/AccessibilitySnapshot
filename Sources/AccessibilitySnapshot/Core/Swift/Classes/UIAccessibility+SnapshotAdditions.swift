@@ -134,16 +134,12 @@ extension NSObject {
 
         if accessibilityTraits.contains(.textEntry) {
             if accessibilityTraits.contains(.scrollable) {
-                // This is being a UITextView/TextEditor
-                if let accessibilityValue = accessibilityValue, !accessibilityValue.isEmpty {
-                    // No-op. iOS does not read the trait name when there's text.
-                } else {
-                    traitSpecifiers.append(strings.textEntryTraitName)
-                }
+                // This is a UITextView/TextEditor
             } else {
                 // This is a UITextField/TextField
-                traitSpecifiers.append(strings.textEntryTraitName)
             }
+
+            traitSpecifiers.append(strings.textEntryTraitName)
         }
 
         if accessibilityTraits.contains(.header) {
@@ -246,11 +242,7 @@ extension NSObject {
         if accessibilityTraits.contains(.textEntry) && !accessibilityTraits.contains(.notEnabled) {
             if accessibilityTraits.contains(.scrollable) {
                 // This is a UITextView/TextEditor
-                if let accessibilityValue = accessibilityValue, !accessibilityValue.isEmpty {
-                    // No-op. iOS does not read the hint when there's text.
-                } else {
-                    hintDescription = strings.textEntryTraitHint
-                }
+                hintDescription = strings.scrollableTextEntryTraitHint
             } else {
                 // This is a UITextField/TextField
                 hintDescription = strings.textEntryTraitHint
@@ -369,6 +361,8 @@ extension NSObject {
         let textEntryTraitName: String
 
         let textEntryTraitHint: String
+
+        let scrollableTextEntryTraitHint: String
 
         // MARK: - Life Cycle
 
@@ -519,6 +513,11 @@ extension NSObject {
             self.textEntryTraitHint = "Double tap to edit.".localized(
                 key: "trait.text_field.hint",
                 comment: "Hint describing how to use elements with the 'text entry' accessibility trait",
+                locale: locale
+            )
+            self.scrollableTextEntryTraitHint = "Double tap to edit., Use the rotor to access Misspelled Words".localized(
+                key: "trait.scrollable_text_field.hint",
+                comment: "Hint describing how to use elements with the 'text entry' and 'scrollable' accessibility traits",
                 locale: locale
             )
         }
