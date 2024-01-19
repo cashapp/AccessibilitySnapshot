@@ -16,7 +16,7 @@
 
 import Foundation
 
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE || BAZEL_PACKAGE
 import AccessibilitySnapshotCore
 #endif
 

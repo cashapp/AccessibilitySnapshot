@@ -1,0 +1,101 @@
+load(
+    "@build_bazel_rules_apple//apple:ios.bzl",
+    "ios_framework",
+)
+load(
+    "@build_bazel_rules_swift//swift:swift.bzl",
+    "swift_library",
+)
+
+objc_library(
+    name = "AccessibilitySnapshotCoreObjC.lib",
+    srcs = glob(
+        ["Sources/AccessibilitySnapshot/Core/ObjC/**/*.m"],
+        allow_empty = False,
+    ),
+    hdrs = glob(
+        ["Sources/AccessibilitySnapshot/Core/ObjC/include/**/*.h"],
+        allow_empty = False,
+    ),
+    defines = ["BAZEL_PACKAGE"],
+    module_name = "AccessibilitySnapshotCore_ObjC",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [],
+)
+
+swift_library(
+    name = "AccessibilitySnapshotCoreSwift.lib",
+    srcs = glob(
+        ["Sources/AccessibilitySnapshot/Core/Swift/**/*.swift"],
+        allow_empty = False,
+    ),
+    defines = ["BAZEL_PACKAGE"],
+    module_name = "AccessibilitySnapshotCore",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [":AccessibilitySnapshotCoreObjC.lib"],
+)
+
+swift_library(
+    name = "AccessibilitySnapshot_iOSSnapshotTestCase_Swift.lib",
+    testonly = True,
+    srcs = glob(["Sources/AccessibilitySnapshot/iOSSnapshotTestCase/Swift/**/*.swift"]),
+    defines = ["BAZEL_PACKAGE"],
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":AccessibilitySnapshotCoreObjC.lib",
+        ":AccessibilitySnapshotCoreSwift.lib",
+        "@ios_snapshot_test_case//:iOSSnapshotTestCase",
+    ],
+)
+
+objc_library(
+    name = "AccessibilitySnapshot_iOSSnapshotTestCase_ObjC.lib",
+    testonly = True,
+    srcs = glob(
+        ["Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC/**/*.m"],
+        allow_empty = False,
+    ),
+    hdrs = glob(
+        ["Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC/include/**/*.h"],
+        allow_empty = False,
+    ),
+    defines = ["BAZEL_PACKAGE"],
+    module_name = "AccessibilitySnapshot",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [":AccessibilitySnapshot_iOSSnapshotTestCase_Swift.lib"],
+)
+
+ios_framework(
+    name = "AccessibilitySnapshotCore",
+    bundle_id = "com.squareup.AccessibilitySnapshotCore",
+    families = [
+        "iphone",
+        "ipad",
+    ],
+    infoplists = ["Sources/Info.plist"],
+    minimum_os_version = "13.0",
+    resources = glob(
+        ["Sources/AccessibilitySnapshot/Core/Swift/Assets/**/*"],
+        allow_empty = False,
+    ),
+    visibility = ["//visibility:public"],
+    deps = [":AccessibilitySnapshotCoreSwift.lib"],
+)
+
+ios_framework(
+    name = "AccessibilitySnapshot_iOSSnapshotTestCase",
+    testonly = True,
+    bundle_id = "com.squareup.AccessibilitySnapshot",
+    families = [
+        "iphone",
+        "ipad",
+    ],
+    infoplists = ["Sources/Info.plist"],
+    minimum_os_version = "13.0",
+    visibility = ["//visibility:public"],
+    deps = [":AccessibilitySnapshot_iOSSnapshotTestCase_ObjC.lib"],
+)

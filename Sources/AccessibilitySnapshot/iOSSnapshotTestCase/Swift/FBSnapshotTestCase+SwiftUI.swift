@@ -16,7 +16,7 @@
 
 import SwiftUI
 
-#if SWIFT_PACKAGE
+#if SWIFT_PACKAGE || BAZEL_PACKAGE
 import AccessibilitySnapshotCore
 import iOSSnapshotTestCase
 #else
