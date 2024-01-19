@@ -101,6 +101,7 @@ final class ButtonAccessibilityTraitsViewController: AccessibilityViewController
             button.setTitle(numberFormatter.string(from: NSNumber(value: (index + 1))), for: .normal)
             button.setTitleColor(.black, for: .normal)
             button.isAccessibilityElement = true
+            button.accessibilityIdentifier = "button-\(index + 1)"
         }
 
         view.accessibilityElements = buttons

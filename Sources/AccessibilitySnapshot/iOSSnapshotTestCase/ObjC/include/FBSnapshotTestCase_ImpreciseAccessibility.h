@@ -1,5 +1,5 @@
 //
-//  Copyright 2023 Block Inc.
+//  Copyright 2024 Block Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -70,7 +70,7 @@
         _Pragma("clang diagnostic pop")\
         typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, BOOL, CGFloat, CGFloat, CGFloat, CGFloat);\
         SnapshotMethod snapshotVerifyWithHitTargets = (SnapshotMethod)[self methodForSelector:selector];\
-        NSString *errorDescription = snapshotVerifyWithInvertedColors(self, selector, view__, identifier__ ?: @"", useMonochromeSnapshot__, maxPermissibleMissedRegionWidth__, maxPermissibleMissedRegionHeight__, perPixelTolerance__, overallTolerance__);\
+        NSString *errorDescription = snapshotVerifyWithHitTargets(self, selector, view__, identifier__ ?: @"", useMonochromeSnapshot__, maxPermissibleMissedRegionWidth__, maxPermissibleMissedRegionHeight__, perPixelTolerance__, overallTolerance__);\
         if (errorDescription == nil) {\
             XCTAssertTrue(YES);\
         } else {\

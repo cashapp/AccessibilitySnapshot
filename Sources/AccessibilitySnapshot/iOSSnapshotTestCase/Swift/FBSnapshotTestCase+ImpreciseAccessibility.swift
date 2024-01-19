@@ -1,5 +1,5 @@
 //
-//  Copyright 2023 Block Inc.
+//  Copyright 2024 Block Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -235,42 +235,30 @@ extension FBSnapshotTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        // Some implementations of hit testing rely on the window, so install the view in a window if needed.
-        let requiresWindow = (view.window == nil && !(view is UIWindow))
-        if requiresWindow {
-            let window = UIApplication.shared.firstKeyWindow ?? UIWindow(frame: UIScreen.main.bounds)
-            window.addSubview(view)
-        }
-
-        view.layoutIfNeeded()
-
-        let image: UIImage
         do {
-            image = try HitTargetSnapshotUtility.generateSnapshotImage(
-                for: view,
-                useMonochromeSnapshot: useMonochromeSnapshot,
+            let containerView = try HitTargetSnapshotView(
+                baseView: view,
+                useMonochromeSnapshot: true,
                 viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
                 colors: colors,
                 maxPermissibleMissedRegionWidth: maxPermissibleMissedRegionWidth,
                 maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight
             )
+
+            containerView.sizeToFit()
+
+            FBSnapshotVerifyView(
+                containerView,
+                identifier: identifier,
+                suffixes: suffixes,
+                perPixelTolerance: perPixelTolerance,
+                overallTolerance: overallTolerance,
+                file: file,
+                line: line
+            )
+
         } catch {
-           XCTFail(ErrorMessageFactory.errorMessageForAccessibilityParsingError(error), file: file, line: line)
-           return
-       }
-
-        FBSnapshotVerifyView(
-            UIImageView(image: image),
-            identifier: identifier,
-            suffixes: suffixes,
-            perPixelTolerance: perPixelTolerance,
-            overallTolerance: overallTolerance,
-            file: file,
-            line: line
-        )
-
-        if requiresWindow {
-            view.removeFromSuperview()
+            XCTFail(ErrorMessageFactory.errorMessageForAccessibilityParsingError(error), file: file, line: line)
         }
     }
 

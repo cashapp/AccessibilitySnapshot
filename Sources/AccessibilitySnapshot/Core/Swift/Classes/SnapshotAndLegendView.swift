@@ -77,7 +77,7 @@ public class SnapshotAndLegendView: UIView {
                 y: Metrics.legendInsets.top
             )
 
-            let maxYBoundary = bounds.minY + availableLegendHeight
+            let maxYBoundary = bounds.minY + Metrics.legendInsets.top + availableLegendHeight
 
             for legendView in legendViews {
                 legendView.bounds.size = legendView.sizeThatFits(
