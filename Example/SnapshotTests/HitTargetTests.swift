@@ -25,7 +25,11 @@ final class HitTargetTests: SnapshotTestCase {
     func testButtonHitTarget() {
         let buttonTraitsViewController = ButtonAccessibilityTraitsViewController()
         buttonTraitsViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyWithHitTargets(buttonTraitsViewController.view)
+        SnapshotVerifyWithHitTargets(
+            buttonTraitsViewController.view,
+            maxPermissibleMissedRegionWidth: 1,
+            maxPermissibleMissedRegionHeight: 1
+        )
     }
 
     @available(iOS 14, *)
@@ -37,7 +41,11 @@ final class HitTargetTests: SnapshotTestCase {
 
         let viewController = TableViewController()
         viewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyWithHitTargets(viewController.view)
+        SnapshotVerifyWithHitTargets(
+            viewController.view,
+            maxPermissibleMissedRegionWidth: 1,
+            maxPermissibleMissedRegionHeight: 1
+        )
     }
 
     func testPerformance() throws {

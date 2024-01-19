@@ -140,4 +140,16 @@
     SnapshotVerifyWithInvertedColors(view, nil);
 }
 
+- (void)testHitTargets;
+{
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 200, 100)];
+    [view setBackgroundColor:[UIColor whiteColor]];
+
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(50, 25, 100, 50)];
+    [button setBackgroundColor:[UIColor redColor]];
+    [view addSubview:button];
+
+    SnapshotVerifyWithHitTargets(view, nil, YES, 1, 1);
+}
+
 @end

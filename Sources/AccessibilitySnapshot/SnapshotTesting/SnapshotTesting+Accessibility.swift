@@ -1,5 +1,5 @@
 //
-//  Copyright 2020 Square Inc.
+//  Copyright 2024 Block Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -181,54 +181,41 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         file: StaticString = #file,
         line: UInt = #line
     ) -> Snapshotting {
-        return Snapshotting<UIImage, UIImage>.image.pullback { view in
-            // Some implementations of hit testing rely on the window, so install the view in a window if needed.
-            let requiresWindow = (view.window == nil && !(view is UIWindow))
-            if requiresWindow {
-                let window = UIApplication.shared.firstKeyWindow ?? UIWindow(frame: UIScreen.main.bounds)
-                window.addSubview(view)
-            }
-
-            view.layoutIfNeeded()
-
-            do {
-                let image = try HitTargetSnapshotUtility.generateSnapshotImage(
-                    for: view,
-                    useMonochromeSnapshot: useMonochromeSnapshot,
-                    viewRenderingMode: (drawHierarchyInKeyWindow ? .drawHierarchyInRect : .renderLayerInContext),
-                    colors: colors,
-                    maxPermissibleMissedRegionWidth: maxPermissibleMissedRegionWidth,
-                    maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight
-                )
-
-                if requiresWindow {
-                    view.removeFromSuperview()
+        return Snapshotting<UIView, UIImage>
+            .image(drawHierarchyInKeyWindow: drawHierarchyInKeyWindow)
+            .pullback { view in
+                do {
+                    return try HitTargetSnapshotView(
+                        baseView: view,
+                        useMonochromeSnapshot: useMonochromeSnapshot,
+                        viewRenderingMode: drawHierarchyInKeyWindow ? .drawHierarchyInRect : .renderLayerInContext,
+                        colors: colors,
+                        maxPermissibleMissedRegionWidth: maxPermissibleMissedRegionWidth,
+                        maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight
+                    )
+                } catch ImageRenderingError.containedViewExceedsMaximumSize {
+                    fatalError(
+                        """
+                        View is too large to render monochrome snapshot. Try setting useMonochromeSnapshot to false or \
+                        use a different iOS version. In particular, this is known to fail on iOS 13, but was fixed in \
+                        iOS 14.
+                        """,
+                        file: file,
+                        line: line
+                    )
+                } catch ImageRenderingError.containedViewHasUnsupportedTransform {
+                    fatalError(
+                        """
+                        View has an unsupported transform for the specified snapshot parameters. Try using an identity \
+                        transform or changing the view rendering mode to render the layer in the graphics context.
+                        """,
+                        file: file,
+                        line: line
+                    )
+                } catch {
+                    fatalError("Failed to render snapshot image", file: file, line: line)
                 }
-
-                return image
-            } catch ImageRenderingError.containedViewExceedsMaximumSize {
-                fatalError(
-                    """
-                    View is too large to render monochrome snapshot. Try setting useMonochromeSnapshot to false or \
-                    use a different iOS version. In particular, this is known to fail on iOS 13, but was fixed in \
-                    iOS 14.
-                    """,
-                    file: file,
-                    line: line
-                )
-            } catch ImageRenderingError.containedViewHasUnsupportedTransform {
-                fatalError(
-                    """
-                    View has an unsupported transform for the specified snapshot parameters. Try using an identity \
-                    transform or changing the view rendering mode to render the layer in the graphics context.
-                    """,
-                    file: file,
-                    line: line
-                )
-            } catch {
-                fatalError("Failed to render snapshot image", file: file, line: line)
             }
-        }
     }
 
     // MARK: - Internal Properties
