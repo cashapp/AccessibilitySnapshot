@@ -49,7 +49,8 @@ final class HitTargetTests: SnapshotTestCase {
                 _ = try HitTargetSnapshotUtility.generateSnapshotImage(
                     for: buttonTraitsViewController.view,
                     useMonochromeSnapshot: true,
-                    viewRenderingMode: .drawHierarchyInRect
+                    viewRenderingMode: .drawHierarchyInRect,
+                    maxPermissibleMissedRegionHeight: 4
                 )
             } catch {
                 XCTFail("Utility should not fail to generate snapshot image")

@@ -156,6 +156,15 @@ extension FBSnapshotTestCase {
     /// * Regions that hit test to `nil` will be darkened.
     /// * Regions that hit test to another view will be highlighted using one of the specified `colors`.
     ///
+    /// By default this snapshot is very slow (on the order of 50 seconds for a full screen snapshot) since it hit tests
+    /// every pixel in the view to achieve a perfectly accurate result. As a performance optimization, you can trade off
+    /// greatly increased performance for the possibility of missing very thin views by defining the maximum height of
+    /// a missed region you are okay with missing (`maxPermissibleMissedRegionHeight`). In particular, this might miss
+    /// views of the specified height or less which have the same hit target both above and below the view. Setting this
+    /// value to 1 pt improves the run time by almost (1 / scale factor), i.e. a 65% improvement for a 3x scale device,
+    /// so this trade-off is often worth it. Increasing the value from there will continue to decrease the run time, but
+    /// you quickly get diminishing returns.
+    ///
     /// - parameter view: The view to be snapshotted.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple\
     /// snapshot tests in a given test method. Defaults to no identifier.
@@ -164,6 +173,8 @@ extension FBSnapshotTestCase {
     /// read certain views.
     /// - parameter colors: An array of colors to use for the highlighted regions. These colors will be used in order,
     /// repeating through the array as necessary and avoiding adjacent regions using the same color when possible.
+    /// - parameter maxPermissibleMissedRegionHeight: The maximum height for which it is permissible to "miss" a view.
+    /// Value must be a positive integer.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
@@ -173,6 +184,7 @@ extension FBSnapshotTestCase {
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
         colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        maxPermissibleMissedRegionHeight: CGFloat = 0,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -182,6 +194,7 @@ extension FBSnapshotTestCase {
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
             colors: colors,
+            maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight,
             suffixes: suffixes,
             perPixelTolerance: 0,
             overallTolerance: 0,

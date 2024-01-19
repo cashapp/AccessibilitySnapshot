@@ -161,11 +161,12 @@ extension FBSnapshotTestCase {
         return errorDescription
     }
 
-    @objc(snapshotVerifyWithHitTargets:identifier:useMonochromeSnapshot:perPixelTolerance:overallTolerance:)
+    @objc(snapshotVerifyWithHitTargets:identifier:useMonochromeSnapshot:maxPermissibleMissedRegionHeight:perPixelTolerance:overallTolerance:)
     private func snapshotVerifyWithHitTargets(
         _ view: UIView,
         identifier: String,
         useMonochromeSnapshot: Bool,
+        maxPermissibleMissedRegionHeight: CGFloat,
         perPixelTolerance: CGFloat,
         overallTolerance: CGFloat
     ) -> String? {
@@ -183,7 +184,8 @@ extension FBSnapshotTestCase {
             image = try HitTargetSnapshotUtility.generateSnapshotImage(
                 for: view,
                 useMonochromeSnapshot: useMonochromeSnapshot,
-                viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext)
+                viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
+                maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight
             )
         } catch {
             return ErrorMessageFactory.errorMessageForAccessibilityParsingError(error)
