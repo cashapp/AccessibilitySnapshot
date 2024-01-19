@@ -1,5 +1,5 @@
 //
-//  Copyright 2019 Square Inc.
+//  Copyright 2023 Block Inc.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -153,6 +153,51 @@ extension FBSnapshotTestCase {
 
         statusUtility.unmockStatuses()
         postNotification()
+
+        if requiresWindow {
+            view.removeFromSuperview()
+        }
+
+        return errorDescription
+    }
+
+    @objc(snapshotVerifyWithHitTargets:identifier:useMonochromeSnapshot:perPixelTolerance:overallTolerance:)
+    private func snapshotVerifyWithHitTargets(
+        _ view: UIView,
+        identifier: String,
+        useMonochromeSnapshot: Bool,
+        perPixelTolerance: CGFloat,
+        overallTolerance: CGFloat
+    ) -> String? {
+        // Some implementations of hit testing rely on the window, so install the view in a window if needed.
+        let requiresWindow = (view.window == nil && !(view is UIWindow))
+        if requiresWindow {
+            let window = UIApplication.shared.firstKeyWindow ?? UIWindow(frame: UIScreen.main.bounds)
+            window.addSubview(view)
+        }
+
+        view.layoutIfNeeded()
+
+        let image: UIImage
+        do {
+            image = try HitTargetSnapshotUtility.generateSnapshotImage(
+                for: view,
+                useMonochromeSnapshot: useMonochromeSnapshot,
+                viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext)
+            )
+        } catch {
+            return ErrorMessageFactory.errorMessageForAccessibilityParsingError(error)
+       }
+
+        let errorDescription = snapshotVerifyViewOrLayer(
+            UIImageView(image: image),
+            identifier: identifier,
+            suffixes: FBSnapshotTestCaseDefaultSuffixes(),
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
+            defaultReferenceDirectory: FB_REFERENCE_IMAGE_DIR,
+            defaultImageDiffDirectory: IMAGE_DIFF_DIR
+        )
 
         if requiresWindow {
             view.removeFromSuperview()
