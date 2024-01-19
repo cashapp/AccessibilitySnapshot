@@ -161,11 +161,12 @@ extension FBSnapshotTestCase {
         return errorDescription
     }
 
-    @objc(snapshotVerifyWithHitTargets:identifier:useMonochromeSnapshot:maxPermissibleMissedRegionHeight:perPixelTolerance:overallTolerance:)
+    @objc(snapshotVerifyWithHitTargets:identifier:useMonochromeSnapshot:maxPermissibleMissedRegionWidth:maxPermissibleMissedRegionHeight:perPixelTolerance:overallTolerance:)
     private func snapshotVerifyWithHitTargets(
         _ view: UIView,
         identifier: String,
         useMonochromeSnapshot: Bool,
+        maxPermissibleMissedRegionWidth: CGFloat,
         maxPermissibleMissedRegionHeight: CGFloat,
         perPixelTolerance: CGFloat,
         overallTolerance: CGFloat
@@ -185,6 +186,7 @@ extension FBSnapshotTestCase {
                 for: view,
                 useMonochromeSnapshot: useMonochromeSnapshot,
                 viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
+                maxPermissibleMissedRegionWidth: maxPermissibleMissedRegionWidth,
                 maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight
             )
         } catch {

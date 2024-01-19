@@ -62,15 +62,15 @@
         }\
     }
 
-#define SnapshotVerifyWithHitTargets(view__, identifier__, useMonochromeSnapshot__, maxPermissibleMissedRegionHeight__)\
+#define SnapshotVerifyWithHitTargets(view__, identifier__, useMonochromeSnapshot__, maxPermissibleMissedRegionWidth__, maxPermissibleMissedRegionHeight__)\
     {\
         _Pragma("clang diagnostic push")\
         _Pragma("clang diagnostic ignored \"-Wundeclared-selector\"")\
-        SEL selector = @selector(snapshotVerifyWithHitTargets:identifier:useMonochromeSnapshot:maxPermissibleMissedRegionHeight:perPixelTolerance:overallTolerance:);\
+        SEL selector = @selector(snapshotVerifyWithHitTargets:identifier:useMonochromeSnapshot:maxPermissibleMissedRegionWidth:maxPermissibleMissedRegionHeight:perPixelTolerance:overallTolerance:);\
         _Pragma("clang diagnostic pop")\
-        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, BOOL, CGFloat, CGFloat, CGFloat);\
+        typedef NSString * (*SnapshotMethod)(id, SEL, UIView *, NSString *, BOOL, CGFloat, CGFloat, CGFloat, CGFloat);\
         SnapshotMethod snapshotVerifyWithHitTargets = (SnapshotMethod)[self methodForSelector:selector];\
-        NSString *errorDescription = snapshotVerifyWithInvertedColors(self, selector, view__, identifier__ ?: @"", useMonochromeSnapshot__, maxPermissibleMissedRegionHeight__, 0, 0);\
+        NSString *errorDescription = snapshotVerifyWithInvertedColors(self, selector, view__, identifier__ ?: @"", useMonochromeSnapshot__, maxPermissibleMissedRegionWidth__, maxPermissibleMissedRegionHeight__, 0, 0);\
         if (errorDescription == nil) {\
             XCTAssertTrue(YES);\
         } else {\
