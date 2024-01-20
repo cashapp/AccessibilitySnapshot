@@ -1,0 +1,73 @@
+load(
+    "@build_bazel_rules_apple//apple:ios.bzl",
+    "ios_framework",
+)
+load(
+    "@build_bazel_rules_swift//swift:swift.bzl",
+    "swift_library",
+)
+
+# -- AccessibilitySnapshotCore
+
+swift_library(
+    name = "AccessibilitySnapshotCore.lib",
+    srcs = glob(
+        ["Swift/**/*.swift"],
+        allow_empty = False,
+    ),
+    data = glob(
+        ["Swift/Assets/**/*"],
+        allow_empty = True,
+    ),
+    defines = ["BAZEL_PACKAGE"],
+    module_name = "AccessibilitySnapshotCore",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [":AccessibilitySnapshotCore_ObjC.lib"],
+)
+
+ios_framework(
+    name = "AccessibilitySnapshotCore",
+    bundle_id = "com.squareup.AccessibilitySnapshotCore",
+    families = [
+        "iphone",
+        "ipad",
+    ],
+    infoplists = ["Info.plist"],
+    minimum_os_version = "13.0",
+    visibility = ["//visibility:public"],
+    deps = [":AccessibilitySnapshotCore.lib"],
+)
+
+# -- AccessibilitySnapshotCore_ObjC
+
+objc_library(
+    name = "AccessibilitySnapshotCore_ObjC.lib",
+    srcs = glob(
+        ["ObjC/**/*.m"],
+        allow_empty = False,
+    ),
+    hdrs = glob(
+        ["ObjC/include/**/*.h"],
+        allow_empty = False,
+    ),
+    defines = ["BAZEL_PACKAGE"],
+    includes = ["ObjC/include"],
+    module_name = "AccessibilitySnapshotCore_ObjC",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [],
+)
+
+ios_framework(
+    name = "AccessibilitySnapshotCore_ObjC",
+    bundle_id = "com.squareup.AccessibilitySnapshotCore_ObjC",
+    families = [
+        "iphone",
+        "ipad",
+    ],
+    infoplists = ["Info.plist"],
+    minimum_os_version = "13.0",
+    visibility = ["//visibility:public"],
+    deps = [":AccessibilitySnapshotCore_ObjC.lib"],
+)

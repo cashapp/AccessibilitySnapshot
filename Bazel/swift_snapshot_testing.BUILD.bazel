@@ -1,0 +1,14 @@
+"""
+Defines build targets for pointfreeco/swift-snapshot-testing.
+"""
+
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
+
+swift_library(
+    name = "SnapshotTesting",
+    srcs = glob(["Sources/SnapshotTesting/**/*.swift"]),
+    deps = [],
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    testonly = True,
+)
