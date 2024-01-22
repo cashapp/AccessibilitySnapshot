@@ -155,7 +155,7 @@ final class SnapshotTestingTests: XCTestCase {
         )
     }
 
-    func testTextEntry() {
+    func testSwiftUITextEntry() {
         let view = SwiftUITextEntry()
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
 
