@@ -7,7 +7,7 @@
 // 2. Download the Test Results bundle from the CI build. From your PR, go to
 //    Checks > CI, then click on "Test Results" in the Artifacts section.
 //
-// 1. Run this script with the path to this download.
+// 3. Run this script with the path to this download.
 //
 //		./Scripts/ExtractImagesFromTestResults.swift /path/to/Test\ Results
 //
