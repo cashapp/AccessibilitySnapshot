@@ -49,9 +49,6 @@ jobs:
           ruby-version: '3.2.2'
       - name: Bundle Install
         run: bundle install --gemfile=Example/Gemfile
-      - name: Select Xcode Version (12.5.1)
-        run: sudo xcode-select --switch /Applications/Xcode_12.5.1.app/Contents/Developer
-        if: matrix.platform == 'iOS_14'
       - name: Prepare Simulator Runtimes
         run: Scripts/github/prepare-simulators.sh ${{ matrix.platform }}
       - name: Pod Install
@@ -89,8 +86,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
-      - name: Select Xcode Version (12.5.1)
-        run: sudo xcode-select --switch /Applications/Xcode_12.5.1.app/Contents/Developer
+      - name: Prepare Simulator Runtimes
+        run: Scripts/github/prepare-simulators.sh ${{ matrix.platform }}
       - name: Build
         run: Scripts/build.swift spm ${{ matrix.platform }}
   carthage:
