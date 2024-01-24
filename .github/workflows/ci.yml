@@ -12,7 +12,7 @@ jobs:
     runs-on: macOS-13
     strategy:
       matrix:
-        platform: ['iOS_16']
+        platform: ['iOS_17', 'iOS_16']
       fail-fast: false
     steps:
       - name: Checkout Repo

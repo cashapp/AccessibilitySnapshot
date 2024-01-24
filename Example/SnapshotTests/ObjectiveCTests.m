@@ -31,6 +31,7 @@
     [super setUp];
 
     self.fileNameOptions = FBSnapshotTestCaseFileNameIncludeOptionOS | FBSnapshotTestCaseFileNameIncludeOptionScreenSize | FBSnapshotTestCaseFileNameIncludeOptionScreenScale;
+    self.recordMode = NO;
 }
 
 - (void)testSimpleView;

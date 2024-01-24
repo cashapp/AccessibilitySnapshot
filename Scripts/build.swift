@@ -46,12 +46,15 @@ enum TaskError: Error {
 }
 
 enum Platform: String, CustomStringConvertible {
+	case iOS_17
 	case iOS_16
 	case iOS_14
 	case iOS_13
 
 	var destination: String {
 		switch self {
+		case .iOS_17:
+			return "platform=iOS Simulator,OS=17.2,name=iPhone 14 Pro"
 		case .iOS_16:
 			return "platform=iOS Simulator,OS=16.4,name=iPhone 14 Pro"
 		case .iOS_14:
