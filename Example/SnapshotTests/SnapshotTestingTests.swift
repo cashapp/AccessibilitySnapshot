@@ -144,14 +144,27 @@ final class SnapshotTestingTests: XCTestCase {
         assertSnapshot(matching: viewController, as: .imageWithHitTargets(), named: nameForDevice())
     }
 
-    func testUIKitTextEntry() {
-        let viewController = TextInputsViewController()
+    func testUIKitTextField() {
+        let viewController = TextFieldViewController()
         viewController.view.frame = UIScreen.main.bounds
 
         assertSnapshot(
             matching: viewController,
             as: .accessibilityImage,
-            named: nameForDevice()
+            named: nameForDevice(),
+            record: true
+        )
+    }
+
+    func testUIKitTextView() {
+        let viewController = TextViewViewController()
+        viewController.view.frame = UIScreen.main.bounds
+
+        assertSnapshot(
+            matching: viewController,
+            as: .accessibilityImage,
+            named: nameForDevice(),
+            record: true
         )
     }
 

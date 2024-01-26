@@ -62,7 +62,8 @@ final class RootViewController: UITableViewController {
             ("Landmark Container", { _ in return LandmarkContainerViewController() }),
             ("Invert Colors", { _ in return InvertColorsViewController() }),
             ("User Input Labels", { _ in return UserInputLabelsViewController() }),
-            ("Text Entry", { _ in return TextInputsViewController() }),
+            ("Text Field", { _ in return TextFieldViewController() }),
+            ("Text View", { _ in return TextViewViewController() }),
             ("SwiftUI Text Entry", { _ in return UIHostingController(rootView: SwiftUITextEntry()) }),
         ]
 
