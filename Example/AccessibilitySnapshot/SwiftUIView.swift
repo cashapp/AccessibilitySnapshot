@@ -14,8 +14,6 @@
 //  limitations under the License.
 //
 
-#if swift(>=5.1) && canImport(SwiftUI)
-
 import SwiftUI
 
 fileprivate struct Circle: View {
@@ -89,5 +87,3 @@ struct SwiftUIView_Previews: PreviewProvider {
             .previewLayout(.sizeThatFits)
     }
 }
-
-#endif
