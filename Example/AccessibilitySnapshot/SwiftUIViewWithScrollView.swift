@@ -14,8 +14,6 @@
 //  limitations under the License.
 //
 
-#if swift(>=5.1) && canImport(SwiftUI)
-
 import SwiftUI
 
 /// A SwiftUI View inside a ScrollView will produce no accessibility elements for iOS 14.0 and 14.1, for more
@@ -34,5 +32,3 @@ struct SwiftUIViewWithScrollView_Previews: PreviewProvider {
             .previewLayout(.sizeThatFits)
     }
 }
-
-#endif
