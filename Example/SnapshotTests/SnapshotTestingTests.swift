@@ -151,8 +151,7 @@ final class SnapshotTestingTests: XCTestCase {
         assertSnapshot(
             matching: viewController,
             as: .accessibilityImage,
-            named: nameForDevice(),
-            record: true
+            named: nameForDevice()
         )
     }
 
@@ -163,8 +162,7 @@ final class SnapshotTestingTests: XCTestCase {
         assertSnapshot(
             matching: viewController,
             as: .accessibilityImage,
-            named: nameForDevice(),
-            record: true
+            named: nameForDevice()
         )
     }
 
