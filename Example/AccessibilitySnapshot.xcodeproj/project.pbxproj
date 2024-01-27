@@ -89,6 +89,8 @@
 		3D13DB502221124000066519 /* SnapshotTests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "SnapshotTests-Bridging-Header.h"; path = "Supporting Files/SnapshotTests-Bridging-Header.h"; sourceTree = "<group>"; };
 		3D13DB512221124000066519 /* ObjectiveCTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ObjectiveCTests.m; sourceTree = "<group>"; };
 		3D220A2A252AF72900359C1E /* AccessibleContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibleContainerView.swift; sourceTree = "<group>"; };
+		3D2881822B6487E900F2A1EA /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
+		3D2881832B6488B600F2A1EA /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/LaunchScreen.strings; sourceTree = "<group>"; };
 		3D39BFAB223314C1009C3EF4 /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
 		3D39BFAF2239BC42009C3EF4 /* ActivationPointTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivationPointTests.swift; sourceTree = "<group>"; };
 		3D39BFB12239BEA5009C3EF4 /* ActivationPointViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivationPointViewController.swift; sourceTree = "<group>"; };
@@ -448,6 +450,8 @@
 				English,
 				en,
 				Base,
+				de,
+				ru,
 			);
 			mainGroup = 607FACC71AFB9204008FA782;
 			productRefGroup = 607FACD11AFB9204008FA782 /* Products */;
@@ -680,6 +684,8 @@
 			isa = PBXVariantGroup;
 			children = (
 				607FACDF1AFB9204008FA782 /* Base */,
+				3D2881822B6487E900F2A1EA /* de */,
+				3D2881832B6488B600F2A1EA /* ru */,
 			);
 			name = LaunchScreen.xib;
 			sourceTree = "<group>";
