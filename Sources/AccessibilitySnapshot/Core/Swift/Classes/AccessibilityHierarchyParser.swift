@@ -209,7 +209,10 @@ public final class AccessibilityHierarchyParser {
                 userInputLabels: userInputLabels,
                 shape: accessibilityShape(for: element.object, in: root),
                 activationPoint: root.convert(activationPoint, from: nil),
-                usesDefaultActivationPoint: (activationPoint == defaultActivationPoint(for: element.object)),
+                usesDefaultActivationPoint: activationPoint.approximatelyEquals(
+                    defaultActivationPoint(for: element.object),
+                    tolerance: 1 / (root.window?.screen ?? UIScreen.main).scale
+                ),
                 customActions: element.object.accessibilityCustomActions?.map { $0.name } ?? [],
                 accessibilityLanguage: element.object.accessibilityLanguage
             )
@@ -699,6 +702,16 @@ extension UIView {
         let newPath = path.copy() as! UIBezierPath
         newPath.apply(transform)
         return newPath
+    }
+
+}
+
+// MARK: -
+
+private extension CGPoint {
+
+    func approximatelyEquals(_ other: CGPoint, tolerance: CGFloat) -> Bool {
+        return abs(self.x - other.x) < tolerance && abs(self.y - other.y) < tolerance
     }
 
 }
