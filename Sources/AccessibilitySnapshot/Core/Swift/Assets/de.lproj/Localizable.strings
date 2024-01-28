@@ -81,3 +81,18 @@
 
 /* Description for an accessibility element indicating that it has custom actions available */
 "custom_actions.description" = "Aktionen verfügbar";
+
+/* Description for the 'text entry' accessibility trait */
+"trait.text_field.description" = "Textfeld.";
+
+/* Hint describing how to use elements with the 'text entry' accessibility trait */
+"trait.text_field.hint" = "Zum Bearbeiten doppeltippen.";
+
+/* Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited */
+"trait.text_field_is_editing.hint" = "Den Rotor für den Zuriff auf „Rechtschreibfehler verwenden";
+
+/* Hint describing how to use elements with the 'text entry' and 'scrollable' accessibility traits */
+"trait.scrollable_text_field.hint" = "Zum Bearbeiten doppeltippen., Den Rotor für den Zuriff auf „Rechtschreibfehler verwenden";
+
+/* Description for the 'is editing' accessibility trait */
+"trait.text_field_is_editing.description" = "Bearbeiten";
