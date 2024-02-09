@@ -101,6 +101,27 @@ final class DefaultControlsTests: SnapshotTestCase {
         SnapshotVerifyAccessibility(container)
     }
 
+    // MARK: - Text Input
+
+    func testTextFieldHidesCursor() {
+        let textField = UITextField()
+        textField.tintColor = .red
+        textField.isAccessibilityElement = false
+        textField.text = "Hello world"
+        textField.becomeFirstResponder()
+
+        let container = ContainerView(control: textField)
+        container.bounds.size = .init(width: 120, height: 44)
+
+        // This is testing flaky behavior, so run the test multiple times to ensure it's consistent.
+        for _ in 0..<10 {
+            SnapshotVerifyAccessibility(container)
+        }
+
+        // Ensure the tint color is restored.
+        XCTAssertEqual(textField.tintColor, .red)
+    }
+
 }
 
 // MARK: -
