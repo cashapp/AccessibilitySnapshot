@@ -16,7 +16,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2.2'
@@ -29,10 +29,10 @@ jobs:
       - name: Build and Test
         run: Scripts/build.swift xcode ${{ matrix.platform }} `which xcpretty`
       - name: Upload Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: Test Results
+          name: Test Results (${{ matrix.platform }})
           path: .build/derivedData/**/Logs/Test/*.xcresult
   xcode-build-legacy:
     name: Xcode Build
@@ -43,7 +43,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2.2'
@@ -56,17 +56,17 @@ jobs:
       - name: Build and Test
         run: Scripts/build.swift xcode ${{ matrix.platform }} `which xcpretty`
       - name: Upload Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: Test Results
+          name: Test Results (${{ matrix.platform }})
           path: .build/derivedData/**/Logs/Test/*.xcresult
   pod-lint:
     name: Pod Lint
     runs-on: macOS-11
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.2.2'
@@ -85,7 +85,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Prepare Simulator Runtimes
         run: Scripts/github/prepare-simulators.sh ${{ matrix.platform }}
       - name: Build
@@ -95,7 +95,7 @@ jobs:
     runs-on: macOS-13
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Build
         run: carthage build --no-skip-current --platform iOS --use-xcframeworks --verbose
   bazel:
@@ -103,7 +103,7 @@ jobs:
     runs-on: macOS-13
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Build
         run: bazel build //...
   validate-strings:
@@ -111,6 +111,6 @@ jobs:
     runs-on: macOS-13
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Validate Localized Strings
         run: Scripts/ValidateLocalizedStrings.swift
