@@ -46,7 +46,7 @@ final class ElementOrderViewController: AccessibilityViewController {
             case .element:
                 view = UIView()
                 view.isAccessibilityElement = true
-                view.accessibilityLabel = "Element \(index)"
+                view.accessibilityLabel = "Totally Not Element \(index)"
                 view.frame.size = CGSize(width: 32, height: 32)
                 view.layer.cornerRadius = 16
                 view.backgroundColor = .lightGray
