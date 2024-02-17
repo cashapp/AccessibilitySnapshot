@@ -32,7 +32,7 @@ EXTERNAL SOURCES:
     :path: "../AccessibilitySnapshot.podspec"
 
 SPEC CHECKSUMS:
-  AccessibilitySnapshot: d55ec4ea875392d4b753893cd132e522be031997
+  AccessibilitySnapshot: 19f165d0397a18f7dd8dbc5f3396e5670c75a1a4
   iOSSnapshotTestCase: a670511f9ee3829c2b9c23e6e68f315fd7b6790f
   Paralayout: 844978af530a061a31d849c7b554510190b9cddf
   SnapshotTesting: 8caa6661fea7c8019d5b46de77c16bab99c36c5c

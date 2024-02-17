@@ -17,6 +17,7 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |ss|
     ss.source_files = 'Sources/AccessibilitySnapshot/Core/Swift/Classes/**/*.swift', 'Sources/AccessibilitySnapshot/Core/ObjC/**/*.{h,m}'
     ss.public_header_files = 'Sources/AccessibilitySnapshot/Core/ObjC/include/*.h'
+    ss.resources = 'Sources/AccessibilitySnapshot/Core/Swift/Assets/**/*.{strings,xcassets}'
     ss.resource_bundles = {
      'AccessibilitySnapshot' => ['Sources/AccessibilitySnapshot/Core/Swift/Assets/**/*.{strings,xcassets}']
     }
