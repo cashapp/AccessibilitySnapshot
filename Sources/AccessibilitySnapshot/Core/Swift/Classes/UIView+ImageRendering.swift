@@ -48,6 +48,22 @@ extension UIView {
     ) throws -> UIImage {
         let renderer = UIGraphicsImageRenderer(bounds: bounds)
 
+        // Hide the cursor of text inputs to prevent test flakes.
+        var viewTintsToRestore: [UIView: UIColor] = [:]
+        recursiveForEach(viewType: UITextField.self) { inputView in
+            viewTintsToRestore[inputView] = inputView.tintColor
+            inputView.tintColor = .clear
+        }
+        recursiveForEach(viewType: UITextView.self) { inputView in
+            viewTintsToRestore[inputView] = inputView.tintColor
+            inputView.tintColor = .clear
+        }
+        defer {
+            viewTintsToRestore.forEach { inputView, tintColor in
+                inputView.tintColor = tintColor
+            }
+        }
+
         var error: Error?
 
         let snapshot = renderer.image { context in
@@ -190,5 +206,15 @@ extension UIView {
     }
 
     private static let tileSideLength: CGFloat = 2000
+
+    private func recursiveForEach<ViewType: UIView>(
+        viewType: ViewType.Type,
+        _ block: (ViewType) -> Void
+    ) {
+        if let view = self as? ViewType {
+            block(view)
+        }
+        subviews.forEach { $0.recursiveForEach(viewType: viewType, block) }
+    }
 
 }
