@@ -191,8 +191,8 @@ public final class AccessibilityHierarchyParser {
             
             let userInputLabels: [String]? = {
                 guard
-                    element.object.accessibilityRespondsToUserInteraction,
-                    let userInputLabels = element.object.accessibilityUserInputLabels,
+                    element.object.effectiveAccessibilityRespondsToUserInteraction,
+                    let userInputLabels = element.object.effectiveAccessibilityUserInputLabels,
                     !userInputLabels.isEmpty
                 else {
                     return nil
@@ -201,7 +201,7 @@ public final class AccessibilityHierarchyParser {
                 return userInputLabels
             }()
 
-            let activationPoint = element.object.accessibilityActivationPoint
+            let activationPoint = element.object.effectiveAccessibilityActivationPoint
 
             return AccessibilityMarker(
                 description: description,
@@ -213,8 +213,8 @@ public final class AccessibilityHierarchyParser {
                     defaultActivationPoint(for: element.object),
                     tolerance: 1 / (root.window?.screen ?? UIScreen.main).scale
                 ),
-                customActions: element.object.accessibilityCustomActions?.map { $0.name } ?? [],
-                accessibilityLanguage: element.object.accessibilityLanguage
+                customActions: element.object.effectiveAccessibilityCustomActions?.map { $0.name } ?? [],
+                accessibilityLanguage: element.object.effectiveAccessibilityLanguage
             )
         }
     }
@@ -345,14 +345,14 @@ public final class AccessibilityHierarchyParser {
 
     /// Returns the shape of the accessibility element in the root view's coordinate space.
     private func accessibilityShape(for element: NSObject, in root: UIView) -> AccessibilityMarker.Shape {
-        if let accessibilityPath = element.accessibilityPath {
+        if let accessibilityPath = element.effectiveAccessibilityPath {
             return .path(root.convert(accessibilityPath, from: nil))
 
         } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer, !element.accessibilityFrameInContainerSpace.isNull {
             return .frame(container.convert(element.accessibilityFrameInContainerSpace, to: root))
 
         } else {
-            return .frame(root.convert(element.accessibilityFrame, from: nil))
+            return .frame(root.convert(element.effectiveAccessibilityFrame, from: nil))
         }
     }
 
@@ -369,7 +369,7 @@ public final class AccessibilityHierarchyParser {
 
         // By default, an element's activation point is the center of its accessibility frame, regardless of whether it
         // uses an accessibility path or frame as its shape.
-        let accessibilityFrame = element.accessibilityFrame
+        let accessibilityFrame = element.effectiveAccessibilityFrame
         return CGPoint(x: accessibilityFrame.midX, y: accessibilityFrame.midY)
     }
 
@@ -412,7 +412,7 @@ public final class AccessibilityHierarchyParser {
             // Views that are not `UITabBar`s can use the `.tabBar` accessibility trait to have their elements treated
             // similarly to a `UITabBar`'s tabs (with a few differences). Unlike `UITabBar`s, all elements in the
             // hierarchy under the view are treated as tabs.
-            if view.accessibilityTraits.contains(.tabBar), let element = element as? UIView {
+            if view.effectiveAccessibilityTraits.contains(.tabBar), let element = element as? UIView {
                 let accessibleElements: [NSObject]
                 if let elements = viewToElementsMap[view] {
                     accessibleElements = elements
@@ -444,18 +444,18 @@ public final class AccessibilityHierarchyParser {
             if container is UISegmentedControl {
                 return .series(
                     index: elementIndex + 1,
-                    count: container.accessibilityElementCount()
+                    count: container.accessibilityElementCount() // TODO: Does this do the right thing when using blocks?
                 )
             }
 
-            if container.accessibilityTraits.contains(.tabBar) {
+            if container.effectiveAccessibilityTraits.contains(.tabBar) {
                 return .tab(
                     index: elementIndex + 1,
                     count: container.accessibilityElementCount()
                 )
             }
 
-            if container.accessibilityContainerType == .list {
+            if container.effectiveAccessibilityContainerType == .list {
                 if elementIndex == 0 {
                     return .listStart
                 } else if elementIndex == container.accessibilityElementCount() - 1 {
@@ -463,7 +463,7 @@ public final class AccessibilityHierarchyParser {
                 }
             }
 
-            if container.accessibilityContainerType == .landmark {
+            if container.effectiveAccessibilityContainerType == .landmark {
                 if elementIndex == 0 {
                     return .landmarkStart
                 } else if elementIndex == container.accessibilityElementCount() - 1 {
@@ -578,7 +578,7 @@ private extension NSObject {
     func recursiveAccessibilityHierarchy(
         contextProvider: AccessibilityHierarchyParser.ContextProvider? = nil
     ) -> [AccessibilityNode] {
-        guard !accessibilityElementsHidden else {
+        guard !effectiveAccessibilityElementsHidden else {
             return []
         }
 
@@ -592,10 +592,10 @@ private extension NSObject {
 
         var recursiveAccessibilityHierarchy: [AccessibilityNode] = []
 
-        if isAccessibilityElement {
+        if effectiveIsAccessibilityElement {
             recursiveAccessibilityHierarchy.append(.element(self, contextProvider: contextProvider))
 
-        } else if let accessibilityElements = accessibilityElements as? [NSObject] {
+        } else if let accessibilityElements = effectiveAccessibilityElements as? [NSObject] {
             var accessibilityHierarchyOfElements: [AccessibilityNode] = []
             for element in accessibilityElements {
                 accessibilityHierarchyOfElements.append(
@@ -614,7 +614,7 @@ private extension NSObject {
             // If there is at least one modal subview, the last modal is the only subview parsed in the accessibility
             // hierarchy. Otherwise, parse all of the subviews.
             let subviewsToParse: [UIView]
-            if let lastModalView = self.subviews.last(where: { $0.accessibilityViewIsModal }) {
+            if let lastModalView = self.subviews.last(where: { $0.effectiveAccessibilityViewIsModal }) {
                 subviewsToParse = [lastModalView]
             } else {
                 subviewsToParse = self.subviews
@@ -629,7 +629,7 @@ private extension NSObject {
                 )
             }
 
-            if shouldGroupAccessibilityChildren {
+            if effectiveShouldGroupAccessibilityChildren {
                 recursiveAccessibilityHierarchy.append(
                     .group(accessibilityHierarchyOfSubviews, explicitlyOrdered: false, frameOverrideProvider: nil)
                 )
@@ -649,16 +649,16 @@ private extension NSObject {
     private var providesContext: Bool {
         return self is UISegmentedControl
             || self is UITabBar
-            || accessibilityTraits.contains(.tabBar)
-            || accessibilityContainerType == .list
-            || accessibilityContainerType == .landmark
-            || (self is UIAccessibilityContainerDataTable && accessibilityContainerType == .dataTable)
+            || effectiveAccessibilityTraits.contains(.tabBar)
+            || effectiveAccessibilityContainerType == .list
+            || effectiveAccessibilityContainerType == .landmark
+            || (self is UIAccessibilityContainerDataTable && effectiveAccessibilityContainerType == .dataTable)
     }
 
     /// The form of context provider the object acts as for elements beneath it in the hierarchy when the elements
     /// beneath it are part of the view hierarchy and the object is not an accessibility container.
     private func providedContextAsSuperview() -> AccessibilityHierarchyParser.ContextProvider {
-        if accessibilityContainerType == .dataTable, let self = self as? UIAccessibilityContainerDataTable {
+        if effectiveAccessibilityContainerType == .dataTable, let self = self as? UIAccessibilityContainerDataTable {
             return .dataTable(self)
         }
 
@@ -668,7 +668,7 @@ private extension NSObject {
     /// The form of context provider the object acts as for elements beneath it in the hierarchy when the object is
     /// being used as an accessibility container.
     private func providedContextAsContainer() -> AccessibilityHierarchyParser.ContextProvider {
-        if accessibilityContainerType == .dataTable, let self = self as? UIAccessibilityContainerDataTable {
+        if effectiveAccessibilityContainerType == .dataTable, let self = self as? UIAccessibilityContainerDataTable {
             return .dataTable(self)
         }
 
@@ -682,7 +682,7 @@ private extension NSObject {
 
         switch contextProvider {
         case let .superview(view):
-            return view.accessibilityTraits.contains(.tabBar)
+            return view.effectiveAccessibilityTraits.contains(.tabBar)
 
         case .accessibilityContainer, .dataTable:
             return false

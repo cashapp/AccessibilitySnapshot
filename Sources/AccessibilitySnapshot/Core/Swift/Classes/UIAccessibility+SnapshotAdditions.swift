@@ -20,14 +20,14 @@ extension NSObject {
 
     /// Returns a tuple consisting of the `description` and (optionally) a `hint` that VoiceOver will read for the object.
     func accessibilityDescription(context: AccessibilityHierarchyParser.Context?) -> (description: String, hint: String?) {
-        var accessibilityDescription = accessibilityLabelOverride(for: context) ?? accessibilityLabel ?? ""
+        var accessibilityDescription = accessibilityLabelOverride(for: context) ?? effectiveAccessibilityLabel ?? ""
 
-        var hintDescription = accessibilityHint?.nonEmpty()
+        var hintDescription = effectiveAccessibilityHint?.nonEmpty()
 
-        let strings = Strings(locale: accessibilityLanguage)
+        let strings = Strings(locale: effectiveAccessibilityLanguage)
 
         let numberFormatter = NumberFormatter()
-        if let localeIdentifier = accessibilityLanguage {
+        if let localeIdentifier = effectiveAccessibilityLanguage {
             numberFormatter.locale = Locale(identifier: localeIdentifier)
         }
 
@@ -36,7 +36,7 @@ extension NSObject {
             switch context {
             case let .dataTableCell(row: row, column: column, width: width, height: height, isFirstInRow: isFirstInRow, rowHeaders: rowHeaders, columnHeaders: columnHeaders):
                 let headersDescription = (rowHeaders + columnHeaders).map { header -> String in
-                    switch (header.accessibilityLabel?.nonEmpty(), header.accessibilityValue?.nonEmpty()) {
+                    switch (header.effectiveAccessibilityLabel?.nonEmpty(), header.effectiveAccessibilityValue?.nonEmpty()) {
                     case (nil, nil):
                         return ""
                     case let (.some(label), nil):
@@ -74,7 +74,7 @@ extension NSObject {
             descriptionContainsContext = false
         }
 
-        if let accessibilityValue = accessibilityValue?.nonEmpty(), !hidesAccessibilityValue(for: context) {
+        if let accessibilityValue = effectiveAccessibilityValue?.nonEmpty(), !hidesAccessibilityValue(for: context) {
             if let existingDescription = accessibilityDescription.nonEmpty() {
                 if descriptionContainsContext {
                     accessibilityDescription += " \(accessibilityValue)"
@@ -86,7 +86,7 @@ extension NSObject {
             }
         }
 
-        if accessibilityTraits.contains(.selected) {
+        if effectiveAccessibilityTraits.contains(.selected) {
             if let existingDescription = accessibilityDescription.nonEmpty() {
                 accessibilityDescription = String(format: strings.selectedTraitFormat, existingDescription)
             } else {
@@ -96,25 +96,25 @@ extension NSObject {
 
         var traitSpecifiers: [String] = []
 
-        if accessibilityTraits.contains(.notEnabled) {
+        if effectiveAccessibilityTraits.contains(.notEnabled) {
             traitSpecifiers.append(strings.notEnabledTraitName)
         }
 
         let hidesButtonTraitInContext = context?.hidesButtonTrait ?? false
-        let hidesButtonTraitFromTraits = [UIAccessibilityTraits.keyboardKey, .switchButton, .tabBarItem].contains(where: { accessibilityTraits.contains($0) })
-        if accessibilityTraits.contains(.button) && !hidesButtonTraitFromTraits && !hidesButtonTraitInContext {
+        let hidesButtonTraitFromTraits = [UIAccessibilityTraits.keyboardKey, .switchButton, .tabBarItem].contains(where: { effectiveAccessibilityTraits.contains($0) })
+        if effectiveAccessibilityTraits.contains(.button) && !hidesButtonTraitFromTraits && !hidesButtonTraitInContext {
             traitSpecifiers.append(strings.buttonTraitName)
         }
 
-        if accessibilityTraits.contains(.switchButton) {
-            if accessibilityTraits.contains(.button) {
+        if effectiveAccessibilityTraits.contains(.switchButton) {
+            if effectiveAccessibilityTraits.contains(.button) {
                 // An element can have the private switch button trait without being a UISwitch (for example, by passing
                 // through the traits of a contained switch). In this case, VoiceOver will still read the "Switch
                 // Button." trait, but only if the element's traits also include the `.button` trait.
                 traitSpecifiers.append(strings.switchButtonTraitName)
             }
 
-            switch accessibilityValue {
+            switch effectiveAccessibilityValue {
             case "1":
                 traitSpecifiers.append(strings.switchButtonOnStateName)
             case "0":
@@ -128,27 +128,27 @@ extension NSObject {
         }
 
         let showsTabTraitInContext = context?.showsTabTrait ?? false
-        if accessibilityTraits.contains(.tabBarItem) || showsTabTraitInContext {
+        if effectiveAccessibilityTraits.contains(.tabBarItem) || showsTabTraitInContext {
             traitSpecifiers.append(strings.tabTraitName)
         }
 
-        if accessibilityTraits.contains(.header) {
+        if effectiveAccessibilityTraits.contains(.header) {
             traitSpecifiers.append(strings.headerTraitName)
         }
 
-        if accessibilityTraits.contains(.link) {
+        if effectiveAccessibilityTraits.contains(.link) {
             traitSpecifiers.append(strings.linkTraitName)
         }
 
-        if accessibilityTraits.contains(.adjustable) {
+        if effectiveAccessibilityTraits.contains(.adjustable) {
             traitSpecifiers.append(strings.adjustableTraitName)
         }
 
-        if accessibilityTraits.contains(.image) {
+        if effectiveAccessibilityTraits.contains(.image) {
             traitSpecifiers.append(strings.imageTraitName)
         }
 
-        if accessibilityTraits.contains(.searchField) {
+        if effectiveAccessibilityTraits.contains(.searchField) {
             traitSpecifiers.append(strings.searchFieldTraitName)
         }
 
@@ -221,7 +221,7 @@ extension NSObject {
             }
         }
 
-        if accessibilityTraits.contains(.switchButton) && !accessibilityTraits.contains(.notEnabled) {
+        if effectiveAccessibilityTraits.contains(.switchButton) && !effectiveAccessibilityTraits.contains(.notEnabled) {
             if let existingHintDescription = hintDescription?.nonEmpty()?.strippingTrailingPeriod() {
                 hintDescription = String(format: strings.switchButtonTraitHintFormat, existingHintDescription)
             } else {
@@ -229,9 +229,9 @@ extension NSObject {
             }
         }
 
-        let hasHintOnly = (accessibilityHint?.nonEmpty() != nil) && (accessibilityLabel?.nonEmpty() == nil) && (accessibilityValue?.nonEmpty() == nil)
-        let hidesAdjustableHint = accessibilityTraits.contains(.notEnabled) || accessibilityTraits.contains(.switchButton) || hasHintOnly
-        if accessibilityTraits.contains(.adjustable) && !hidesAdjustableHint {
+        let hasHintOnly = (effectiveAccessibilityHint?.nonEmpty() != nil) && (effectiveAccessibilityLabel?.nonEmpty() == nil) && (effectiveAccessibilityValue?.nonEmpty() == nil)
+        let hidesAdjustableHint = effectiveAccessibilityTraits.contains(.notEnabled) || effectiveAccessibilityTraits.contains(.switchButton) || hasHintOnly
+        if effectiveAccessibilityTraits.contains(.adjustable) && !hidesAdjustableHint {
             if let existingHintDescription = hintDescription?.nonEmpty()?.strippingTrailingPeriod() {
                 hintDescription = String(format: strings.adjustableTraitHintFormat, existingHintDescription)
             } else {
@@ -259,7 +259,7 @@ extension NSObject {
     }
 
     private func hidesAccessibilityValue(for context: AccessibilityHierarchyParser.Context?) -> Bool {
-        if accessibilityTraits.contains(.switchButton) {
+        if effectiveAccessibilityTraits.contains(.switchButton) {
             return true
         }
 
@@ -275,8 +275,6 @@ extension NSObject {
             return false
         }
     }
-
-    // MARK: - Private Static Properties
 
     // MARK: - Private
 
