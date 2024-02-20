@@ -81,8 +81,6 @@ private extension TextViewViewController {
             }
             applyVerticalSubviewDistribution(distributionSpecifiers)
 
-            textViewWithText.accessibilityFrame = textViewWithText.frame
-
             textViewFirstResponder.becomeFirstResponder()
         }
 
