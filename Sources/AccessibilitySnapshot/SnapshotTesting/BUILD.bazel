@@ -1,0 +1,37 @@
+load(
+    "@build_bazel_rules_apple//apple:ios.bzl",
+    "ios_framework",
+)
+load(
+    "@build_bazel_rules_swift//swift:swift.bzl",
+    "swift_library",
+)
+
+swift_library(
+    name = "AccessibilitySnapshot_SnapshotTesting.lib",
+    testonly = True,
+    srcs = glob(["**/*.swift"]),
+    defines = ["BAZEL_PACKAGE"],
+    module_name = "AccessibilitySnapshot_SnapshotTesting",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//Sources/AccessibilitySnapshot/Core:AccessibilitySnapshotCore.lib",
+        "//Sources/AccessibilitySnapshot/Core:AccessibilitySnapshotCore_ObjC.lib",
+        "@swift_snapshot_testing//:SnapshotTesting",
+    ],
+)
+
+ios_framework(
+    name = "AccessibilitySnapshot_SnapshotTesting",
+    testonly = True,
+    bundle_id = "com.squareup.AccessibilitySnapshot",
+    families = [
+        "iphone",
+        "ipad",
+    ],
+    infoplists = ["Info.plist"],
+    minimum_os_version = "13.0",
+    visibility = ["//visibility:public"],
+    deps = [":AccessibilitySnapshot_SnapshotTesting.lib"],
+)

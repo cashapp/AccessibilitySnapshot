@@ -26,6 +26,7 @@ non_bzlmod_deps = use_extension("//Bazel:non_bzlmod_deps.bzl", "non_bzlmod_deps"
 use_repo(
     non_bzlmod_deps,
     "ios_snapshot_test_case",
+    "swift_snapshot_testing",
 )
 
 apple_cc_configure = use_extension("@apple_support//crosstool:setup.bzl", "apple_cc_configure_extension")

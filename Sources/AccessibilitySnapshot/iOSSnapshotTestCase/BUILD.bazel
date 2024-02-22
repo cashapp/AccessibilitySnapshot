@@ -1,0 +1,74 @@
+load(
+    "@build_bazel_rules_apple//apple:ios.bzl",
+    "ios_framework",
+)
+load(
+    "@build_bazel_rules_swift//swift:swift.bzl",
+    "swift_library",
+)
+
+# -- AccessibilitySnapshot_iOSSnapshotTestCase
+
+swift_library(
+    name = "AccessibilitySnapshot_iOSSnapshotTestCase.lib",
+    testonly = True,
+    srcs = glob(["Swift/**/*.swift"]),
+    defines = ["BAZEL_PACKAGE"],
+    module_name = "AccessibilitySnapshot_iOSSnapshotTestCase",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//Sources/AccessibilitySnapshot/Core:AccessibilitySnapshotCore.lib",
+        "//Sources/AccessibilitySnapshot/Core:AccessibilitySnapshotCore_ObjC.lib",
+        "@ios_snapshot_test_case//:iOSSnapshotTestCase",
+    ],
+)
+
+ios_framework(
+    name = "AccessibilitySnapshot_iOSSnapshotTestCase",
+    testonly = True,
+    bundle_id = "com.squareup.AccessibilitySnapshot",
+    families = [
+        "iphone",
+        "ipad",
+    ],
+    infoplists = ["Info.plist"],
+    minimum_os_version = "13.0",
+    visibility = ["//visibility:public"],
+    deps = [":AccessibilitySnapshot_iOSSnapshotTestCase.lib"],
+)
+
+# -- AccessibilitySnapshot_iOSSnapshotTestCase_ObjC
+
+objc_library(
+    name = "AccessibilitySnapshot_iOSSnapshotTestCase_ObjC.lib",
+    testonly = True,
+    srcs = glob(
+        ["ObjC/**/*.m"],
+        allow_empty = False,
+    ),
+    hdrs = glob(
+        ["ObjC/include/**/*.h"],
+        allow_empty = False,
+    ),
+    defines = ["BAZEL_PACKAGE"],
+    includes = ["ObjC/include"],
+    module_name = "AccessibilitySnapshot_iOSSnapshotTestCase_ObjC",
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+    deps = [":AccessibilitySnapshot_iOSSnapshotTestCase.lib"],
+)
+
+ios_framework(
+    name = "AccessibilitySnapshot_iOSSnapshotTestCase_ObjC",
+    testonly = True,
+    bundle_id = "com.squareup.AccessibilitySnapshot_ObjC",
+    families = [
+        "iphone",
+        "ipad",
+    ],
+    infoplists = ["Info.plist"],
+    minimum_os_version = "13.0",
+    visibility = ["//visibility:public"],
+    deps = [":AccessibilitySnapshot_iOSSnapshotTestCase_ObjC.lib"],
+)
