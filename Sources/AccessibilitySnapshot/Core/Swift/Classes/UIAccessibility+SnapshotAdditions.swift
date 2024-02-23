@@ -132,6 +132,20 @@ extension NSObject {
             traitSpecifiers.append(strings.tabTraitName)
         }
 
+        if accessibilityTraits.contains(.textEntry) {
+            if accessibilityTraits.contains(.scrollable) {
+                // This is a UITextView/TextEditor
+            } else {
+                // This is a UITextField/TextField
+            }
+
+            traitSpecifiers.append(strings.textEntryTraitName)
+
+            if accessibilityTraits.contains(.isEditing) {
+                traitSpecifiers.append(strings.isEditingTraitName)
+            }
+        }
+
         if accessibilityTraits.contains(.header) {
             traitSpecifiers.append(strings.headerTraitName)
         }
@@ -226,6 +240,20 @@ extension NSObject {
                 hintDescription = String(format: strings.switchButtonTraitHintFormat, existingHintDescription)
             } else {
                 hintDescription = strings.switchButtonTraitHint
+            }
+        }
+
+        if accessibilityTraits.contains(.textEntry) && !accessibilityTraits.contains(.notEnabled) {
+            if accessibilityTraits.contains(.isEditing) {
+                hintDescription = strings.textEntryIsEditingTraitHint
+            } else {
+                if accessibilityTraits.contains(.scrollable) {
+                    // This is a UITextView/TextEditor
+                    hintDescription = strings.scrollableTextEntryTraitHint
+                } else {
+                    // This is a UITextField/TextField
+                    hintDescription = strings.textEntryTraitHint
+                }
             }
         }
 
@@ -337,6 +365,16 @@ extension NSObject {
         let landmarkStartContext: String
 
         let landmarkEndContext: String
+
+        let textEntryTraitName: String
+
+        let textEntryTraitHint: String
+
+        let textEntryIsEditingTraitHint: String
+
+        let scrollableTextEntryTraitHint: String
+
+        let isEditingTraitName: String
 
         // MARK: - Life Cycle
 
@@ -479,6 +517,31 @@ extension NSObject {
                 comment: "Description of the last element in a landmark container",
                 locale: locale
             )
+            self.textEntryTraitName = "Text Field.".localized(
+                key: "trait.text_field.description",
+                comment: "Description for the 'text entry' accessibility trait",
+                locale: locale
+            )
+            self.textEntryTraitHint = "Double tap to edit.".localized(
+                key: "trait.text_field.hint",
+                comment: "Hint describing how to use elements with the 'text entry' accessibility trait",
+                locale: locale
+            )
+            self.textEntryIsEditingTraitHint = "Use the rotor to access Misspelled Words".localized(
+                key: "trait.text_field_is_editing.hint",
+                comment: "Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited",
+                locale: locale
+            )
+            self.scrollableTextEntryTraitHint = "Double tap to edit., Use the rotor to access Misspelled Words".localized(
+                key: "trait.scrollable_text_field.hint",
+                comment: "Hint describing how to use elements with the 'text entry' and 'scrollable' accessibility traits",
+                locale: locale
+            )
+            self.isEditingTraitName = "Is editing.".localized(
+                key: "trait.text_field_is_editing.description",
+                comment: "Description for the 'is editing' accessibility trait",
+                locale: locale
+            )
         }
 
     }
@@ -512,6 +575,11 @@ extension UIAccessibilityTraits {
 
     static let switchButton = UIAccessibilityTraits(rawValue: 0x0020000000000000)
 
+    static let isEditing = UIAccessibilityTraits(rawValue: 0x0000000000200000)
+
+    static let textEntry = UIAccessibilityTraits(rawValue: 0x0000000000040000)
+
+    static let scrollable = UIAccessibilityTraits(rawValue: 0x0000800000000000)
 }
 
 // MARK: -

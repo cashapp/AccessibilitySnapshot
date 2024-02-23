@@ -81,3 +81,18 @@
 
 /* Description for an accessibility element indicating that it has custom actions available */
 "custom_actions.description" = "Доступны действия";
+
+/* Description for the 'text entry' accessibility trait */
+"trait.text_field.description" = "текстовое поле.";
+
+/* Hint describing how to use elements with the 'text entry' accessibility trait */
+"trait.text_field.hint" = "коснитесь дважды, чтобы редактировать";
+
+/* Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited */
+"trait.text_field_is_editing.hint" = "Используйте ротор для доступа к oбъeкту: Cлова с ошибками";
+
+/* Hint describing how to use elements with the 'text entry' and 'scrollable' accessibility traits */
+"trait.scrollable_text_field.hint" = "коснитесь дважды, чтобы редактировать., Используйте ротор для доступа к oбъeкту: Cлова с ошибками";
+
+/* Description for the 'is editing' accessibility trait */
+"trait.text_field_is_editing.description" = "Идет правка";
