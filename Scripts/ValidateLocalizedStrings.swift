@@ -66,10 +66,18 @@ let translationRegex = Regex {
 var allValid = true
 
 for filePath in stringsFiles {
-    let translationKeys = try String(contentsOfFile: filePath).matches(of: translationRegex).map { $0.1 }
+    let translationKeys = try Set(String(contentsOfFile: filePath).matches(of: translationRegex).map { $0.1 })
 
-    if Set(translationKeys) != localizedKeysSet {
+    if translationKeys != localizedKeysSet {
         print("❌ \(filePath) does not match expected set of localized string keys")
+        let expected = translationKeys.subtracting(localizedKeysSet)
+        if expected.count != 0 {
+            print("Expected Keys not found: \(expected)")
+        }
+        let found = localizedKeysSet.subtracting(translationKeys)
+        if found.count != 0 {
+            print("No translation found for keys: \(found)")
+        }
         allValid = false
     }
 }

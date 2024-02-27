@@ -283,6 +283,21 @@ private extension AccessibilitySnapshotView {
                 )
             }()
             
+            // If our description and hint are both empty, and we dont have custom actions, but we do have custom content, we'll use the description label
+            // to show the "More Content Available" text, since this makes our layout simpler when we align to the marker.
+            let showCustomContentInDescription = (marker.description.isEmpty && !showActionsAvailableInDescription && !marker.customContent.isEmpty)
+
+            self.customContentView = {
+                guard !marker.customContent.isEmpty else { return nil }
+                
+                return .init(
+                    customContentText: showCustomContentInDescription
+                        ? nil
+                        : Strings.moreContentAvailableText(for: marker.accessibilityLanguage),
+                    customContent: marker.customContent
+                )
+            }()
+            
             self.userInputLabelsView = {
                 guard showUserInputLabels, let userInputLabels = marker.userInputLabels, userInputLabels.count > 0 else { return nil }
                 
@@ -294,9 +309,13 @@ private extension AccessibilitySnapshotView {
             markerView.backgroundColor = color.withAlphaComponent(0.3)
             addSubview(markerView)
 
-            descriptionLabel.text = showActionsAvailableInDescription
+            descriptionLabel.text =
+                showCustomContentInDescription
+                ? Strings.moreContentAvailableText(for: marker.accessibilityLanguage)
+                : showActionsAvailableInDescription
                 ? Strings.actionsAvailableText(for: marker.accessibilityLanguage)
                 : marker.description
+            
             descriptionLabel.font = Metrics.descriptionLabelFont
             descriptionLabel.textColor = .black
             descriptionLabel.numberOfLines = 0
@@ -304,6 +323,7 @@ private extension AccessibilitySnapshotView {
 
             hintLabel.map(addSubview)
             customActionsView.map(addSubview)
+            customContentView.map(addSubview)
             userInputLabelsView.map(addSubview)
         }
 
@@ -321,7 +341,9 @@ private extension AccessibilitySnapshotView {
         private let hintLabel: UILabel?
 
         private let customActionsView: CustomActionsView?
-        
+
+        private let customContentView: CustomContentView?
+
         private let userInputLabelsView: PillsView?
 
         // MARK: - UIView
@@ -343,6 +365,8 @@ private extension AccessibilitySnapshotView {
 
             let customActionsSize = customActionsView?.sizeThatFits(labelSizeToFit) ?? .zero
             
+            let customContentSize = customContentView?.sizeThatFits(labelSizeToFit) ?? .zero
+            
             let userInputLabelsViewSize = userInputLabelsView?.sizeThatFits(labelSizeToFit) ?? .zero
 
             let widthComponents = [
@@ -352,6 +376,7 @@ private extension AccessibilitySnapshotView {
                     descriptionLabelSize.width,
                     hintLabelSize.width,
                     customActionsSize.width,
+                    customContentSize.width,
                     userInputLabelsViewSize.width
                 ),
             ]
@@ -361,6 +386,7 @@ private extension AccessibilitySnapshotView {
                 descriptionLabelSize.height,
                 (hintLabelSize.height == 0 ? 0 : hintLabelSize.height + Metrics.interSectionSpacing),
                 (customActionsSize.height == 0 ? 0 : customActionsSize.height + Metrics.interSectionSpacing),
+                (customContentSize.height == 0 ? 0 : customContentSize.height + Metrics.interSectionSpacing),
                 (userInputLabelsViewSize.height == 0 ? 0 : userInputLabelsViewSize.height + Metrics.interSectionSpacing)
             ]
 
@@ -412,8 +438,18 @@ private extension AccessibilitySnapshotView {
                 )
             }
             
+            if let customContentView = customContentView {
+                let alignmentLabel = customActionsView ?? hintLabel ?? descriptionLabel
+
+                customContentView.bounds.size = customContentView.sizeThatFits(labelSizeToFit)
+                customContentView.frame.origin = .init(
+                    x: alignmentLabel.frame.minX,
+                    y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
+                )
+            }
+            
             if let userInputLabelsView = userInputLabelsView {
-                let alignmentControl = customActionsView ?? hintLabel ?? descriptionLabel
+                let alignmentControl = customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
                 
                 userInputLabelsView.bounds.size = userInputLabelsView.sizeThatFits(labelSizeToFit)
                 userInputLabelsView.frame.origin = CGPoint(
@@ -447,11 +483,18 @@ private extension AccessibilitySnapshotView {
                     locale: locale
                 )
             }
-
+            
+            static func moreContentAvailableText(for locale: String?) -> String {
+                return "More Content Available".localized(
+                    key: "custom_content.description",
+                    comment: "Description for an accessibility element indicating that it has additional custom content available",
+                    locale: locale
+                )
+            }
         }
 
     }
-
+    
     // MARK: -
 
     private final class CustomActionsView: UIView {
@@ -592,6 +635,148 @@ private extension AccessibilitySnapshotView {
 
     }
 
+}
+
+
+// MARK: -
+
+private final class CustomContentView: UIView {
+
+    // MARK: - Life Cycle
+    
+    init(customContentText: String?, customContent: [(String, String, Bool)]) {
+        
+        contentLabels = customContent.map { (label, value, isImportant) in
+            let iconLabel = UILabel()
+            iconLabel.text = "↓"
+            iconLabel.font = Metrics.font
+            iconLabel.numberOfLines = 0
+            
+            let customContentLabel = UILabel()
+            customContentLabel.font = isImportant ? Metrics.boldFont : Metrics.font
+            customContentLabel.numberOfLines = 0
+            customContentLabel.text = {
+                guard !value.isEmpty else { return label }
+                return "\(label): \(value)"
+            }()
+            
+            return (iconLabel, customContentLabel)
+        }
+
+        if let customContentText = customContentText {
+            let label = UILabel()
+            label.text = customContentText
+            label.font = Metrics.font
+            self.customContentLabel = label
+
+        } else {
+            self.customContentLabel = nil
+        }
+
+        super.init(frame: .zero)
+
+        customContentLabel.map(addSubview)
+
+        contentLabels.forEach {
+            addSubview($0)
+            addSubview($1)
+        }
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Private Properties
+
+    private let customContentLabel: UILabel?
+
+    private let contentLabels: [(UILabel, UILabel)]
+
+    // MARK: - UIView
+
+    override func sizeThatFits(_ size: CGSize) -> CGSize {
+        let actionsAvailableHeight = customContentLabel?.sizeThatFits(size).height ?? -Metrics.verticalSpacing
+
+        guard let (firstIconLabel, _) = contentLabels.first else {
+            return .init(width: max(size.width, 0), height: actionsAvailableHeight)
+        }
+
+        let descriptionWidthToFit = [
+            Metrics.contentIconInset,
+            firstIconLabel.sizeThatFits(size).width,
+            Metrics.iconToDescriptionSpacing,
+        ].reduce(size.width, -)
+        let descriptionSizeToFit = CGSize(width: descriptionWidthToFit, height: .greatestFiniteMagnitude)
+
+        let height = contentLabels
+            .map { $1.sizeThatFits(descriptionSizeToFit).height }
+            .reduce(actionsAvailableHeight) {
+                $0 + Metrics.verticalSpacing + $1
+            }
+
+        return .init(width: size.width, height: height)
+    }
+
+    override func layoutSubviews() {
+        let firstPairYPosition: CGFloat
+        if let actionsAvailableLabel = customContentLabel {
+            actionsAvailableLabel.bounds.size = actionsAvailableLabel.sizeThatFits(bounds.size)
+            actionsAvailableLabel.frame.origin = .zero
+
+            firstPairYPosition = actionsAvailableLabel.frame.maxY + Metrics.verticalSpacing
+
+        } else {
+            firstPairYPosition = 0
+        }
+
+        guard let (firstIconLabel, firstDescriptionLabel) = contentLabels.first else {
+            return
+        }
+
+        firstIconLabel.sizeToFit()
+
+        // All of the icon labels should be the same size, so we only need to calculate the description width once.
+        let descriptionWidthToFit = [
+            Metrics.contentIconInset,
+            firstIconLabel.bounds.width,
+            Metrics.iconToDescriptionSpacing,
+        ].reduce(bounds.width, -)
+        let descriptionSizeToFit = CGSize(width: descriptionWidthToFit, height: .greatestFiniteMagnitude)
+
+        firstDescriptionLabel.bounds.size = firstDescriptionLabel.sizeThatFits(descriptionSizeToFit)
+
+        firstIconLabel.frame.origin = .init(x: Metrics.contentIconInset, y: firstPairYPosition)
+
+        let descriptionXPosition = firstIconLabel.frame.maxX + Metrics.iconToDescriptionSpacing
+
+        firstDescriptionLabel.frame.origin = .init(x: descriptionXPosition, y: firstPairYPosition)
+
+        let zippedActionLabels = zip(contentLabels.dropFirst(), contentLabels)
+        for ((iconLabel, descriptionLabel), (_, previousDescriptionLabel)) in zippedActionLabels {
+            iconLabel.sizeToFit()
+            descriptionLabel.bounds.size = descriptionLabel.sizeThatFits(descriptionSizeToFit)
+
+            let yPosition = previousDescriptionLabel.frame.maxY + Metrics.verticalSpacing
+
+            iconLabel.frame.origin = .init(x: Metrics.contentIconInset, y: yPosition)
+            descriptionLabel.frame.origin = .init(x: descriptionXPosition, y: yPosition)
+        }
+    }
+
+    // MARK: - Private Types
+
+    private enum Metrics {
+
+        static let verticalSpacing: CGFloat = 4
+        static let contentIconInset: CGFloat = 4
+        static let iconToDescriptionSpacing: CGFloat = 4
+
+        static let font: UIFont = .systemFont(ofSize: 12)
+        static let boldFont: UIFont = .boldSystemFont(ofSize: 12)
+
+    }
 }
 
 // MARK: -
