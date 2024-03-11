@@ -36,6 +36,8 @@ public class SnapshotAndLegendView: UIView {
 
     internal let snapshotView: UIImageView = .init()
 
+    internal var isPreview: Bool = false
+
     internal var legendViews: [UIView] {
         // This is intended to be overridden and implemented by subclasses.
         return []
@@ -186,7 +188,9 @@ public class SnapshotAndLegendView: UIView {
     private func legendLocation(viewSize: CGSize) -> LegendLocation {
         let aspectRatio = viewSize.width / viewSize.height
 
-        if aspectRatio > 1 || viewSize.width < minimumWidth {
+        if aspectRatio > 1 ||
+            viewSize.width < minimumWidth ||
+            isPreview {
             // Wide views should display the legend underneath the snapshotted view. Small views are an exception, as
             // all views smaller than the minimum width should display the legend underneath.
             let contentWidth = max(viewSize.width, minimumWidth)

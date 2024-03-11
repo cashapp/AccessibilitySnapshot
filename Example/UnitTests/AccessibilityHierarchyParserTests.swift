@@ -14,7 +14,7 @@
 //  limitations under the License.
 //
 
-import AccessibilitySnapshot
+import AccessibilitySnapshotCore
 import UIKit
 import XCTest
 

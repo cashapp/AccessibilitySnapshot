@@ -20,6 +20,7 @@ import SwiftUI
 import AccessibilitySnapshotCore
 import iOSSnapshotTestCase
 #else
+import AccessibilitySnapshotCore
 import FBSnapshotTestCase
 #endif
 

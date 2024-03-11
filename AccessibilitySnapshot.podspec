@@ -12,16 +12,7 @@ Pod::Spec.new do |s|
 
   s.ios.deployment_target = '13.0'
 
-  s.default_subspecs = 'Core', 'SnapshotTesting'
-
-  s.subspec 'Core' do |ss|
-    ss.source_files = 'Sources/AccessibilitySnapshot/Core/Swift/Classes/**/*.swift', 'Sources/AccessibilitySnapshot/Core/ObjC/**/*.{h,m}'
-    ss.public_header_files = 'Sources/AccessibilitySnapshot/Core/ObjC/include/*.h'
-    ss.resources = 'Sources/AccessibilitySnapshot/Core/Swift/Assets/**/*.{strings,xcassets}'
-    ss.resource_bundles = {
-     'AccessibilitySnapshot' => ['Sources/AccessibilitySnapshot/Core/Swift/Assets/**/*.{strings,xcassets}']
-    }
-  end
+  s.default_subspecs = 'SnapshotTesting'
 
   s.subspec 'iOSSnapshotTestCase' do |ss|
     ss.source_files = 'Sources/AccessibilitySnapshot/iOSSnapshotTestCase/**/*.{swift,h,m}'
@@ -29,7 +20,7 @@ Pod::Spec.new do |s|
       'Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC/include/*.h',
     ]
 
-    ss.dependency 'AccessibilitySnapshot/Core'
+    ss.dependency 'AccessibilitySnapshotCore'
     ss.dependency 'iOSSnapshotTestCase', '~> 8.0'
     ss.frameworks = 'XCTest'
     ss.weak_frameworks = 'XCTest'
@@ -38,7 +29,7 @@ Pod::Spec.new do |s|
   s.subspec 'SnapshotTesting' do |ss|
     ss.source_files = 'Sources/AccessibilitySnapshot/SnapshotTesting/**/*.{swift,h,m}'
 
-    ss.dependency 'AccessibilitySnapshot/Core'
+    ss.dependency 'AccessibilitySnapshotCore'
     ss.dependency 'SnapshotTesting', '~> 1.0'
     ss.frameworks = 'XCTest'
     ss.weak_frameworks = 'XCTest'

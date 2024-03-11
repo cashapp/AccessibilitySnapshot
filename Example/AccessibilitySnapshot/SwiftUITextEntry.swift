@@ -14,23 +14,49 @@
 //  limitations under the License.
 //
 
+import AccessibilitySnapshotCore
 import SwiftUI
 
 struct SwiftUITextEntry: View {
+    @State private var textField1 = ""
+    @State private var textField2 = "Value in Text Field"
+    @State private var textEditor1 = ""
+
     var body: some View {
         VStack {
-            TextField("SwiftUI Text Field", text: .constant(""))
-            TextField("SwiftUI Text Field", text: .constant("Value in Text Field"))
+            TextField("SwiftUI Text Field", text: $textField1)
+            TextField("SwiftUI Text Field", text: $textField2)
             if #available(iOS 14.0, *) {
-                TextEditor(text: .constant(""))
+                TextEditor(text: $textEditor1)
+                    .frame(height: 300)
             }
+        }
+    }
+}
+
+struct Preview: View {
+    @State private var isPresented = true
+
+    var body: some View {
+        if #available(iOS 15.0, *) {
+            SwiftUITextEntry()
+                .accessibilityPreview(isPresented: $isPresented)
+        } else {
+            SwiftUITextEntry()
         }
     }
 }
 
 struct SwiftUITextEntry_Previews: PreviewProvider {
     static var previews: some View {
-        SwiftUITextEntry()
-            .previewLayout(.sizeThatFits)
+        if #available(iOS 15.0, *) {
+            SwiftUITextEntry()
+                .accessibilityPreview()
+//                    Preview()
+                .previewLayout(.sizeThatFits)
+        } else {
+            SwiftUITextEntry()
+                .previewLayout(.sizeThatFits)
+        }
     }
 }

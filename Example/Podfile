@@ -3,11 +3,13 @@ use_modular_headers!
 platform :ios, '13.0'
 
 target 'AccessibilitySnapshotDemo' do
+	pod 'AccessibilitySnapshotCore', :path => '../AccessibilitySnapshotCore.podspec'
 	pod 'Paralayout', '= 1.0.0-rc.5'
 
 	target 'SnapshotTests' do
 		inherit! :search_paths
 
+		pod 'AccessibilitySnapshotCore', :path => '../AccessibilitySnapshotCore.podspec'
 		pod 'AccessibilitySnapshot/iOSSnapshotTestCase', :path => '../AccessibilitySnapshot.podspec'
 		pod 'AccessibilitySnapshot/SnapshotTesting', :path => '../AccessibilitySnapshot.podspec'
 
@@ -19,7 +21,7 @@ target 'AccessibilitySnapshotDemo' do
 	target 'UnitTests' do
 		inherit! :search_paths
 
-		pod 'AccessibilitySnapshot/Core', :path => '../AccessibilitySnapshot.podspec'
+		pod 'AccessibilitySnapshotCore', :path => '../AccessibilitySnapshotCore.podspec'
 	end
 end
 
