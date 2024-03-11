@@ -16,9 +16,7 @@
 
 import Foundation
 
-#if SWIFT_PACKAGE || BAZEL_PACKAGE
 import AccessibilitySnapshotCore
-#endif
 
 internal enum ErrorMessageFactory {
 

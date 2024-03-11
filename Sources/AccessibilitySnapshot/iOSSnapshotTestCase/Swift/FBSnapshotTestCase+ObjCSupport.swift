@@ -19,6 +19,7 @@ import AccessibilitySnapshotCore
 import AccessibilitySnapshotCore_ObjC
 import iOSSnapshotTestCase
 #else
+import AccessibilitySnapshotCore
 import FBSnapshotTestCase
 #endif
 

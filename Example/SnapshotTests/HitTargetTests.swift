@@ -15,6 +15,7 @@
 //
 
 import AccessibilitySnapshot
+import AccessibilitySnapshotCore
 import FBSnapshotTestCase
 import Paralayout
 

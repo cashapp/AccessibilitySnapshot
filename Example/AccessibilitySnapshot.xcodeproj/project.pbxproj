@@ -85,6 +85,8 @@
 		1104A8CE2B580AC500B6715F /* SwiftUITextEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUITextEntry.swift; sourceTree = "<group>"; };
 		1104A8D02B595FF600B6715F /* TextFieldViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextFieldViewController.swift; sourceTree = "<group>"; };
 		112909BB2B63E57B00B4EBEB /* TextViewViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewViewController.swift; sourceTree = "<group>"; };
+		11D41CA12B989D7C005FD932 /* AccessibilitySnapshot.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AccessibilitySnapshot.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		11D41CA32B989DEF005FD932 /* AccessibilitySnapshot.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = AccessibilitySnapshot.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1635CE4D251EAC6700907101 /* SnapshotTestingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotTestingTests.swift; sourceTree = "<group>"; };
 		358D84DCD315110A89BD052E /* Pods-UnitTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-UnitTests/Pods-UnitTests.debug.xcconfig"; sourceTree = "<group>"; };
 		3A3192D7B9B16BD10FB517A2 /* Pods_SnapshotTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SnapshotTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -358,6 +360,8 @@
 		63E74EA01571917A22FCFF95 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				11D41CA32B989DEF005FD932 /* AccessibilitySnapshot.framework */,
+				11D41CA12B989D7C005FD932 /* AccessibilitySnapshot.framework */,
 				6A886964D2E787399E137105 /* Pods_AccessibilitySnapshotDemo.framework */,
 				3A3192D7B9B16BD10FB517A2 /* Pods_SnapshotTests.framework */,
 				0BFCB4FD6BC17AB232B26E72 /* Pods_UnitTests.framework */,
