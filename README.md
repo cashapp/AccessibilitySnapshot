@@ -16,7 +16,7 @@ AccessibilitySnapshot makes it simple to add regression tests for accessibility 
 By default, AccessibilitySnapshot uses [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing) to record snapshots and perform comparisons. The framework also includes support for using [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) as the snapshotting engine instead. Before setting up accessibility snapshot tests, make sure your project is set up for standard snapshot testing. Accessibility snapshot tests require that the test target has a host application. See the [Extensions](#extensions) section below for a list of other available snapshotting options.
 
 <details>
-<summary><h3>CocoaPods</h3></summary>
+<summary>CocoaPods</summary>
 
 Install with [CocoaPods](https://cocoapods.org) by adding the following to your `Podfile`:
 
@@ -38,7 +38,7 @@ pod 'AccessibilitySnapshot/iOSSnapshotTestCase'
 </details>
 
 <details>
-<summary><h3>Swift Package Manager</h3></summary>
+<summary>Swift Package Manager</summary>
 
 Install with [Swift Package Manager](https://swift.org/package-manager/) by adding the following to your `Package.swift`:
 
@@ -77,7 +77,7 @@ targets: [
 </details>
 
 <details>
-<summary><h3>Carthage</h3></summary>
+<summary>Carthage</summary>
 
 Only the core accessibility parser (not the snapshot integration layers) can be installed via Carthage. To install AccessibilitySnapshotCore via [Carthage](https://github.com/Carthage/Carthage), add the following to your `Cartfile`:
 
@@ -87,7 +87,7 @@ github "cashapp/AccessibilitySnapshot"
 </details>
 
 <details>
-<summary><h3>Bazel</h3></summary>
+<summary>Bazel</summary>
 
 Add the following to your `MODULE.bazel` file:
 
