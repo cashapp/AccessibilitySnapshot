@@ -177,6 +177,45 @@ final class SnapshotTestingTests: XCTestCase {
         )
     }
 
+    @available(iOS 16.0, *)
+    func testNavigationStack() {
+        let viewController = SwiftUIViewWithNavigationStack().embedInHostingController()
+
+        viewController.view.frame = UIScreen.main.bounds
+
+        assertSnapshot(
+          matching: viewController,
+          as: .accessibilityImage,
+          named: nameForDevice()
+        )
+    }
+
+    @available(iOS 14.0, *)
+    func testNavigationView() {
+        let viewController = SwiftUIViewWithNavigationView().embedInHostingController()
+
+        viewController.view.frame = UIScreen.main.bounds
+
+        assertSnapshot(
+          matching: viewController,
+          as: .accessibilityImage,
+          named: nameForDevice()
+        )
+    }
+
+    @available(iOS 15.0, *)
+    func testListWithSections() {
+        let viewController = SwiftUIViewWithListWithSections().embedInHostingController()
+
+        viewController.view.frame = UIScreen.main.bounds
+
+        assertSnapshot(
+          matching: viewController,
+          as: .accessibilityImage,
+          named: nameForDevice()
+        )
+    }
+
     // MARK: - Private Methods
 
     private func nameForDevice(baseName: String? = nil) -> String {
