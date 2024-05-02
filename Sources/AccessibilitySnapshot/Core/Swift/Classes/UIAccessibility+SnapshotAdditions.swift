@@ -101,9 +101,13 @@ extension NSObject {
         }
 
         let hidesButtonTraitInContext = context?.hidesButtonTrait ?? false
-        let hidesButtonTraitFromTraits = [UIAccessibilityTraits.keyboardKey, .switchButton, .tabBarItem].contains(where: { accessibilityTraits.contains($0) })
+        let hidesButtonTraitFromTraits = [UIAccessibilityTraits.keyboardKey, .switchButton, .tabBarItem, .backButton].contains(where: { accessibilityTraits.contains($0) })
         if accessibilityTraits.contains(.button) && !hidesButtonTraitFromTraits && !hidesButtonTraitInContext {
             traitSpecifiers.append(strings.buttonTraitName)
+        }
+        
+        if accessibilityTraits.contains(.backButton) {
+            traitSpecifiers.append(strings.backButtonTraitName)
         }
 
         if accessibilityTraits.contains(.switchButton) {
@@ -319,6 +323,8 @@ extension NSObject {
         let notEnabledTraitName: String
 
         let buttonTraitName: String
+        
+        let backButtonTraitName: String
 
         let tabTraitName: String
 
@@ -397,6 +403,11 @@ extension NSObject {
             self.buttonTraitName = "Button.".localized(
                 key: "trait.button.description",
                 comment: "Description for the 'button' accessibility trait",
+                locale: locale
+            )
+            self.backButtonTraitName = "Back Button.".localized(
+                key: "trait.backbutton.description",
+                comment: "Description for the 'back button' accessibility trait",
                 locale: locale
             )
             self.tabTraitName = "Tab.".localized(
@@ -580,6 +591,9 @@ extension UIAccessibilityTraits {
     static let textEntry = UIAccessibilityTraits(rawValue: 0x0000000000040000)
 
     static let scrollable = UIAccessibilityTraits(rawValue: 0x0000800000000000)
+    
+    /// A private trait that UIKit uses internally for the back button in `UINavigationController` hierachies.
+    static let backButton = UIAccessibilityTraits(rawValue: 0x8000000000000000)
 }
 
 // MARK: -
