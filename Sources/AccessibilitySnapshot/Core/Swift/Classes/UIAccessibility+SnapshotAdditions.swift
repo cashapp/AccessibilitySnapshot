@@ -593,7 +593,7 @@ extension UIAccessibilityTraits {
     static let scrollable = UIAccessibilityTraits(rawValue: 0x0000800000000000)
     
     /// A private trait that UIKit uses internally for the back button in `UINavigationController` hierachies.
-    static let backButton = UIAccessibilityTraits(rawValue: 0x8000000000000000)
+    static let backButton = UIAccessibilityTraits(rawValue: 0x0000000008000000)
 }
 
 // MARK: -
