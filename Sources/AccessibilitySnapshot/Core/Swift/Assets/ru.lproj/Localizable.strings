@@ -10,6 +10,9 @@
 /* Description for the 'button' accessibility trait */
 "trait.button.description" = "Кнопка.";
 
+/* Description for the 'back button' accessibility trait */
+"trait.backbutton.description" = "Кнопка назад.";
+
 /* Description for the 'tab' accessibility trait */
 "trait.tab.description" = "Вкладка.";
 

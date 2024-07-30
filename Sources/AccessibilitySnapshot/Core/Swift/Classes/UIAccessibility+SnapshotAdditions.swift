@@ -101,9 +101,13 @@ extension NSObject {
         }
 
         let hidesButtonTraitInContext = context?.hidesButtonTrait ?? false
-        let hidesButtonTraitFromTraits = [UIAccessibilityTraits.keyboardKey, .switchButton, .tabBarItem].contains(where: { accessibilityTraits.contains($0) })
+        let hidesButtonTraitFromTraits = [UIAccessibilityTraits.keyboardKey, .switchButton, .tabBarItem, .backButton].contains(where: { accessibilityTraits.contains($0) })
         if accessibilityTraits.contains(.button) && !hidesButtonTraitFromTraits && !hidesButtonTraitInContext {
             traitSpecifiers.append(strings.buttonTraitName)
+        }
+        
+        if accessibilityTraits.contains(.backButton) {
+            traitSpecifiers.append(strings.backButtonTraitName)
         }
 
         if accessibilityTraits.contains(.switchButton) {
@@ -319,6 +323,8 @@ extension NSObject {
         let notEnabledTraitName: String
 
         let buttonTraitName: String
+        
+        let backButtonTraitName: String
 
         let tabTraitName: String
 
@@ -397,6 +403,11 @@ extension NSObject {
             self.buttonTraitName = "Button.".localized(
                 key: "trait.button.description",
                 comment: "Description for the 'button' accessibility trait",
+                locale: locale
+            )
+            self.backButtonTraitName = "Back Button.".localized(
+                key: "trait.backbutton.description",
+                comment: "Description for the 'back button' accessibility trait",
                 locale: locale
             )
             self.tabTraitName = "Tab.".localized(
@@ -571,15 +582,18 @@ extension String {
 
 extension UIAccessibilityTraits {
 
-    static let tabBarItem = UIAccessibilityTraits(rawValue: 0x0000000010000000)
+    static let textEntry = UIAccessibilityTraits(rawValue: 1 << 18) // 0x0000000000040000
+    
+    static let isEditing = UIAccessibilityTraits(rawValue: 1 << 21) // 0x0000000000200000
+    
+    static let backButton = UIAccessibilityTraits(rawValue: 1 << 27) // 0x0000000008000000
+    
+    static let tabBarItem = UIAccessibilityTraits(rawValue: 1 << 28) // 0x0000000010000000
+    
+    static let scrollable = UIAccessibilityTraits(rawValue: 1 << 47) // 0x0000800000000000
+    
+    static let switchButton = UIAccessibilityTraits(rawValue: 1 << 53) //0x0020000000000000
 
-    static let switchButton = UIAccessibilityTraits(rawValue: 0x0020000000000000)
-
-    static let isEditing = UIAccessibilityTraits(rawValue: 0x0000000000200000)
-
-    static let textEntry = UIAccessibilityTraits(rawValue: 0x0000000000040000)
-
-    static let scrollable = UIAccessibilityTraits(rawValue: 0x0000800000000000)
 }
 
 // MARK: -
