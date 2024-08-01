@@ -36,10 +36,10 @@ jobs:
           path: .build/derivedData/**/Logs/Test/*.xcresult
   xcode-build-legacy:
     name: Xcode Build
-    runs-on: macOS-11
+    runs-on: macOS-12
     strategy:
       matrix:
-        platform: ['iOS_14', 'iOS_13']
+        platform: ['iOS_15']
       fail-fast: false
     steps:
       - name: Checkout Repo
@@ -63,7 +63,7 @@ jobs:
           path: .build/derivedData/**/Logs/Test/*.xcresult
   pod-lint:
     name: Pod Lint
-    runs-on: macOS-11
+    runs-on: macOS-12
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
@@ -78,10 +78,10 @@ jobs:
         run: bundle exec --gemfile=Example/Gemfile pod lib lint --verbose --fail-fast
   spm:
     name: SPM Build
-    runs-on: macOS-11
+    runs-on: macOS-12
     strategy:
       matrix:
-        platform: ['iOS_14']
+        platform: ['iOS_15']
       fail-fast: false
     steps:
       - name: Checkout Repo
