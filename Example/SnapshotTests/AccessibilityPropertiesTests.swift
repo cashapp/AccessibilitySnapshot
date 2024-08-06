@@ -39,6 +39,18 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         buttonTraitsViewController.view.frame = UIScreen.main.bounds
         SnapshotVerifyAccessibility(buttonTraitsViewController.view)
     }
+    
+    func testNavBarBackButtonTraitsWithTitles() {
+        let navBarBackButtonTraitsViewController = NavBarBackButtonAccessibilityTraitsViewController(titles: ["First", "Second"])
+        navBarBackButtonTraitsViewController.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(navBarBackButtonTraitsViewController.view)
+    }
+    func testNavBarBackButtonTraitsWithoutTitles() {
+        let navBarBackButtonTraitsViewController = NavBarBackButtonAccessibilityTraitsViewController()
+        navBarBackButtonTraitsViewController.view.frame = UIScreen.main.bounds
+        
+        SnapshotVerifyAccessibility(navBarBackButtonTraitsViewController.view)
+    }
 
     func testSwitchControls() {
         let switchControlViewController = SwitchControlViewController()
