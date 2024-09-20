@@ -98,14 +98,6 @@ jobs:
         uses: actions/checkout@v4
       - name: Build
         run: carthage build --no-skip-current --platform iOS --use-xcframeworks --verbose
-  bazel:
-    name: Bazel Build
-    runs-on: macOS-13
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-      - name: Build
-        run: bazel build //...
   validate-strings:
     name: Validate Localized Strings
     runs-on: macOS-13

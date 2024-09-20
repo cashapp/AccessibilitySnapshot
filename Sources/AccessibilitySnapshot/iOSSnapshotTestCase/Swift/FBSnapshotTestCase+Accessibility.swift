@@ -16,7 +16,7 @@
 
 import XCTest
 
-#if SWIFT_PACKAGE || BAZEL_PACKAGE
+#if SWIFT_PACKAGE
 import AccessibilitySnapshotCore
 import AccessibilitySnapshotCore_ObjC
 import iOSSnapshotTestCase
