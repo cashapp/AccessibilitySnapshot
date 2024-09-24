@@ -29,6 +29,7 @@ final class RootViewController: UITableViewController {
         var accessibilityScreens = [
             ("View Accessibility Properties", { _ in return ViewAccessibilityPropertiesViewController() }),
             ("Label Accessibility Properties", { _ in return LabelAccessibilityPropertiesViewController() }),
+            ("Nav Bar Back Button Accessibility Traits", { _ in return NavBarBackButtonAccessibilityTraitsViewController() }),
             ("Button Accessibility Traits", { _ in return ButtonAccessibilityTraitsViewController() }),
             ("Default UIKit Controls", { _ in return DefaultControlsViewController() }),
             ("UISwitch Controls", { _ in return SwitchControlViewController() }),
