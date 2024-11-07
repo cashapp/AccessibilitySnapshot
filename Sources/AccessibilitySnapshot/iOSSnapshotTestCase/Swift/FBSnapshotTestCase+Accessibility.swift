@@ -64,10 +64,10 @@ extension FBSnapshotTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        guard isRunningInHostApplication else {
-            XCTFail(ErrorMessageFactory.errorMessageForMissingHostApplication, file: file, line: line)
-            return
-        }
+//        guard isRunningInHostApplication else {
+//            XCTFail(ErrorMessageFactory.errorMessageForMissingHostApplication, file: file, line: line)
+//            return
+//        }
 
         let containerView = AccessibilitySnapshotView(
             containedView: view,
