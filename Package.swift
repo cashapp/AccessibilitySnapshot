@@ -8,6 +8,7 @@ let package = Package(
     defaultLocalization: "en",
     platforms: [
         .iOS(.v13),
+        .macOS(.v10_15),
     ],
     products: [
         // Core + SnapshotTesting for image comparison
