@@ -1,9 +1,9 @@
 PODS:
-  - AccessibilitySnapshot/Core (0.7.0)
-  - AccessibilitySnapshot/iOSSnapshotTestCase (0.7.0):
+  - AccessibilitySnapshot/Core (0.7.1)
+  - AccessibilitySnapshot/iOSSnapshotTestCase (0.7.1):
     - AccessibilitySnapshot/Core
     - iOSSnapshotTestCase (~> 8.0)
-  - AccessibilitySnapshot/SnapshotTesting (0.7.0):
+  - AccessibilitySnapshot/SnapshotTesting (0.7.1):
     - AccessibilitySnapshot/Core
     - SnapshotTesting (~> 1.0)
   - iOSSnapshotTestCase (8.0.0):
