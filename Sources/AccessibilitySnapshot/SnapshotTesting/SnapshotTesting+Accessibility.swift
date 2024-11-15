@@ -44,14 +44,16 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays.
     /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
     /// Control).
+    /// - parameter shouldRunInHostApplication: Controls whether a host application is required to run the test or not.
     public static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = [],
-        showUserInputLabels: Bool = true
+        showUserInputLabels: Bool = true,
+        shouldRunInHostApplication: Bool = true
     ) -> Snapshotting {
-        guard isRunningInHostApplication else {
+        guard !shouldRunInHostApplication || isRunningInHostApplication else {
             fatalError("Accessibility snapshot tests cannot be run in a test target without a host application")
         }
 
@@ -257,7 +259,8 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = [],
-        showUserInputLabels: Bool = true
+        showUserInputLabels: Bool = true,
+        shouldRunInHostApplication: Bool = true
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>
             .accessibilityImage(
@@ -265,7 +268,8 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
                 useMonochromeSnapshot: useMonochromeSnapshot,
                 drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
                 markerColors: markerColors,
-                showUserInputLabels: showUserInputLabels
+                showUserInputLabels: showUserInputLabels,
+                shouldRunInHostApplication: shouldRunInHostApplication
             )
             .pullback { viewController in
                 viewController.view
