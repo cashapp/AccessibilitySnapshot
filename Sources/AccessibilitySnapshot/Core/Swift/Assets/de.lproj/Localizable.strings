@@ -10,6 +10,9 @@
 /* Description for the 'button' accessibility trait */
 "trait.button.description" = "Taste.";
 
+/* Description for the 'back button' accessibility trait */
+"trait.backbutton.description" = "Zurück Taste.";
+
 /* Description for the 'tab' accessibility trait */
 "trait.tab.description" = "Tabulator.";
 
