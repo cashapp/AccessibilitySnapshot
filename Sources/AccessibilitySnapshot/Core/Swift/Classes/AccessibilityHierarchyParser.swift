@@ -15,6 +15,7 @@
 //
 
 import Accessibility
+import SwiftUI
 import UIKit
 
 public struct AccessibilityMarker {
@@ -36,6 +37,10 @@ public struct AccessibilityMarker {
     /// The description of the accessibility element that will be read by VoiceOver when the element is brought into
     /// focus.
     public var description: String
+
+    /// A unique identifier for the element, primarily used in UI tests for locating and interacting with elements.
+    /// This identifier is not visible to users.
+    public var identifier: String?
 
     /// A hint that will be read by VoiceOver if focus remains on the element after the `description` is read.
     public var hint: String?
@@ -209,6 +214,7 @@ public final class AccessibilityHierarchyParser {
 
             return AccessibilityMarker(
                 description: description,
+                identifier: element.object.identifier,
                 hint: hint,
                 userInputLabels: userInputLabels,
                 shape: accessibilityShape(for: element.object, in: root),
@@ -714,7 +720,7 @@ extension UIView {
 fileprivate extension NSObject {
     var customContent: [(label: String, value: String, isImportant:Bool)] {
         // Github runs tests on specific iOS versions against specific versions of Xcode in CI.
-        // Forward deployment on old versions of Xcode require a compile time check which require diferentiation by swift version rather than iOS SDK.
+        // Forward deployment on old versions of Xcode require a compile time check which require differentiation by swift version rather than iOS SDK.
         // See https://swiftversion.net/ for mapping swift version to Xcode versions.
         
         if #available(iOS 14.0, *) {
@@ -740,6 +746,61 @@ fileprivate extension NSObject {
             }
         }
         return []
+    }
+
+    var identifier: String? {
+        // The `accessibilityIdentifier` property is part of the `UIAccessibilityIdentification` protocol,
+        // distinct from other accessibility properties in UIKit.
+        if let idProtocol = self as? UIAccessibilityIdentification {
+            return idProtocol.accessibilityIdentifier
+        }
+
+        // Swift occasionally fails to recognize Objective-C subclasses conforming to `UIAccessibilityIdentification`.
+        // This is likely due to a Swift bug where Objective-C classes lose their protocol conformance
+        // when converted to `Any` types for use in accessibility APIs.
+        // See https://github.com/swiftlang/swift/issues/46456 for details.
+
+        // Explicitly check UIKit types that conform to `UIAccessibilityIdentification`:
+        if let view = self as? UIView {
+            return view.accessibilityIdentifier
+        }
+        if let barItem = self as? UIBarItem {
+            return barItem.accessibilityIdentifier
+        }
+        if let alertAction = self as? UIAlertAction {
+            return alertAction.accessibilityIdentifier
+        }
+        if let menuElement = self as? UIMenuElement {
+            return menuElement.accessibilityIdentifier
+        }
+        if let image = self as? UIImage {
+            return image.accessibilityIdentifier
+        }
+
+        // Use key-value coding as a fallback to access the `accessibilityIdentifier`.
+        // This is necessary for SwiftUI views, which are wrapped in a `UIHostingController`
+        // and don't directly expose an `accessibilityIdentifier`.
+        if let accessibilityIdentifier = value(forKey: "accessibilityIdentifier") as? String {
+            return accessibilityIdentifier
+        }
+
+        return nil
+    }
+}
+
+// MARK: -
+
+private extension UIHostingController {
+    /// Provides access to the `accessibilityIdentifier` of the hosted SwiftUI view.
+    /// This is necessary because SwiftUI views are wrapped in a `UIHostingController`,
+    /// and don't directly expose an `accessibilityIdentifier`.
+    var accessibilityIdentifier: String? {
+        get {
+            return view.accessibilityIdentifier
+        }
+        set {
+            view.accessibilityIdentifier = newValue
+        }
     }
 }
 
