@@ -13,6 +13,9 @@
 /* Description for the 'back button' accessibility trait */
 "trait.backbutton.description" = "Back Button.";
 
+/* Description for the 'keyboard key' accessibility trait */
+"trait.keyboard_key.description" = "Keyboard Key.";
+
 /* Description for the 'tab' accessibility trait */
 "trait.tab.description" = "Tab.";
 

@@ -110,6 +110,10 @@ extension NSObject {
             traitSpecifiers.append(strings.backButtonTraitName)
         }
 
+        if accessibilityTraits.contains(.keyboardKey) {
+            traitSpecifiers.append(strings.keyboardKeyTraitName)
+        }
+
         if accessibilityTraits.contains(.switchButton) {
             if accessibilityTraits.contains(.button) {
                 // An element can have the private switch button trait without being a UISwitch (for example, by passing
@@ -326,6 +330,8 @@ extension NSObject {
         
         let backButtonTraitName: String
 
+        let keyboardKeyTraitName: String
+
         let tabTraitName: String
 
         let headerTraitName: String
@@ -408,6 +414,11 @@ extension NSObject {
             self.backButtonTraitName = "Back Button.".localized(
                 key: "trait.backbutton.description",
                 comment: "Description for the 'back button' accessibility trait",
+                locale: locale
+            )
+            self.keyboardKeyTraitName = "Keyboard Key.".localized(
+                key: "trait.keyboard_key.description",
+                comment: "Description for the 'keyboard key' accessibility trait",
                 locale: locale
             )
             self.tabTraitName = "Tab.".localized(
