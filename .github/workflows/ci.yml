@@ -34,33 +34,6 @@ jobs:
         with:
           name: Test Results (${{ matrix.platform }})
           path: .build/derivedData/**/Logs/Test/*.xcresult
-  xcode-build-legacy:
-    name: Xcode Build
-    runs-on: macOS-12
-    strategy:
-      matrix:
-        platform: ['iOS_15']
-      fail-fast: false
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2.2'
-      - name: Bundle Install
-        run: bundle install --gemfile=Example/Gemfile
-      - name: Prepare Simulator Runtimes
-        run: Scripts/github/prepare-simulators.sh ${{ matrix.platform }}
-      - name: Pod Install
-        run: bundle exec --gemfile=Example/Gemfile pod install --project-directory=Example
-      - name: Build and Test
-        run: Scripts/build.swift xcode ${{ matrix.platform }} `which xcpretty`
-      - name: Upload Results
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: Test Results (${{ matrix.platform }})
-          path: .build/derivedData/**/Logs/Test/*.xcresult
   pod-lint:
     name: Pod Lint
     runs-on: macOS-13
