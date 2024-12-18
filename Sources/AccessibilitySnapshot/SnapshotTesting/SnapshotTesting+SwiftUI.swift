@@ -65,7 +65,7 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
             )
             .pullback { (view: Value) in
                 let hostingController = UIHostingController(rootView: view)
-                hostingController.view.bounds.size = size ?? hostingController.sizeThatFits(in: .zero)
+                hostingController.view.frame.size = size ?? hostingController.sizeThatFits(in: .zero)
                 return hostingController
             }
     }
