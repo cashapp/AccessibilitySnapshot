@@ -202,7 +202,10 @@ public final class AccessibilityHierarchyParser {
                 guard
                     element.object.accessibilityRespondsToUserInteraction,
                     let userInputLabels = element.object.accessibilityUserInputLabels,
-                    !userInputLabels.isEmpty
+                    !userInputLabels.isEmpty,
+                    // Ignore a single label if its identical to the accessibilityLabel
+                    (userInputLabels.count == 1 &&
+                     userInputLabels.first == element.object.accessibilityLabel)
                 else {
                     return nil
                 }
