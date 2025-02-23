@@ -6,7 +6,7 @@ import Foundation
 
 func execute(commandPath: String, arguments: [String], pipedTo pipeProcess: Process? = nil) throws {
 	let task = Process()
-	task.launchPath = commandPath
+	task.executableURL = .init(filePath: commandPath)
 	task.arguments = arguments
 
 	let argumentsString = arguments
@@ -30,9 +30,9 @@ func execute(commandPath: String, arguments: [String], pipedTo pipeProcess: Proc
 		print("Launching command: \(commandPath) \(argumentsString)")
 	}
 
-	task.launch()
+	try task.run()
 
-	pipeProcess?.launch()
+	try pipeProcess?.run()
 
 	task.waitUntilExit()
 
