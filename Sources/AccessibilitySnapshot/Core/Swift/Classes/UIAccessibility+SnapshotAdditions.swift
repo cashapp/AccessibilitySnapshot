@@ -126,8 +126,9 @@ extension NSObject {
             case "2":
                 traitSpecifiers.append(strings.switchButtonMixedStateName)
             default:
-                // When the switch button trait is set, unknown accessibility values are omitted from the description.
-                break
+                if let accessibilityValue {
+                    traitSpecifiers.append(accessibilityValue)
+                }
             }
         }
 
