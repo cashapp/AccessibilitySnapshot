@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'AccessibilitySnapshot'
-  s.version          = '0.8.0'
+  s.version          = '0.9.0'
   s.summary          = 'Easy regression testing for iOS accessibility'
 
   s.homepage         = 'https://github.com/CashApp/AccessibilitySnapshot'
