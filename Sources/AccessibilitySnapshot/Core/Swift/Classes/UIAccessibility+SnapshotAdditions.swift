@@ -313,10 +313,11 @@ extension NSObject {
         }
     }
     
-    private func hidesAccessibilityLabel(backDescriptor: String?) -> Bool {
+    private func hidesAccessibilityLabel(backDescriptor: String) -> Bool {
         // To prevent duplication, Back Button elements omit their label if it matches the localized "Back" descriptor.
-        ( accessibilityTraits.contains(.backButton) &&
-        (accessibilityLabel == backDescriptor) )
+        guard accessibilityTraits.contains(.backButton),
+              let label = accessibilityLabel?.lowercased() else { return false }
+        return label == backDescriptor.lowercased()
     }
 
     // MARK: - Private Static Properties
