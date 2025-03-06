@@ -53,7 +53,8 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = [],
-        showUserInputLabels: Bool = true
+        showUserInputLabels: Bool = true,
+        shouldRunInHostApplication: Bool = true
     ) -> Snapshotting {
         return Snapshotting<UIViewController, UIImage>
             .accessibilityImage(
@@ -61,7 +62,8 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
                 useMonochromeSnapshot: useMonochromeSnapshot,
                 drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
                 markerColors: markerColors,
-                showUserInputLabels: showUserInputLabels
+                showUserInputLabels: showUserInputLabels,
+                shouldRunInHostApplication: shouldRunInHostApplication
             )
             .pullback { (view: Value) in
                 let hostingController = UIHostingController(rootView: view)
