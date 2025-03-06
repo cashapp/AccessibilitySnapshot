@@ -130,9 +130,11 @@ extension NSObject {
             case "2":
                 traitSpecifiers.append(strings.switchButtonMixedStateName)
             default:
-                if let accessibilityValue {
-                    traitSpecifiers.append(accessibilityValue)
-                }
+                // Prior to iOS 17 the then private trait would suppress any other accessibility values.
+                // Once the trait became public in 17 values other than the above are announced with the trait specifiers.
+                if #available(iOS 17.0, *), let accessibilityValue {
+                        traitSpecifiers.append(accessibilityValue)
+                    }
             }
         }
 
