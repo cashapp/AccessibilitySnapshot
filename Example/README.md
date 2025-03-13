@@ -11,7 +11,7 @@ Your local environment should match one these supported versions.
 | Xcode | 12.5.1 (iOS 13 and 14), 14.3.1 (iOS 16) [.github/workflows/ci.yml](https://github.com/cashapp/AccessibilitySnapshot/blob/master/.github/workflows/ci.yml) |
 | Ruby | 3.2.2 [Example/Gemfile](https://github.com/cashapp/AccessibilitySnapshot/blob/master/Example/Gemfile) |
 | Bundler | 2.4.22 [Gemfile.lock](https://github.com/cashapp/AccessibilitySnapshot/blob/master/Gemfile.lock) |
-| Simulators | iOS 15.5 - iPhone 12 Pro, iOS 16.4 - iPhone 14 Pro [Scripts/build.swift](https://github.com/cashapp/AccessibilitySnapshot/blob/master/Scripts/build.swift) |
+| Simulators | iOS 16.4, iOS 17.2 - iPhone 14 Pro [Scripts/build.swift](https://github.com/cashapp/AccessibilitySnapshot/blob/master/Scripts/build.swift) |
 
 ### Setting up environment
 
