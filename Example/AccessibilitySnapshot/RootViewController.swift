@@ -45,6 +45,7 @@ final class RootViewController: UITableViewController {
                     presentingViewController: presentingViewController
                 )
             }),
+            ("Element Frame Comparison", { _ in return ElementFrameComparisonController() }),
             ("Element Order with Semantic Content", { _ in return UserIntefaceDirectionViewController() }),
             ("Modal Accessibility Views", { presentingViewController in
                 return ModalAccessibilityViewController.makeConfigurationSelectionViewController(
