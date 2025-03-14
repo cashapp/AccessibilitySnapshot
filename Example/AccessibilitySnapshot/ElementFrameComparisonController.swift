@@ -25,9 +25,12 @@ class ElementFrameComparisonController: AccessibilityViewController {
 
         view.backgroundColor = .white
 
-        let header = MyLabel("Header")
-        header.accessibilityTraits = [.staticText, .header]
-        let label = MyLabel("Paragraph")
+        let frameHeader = MyLabel("Adjusting the accessibility frame vertically by > 8.0 alters the sort order")
+        frameHeader.accessibilityTraits = [.staticText, .header]
+        
+        let pathHeader = MyLabel("Accessibility path is ignored entirely for sorting purposes")
+        pathHeader.accessibilityTraits = [.staticText, .header]
+
         let spacing  = 20.0
         
         // 8 seems to be the magic number for VoiceOver to consider it
@@ -107,33 +110,35 @@ class ElementFrameComparisonController: AccessibilityViewController {
         frames.spacing = spacing
         paths.spacing = spacing
 
-        view.addSubview(header)
+        view.addSubview(frameHeader)
         view.addSubview(frames)
+
+        view.addSubview(pathHeader)
         view.addSubview(paths)
 
-        view.addSubview(label)
-
-        header.translatesAutoresizingMaskIntoConstraints = false
+        frameHeader.translatesAutoresizingMaskIntoConstraints = false
         frames.translatesAutoresizingMaskIntoConstraints = false
+        
+        pathHeader.translatesAutoresizingMaskIntoConstraints = false
         paths.translatesAutoresizingMaskIntoConstraints = false
-        label.translatesAutoresizingMaskIntoConstraints = false
 
         NSLayoutConstraint.activate([
-            header.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: spacing),
-            header.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            header.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            frameHeader.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: spacing),
+            frameHeader.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            frameHeader.trailingAnchor.constraint(equalTo: view.trailingAnchor),
 
-            frames.topAnchor.constraint(equalTo: header.bottomAnchor, constant: spacing),
+            frames.topAnchor.constraint(equalTo: frameHeader.bottomAnchor, constant: spacing),
             frames.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             frames.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
-            paths.topAnchor.constraint(equalTo: frames.bottomAnchor, constant: spacing),
+            
+            pathHeader.topAnchor.constraint(equalTo: frames.bottomAnchor, constant: spacing),
+            pathHeader.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            pathHeader.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            
+            paths.topAnchor.constraint(equalTo: pathHeader.bottomAnchor, constant: spacing),
             paths.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             paths.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             
-            label.topAnchor.constraint(equalTo: paths.bottomAnchor, constant: spacing),
-            label.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            label.trailingAnchor.constraint(equalTo: view.trailingAnchor),
         ])
     }
 }
@@ -157,6 +162,9 @@ class MyLabel: UILabel {
         if let accessibilityLabel {
             self.accessibilityLabel = accessibilityLabel
         }
+        
+        self.numberOfLines = 0
+        self.lineBreakMode = .byWordWrapping
     }
 
     required init?(coder: NSCoder) { nil }
