@@ -13,6 +13,9 @@
 /* Description for the 'back button' accessibility trait */
 "trait.backbutton.description" = "Zurück Taste.";
 
+/* Descriptor for the 'back' portion of the 'back button' accessibility trait */
+"back.descriptor" = "Zurück";
+
 /* Description for the 'tab' accessibility trait */
 "trait.tab.description" = "Tabulator.";
 

@@ -13,6 +13,9 @@
 /* Description for the 'back button' accessibility trait */
 "trait.backbutton.description" = "Back Button.";
 
+/* Descriptor for the 'back' portion of the 'back button' accessibility trait */
+"back.descriptor" = "Back";
+
 /* Description for the 'tab' accessibility trait */
 "trait.tab.description" = "Tab.";
 

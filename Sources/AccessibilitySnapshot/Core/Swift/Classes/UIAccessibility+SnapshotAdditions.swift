@@ -20,11 +20,15 @@ extension NSObject {
 
     /// Returns a tuple consisting of the `description` and (optionally) a `hint` that VoiceOver will read for the object.
     func accessibilityDescription(context: AccessibilityHierarchyParser.Context?) -> (description: String, hint: String?) {
-        var accessibilityDescription = accessibilityLabelOverride(for: context) ?? accessibilityLabel ?? ""
+        let strings = Strings(locale: accessibilityLanguage)
+
+        var accessibilityDescription =
+            accessibilityLabelOverride(for: context) ??
+        (hidesAccessibilityLabel(backDescriptor: strings.backDescriptor) ? "" :
+                                                            accessibilityLabel ?? "" )
 
         var hintDescription = accessibilityHint?.nonEmpty()
 
-        let strings = Strings(locale: accessibilityLanguage)
 
         let numberFormatter = NumberFormatter()
         if let localeIdentifier = accessibilityLanguage {
@@ -126,8 +130,11 @@ extension NSObject {
             case "2":
                 traitSpecifiers.append(strings.switchButtonMixedStateName)
             default:
-                // When the switch button trait is set, unknown accessibility values are omitted from the description.
-                break
+                // Prior to iOS 17 the then private trait would suppress any other accessibility values.
+                // Once the trait became public in 17 values other than the above are announced with the trait specifiers.
+                if #available(iOS 17.0, *), let accessibilityValue {
+                        traitSpecifiers.append(accessibilityValue)
+                    }
             }
         }
 
@@ -307,6 +314,13 @@ extension NSObject {
             return false
         }
     }
+    
+    private func hidesAccessibilityLabel(backDescriptor: String) -> Bool {
+        // To prevent duplication, Back Button elements omit their label if it matches the localized "Back" descriptor.
+        guard accessibilityTraits.contains(.backButton),
+              let label = accessibilityLabel else { return false }
+        return label.lowercased() == backDescriptor.lowercased()
+    }
 
     // MARK: - Private Static Properties
 
@@ -325,6 +339,8 @@ extension NSObject {
         let buttonTraitName: String
         
         let backButtonTraitName: String
+        
+        let backDescriptor: String
 
         let tabTraitName: String
 
@@ -408,6 +424,11 @@ extension NSObject {
             self.backButtonTraitName = "Back Button.".localized(
                 key: "trait.backbutton.description",
                 comment: "Description for the 'back button' accessibility trait",
+                locale: locale
+            )
+            self.backDescriptor = "Back".localized(
+                key: "back.descriptor",
+                comment: "Descriptor for the 'back' portion of the 'back button' accessibility trait",
                 locale: locale
             )
             self.tabTraitName = "Tab.".localized(

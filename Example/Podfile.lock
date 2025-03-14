@@ -1,9 +1,9 @@
 PODS:
-  - AccessibilitySnapshot/Core (0.7.0)
-  - AccessibilitySnapshot/iOSSnapshotTestCase (0.7.0):
+  - AccessibilitySnapshot/Core (0.9.0)
+  - AccessibilitySnapshot/iOSSnapshotTestCase (0.9.0):
     - AccessibilitySnapshot/Core
     - iOSSnapshotTestCase (~> 8.0)
-  - AccessibilitySnapshot/SnapshotTesting (0.7.0):
+  - AccessibilitySnapshot/SnapshotTesting (0.9.0):
     - AccessibilitySnapshot/Core
     - SnapshotTesting (~> 1.0)
   - iOSSnapshotTestCase (8.0.0):
@@ -32,7 +32,7 @@ EXTERNAL SOURCES:
     :path: "../AccessibilitySnapshot.podspec"
 
 SPEC CHECKSUMS:
-  AccessibilitySnapshot: a29652b9054223b6c2a19ef1c83631e2a62ecbf9
+  AccessibilitySnapshot: b99f949ae71771ab278d3e721cd5e0d4dac81c8e
   iOSSnapshotTestCase: a670511f9ee3829c2b9c23e6e68f315fd7b6790f
   Paralayout: 844978af530a061a31d849c7b554510190b9cddf
   SnapshotTesting: 8caa6661fea7c8019d5b46de77c16bab99c36c5c
