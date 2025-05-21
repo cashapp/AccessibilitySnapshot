@@ -609,7 +609,7 @@ private extension NSObject {
         if isAccessibilityElement {
             recursiveAccessibilityHierarchy.append(.element(self, contextProvider: contextProvider))
 
-        } else if let accessibilityElements = accessibilityElements as? [NSObject] {
+        } else if let accessibilityElements = accessibilityElements?.compactMap({ $0 as? NSObject}) {
             var accessibilityHierarchyOfElements: [AccessibilityNode] = []
             for element in accessibilityElements {
                 accessibilityHierarchyOfElements.append(
