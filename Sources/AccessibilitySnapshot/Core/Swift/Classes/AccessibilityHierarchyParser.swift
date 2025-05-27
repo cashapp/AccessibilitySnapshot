@@ -271,11 +271,13 @@ public final class AccessibilityHierarchyParser {
     /// this should typically be `false`.
     /// - parameter root: The root view to which the nodes' shapes are relative.
     /// - parameter userInterfaceLayoutDirection: The device's current user interface layout direction.
+    /// - parameter userInterfaceIdiom: the device's interface idiom, used to calculate the sort order
     private func sortedElements(
         for nodes: [AccessibilityNode],
         explicitlyOrdered: Bool,
         in root: UIView,
-        userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection
+        userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection,
+        userInterfaceIdiom: UIUserInterfaceIdiom = UIDevice.current.userInterfaceIdiom
     ) -> [Element] {
         // VoiceOver flick navigation iterates through elements in a horizontal, then vertical order. The horizontal
         // ordering matches the application's user interface layout direction. The vertical ordering is always
@@ -300,9 +302,9 @@ public final class AccessibilityHierarchyParser {
             fatalError("Unknown user interface layout direction: \(userInterfaceLayoutDirection)")
         }
         
-        // 8 seems to be the magic number for VoiceOver to consider it
-        // to be vertically "above" other views.
-        let minimumVerticalSeparation = 8.0
+        // Derived via experimentation, these magic numbers are the cutoff for VoiceOver to consider
+        // an element to be vertically "above" other views.
+        let minimumVerticalSeparation = userInterfaceIdiom == .phone ? 8.0 : 12.0
 
         let sortedNodes = explicitlyOrdered ? nodes : nodes
             .map { ($0, accessibilitySortFrame(for: $0, in: root)) }
