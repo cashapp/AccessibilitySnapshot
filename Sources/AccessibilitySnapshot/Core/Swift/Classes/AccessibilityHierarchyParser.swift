@@ -317,7 +317,7 @@ public final class AccessibilityHierarchyParser {
         
         // Derived via experimentation, these magic numbers are the cutoff for VoiceOver to consider
         // an element to be vertically "above" other views.
-        let minimumVerticalSeparation = userInterfaceIdiom == .phone ? 8.0 : 12.0
+        let minimumVerticalSeparation = userInterfaceIdiom == .phone ? 8.0 : 13.0
 
         let sortedNodes = explicitlyOrdered ? nodes : nodes
             .map { ($0, accessibilitySortFrame(for: $0, in: root)) }
