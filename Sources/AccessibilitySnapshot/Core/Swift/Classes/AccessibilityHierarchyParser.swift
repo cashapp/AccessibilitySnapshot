@@ -79,8 +79,17 @@ public protocol UserInterfaceLayoutDirectionProviding {
     var userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection { get }
 
 }
-
 extension UIApplication: UserInterfaceLayoutDirectionProviding {}
+
+
+public protocol UserInterfaceIdiomProviding {
+
+    var userInterfaceIdiom: UIUserInterfaceIdiom { get }
+    
+}
+
+extension UIDevice: UserInterfaceIdiomProviding {}
+
 
 // MARK: -
 
@@ -171,17 +180,20 @@ public final class AccessibilityHierarchyParser {
     /// In most cases, this should use the default value, `UIApplication.shared`.
     public func parseAccessibilityElements(
         in root: UIView,
-        userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared
+        userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
     ) -> [AccessibilityMarker] {
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
-
+        let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
+        
         let accessibilityNodes = root.recursiveAccessibilityHierarchy()
 
         let uncontextualizedElements = sortedElements(
             for: accessibilityNodes,
             explicitlyOrdered: false,
             in: root,
-            userInterfaceLayoutDirection: userInterfaceLayoutDirection
+            userInterfaceLayoutDirection: userInterfaceLayoutDirection,
+            userInterfaceIdiom: userInterfaceIdiom
         )
 
         let accessibilityElements = uncontextualizedElements.map { element in
@@ -190,7 +202,8 @@ public final class AccessibilityHierarchyParser {
                 context: context(
                     for: element.object,
                     from: element.contextProvider,
-                    userInterfaceLayoutDirection: userInterfaceLayoutDirection
+                    userInterfaceLayoutDirection: userInterfaceLayoutDirection,
+                    userInterfaceIdiom: userInterfaceIdiom
                 )
             )
         }
@@ -271,11 +284,13 @@ public final class AccessibilityHierarchyParser {
     /// this should typically be `false`.
     /// - parameter root: The root view to which the nodes' shapes are relative.
     /// - parameter userInterfaceLayoutDirection: The device's current user interface layout direction.
+    /// - parameter userInterfaceIdiom: the device's interface idiom, used to calculate the sort order
     private func sortedElements(
         for nodes: [AccessibilityNode],
         explicitlyOrdered: Bool,
         in root: UIView,
-        userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection
+        userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection,
+        userInterfaceIdiom: UIUserInterfaceIdiom = UIDevice.current.userInterfaceIdiom
     ) -> [Element] {
         // VoiceOver flick navigation iterates through elements in a horizontal, then vertical order. The horizontal
         // ordering matches the application's user interface layout direction. The vertical ordering is always
@@ -300,9 +315,9 @@ public final class AccessibilityHierarchyParser {
             fatalError("Unknown user interface layout direction: \(userInterfaceLayoutDirection)")
         }
         
-        // 8 seems to be the magic number for VoiceOver to consider it
-        // to be vertically "above" other views.
-        let minimumVerticalSeparation = 8.0
+        // Derived via experimentation, these magic numbers are the cutoff for VoiceOver to consider
+        // an element to be vertically "above" other views.
+        let minimumVerticalSeparation = userInterfaceIdiom == .phone ? 8.0 : 13.0
 
         let sortedNodes = explicitlyOrdered ? nodes : nodes
             .map { ($0, accessibilitySortFrame(for: $0, in: root)) }
@@ -331,7 +346,8 @@ public final class AccessibilityHierarchyParser {
                         for: elements,
                         explicitlyOrdered: explicitlyOrdered,
                         in: root,
-                        userInterfaceLayoutDirection: userInterfaceLayoutDirection
+                        userInterfaceLayoutDirection: userInterfaceLayoutDirection,
+                        userInterfaceIdiom: userInterfaceIdiom
                     )
                 )
             }
@@ -391,7 +407,8 @@ public final class AccessibilityHierarchyParser {
     private func context(
         for element: NSObject,
         from contextProvider: ContextProvider?,
-        userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection
+        userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection,
+        userInterfaceIdiom: UIUserInterfaceIdiom
     ) -> Context? {
         guard let contextProvider = contextProvider else {
             return nil
@@ -436,7 +453,8 @@ public final class AccessibilityHierarchyParser {
                         for: hierarchy,
                         explicitlyOrdered: false,
                         in: view,
-                        userInterfaceLayoutDirection: userInterfaceLayoutDirection
+                        userInterfaceLayoutDirection: userInterfaceLayoutDirection,
+                        userInterfaceIdiom: userInterfaceIdiom
                     ).map { $0.object }
                     viewToElementsMap[view] = accessibleElements
                 }
