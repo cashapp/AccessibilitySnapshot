@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-    - master
+      - master
   pull_request:
 
 jobs:
@@ -16,8 +16,8 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: ruby/setup-ruby@a4effe49ee8ee5b8b5091268c473a4628afb5651 # ratchet:ruby/setup-ruby@v1
         with:
           ruby-version: '3.2.2'
       - name: Bundle Install
@@ -29,7 +29,7 @@ jobs:
       - name: Build and Test
         run: Scripts/build.swift xcode ${{ matrix.platform }} `which xcpretty`
       - name: Upload Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
         if: failure()
         with:
           name: Test Results (${{ matrix.platform }})
@@ -39,8 +39,8 @@ jobs:
     runs-on: macOS-13
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - uses: ruby/setup-ruby@a4effe49ee8ee5b8b5091268c473a4628afb5651 # ratchet:ruby/setup-ruby@v1
         with:
           ruby-version: '3.2.2'
       - name: Bundle Install
@@ -58,7 +58,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Prepare Simulator Runtimes
         run: Scripts/github/prepare-simulators.sh ${{ matrix.platform }}
       - name: Build
@@ -68,7 +68,7 @@ jobs:
     runs-on: macOS-13
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Build
         run: carthage build --no-skip-current --platform iOS --use-xcframeworks --verbose
   validate-strings:
@@ -76,6 +76,6 @@ jobs:
     runs-on: macOS-13
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Validate Localized Strings
         run: Scripts/ValidateLocalizedStrings.swift
