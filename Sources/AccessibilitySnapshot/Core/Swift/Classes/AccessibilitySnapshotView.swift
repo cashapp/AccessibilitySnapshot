@@ -15,6 +15,7 @@
 //
 
 import UIKit
+import AccessibilitySnapshotParser
 
 public enum ActivationPointDisplayMode {
 
@@ -54,13 +55,13 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     public init(
         containedView: UIView,
         viewRenderingMode: ViewRenderingMode,
-        markerColors: [UIColor] = defaultMarkerColors,
+        markerColors: [UIColor] = MarkerColors.defaultColors,
         activationPointDisplayMode: ActivationPointDisplayMode,
         showUserInputLabels: Bool
     ) {
         self.containedView = containedView
         self.viewRenderingMode = viewRenderingMode
-        self.markerColors = markerColors.isEmpty ? AccessibilitySnapshotView.defaultMarkerColors : markerColors
+        self.markerColors = markerColors.isEmpty ? MarkerColors.defaultColors : markerColors
         self.activationPointDisplayMode = activationPointDisplayMode
         self.showUserInputLabels = showUserInputLabels
 
@@ -214,10 +215,6 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         self.displayMarkers = displayMarkers
     }
 
-    // MARK: - Public Static Properties
-
-    public static let defaultMarkerColors: [UIColor] = [ .cyan, .magenta, .green, .blue, .yellow, .purple, .orange ]
-
     // MARK: - Private Types
 
     private struct DisplayMarker {
@@ -229,22 +226,6 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         var overlayView: UIView
 
         var activationPointView: UIView?
-
-    }
-
-}
-
-// MARK: -
-
-extension AccessibilitySnapshotView {
-
-    public enum ViewRenderingMode {
-
-        /// Render the view's layer in a `CGContext` using the `render(in:)` method.
-        case renderLayerInContext
-
-        /// Draw the view's hierarchy after screen updates using the `drawHierarchy(in:afterScreenUpdates:)` method.
-        case drawHierarchyInRect
 
     }
 
@@ -474,24 +455,6 @@ private extension AccessibilitySnapshotView {
 
         }
 
-        private enum Strings {
-
-            static func actionsAvailableText(for locale: String?) -> String {
-                return "Actions Available".localized(
-                    key: "custom_actions.description",
-                    comment: "Description for an accessibility element indicating that it has custom actions available",
-                    locale: locale
-                )
-            }
-            
-            static func moreContentAvailableText(for locale: String?) -> String {
-                return "More Content Available".localized(
-                    key: "custom_content.description",
-                    comment: "Description for an accessibility element indicating that it has additional custom content available",
-                    locale: locale
-                )
-            }
-        }
 
     }
     
@@ -777,24 +740,6 @@ private final class CustomContentView: UIView {
         static let boldFont: UIFont = .boldSystemFont(ofSize: 12)
 
     }
-}
-
-// MARK: -
-
-private extension Bundle {
-
-    private final class Sentinel {}
-
-    static var accessibilitySnapshotResources: Bundle = {
-        #if SWIFT_PACKAGE
-        return Bundle.module
-        #else
-        let container = Bundle(for: Sentinel.self)
-        let resources = container.url(forResource: "AccessibilitySnapshot", withExtension: "bundle")!
-        return Bundle(url: resources)!
-        #endif
-    }()
-
 }
 
 // MARK: -

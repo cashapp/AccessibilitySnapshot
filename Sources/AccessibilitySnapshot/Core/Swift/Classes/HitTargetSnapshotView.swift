@@ -23,8 +23,8 @@ public final class HitTargetSnapshotView: SnapshotAndLegendView {
     public init(
         baseView: UIView,
         useMonochromeSnapshot: Bool,
-        viewRenderingMode: AccessibilitySnapshotView.ViewRenderingMode,
-        colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        viewRenderingMode: ViewRenderingMode,
+        colors: [UIColor] = MarkerColors.defaultColors,
         maxPermissibleMissedRegionWidth: CGFloat = 0,
         maxPermissibleMissedRegionHeight: CGFloat = 0
     ) throws {

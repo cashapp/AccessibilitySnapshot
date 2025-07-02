@@ -44,7 +44,7 @@ extension UIView {
 
     func renderToImage(
         monochrome: Bool,
-        viewRenderingMode: AccessibilitySnapshotView.ViewRenderingMode
+        viewRenderingMode: ViewRenderingMode
     ) throws -> UIImage {
         let renderer = UIGraphicsImageRenderer(bounds: bounds)
 
