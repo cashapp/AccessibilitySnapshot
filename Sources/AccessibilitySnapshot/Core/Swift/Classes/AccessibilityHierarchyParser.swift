@@ -636,9 +636,28 @@ private extension NSObject {
                     )
                 )
             }
+
+            let explicitOrderingExceptionList = [
+                "UILayoutContainerView",
+                "UpdateCoalescingCollectionView",
+            ]
+
+            let explicitlyOrdered = accessibilityElements.contains {
+                explicitOrderingExceptionList.contains("\(type(of: $0))") == false
+            }
+            let shouldBeExplicitlyOrdered = accessibilityHierarchyOfElements.contains { node in
+                switch node {
+                case .element:
+                    // Only set explicitly ordered if an element node is a direct descendent of this group.
+                    return true
+                case .group:
+                    return false
+                }
+            }
+
             recursiveAccessibilityHierarchy.append(.group(
                 accessibilityHierarchyOfElements,
-                explicitlyOrdered: true,
+                explicitlyOrdered: shouldBeExplicitlyOrdered,
                 frameOverrideProvider: (overridesElementFrame(with: contextProvider) ? self : nil)
             ))
 
