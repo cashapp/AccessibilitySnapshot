@@ -20,7 +20,7 @@ import UIKit
 
 #if SWIFT_PACKAGE
 import AccessibilitySnapshotCore
-import AccessibilitySnapshotCore_ObjC
+import AccessibilitySnapshotParser_ObjC
 #endif
 
 extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
