@@ -189,7 +189,7 @@ extension FBSnapshotTestCase {
         _ view: UIView,
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
-        colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        colors: [UIColor] = MarkerColors.defaultColors,
         maxPermissibleMissedRegionWidth: CGFloat = 0,
         maxPermissibleMissedRegionHeight: CGFloat = 0,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),

@@ -15,7 +15,9 @@
 //
 
 import UIKit
+#if SWIFT_PACKAGE
 import AccessibilitySnapshotParser
+#endif
 
 public enum ActivationPointDisplayMode {
 
