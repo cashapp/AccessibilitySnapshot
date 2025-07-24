@@ -7,24 +7,45 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3D29F3EE2B59FB0D0053E048 /* HitTargetSnapshotUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D29F3ED2B59FB0D0053E048 /* HitTargetSnapshotUtility.swift */; };
-		3D63420F2B589032003FB4D3 /* SnapshotAndLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D63420E2B589032003FB4D3 /* SnapshotAndLegendView.swift */; };
-		3D9D41882B355E970033460C /* HitTargetSnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9D41862B355E970033460C /* HitTargetSnapshotView.swift */; };
-		3D9D41892B355E970033460C /* UIView+ImageRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D9D41872B355E970033460C /* UIView+ImageRendering.swift */; };
-		8342DC102A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8342DC0F2A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift */; };
-		EF28C2D92A55CA3A00D78303 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = EF4D51DF2A55A4A400FF0E46 /* Images.xcassets */; };
-		EF28C2DA2A55CA4600D78303 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = EF4D51DC2A55A4A400FF0E46 /* Localizable.strings */; };
+		34A80D182E316B2E0095BECA /* ASAccessibilityEnabler.m in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D082E316B2E0095BECA /* ASAccessibilityEnabler.m */; };
+		34A80D192E316B2E0095BECA /* String+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D122E316B2E0095BECA /* String+Localization.swift */; };
+		34A80D1A2E316B2E0095BECA /* UIAccessibility+SnapshotAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D132E316B2E0095BECA /* UIAccessibility+SnapshotAdditions.swift */; };
+		34A80D1B2E316B2E0095BECA /* AccessibilityHierarchyParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D112E316B2E0095BECA /* AccessibilityHierarchyParser.swift */; };
+		34A80D1C2E316B2E0095BECA /* UIAccessibilityStatusUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D092E316B2E0095BECA /* UIAccessibilityStatusUtility.m */; };
+		34A80D1E2E316B2E0095BECA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 34A80D0B2E316B2E0095BECA /* Images.xcassets */; };
+		34A80D1F2E316B2E0095BECA /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 34A80D0F2E316B2E0095BECA /* Localizable.strings */; };
+		34A80D202E316B2E0095BECA /* ASAccessibilityEnabler.m in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D082E316B2E0095BECA /* ASAccessibilityEnabler.m */; };
+		34A80D212E316B2E0095BECA /* String+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D122E316B2E0095BECA /* String+Localization.swift */; };
+		34A80D222E316B2E0095BECA /* UIAccessibility+SnapshotAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D132E316B2E0095BECA /* UIAccessibility+SnapshotAdditions.swift */; };
+		34A80D232E316B2E0095BECA /* AccessibilityHierarchyParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D112E316B2E0095BECA /* AccessibilityHierarchyParser.swift */; };
+		34A80D242E316B2E0095BECA /* UIAccessibilityStatusUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D092E316B2E0095BECA /* UIAccessibilityStatusUtility.m */; };
+		34A80D262E316B2E0095BECA /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 34A80D0B2E316B2E0095BECA /* Images.xcassets */; };
+		34A80D272E316B2E0095BECA /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 34A80D0F2E316B2E0095BECA /* Localizable.strings */; };
+		34A80D282E316B2E0095BECA /* UIAccessibilityStatusUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = 34A80D062E316B2E0095BECA /* UIAccessibilityStatusUtility.h */; };
+		34A80D352E316C570095BECA /* Localizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2E2E316C570095BECA /* Localizations.swift */; };
+		34A80D362E316C570095BECA /* ViewRenderingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D332E316C570095BECA /* ViewRenderingMode.swift */; };
+		34A80D372E316C570095BECA /* HitTargetSnapshotUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2C2E316C570095BECA /* HitTargetSnapshotUtility.swift */; };
+		34A80D382E316C570095BECA /* DefaultColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2B2E316C570095BECA /* DefaultColors.swift */; };
+		34A80D392E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2A2E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift */; };
+		34A80D3A2E316C570095BECA /* UIView+ImageRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D312E316C570095BECA /* UIView+ImageRendering.swift */; };
+		34A80D3B2E316C570095BECA /* HitTargetSnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2D2E316C570095BECA /* HitTargetSnapshotView.swift */; };
+		34A80D3C2E316C570095BECA /* AccessibilitySnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D292E316C570095BECA /* AccessibilitySnapshotView.swift */; };
+		34A80D3D2E316C570095BECA /* UIView+InvertColorsSnapshotting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D322E316C570095BECA /* UIView+InvertColorsSnapshotting.swift */; };
+		34A80D3E2E316C570095BECA /* UIApplication+FirstKeyWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D302E316C570095BECA /* UIApplication+FirstKeyWindow.swift */; };
+		34A80D3F2E316C570095BECA /* SnapshotAndLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2F2E316C570095BECA /* SnapshotAndLegendView.swift */; };
+		34A80D402E316C570095BECA /* Localizations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2E2E316C570095BECA /* Localizations.swift */; };
+		34A80D412E316C570095BECA /* ViewRenderingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D332E316C570095BECA /* ViewRenderingMode.swift */; };
+		34A80D422E316C570095BECA /* HitTargetSnapshotUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2C2E316C570095BECA /* HitTargetSnapshotUtility.swift */; };
+		34A80D432E316C570095BECA /* DefaultColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2B2E316C570095BECA /* DefaultColors.swift */; };
+		34A80D442E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2A2E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift */; };
+		34A80D452E316C570095BECA /* UIView+ImageRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D312E316C570095BECA /* UIView+ImageRendering.swift */; };
+		34A80D462E316C570095BECA /* HitTargetSnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2D2E316C570095BECA /* HitTargetSnapshotView.swift */; };
+		34A80D472E316C570095BECA /* AccessibilitySnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D292E316C570095BECA /* AccessibilitySnapshotView.swift */; };
+		34A80D482E316C570095BECA /* UIView+InvertColorsSnapshotting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D322E316C570095BECA /* UIView+InvertColorsSnapshotting.swift */; };
+		34A80D492E316C570095BECA /* UIApplication+FirstKeyWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D302E316C570095BECA /* UIApplication+FirstKeyWindow.swift */; };
+		34A80D4A2E316C570095BECA /* SnapshotAndLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2F2E316C570095BECA /* SnapshotAndLegendView.swift */; };
 		EF28C2DB2A55CA5800D78303 /* AccessibilitySnapshot.bundle in Resources */ = {isa = PBXBuildFile; fileRef = EF28C2D52A55CA2700D78303 /* AccessibilitySnapshot.bundle */; };
 		EF4D51F32A55A51D00FF0E46 /* AccessibilitySnapshotCore.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4D51F22A55A51D00FF0E46 /* AccessibilitySnapshotCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		EF4D51FD2A55A68500FF0E46 /* String+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51DA2A55A4A400FF0E46 /* String+Localization.swift */; };
-		EF4D51FE2A55A68500FF0E46 /* UIAccessibility+SnapshotAdditions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51D62A55A4A400FF0E46 /* UIAccessibility+SnapshotAdditions.swift */; };
-		EF4D51FF2A55A68500FF0E46 /* AccessibilityHierarchyParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51D82A55A4A400FF0E46 /* AccessibilityHierarchyParser.swift */; };
-		EF4D52002A55A68500FF0E46 /* UIApplication+FirstKeyWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51D92A55A4A400FF0E46 /* UIApplication+FirstKeyWindow.swift */; };
-		EF4D52012A55A68500FF0E46 /* UIView+InvertColorsSnapshotting.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51D52A55A4A400FF0E46 /* UIView+InvertColorsSnapshotting.swift */; };
-		EF4D52022A55A68500FF0E46 /* AccessibilitySnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51D72A55A4A400FF0E46 /* AccessibilitySnapshotView.swift */; };
-		EF4D52042A55A69A00FF0E46 /* ASAccessibilityEnabler.m in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51E32A55A4A400FF0E46 /* ASAccessibilityEnabler.m */; };
-		EF4D52072A55A69A00FF0E46 /* UIAccessibilityStatusUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = EF4D51E52A55A4A400FF0E46 /* UIAccessibilityStatusUtility.m */; };
-		EF4D520A2A55A6D000FF0E46 /* UIAccessibilityStatusUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4D51E82A55A4A400FF0E46 /* UIAccessibilityStatusUtility.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,25 +59,29 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		3D29F3ED2B59FB0D0053E048 /* HitTargetSnapshotUtility.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HitTargetSnapshotUtility.swift; sourceTree = "<group>"; };
-		3D63420E2B589032003FB4D3 /* SnapshotAndLegendView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapshotAndLegendView.swift; sourceTree = "<group>"; };
-		3D9D41862B355E970033460C /* HitTargetSnapshotView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HitTargetSnapshotView.swift; sourceTree = "<group>"; };
-		3D9D41872B355E970033460C /* UIView+ImageRendering.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIView+ImageRendering.swift"; sourceTree = "<group>"; };
-		8342DC0F2A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AccessibilitySnapshotView+PillsView.swift"; sourceTree = "<group>"; };
+		34A80D062E316B2E0095BECA /* UIAccessibilityStatusUtility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIAccessibilityStatusUtility.h; sourceTree = "<group>"; };
+		34A80D082E316B2E0095BECA /* ASAccessibilityEnabler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ASAccessibilityEnabler.m; sourceTree = "<group>"; };
+		34A80D092E316B2E0095BECA /* UIAccessibilityStatusUtility.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UIAccessibilityStatusUtility.m; sourceTree = "<group>"; };
+		34A80D0B2E316B2E0095BECA /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		34A80D0C2E316B2E0095BECA /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		34A80D0D2E316B2E0095BECA /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		34A80D0E2E316B2E0095BECA /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		34A80D112E316B2E0095BECA /* AccessibilityHierarchyParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityHierarchyParser.swift; sourceTree = "<group>"; };
+		34A80D122E316B2E0095BECA /* String+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Localization.swift"; sourceTree = "<group>"; };
+		34A80D132E316B2E0095BECA /* UIAccessibility+SnapshotAdditions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAccessibility+SnapshotAdditions.swift"; sourceTree = "<group>"; };
+		34A80D162E316B2E0095BECA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		34A80D292E316C570095BECA /* AccessibilitySnapshotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilitySnapshotView.swift; sourceTree = "<group>"; };
+		34A80D2A2E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessibilitySnapshotView+PillsView.swift"; sourceTree = "<group>"; };
+		34A80D2B2E316C570095BECA /* DefaultColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultColors.swift; sourceTree = "<group>"; };
+		34A80D2C2E316C570095BECA /* HitTargetSnapshotUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HitTargetSnapshotUtility.swift; sourceTree = "<group>"; };
+		34A80D2D2E316C570095BECA /* HitTargetSnapshotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HitTargetSnapshotView.swift; sourceTree = "<group>"; };
+		34A80D2E2E316C570095BECA /* Localizations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Localizations.swift; sourceTree = "<group>"; };
+		34A80D2F2E316C570095BECA /* SnapshotAndLegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotAndLegendView.swift; sourceTree = "<group>"; };
+		34A80D302E316C570095BECA /* UIApplication+FirstKeyWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+FirstKeyWindow.swift"; sourceTree = "<group>"; };
+		34A80D312E316C570095BECA /* UIView+ImageRendering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+ImageRendering.swift"; sourceTree = "<group>"; };
+		34A80D322E316C570095BECA /* UIView+InvertColorsSnapshotting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+InvertColorsSnapshotting.swift"; sourceTree = "<group>"; };
+		34A80D332E316C570095BECA /* ViewRenderingMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRenderingMode.swift; sourceTree = "<group>"; };
 		EF28C2D52A55CA2700D78303 /* AccessibilitySnapshot.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AccessibilitySnapshot.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
-		EF4D51D52A55A4A400FF0E46 /* UIView+InvertColorsSnapshotting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+InvertColorsSnapshotting.swift"; sourceTree = "<group>"; };
-		EF4D51D62A55A4A400FF0E46 /* UIAccessibility+SnapshotAdditions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAccessibility+SnapshotAdditions.swift"; sourceTree = "<group>"; };
-		EF4D51D72A55A4A400FF0E46 /* AccessibilitySnapshotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilitySnapshotView.swift; sourceTree = "<group>"; };
-		EF4D51D82A55A4A400FF0E46 /* AccessibilityHierarchyParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityHierarchyParser.swift; sourceTree = "<group>"; };
-		EF4D51D92A55A4A400FF0E46 /* UIApplication+FirstKeyWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+FirstKeyWindow.swift"; sourceTree = "<group>"; };
-		EF4D51DA2A55A4A400FF0E46 /* String+Localization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Localization.swift"; sourceTree = "<group>"; };
-		EF4D51DD2A55A4A400FF0E46 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
-		EF4D51DE2A55A4A400FF0E46 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
-		EF4D51DF2A55A4A400FF0E46 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		EF4D51E02A55A4A400FF0E46 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
-		EF4D51E32A55A4A400FF0E46 /* ASAccessibilityEnabler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ASAccessibilityEnabler.m; sourceTree = "<group>"; };
-		EF4D51E52A55A4A400FF0E46 /* UIAccessibilityStatusUtility.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UIAccessibilityStatusUtility.m; sourceTree = "<group>"; };
-		EF4D51E82A55A4A400FF0E46 /* UIAccessibilityStatusUtility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIAccessibilityStatusUtility.h; sourceTree = "<group>"; };
 		EF4D51EF2A55A51D00FF0E46 /* AccessibilitySnapshotCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AccessibilitySnapshotCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF4D51F22A55A51D00FF0E46 /* AccessibilitySnapshotCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AccessibilitySnapshotCore.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -79,77 +104,90 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		EF4D51CB2A55A3B200FF0E46 = {
+		34A80D072E316B2E0095BECA /* include */ = {
 			isa = PBXGroup;
 			children = (
-				EF4D51D22A55A4A400FF0E46 /* Core */,
-				EF4D51F12A55A51D00FF0E46 /* AccessibilitySnapshotCore */,
-				EF4D51F02A55A51D00FF0E46 /* Products */,
+				34A80D062E316B2E0095BECA /* UIAccessibilityStatusUtility.h */,
 			);
+			path = include;
 			sourceTree = "<group>";
 		};
-		EF4D51D22A55A4A400FF0E46 /* Core */ = {
+		34A80D0A2E316B2E0095BECA /* ObjC */ = {
 			isa = PBXGroup;
 			children = (
-				EF4D51D32A55A4A400FF0E46 /* Swift */,
-				EF4D51E12A55A4A400FF0E46 /* ObjC */,
-			);
-			name = Core;
-			path = AccessibilitySnapshot/Core;
-			sourceTree = "<group>";
-		};
-		EF4D51D32A55A4A400FF0E46 /* Swift */ = {
-			isa = PBXGroup;
-			children = (
-				EF4D51D42A55A4A400FF0E46 /* Classes */,
-				EF4D51DB2A55A4A400FF0E46 /* Assets */,
-			);
-			path = Swift;
-			sourceTree = "<group>";
-		};
-		EF4D51D42A55A4A400FF0E46 /* Classes */ = {
-			isa = PBXGroup;
-			children = (
-				3D29F3ED2B59FB0D0053E048 /* HitTargetSnapshotUtility.swift */,
-				3D63420E2B589032003FB4D3 /* SnapshotAndLegendView.swift */,
-				3D9D41862B355E970033460C /* HitTargetSnapshotView.swift */,
-				3D9D41872B355E970033460C /* UIView+ImageRendering.swift */,
-				8342DC0F2A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift */,
-				EF4D51D52A55A4A400FF0E46 /* UIView+InvertColorsSnapshotting.swift */,
-				EF4D51D62A55A4A400FF0E46 /* UIAccessibility+SnapshotAdditions.swift */,
-				EF4D51D72A55A4A400FF0E46 /* AccessibilitySnapshotView.swift */,
-				EF4D51D82A55A4A400FF0E46 /* AccessibilityHierarchyParser.swift */,
-				EF4D51D92A55A4A400FF0E46 /* UIApplication+FirstKeyWindow.swift */,
-				EF4D51DA2A55A4A400FF0E46 /* String+Localization.swift */,
-			);
-			path = Classes;
-			sourceTree = "<group>";
-		};
-		EF4D51DB2A55A4A400FF0E46 /* Assets */ = {
-			isa = PBXGroup;
-			children = (
-				EF4D51DC2A55A4A400FF0E46 /* Localizable.strings */,
-				EF4D51DF2A55A4A400FF0E46 /* Images.xcassets */,
-			);
-			path = Assets;
-			sourceTree = "<group>";
-		};
-		EF4D51E12A55A4A400FF0E46 /* ObjC */ = {
-			isa = PBXGroup;
-			children = (
-				EF4D51E32A55A4A400FF0E46 /* ASAccessibilityEnabler.m */,
-				EF4D51E52A55A4A400FF0E46 /* UIAccessibilityStatusUtility.m */,
-				EF4D51E62A55A4A400FF0E46 /* include */,
+				34A80D072E316B2E0095BECA /* include */,
+				34A80D082E316B2E0095BECA /* ASAccessibilityEnabler.m */,
+				34A80D092E316B2E0095BECA /* UIAccessibilityStatusUtility.m */,
 			);
 			path = ObjC;
 			sourceTree = "<group>";
 		};
-		EF4D51E62A55A4A400FF0E46 /* include */ = {
+		34A80D102E316B2E0095BECA /* Assets */ = {
 			isa = PBXGroup;
 			children = (
-				EF4D51E82A55A4A400FF0E46 /* UIAccessibilityStatusUtility.h */,
+				34A80D0B2E316B2E0095BECA /* Images.xcassets */,
+				34A80D0F2E316B2E0095BECA /* Localizable.strings */,
 			);
-			path = include;
+			path = Assets;
+			sourceTree = "<group>";
+		};
+		34A80D142E316B2E0095BECA /* Classes */ = {
+			isa = PBXGroup;
+			children = (
+				34A80D112E316B2E0095BECA /* AccessibilityHierarchyParser.swift */,
+				34A80D122E316B2E0095BECA /* String+Localization.swift */,
+				34A80D132E316B2E0095BECA /* UIAccessibility+SnapshotAdditions.swift */,
+			);
+			path = Classes;
+			sourceTree = "<group>";
+		};
+		34A80D152E316B2E0095BECA /* Swift */ = {
+			isa = PBXGroup;
+			children = (
+				34A80D102E316B2E0095BECA /* Assets */,
+				34A80D142E316B2E0095BECA /* Classes */,
+			);
+			path = Swift;
+			sourceTree = "<group>";
+		};
+		34A80D172E316B2E0095BECA /* Parser */ = {
+			isa = PBXGroup;
+			children = (
+				34A80D0A2E316B2E0095BECA /* ObjC */,
+				34A80D152E316B2E0095BECA /* Swift */,
+				34A80D162E316B2E0095BECA /* Info.plist */,
+				34A80D342E316C570095BECA /* Core */,
+			);
+			name = Parser;
+			path = AccessibilitySnapshot/Parser;
+			sourceTree = "<group>";
+		};
+		34A80D342E316C570095BECA /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				34A80D292E316C570095BECA /* AccessibilitySnapshotView.swift */,
+				34A80D2A2E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift */,
+				34A80D2B2E316C570095BECA /* DefaultColors.swift */,
+				34A80D2C2E316C570095BECA /* HitTargetSnapshotUtility.swift */,
+				34A80D2D2E316C570095BECA /* HitTargetSnapshotView.swift */,
+				34A80D2E2E316C570095BECA /* Localizations.swift */,
+				34A80D2F2E316C570095BECA /* SnapshotAndLegendView.swift */,
+				34A80D302E316C570095BECA /* UIApplication+FirstKeyWindow.swift */,
+				34A80D312E316C570095BECA /* UIView+ImageRendering.swift */,
+				34A80D322E316C570095BECA /* UIView+InvertColorsSnapshotting.swift */,
+				34A80D332E316C570095BECA /* ViewRenderingMode.swift */,
+			);
+			name = Core;
+			path = AccessibilitySnapshot/Core;
+			sourceTree = SOURCE_ROOT;
+		};
+		EF4D51CB2A55A3B200FF0E46 = {
+			isa = PBXGroup;
+			children = (
+				34A80D172E316B2E0095BECA /* Parser */,
+				EF4D51F12A55A51D00FF0E46 /* AccessibilitySnapshotCore */,
+				EF4D51F02A55A51D00FF0E46 /* Products */,
+			);
 			sourceTree = "<group>";
 		};
 		EF4D51F02A55A51D00FF0E46 /* Products */ = {
@@ -177,7 +215,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EF4D51F32A55A51D00FF0E46 /* AccessibilitySnapshotCore.h in Headers */,
-				EF4D520A2A55A6D000FF0E46 /* UIAccessibilityStatusUtility.h in Headers */,
+				34A80D282E316B2E0095BECA /* UIAccessibilityStatusUtility.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -263,8 +301,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF28C2D92A55CA3A00D78303 /* Images.xcassets in Resources */,
-				EF28C2DA2A55CA4600D78303 /* Localizable.strings in Resources */,
+				34A80D1E2E316B2E0095BECA /* Images.xcassets in Resources */,
+				34A80D1F2E316B2E0095BECA /* Localizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,6 +310,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34A80D262E316B2E0095BECA /* Images.xcassets in Resources */,
+				34A80D272E316B2E0095BECA /* Localizable.strings in Resources */,
 				EF28C2DB2A55CA5800D78303 /* AccessibilitySnapshot.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -283,6 +323,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34A80D182E316B2E0095BECA /* ASAccessibilityEnabler.m in Sources */,
+				34A80D192E316B2E0095BECA /* String+Localization.swift in Sources */,
+				34A80D402E316C570095BECA /* Localizations.swift in Sources */,
+				34A80D412E316C570095BECA /* ViewRenderingMode.swift in Sources */,
+				34A80D422E316C570095BECA /* HitTargetSnapshotUtility.swift in Sources */,
+				34A80D432E316C570095BECA /* DefaultColors.swift in Sources */,
+				34A80D442E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift in Sources */,
+				34A80D452E316C570095BECA /* UIView+ImageRendering.swift in Sources */,
+				34A80D462E316C570095BECA /* HitTargetSnapshotView.swift in Sources */,
+				34A80D472E316C570095BECA /* AccessibilitySnapshotView.swift in Sources */,
+				34A80D482E316C570095BECA /* UIView+InvertColorsSnapshotting.swift in Sources */,
+				34A80D492E316C570095BECA /* UIApplication+FirstKeyWindow.swift in Sources */,
+				34A80D4A2E316C570095BECA /* SnapshotAndLegendView.swift in Sources */,
+				34A80D1A2E316B2E0095BECA /* UIAccessibility+SnapshotAdditions.swift in Sources */,
+				34A80D1B2E316B2E0095BECA /* AccessibilityHierarchyParser.swift in Sources */,
+				34A80D1C2E316B2E0095BECA /* UIAccessibilityStatusUtility.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -290,19 +346,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EF4D51FF2A55A68500FF0E46 /* AccessibilityHierarchyParser.swift in Sources */,
-				3D9D41892B355E970033460C /* UIView+ImageRendering.swift in Sources */,
-				EF4D52012A55A68500FF0E46 /* UIView+InvertColorsSnapshotting.swift in Sources */,
-				EF4D51FE2A55A68500FF0E46 /* UIAccessibility+SnapshotAdditions.swift in Sources */,
-				EF4D51FD2A55A68500FF0E46 /* String+Localization.swift in Sources */,
-				8342DC102A8E441B00810258 /* AccessibilitySnapshotView+PillsView.swift in Sources */,
-				3D9D41882B355E970033460C /* HitTargetSnapshotView.swift in Sources */,
-				3D29F3EE2B59FB0D0053E048 /* HitTargetSnapshotUtility.swift in Sources */,
-				EF4D52002A55A68500FF0E46 /* UIApplication+FirstKeyWindow.swift in Sources */,
-				EF4D52042A55A69A00FF0E46 /* ASAccessibilityEnabler.m in Sources */,
-				EF4D52022A55A68500FF0E46 /* AccessibilitySnapshotView.swift in Sources */,
-				EF4D52072A55A69A00FF0E46 /* UIAccessibilityStatusUtility.m in Sources */,
-				3D63420F2B589032003FB4D3 /* SnapshotAndLegendView.swift in Sources */,
+				34A80D202E316B2E0095BECA /* ASAccessibilityEnabler.m in Sources */,
+				34A80D212E316B2E0095BECA /* String+Localization.swift in Sources */,
+				34A80D352E316C570095BECA /* Localizations.swift in Sources */,
+				34A80D362E316C570095BECA /* ViewRenderingMode.swift in Sources */,
+				34A80D372E316C570095BECA /* HitTargetSnapshotUtility.swift in Sources */,
+				34A80D382E316C570095BECA /* DefaultColors.swift in Sources */,
+				34A80D392E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift in Sources */,
+				34A80D3A2E316C570095BECA /* UIView+ImageRendering.swift in Sources */,
+				34A80D3B2E316C570095BECA /* HitTargetSnapshotView.swift in Sources */,
+				34A80D3C2E316C570095BECA /* AccessibilitySnapshotView.swift in Sources */,
+				34A80D3D2E316C570095BECA /* UIView+InvertColorsSnapshotting.swift in Sources */,
+				34A80D3E2E316C570095BECA /* UIApplication+FirstKeyWindow.swift in Sources */,
+				34A80D3F2E316C570095BECA /* SnapshotAndLegendView.swift in Sources */,
+				34A80D222E316B2E0095BECA /* UIAccessibility+SnapshotAdditions.swift in Sources */,
+				34A80D232E316B2E0095BECA /* AccessibilityHierarchyParser.swift in Sources */,
+				34A80D242E316B2E0095BECA /* UIAccessibilityStatusUtility.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -317,12 +376,12 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		EF4D51DC2A55A4A400FF0E46 /* Localizable.strings */ = {
+		34A80D0F2E316B2E0095BECA /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				EF4D51DD2A55A4A400FF0E46 /* de */,
-				EF4D51DE2A55A4A400FF0E46 /* en */,
-				EF4D51E02A55A4A400FF0E46 /* ru */,
+				34A80D0C2E316B2E0095BECA /* de */,
+				34A80D0D2E316B2E0095BECA /* en */,
+				34A80D0E2E316B2E0095BECA /* ru */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -398,6 +457,7 @@
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 				WRAPPER_EXTENSION = bundle;
 			};
 			name = Debug;
@@ -463,6 +523,7 @@
 				SDKROOT = macosx;
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 				WRAPPER_EXTENSION = bundle;
 			};
 			name = Release;
