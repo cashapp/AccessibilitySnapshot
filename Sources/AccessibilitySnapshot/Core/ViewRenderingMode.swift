@@ -5,7 +5,7 @@
 //  Created by Soroush Khanlou on 7/1/25.
 //
 
-/// TODO: Docs
+/// The preferred strategy for convering a view to an image.
 public enum ViewRenderingMode {
 
     /// Render the view's layer in a `CGContext` using the `render(in:)` method.
