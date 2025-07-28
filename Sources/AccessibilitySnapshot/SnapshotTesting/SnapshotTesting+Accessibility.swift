@@ -19,7 +19,8 @@ import UIKit
 
 #if SWIFT_PACKAGE
 import AccessibilitySnapshotCore
-import AccessibilitySnapshotCore_ObjC
+import AccessibilitySnapshotParser
+import AccessibilitySnapshotParser_ObjC
 #endif
 
 extension Snapshotting where Value == UIView, Format == UIImage {
@@ -177,7 +178,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     public static func imageWithHitTargets(
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
-        colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        colors: [UIColor] = MarkerColors.defaultColors,
         maxPermissibleMissedRegionWidth: CGFloat = 0,
         maxPermissibleMissedRegionHeight: CGFloat = 0,
         file: StaticString = #file,
@@ -303,7 +304,7 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     public static func imageWithHitTargets(
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
-        colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        colors: [UIColor] = MarkerColors.defaultColors,
         file: StaticString = #file,
         line: UInt = #line
     ) -> Snapshotting {

@@ -28,7 +28,25 @@ extension String {
 
 // MARK: -
 
-private enum StringLocalization {
+extension Bundle {
+
+    private final class Sentinel {}
+
+    public static var accessibilitySnapshotResources: Bundle = {
+        #if SWIFT_PACKAGE
+        return Bundle.module
+        #else
+        let container = Bundle(for: Sentinel.self)
+        let resources = container.url(forResource: "AccessibilitySnapshot", withExtension: "bundle")!
+        return Bundle(url: resources)!
+        #endif
+    }()
+
+}
+
+// MARK: -
+
+public enum StringLocalization {
 
     // MARK: - Private Static Properties
 
@@ -54,7 +72,7 @@ private enum StringLocalization {
 
     // MARK: - Public Static Methods
 
-    static func preferredBundle(for locale: String?) -> Bundle {
+    public static func preferredBundle(for locale: String?) -> Bundle {
         guard let locale = locale else {
             return resourceBundle
         }

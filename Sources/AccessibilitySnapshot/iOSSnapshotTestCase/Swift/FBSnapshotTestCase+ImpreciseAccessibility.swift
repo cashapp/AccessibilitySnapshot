@@ -18,7 +18,7 @@ import XCTest
 
 #if SWIFT_PACKAGE
 import AccessibilitySnapshotCore
-import AccessibilitySnapshotCore_ObjC
+import AccessibilitySnapshotParser_ObjC
 import iOSSnapshotTestCase
 #else
 import FBSnapshotTestCase
@@ -226,7 +226,7 @@ extension FBSnapshotTestCase {
         _ view: UIView,
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
-        colors: [UIColor] = AccessibilitySnapshotView.defaultMarkerColors,
+        colors: [UIColor] = MarkerColors.defaultColors,
         maxPermissibleMissedRegionWidth: CGFloat = 0,
         maxPermissibleMissedRegionHeight: CGFloat = 0,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
