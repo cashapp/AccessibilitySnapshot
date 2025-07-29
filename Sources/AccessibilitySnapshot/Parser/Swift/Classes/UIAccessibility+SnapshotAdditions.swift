@@ -642,3 +642,161 @@ extension AccessibilityHierarchyParser.Context {
     }
 
 }
+
+extension UIAccessibilityCustomRotor {
+    internal var displayName: String {
+        guard name.isEmpty else {
+            return name
+        }
+        switch self.systemRotorType {
+        case .none:
+            return "None"
+        case .link:
+            return "Link"
+        case .visitedLink:
+            return "Visited Links"
+        case .heading:
+            return "Headings"
+        case .headingLevel1:
+            return "Heading 1"
+        case .headingLevel2:
+            return "Heading 2"
+        case .headingLevel3:
+            return "Heading 3"
+        case .headingLevel4:
+            return "Heading 4"
+        case .headingLevel5:
+            return "Heading 5"
+        case .headingLevel6:
+            return "Heading 6"
+        case .boldText:
+            return "Bold Text"
+        case .italicText:
+            return "Italic Text"
+        case .underlineText:
+            return "Underlined Text"
+        case .misspelledWord:
+            return "Misspelled Words"
+        case .image:
+            return "Images"
+        case .textField:
+            return "Text Fields"
+        case .table:
+            return "Tables"
+        case .list:
+            return "Lists"
+        case .landmark:
+            return "Landmarks"
+        @unknown default:
+            return "Unknown"
+        }
+    }
+    
+
+    internal func dumpAllResults(nextLimit: Int = 10, previousLimit: Int = 10) -> [UIAccessibilityCustomRotorItemResult] {
+        let forwards = dumpResults(direction: .next, limit: nextLimit)
+        let backwards = dumpResults(direction: .previous, limit: nextLimit)
+                
+        // Its common that backwards and forwards contain the same elements with differing orders.
+        
+        let forwardsSet = resultSet(forwards)
+        let backwardsSet = resultSet(backwards)
+        
+        if forwardsSet == backwardsSet { return forwards }
+        if forwardsSet.isSuperset(of: backwardsSet) { return forwards }
+        if backwardsSet.isSuperset(of: forwardsSet) { return backwards}
+    
+        
+        // It's common that the first element or range of both directions is the same, as we don't have a current item set in the predicate.
+        // In that case we'll want to drop the first element of one of the arrays before merging them.
+        if ((forwards.first?.targetElement?.isEqual(backwards.first?.targetElement)) != nil) || ((forwards.first?.targetRange?.isEqual(backwards.first?.targetRange)) != nil) {
+            return backwards.dropFirst().reversed() + forwards
+        }
+        
+        return (backwards.reversed() + forwards).removingDuplicates()
+    }
+    
+    internal func dumpResults(direction: UIAccessibilityCustomRotor.Direction, limit: Int) -> [UIAccessibilityCustomRotorItemResult] {
+        var results : [UIAccessibilityCustomRotorItemResult] = []
+        let predicate = UIAccessibilityCustomRotorSearchPredicate()
+        var loopDetection: [Int] = []
+        
+        predicate.searchDirection = direction
+        
+        while results.count < limit {
+            guard let result = self.itemSearchBlock(predicate), !result.compare(predicate.currentItem) else { break }
+            
+            if let hashable = _hashableRotorResult(result),
+                resultSet(results).contains(hashable) {
+                loopDetection.append(results.count)
+            }
+            if loopDetection.count >= 3{
+                // We have three sequential elements that already existed in the array, we can presume that we are in a loop.
+                if loopDetection.isSequential() {
+                    break
+                }
+                // indices are not sequential, this is not a loop.
+                else {
+                    loopDetection = []
+                }
+            }
+            
+            results.append(result)
+            predicate.currentItem = result
+        }
+        
+        // Reset the results array to end at the first duplicated element
+        if !loopDetection.isEmpty, loopDetection.isSequential(), loopDetection.last == results.count {
+            results = Array(results.prefix(upTo: loopDetection.first!))
+        }
+        
+        return results
+    }
+    
+    // Use Swift Hashable over NSObject.hash on the UIAccessibilityCustomRotorItemResult to compare the contents alone.
+    private struct _hashableRotorResult: Hashable {
+        var element: NSObject
+        var range: UITextRange?
+        init?(_ result: UIAccessibilityCustomRotorItemResult) {
+            guard let element = result.targetElement as? NSObject else { return nil }
+            self.element = element
+            self.range = result.targetRange
+        }
+    }
+    
+    private func resultSet(_ results: [UIAccessibilityCustomRotorItemResult]) -> Set<_hashableRotorResult> {
+        Set(results.compactMap({ _hashableRotorResult($0) }))
+    }
+}
+extension UIAccessibilityCustomRotorItemResult {
+    fileprivate func compare(_ other: UIAccessibilityCustomRotorItemResult) -> Bool {
+        // 'any NSObjectProtocol' cannot be used as a type conforming to protocol 'Equatable' because 'Equatable' has static requirements
+        let target = targetElement as? NSObject
+        let otherTarget = other.targetElement as? NSObject
+        return target == otherTarget && targetRange == other.targetRange
+    }
+}
+
+extension Array where Element : UIAccessibilityCustomRotorItemResult {
+    
+    func compareWith(_ other: [Element]) -> Bool {
+        guard count == other.count else { return false }
+        return zip(self, other).allSatisfy({ $0.compare($1) })
+    }
+    
+    func removingDuplicates() -> [Element] {
+        reduce(into: []) { array, element in
+            if !array.contains(where: { $0.compare(element) }) {
+                array.append(element)
+            }
+        }
+    }
+}
+
+
+extension Array where Element == Int {
+    func isSequential() -> Bool {
+        guard count > 1 else { return true }
+        return zip(self, self.dropFirst()).allSatisfy({ $1 == $0 + 1 })
+    }
+}

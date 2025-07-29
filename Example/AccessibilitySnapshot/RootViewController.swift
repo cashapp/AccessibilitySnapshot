@@ -55,6 +55,7 @@ final class RootViewController: UITableViewController {
             ("Accessibility Paths", { _ in return AccessibilityPathViewController() }),
             ("Accessibility Activation Point", { _ in return ActivationPointViewController() }),
             ("Accessibility Custom Actions", { _ in return AccessibilityCustomActionsViewController() }),
+            ("Accessibility Custom Rotors", { _ in return AccessibilityCustomRotorsViewController() }),
             ("Data Table", { presentingViewController in
                 return DataTableViewController.makeConfigurationSelectionViewController(
                     presentingViewController: presentingViewController

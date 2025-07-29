@@ -26,6 +26,26 @@ enum Strings {
             locale: locale
         )
     }
+    
+    static func rotorsAvailableText(rotorNames: [String], for locale: String?) -> String {
+        String(format: rotorsFormatString(for: locale), rotorNames.joined(separator: ", "))
+    }
+    
+    private static func rotorsFormatString(for locale: String?) -> String {
+        return "Use the rotor to access: %@".as_localized(
+            key: "custom_Rotors.format",
+            comment: "Format string for an accessibility element indicating that it has custom rotors available, the placeholder is a string representing the available rotors names.",
+            locale: locale
+        )
+    }
+    
+    static func noResultsText(for locale: String?) -> String {
+        return "<no results>".as_localized(
+            key: "custom_rotors.no_results",
+            comment: "Description for an accessibility rotor indicating that it has no results available",
+            locale: locale
+        )
+    }
 }
 
 extension String {
