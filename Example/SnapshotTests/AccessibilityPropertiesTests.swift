@@ -82,6 +82,12 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         SnapshotVerifyAccessibility(customActionsViewController.view)
     }
     
+    func testCustomRotors() {
+        let customRotorsViewController = AccessibilityCustomRotorsViewController()
+        customRotorsViewController.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(customRotorsViewController.view)
+    }
+    
     @available(iOS 14.0, *)
     func testCustomContent() throws {
         try XCTSkipUnless(
