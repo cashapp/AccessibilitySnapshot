@@ -34,11 +34,11 @@ EXTERNAL SOURCES:
     :path: "../AccessibilitySnapshot.podspec"
 
 SPEC CHECKSUMS:
-  AccessibilitySnapshot: 00e681f7f322097949440746ff094c8ce67ce08f
+  AccessibilitySnapshot: 6da05cd0bafee8a1ceb6dc7db67b5927698467eb
   iOSSnapshotTestCase: a670511f9ee3829c2b9c23e6e68f315fd7b6790f
   Paralayout: 844978af530a061a31d849c7b554510190b9cddf
   SnapshotTesting: 8caa6661fea7c8019d5b46de77c16bab99c36c5c
 
 PODFILE CHECKSUM: de5390900844b21156469b30e094a6bba820f0df
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.11.3
