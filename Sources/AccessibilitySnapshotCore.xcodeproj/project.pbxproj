@@ -26,7 +26,7 @@
 		34A80D362E316C570095BECA /* ViewRenderingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D332E316C570095BECA /* ViewRenderingMode.swift */; };
 		34A80D372E316C570095BECA /* HitTargetSnapshotUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2C2E316C570095BECA /* HitTargetSnapshotUtility.swift */; };
 		34A80D382E316C570095BECA /* DefaultColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2B2E316C570095BECA /* DefaultColors.swift */; };
-		34A80D392E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2A2E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift */; };
+		34A80D392E316C570095BECA /* PillsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2A2E316C570095BECA /* PillsView.swift */; };
 		34A80D3A2E316C570095BECA /* UIView+ImageRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D312E316C570095BECA /* UIView+ImageRendering.swift */; };
 		34A80D3B2E316C570095BECA /* HitTargetSnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2D2E316C570095BECA /* HitTargetSnapshotView.swift */; };
 		34A80D3C2E316C570095BECA /* AccessibilitySnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D292E316C570095BECA /* AccessibilitySnapshotView.swift */; };
@@ -37,13 +37,19 @@
 		34A80D412E316C570095BECA /* ViewRenderingMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D332E316C570095BECA /* ViewRenderingMode.swift */; };
 		34A80D422E316C570095BECA /* HitTargetSnapshotUtility.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2C2E316C570095BECA /* HitTargetSnapshotUtility.swift */; };
 		34A80D432E316C570095BECA /* DefaultColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2B2E316C570095BECA /* DefaultColors.swift */; };
-		34A80D442E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2A2E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift */; };
+		34A80D442E316C570095BECA /* PillsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2A2E316C570095BECA /* PillsView.swift */; };
 		34A80D452E316C570095BECA /* UIView+ImageRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D312E316C570095BECA /* UIView+ImageRendering.swift */; };
 		34A80D462E316C570095BECA /* HitTargetSnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2D2E316C570095BECA /* HitTargetSnapshotView.swift */; };
 		34A80D472E316C570095BECA /* AccessibilitySnapshotView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D292E316C570095BECA /* AccessibilitySnapshotView.swift */; };
 		34A80D482E316C570095BECA /* UIView+InvertColorsSnapshotting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D322E316C570095BECA /* UIView+InvertColorsSnapshotting.swift */; };
 		34A80D492E316C570095BECA /* UIApplication+FirstKeyWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D302E316C570095BECA /* UIApplication+FirstKeyWindow.swift */; };
 		34A80D4A2E316C570095BECA /* SnapshotAndLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2F2E316C570095BECA /* SnapshotAndLegendView.swift */; };
+		ACC8178E2E42368A00B9CA5D /* LegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC8178D2E42368A00B9CA5D /* LegendView.swift */; };
+		ACC8178F2E42368A00B9CA5D /* LegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC8178D2E42368A00B9CA5D /* LegendView.swift */; };
+		ACC817912E4236D600B9CA5D /* CustomActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC817902E4236D600B9CA5D /* CustomActionsView.swift */; };
+		ACC817922E4236D600B9CA5D /* CustomActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC817902E4236D600B9CA5D /* CustomActionsView.swift */; };
+		ACC817942E4236EF00B9CA5D /* CustomContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC817932E4236EF00B9CA5D /* CustomContentView.swift */; };
+		ACC817952E4236EF00B9CA5D /* CustomContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC817932E4236EF00B9CA5D /* CustomContentView.swift */; };
 		EF28C2DB2A55CA5800D78303 /* AccessibilitySnapshot.bundle in Resources */ = {isa = PBXBuildFile; fileRef = EF28C2D52A55CA2700D78303 /* AccessibilitySnapshot.bundle */; };
 		EF4D51F32A55A51D00FF0E46 /* AccessibilitySnapshotCore.h in Headers */ = {isa = PBXBuildFile; fileRef = EF4D51F22A55A51D00FF0E46 /* AccessibilitySnapshotCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 /* End PBXBuildFile section */
@@ -71,7 +77,7 @@
 		34A80D132E316B2E0095BECA /* UIAccessibility+SnapshotAdditions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAccessibility+SnapshotAdditions.swift"; sourceTree = "<group>"; };
 		34A80D162E316B2E0095BECA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		34A80D292E316C570095BECA /* AccessibilitySnapshotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilitySnapshotView.swift; sourceTree = "<group>"; };
-		34A80D2A2E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessibilitySnapshotView+PillsView.swift"; sourceTree = "<group>"; };
+		34A80D2A2E316C570095BECA /* PillsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PillsView.swift; sourceTree = "<group>"; };
 		34A80D2B2E316C570095BECA /* DefaultColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultColors.swift; sourceTree = "<group>"; };
 		34A80D2C2E316C570095BECA /* HitTargetSnapshotUtility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HitTargetSnapshotUtility.swift; sourceTree = "<group>"; };
 		34A80D2D2E316C570095BECA /* HitTargetSnapshotView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HitTargetSnapshotView.swift; sourceTree = "<group>"; };
@@ -81,6 +87,9 @@
 		34A80D312E316C570095BECA /* UIView+ImageRendering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+ImageRendering.swift"; sourceTree = "<group>"; };
 		34A80D322E316C570095BECA /* UIView+InvertColorsSnapshotting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+InvertColorsSnapshotting.swift"; sourceTree = "<group>"; };
 		34A80D332E316C570095BECA /* ViewRenderingMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRenderingMode.swift; sourceTree = "<group>"; };
+		ACC8178D2E42368A00B9CA5D /* LegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegendView.swift; sourceTree = "<group>"; };
+		ACC817902E4236D600B9CA5D /* CustomActionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomActionsView.swift; sourceTree = "<group>"; };
+		ACC817932E4236EF00B9CA5D /* CustomContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomContentView.swift; sourceTree = "<group>"; };
 		EF28C2D52A55CA2700D78303 /* AccessibilitySnapshot.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = AccessibilitySnapshot.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF4D51EF2A55A51D00FF0E46 /* AccessibilitySnapshotCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = AccessibilitySnapshotCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF4D51F22A55A51D00FF0E46 /* AccessibilitySnapshotCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AccessibilitySnapshotCore.h; sourceTree = "<group>"; };
@@ -165,10 +174,13 @@
 		34A80D342E316C570095BECA /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				34A80D292E316C570095BECA /* AccessibilitySnapshotView.swift */,
-				34A80D2A2E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift */,
 				34A80D2B2E316C570095BECA /* DefaultColors.swift */,
 				34A80D2C2E316C570095BECA /* HitTargetSnapshotUtility.swift */,
+				34A80D292E316C570095BECA /* AccessibilitySnapshotView.swift */,
+				ACC817932E4236EF00B9CA5D /* CustomContentView.swift */,
+				ACC817902E4236D600B9CA5D /* CustomActionsView.swift */,
+				ACC8178D2E42368A00B9CA5D /* LegendView.swift */,
+				34A80D2A2E316C570095BECA /* PillsView.swift */,
 				34A80D2D2E316C570095BECA /* HitTargetSnapshotView.swift */,
 				34A80D2E2E316C570095BECA /* Localizations.swift */,
 				34A80D2F2E316C570095BECA /* SnapshotAndLegendView.swift */,
@@ -326,16 +338,19 @@
 				34A80D182E316B2E0095BECA /* ASAccessibilityEnabler.m in Sources */,
 				34A80D192E316B2E0095BECA /* String+Localization.swift in Sources */,
 				34A80D402E316C570095BECA /* Localizations.swift in Sources */,
+				ACC817922E4236D600B9CA5D /* CustomActionsView.swift in Sources */,
 				34A80D412E316C570095BECA /* ViewRenderingMode.swift in Sources */,
 				34A80D422E316C570095BECA /* HitTargetSnapshotUtility.swift in Sources */,
 				34A80D432E316C570095BECA /* DefaultColors.swift in Sources */,
-				34A80D442E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift in Sources */,
+				34A80D442E316C570095BECA /* PillsView.swift in Sources */,
 				34A80D452E316C570095BECA /* UIView+ImageRendering.swift in Sources */,
 				34A80D462E316C570095BECA /* HitTargetSnapshotView.swift in Sources */,
 				34A80D472E316C570095BECA /* AccessibilitySnapshotView.swift in Sources */,
 				34A80D482E316C570095BECA /* UIView+InvertColorsSnapshotting.swift in Sources */,
 				34A80D492E316C570095BECA /* UIApplication+FirstKeyWindow.swift in Sources */,
+				ACC8178F2E42368A00B9CA5D /* LegendView.swift in Sources */,
 				34A80D4A2E316C570095BECA /* SnapshotAndLegendView.swift in Sources */,
+				ACC817942E4236EF00B9CA5D /* CustomContentView.swift in Sources */,
 				34A80D1A2E316B2E0095BECA /* UIAccessibility+SnapshotAdditions.swift in Sources */,
 				34A80D1B2E316B2E0095BECA /* AccessibilityHierarchyParser.swift in Sources */,
 				34A80D1C2E316B2E0095BECA /* UIAccessibilityStatusUtility.m in Sources */,
@@ -349,16 +364,19 @@
 				34A80D202E316B2E0095BECA /* ASAccessibilityEnabler.m in Sources */,
 				34A80D212E316B2E0095BECA /* String+Localization.swift in Sources */,
 				34A80D352E316C570095BECA /* Localizations.swift in Sources */,
+				ACC817912E4236D600B9CA5D /* CustomActionsView.swift in Sources */,
 				34A80D362E316C570095BECA /* ViewRenderingMode.swift in Sources */,
 				34A80D372E316C570095BECA /* HitTargetSnapshotUtility.swift in Sources */,
 				34A80D382E316C570095BECA /* DefaultColors.swift in Sources */,
-				34A80D392E316C570095BECA /* AccessibilitySnapshotView+PillsView.swift in Sources */,
+				34A80D392E316C570095BECA /* PillsView.swift in Sources */,
 				34A80D3A2E316C570095BECA /* UIView+ImageRendering.swift in Sources */,
 				34A80D3B2E316C570095BECA /* HitTargetSnapshotView.swift in Sources */,
 				34A80D3C2E316C570095BECA /* AccessibilitySnapshotView.swift in Sources */,
 				34A80D3D2E316C570095BECA /* UIView+InvertColorsSnapshotting.swift in Sources */,
 				34A80D3E2E316C570095BECA /* UIApplication+FirstKeyWindow.swift in Sources */,
+				ACC8178E2E42368A00B9CA5D /* LegendView.swift in Sources */,
 				34A80D3F2E316C570095BECA /* SnapshotAndLegendView.swift in Sources */,
+				ACC817952E4236EF00B9CA5D /* CustomContentView.swift in Sources */,
 				34A80D222E316B2E0095BECA /* UIAccessibility+SnapshotAdditions.swift in Sources */,
 				34A80D232E316B2E0095BECA /* AccessibilityHierarchyParser.swift in Sources */,
 				34A80D242E316B2E0095BECA /* UIAccessibilityStatusUtility.m in Sources */,
