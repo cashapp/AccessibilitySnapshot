@@ -16,7 +16,7 @@
 
 import UIKit
 
-extension AccessibilitySnapshotView {
+internal extension AccessibilitySnapshotView {
     
     fileprivate enum Metrics {
         static let pillPadding = UIEdgeInsets(top: 2, left: 6, bottom: 2, right: 6)
@@ -72,7 +72,7 @@ extension AccessibilitySnapshotView {
         }
     }
     
-    internal final class PillsView: UIView {
+    final class PillsView: UIView {
         private let pills: [PillView]
         
         init(titles: [String], color: UIColor) {
