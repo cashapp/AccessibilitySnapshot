@@ -1,4 +1,7 @@
 import UIKit
+#if SWIFT_PACKAGE
+import AccessibilitySnapshotParser
+#endif
 
 internal extension AccessibilitySnapshotView {
     final class LegendView: UIView {
