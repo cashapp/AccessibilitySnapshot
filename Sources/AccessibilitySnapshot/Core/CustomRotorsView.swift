@@ -118,7 +118,7 @@ internal extension AccessibilitySnapshotView {
             firstDescriptionLabel.frame.origin = .init(x: descriptionXPosition, y: firstIconLabel.frame.maxY + Metrics.verticalSpacing)
             
             let zippedRotorLabels = zip(rotorLabels.dropFirst(), rotorLabels)
-            for ((iconLabel, descriptionLabel), (previousIconLabel, previousDescriptionLabel)) in zippedRotorLabels {
+            for ((iconLabel, descriptionLabel), (_, previousDescriptionLabel)) in zippedRotorLabels {
                 iconLabel.sizeToFit()
                 descriptionLabel.bounds.size = descriptionLabel.sizeThatFits(descriptionSizeToFit)
                 

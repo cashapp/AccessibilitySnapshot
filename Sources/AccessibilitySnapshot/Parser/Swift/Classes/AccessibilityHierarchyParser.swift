@@ -35,9 +35,9 @@ public struct AccessibilityMarker: Equatable {
     public struct CustomRotor: Equatable, CustomStringConvertible {
         
         public struct Result: Equatable, CustomStringConvertible {
-            var elementDescription: String
-            var rangeDescription: String?
-            var shape: Shape?
+            public let elementDescription: String
+            public let rangeDescription: String?
+            public let shape: Shape?
 
             public var description: String {
                 guard let rangeDescription else {
