@@ -105,3 +105,9 @@
 
 /* Description for the 'is editing' accessibility trait */
 "trait.text_field_is_editing.description" = "Is editing.";
+
+/* Format string for an accessibility element indicating that it has custom rotors available */
+"custom_Rotors.format" = "Use the rotor to access: %@";
+
+/* Description for an accessibility rotor indicating that it has no results available */
+"custom_rotors.no_results" = "<no results>";
