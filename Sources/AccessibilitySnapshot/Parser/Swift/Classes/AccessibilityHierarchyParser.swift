@@ -34,7 +34,7 @@ public struct AccessibilityMarker: Equatable {
     
     public struct CustomRotor: Equatable, CustomStringConvertible {
         
-        public struct Result: Equatable, CustomStringConvertible {
+        public struct ResultMarker: Equatable, CustomStringConvertible {
             public let elementDescription: String
             public let rangeDescription: String?
             public let shape: Shape?
@@ -48,11 +48,14 @@ public struct AccessibilityMarker: Equatable {
         }
         
         public var name: String
-        public var results: [Result]
-        
+        public var resultMarkers: [AccessibilityMarker.CustomRotor.ResultMarker] = []
+        let limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit
+
         init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil) {
             name = from.displayName
-            results = from.dumpAllResults().compactMap { result in
+            let collected = from.collectAllResults()
+            limit = collected.limit
+            resultMarkers = collected.results.compactMap { result in
                 guard let element = result.targetElement as? NSObject else { return nil }
                 var description = element.accessibilityDescription(context: context).description
                 var shape: Shape? = AccessibilityHierarchyParser.accessibilityShape(for: element, in: root)
@@ -66,17 +69,15 @@ public struct AccessibilityMarker: Equatable {
                     if let substring = input.text(in: range) {
                         description = substring
                     }
-                    return Result(elementDescription: description, rangeDescription: range.formatted(in: input), shape: shape)
+                    return ResultMarker(elementDescription: description, rangeDescription: range.formatted(in: input), shape: shape)
                 }
-                return Result(elementDescription: description, rangeDescription: nil, shape: shape)
+                return ResultMarker(elementDescription: description, rangeDescription: nil, shape: shape)
             }
         }
         
         public var description: String {
-            return name + ": " + results.map({ $0.description }).joined(separator: "\n")
+            return name + ": " + resultMarkers.map({ $0.description }).joined(separator: "\n")
         }
-        
-        
     }
 
     public struct CustomContent: Codable, Equatable {
@@ -929,4 +930,3 @@ internal extension UITextInput  {
         }
     }
 }
-

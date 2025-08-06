@@ -8,13 +8,13 @@ internal extension AccessibilitySnapshotView {
     
     final class OverlayView: UIView {
         
-        init(elementShape: AccessibilityMarker.Shape, lesserIncludedShapes: [AccessibilityMarker.Shape], frame: CGRect, color: UIColor) {
+        init(frame: CGRect, elementShape: AccessibilityMarker.Shape, includedShapes: [AccessibilityMarker.Shape], color: UIColor) {
             super .init(frame: frame)
             addShape(elementShape, color: color)
-            lesserIncludedShapes.forEach({ addShape($0, color: color, isLesserShape: true) })
+            includedShapes.forEach({ addShape($0, color: color, isIncludedShape: true) })
         }
         
-        private func addShape(_ shape: AccessibilityMarker.Shape, color: UIColor, isLesserShape: Bool =  false) {
+        private func addShape(_ shape: AccessibilityMarker.Shape, color: UIColor, isIncludedShape: Bool =  false) {
                         
             let (path, stroke, fill): (UIBezierPath, UIColor?, UIColor?) = {
                 switch shape {
@@ -31,7 +31,7 @@ internal extension AccessibilitySnapshotView {
             overlayLayer.fillColor = fill?.cgColor
             overlayLayer.path = path.cgPath
             
-            if isLesserShape {
+            if isIncludedShape {
                 overlayLayer.lineWidth = 2
                 overlayLayer.lineDashPattern = [2, 2] as [NSNumber]
             }

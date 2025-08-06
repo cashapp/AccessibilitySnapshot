@@ -162,9 +162,10 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
             addSubview(legendView)
             
             let overlayView = OverlayView(
+                frame: snapshotView.bounds,
                 elementShape: marker.shape,
-                lesserIncludedShapes: marker.customRotors.flatMap(\.results).compactMap(\.shape),
-                frame: snapshotView.bounds, color: color)
+                includedShapes: marker.customRotors.flatMap(\.resultMarkers).compactMap(\.shape),
+                color: color)
             
             snapshotView.addSubview(overlayView)
             

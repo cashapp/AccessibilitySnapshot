@@ -24,7 +24,9 @@ final class AccessibilityCustomRotorsViewController: AccessibilityViewController
     override func loadView() {
         view = View(
             views: [
-                .init(frame: .zero ),
+                CharacterView(frame: .zero ),
+                PrimesView(frame: .zero),
+                UUIDView(frame: .zero)
             ]
         )
     }
@@ -54,13 +56,16 @@ private extension AccessibilityCustomRotorsViewController {
 
         // MARK: - Private Properties
 
-        private let views: [CustomRotorView]
+        private let views: [UIView]
 
         // MARK: - UIView
 
         override func layoutSubviews() {
-            views.forEach { $0.bounds.size = .init(width: bounds.width / 2, height: 200) }
-
+            views.forEach {
+                $0.bounds.size = .init(width: bounds.width / 2, height: 200)
+                $0.sizeToFit()
+            }
+            
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
             var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
@@ -77,7 +82,75 @@ private extension AccessibilityCustomRotorsViewController {
 
 private extension AccessibilityCustomRotorsViewController {
     
-    final class CustomRotorView: UIView {
+    protocol CustomRotorView: UIView {}
+    
+    
+    final class PrimesView : UILabel, CustomRotorView {
+        let twoDigitPrimes: [NSString] = [
+            "11", "13", "17", "19", "23", "29", "31", "37", "41", "43", "47",
+            "53", "59", "61", "67", "71", "73", "79", "83", "89", "97"
+            ].map {$0.accessibilityLabel = "\($0)"; return $0 as NSString }
+        
+        func nextIndex(_ predicate: UIAccessibilityCustomRotorSearchPredicate) -> Int? {
+            guard let current = predicate.currentItem.targetElement as? NSString,
+                  let index = self.twoDigitPrimes.firstIndex(of: current) else { return 0 }
+            let nextIndex = predicate.searchDirection == .next ? index + 1 : index - 1
+            guard nextIndex >= 0, nextIndex < self.twoDigitPrimes.count else { return nil }
+            return nextIndex
+        }
+        
+        lazy private var rotor: UIAccessibilityCustomRotor = UIAccessibilityCustomRotor(name: "Two Digit Primes") { predicate in
+            guard let nextIndex = self.nextIndex(predicate) else { return nil }
+            let string = self.twoDigitPrimes[nextIndex]
+            return .init(targetElement: string, targetRange: nil)
+        }
+        
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            numberOfLines = 0
+            text = "This one gets truncated."
+            backgroundColor = .gray
+        }
+        
+        override var accessibilityCustomRotors: [UIAccessibilityCustomRotor]? {
+            set { }
+            get { return [rotor] }
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+    
+    final class UUIDView: UILabel, CustomRotorView {
+        private var storage = [NSString]()
+        
+        lazy private var rotor: UIAccessibilityCustomRotor = UIAccessibilityCustomRotor(name: "Random Strings") { predicate in
+            guard predicate.searchDirection == .next else { return nil }
+            let string = String(UUID().uuidString.split(separator: "-").first ?? "") as NSString
+            string.accessibilityLabel = string as String
+            self.storage.append(string)
+            return .init(targetElement: string, targetRange: nil)
+        }
+        
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+            numberOfLines = 0
+            text = "This one goes forever."
+            backgroundColor = .gray
+        }
+        
+        override var accessibilityCustomRotors: [UIAccessibilityCustomRotor]? {
+            set { }
+            get { return [rotor] }
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+    
+    final class CharacterView: UIView, CustomRotorView {
         // MARK: - Life Cycle
         
         private let textView: UITextView
@@ -97,6 +170,7 @@ private extension AccessibilityCustomRotorsViewController {
             addSubview(textView)
             
         }
+
         
         override var accessibilityCustomRotors: [UIAccessibilityCustomRotor]? {
             set {}
@@ -128,6 +202,10 @@ private extension AccessibilityCustomRotorsViewController {
         override func layoutSubviews() {
             super.layoutSubviews()
             textView.frame = bounds
+        }
+        
+        override func sizeThatFits(_ size: CGSize) -> CGSize {
+            textView.sizeThatFits(size)
         }
         
         // MARK: - UIAccessibility

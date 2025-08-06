@@ -22,8 +22,16 @@ internal extension AccessibilitySnapshotView {
                 resultsLabel.font = Metrics.font
                 resultsLabel.numberOfLines = 0
                 resultsLabel.text = {
-                    guard !rotor.results.isEmpty else { return Strings.noResultsText(for: locale) }
-                    return rotor.results.map({ "- \($0.elementDescription)" }).joined(separator: "\n")
+                    guard !rotor.resultMarkers.isEmpty else { return Strings.noResultsText(for: locale) }
+                    let resultsString = rotor.resultMarkers.map({ "- \($0.elementDescription)" }).joined(separator: "\n")
+                    switch rotor.limit {
+                    case .none:
+                        return resultsString
+                    case .underMaxCount(let count):
+                        return resultsString + "\n" + Strings.moreResultsText(count: count, for: locale)
+                    case  .greaterThanMaxCount:
+                        return resultsString + "\n" + Strings.maxLimitText(max: UIAccessibilityCustomRotor.CollectedRotorResults.maximumCount, for: locale)
+                    }
                 }()
                 return (iconLabel, resultsLabel)
             }
@@ -61,24 +69,26 @@ internal extension AccessibilitySnapshotView {
         // MARK: - UIView
         
         override func sizeThatFits(_ size: CGSize) -> CGSize {
-            let rotorsLabelHeight = customRotorsLabel?.sizeThatFits(size).height ?? -Metrics.verticalSpacing
+            let rotorsLabelSize = customRotorsLabel?.sizeThatFits(size)
+            let rotorsLabelHeight = rotorsLabelSize?.height ?? -Metrics.verticalSpacing
             
             guard let (firstIconLabel, _) = rotorLabels.first else {
                 return .init(width: max(size.width, 0), height: rotorsLabelHeight)
             }
             
             let firstIconLabelSize = firstIconLabel.sizeThatFits(size)
-            let descriptionWidthToFit = [
-                Metrics.contentIconInset,
-                firstIconLabelSize.width,
-            ].reduce(size.width, -)
-            let descriptionSizeToFit = CGSize(width: descriptionWidthToFit, height: .greatestFiniteMagnitude)
+            
+            let descriptionSizeToFit = CGSize(width: size.width - Metrics.iconToDescriptionSpacing, height: .greatestFiniteMagnitude)
+            
             
             let height = rotorLabels
-                .map { $1.sizeThatFits(descriptionSizeToFit).height }
+                .map {
+                    $0.sizeThatFits(descriptionSizeToFit).height +
+                    $1.sizeThatFits(descriptionSizeToFit).height
+                }
                 .reduce(rotorsLabelHeight) {
                     $0 + Metrics.verticalSpacing + $1
-                } + firstIconLabelSize.height
+                } + firstIconLabelSize.height + Metrics.verticalSpacing
             
             return .init(width: size.width, height: height)
         }
@@ -101,12 +111,8 @@ internal extension AccessibilitySnapshotView {
             
             firstIconLabel.sizeToFit()
             
-            // All of the icon labels should be the same size, so we only need to calculate the description width once.
-            let descriptionWidthToFit = [
-                Metrics.contentIconInset,
-                firstIconLabel.bounds.width,
-                Metrics.iconToDescriptionSpacing,
-            ].reduce(bounds.width, -)
+            let descriptionWidthToFit = bounds.width - Metrics.contentIconInset
+            
             let descriptionSizeToFit = CGSize(width: descriptionWidthToFit, height: .greatestFiniteMagnitude)
             
             firstDescriptionLabel.bounds.size = firstDescriptionLabel.sizeThatFits(descriptionSizeToFit)

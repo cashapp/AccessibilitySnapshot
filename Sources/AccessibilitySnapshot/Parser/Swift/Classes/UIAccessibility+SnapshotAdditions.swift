@@ -692,38 +692,74 @@ extension UIAccessibilityCustomRotor {
         }
     }
     
+    public struct CollectedRotorResults : Equatable {
+        static let maximumCount: Int = 99
+        
+        enum Limit: Equatable {
+            case none
+            case underMaxCount(Int)
+            case greaterThanMaxCount
+            
+            func combine(_ other: Limit) -> Limit {
+                switch (self, other) {
+                case (.none, .none):
+                    return .none
+                case (_, .greaterThanMaxCount), (.greaterThanMaxCount, _):
+                    return .greaterThanMaxCount
+                case (.underMaxCount(let count), .none), (.none, .underMaxCount(let count)):
+                    return .underMaxCount(count)
+                case (.underMaxCount(let a), .underMaxCount(let b)):
+                    if a + b <= maximumCount {
+                        return .underMaxCount(a+b)
+                    }
+                    return .greaterThanMaxCount
+                }
+            }
+        }
+        
+        let results: [UIAccessibilityCustomRotorItemResult]
+        let limit: Limit
+        
+        init(results: [UIAccessibilityCustomRotorItemResult], limit: Limit = .none) {
+            self.results = results
+            self.limit = limit
+        }
+    }
+    
 
-    internal func dumpAllResults(nextLimit: Int = 10, previousLimit: Int = 10) -> [UIAccessibilityCustomRotorItemResult] {
-        let forwards = dumpResults(direction: .next, limit: nextLimit)
-        let backwards = dumpResults(direction: .previous, limit: nextLimit)
+    internal func collectAllResults(nextLimit: Int = 10, previousLimit: Int = 10) -> CollectedRotorResults {
+        let forwards = iterateResults(direction: .next, limit: nextLimit)
+        let backwards = iterateResults(direction: .previous, limit: nextLimit)
                 
         // Its common that backwards and forwards contain the same elements with differing orders.
         
-        let forwardsSet = resultSet(forwards)
-        let backwardsSet = resultSet(backwards)
+        let forwardsSet = resultSet(forwards.results)
+        let backwardsSet = resultSet(backwards.results)
         
         if forwardsSet == backwardsSet { return forwards }
         if forwardsSet.isSuperset(of: backwardsSet) { return forwards }
-        if backwardsSet.isSuperset(of: forwardsSet) { return backwards}
+        if backwardsSet.isSuperset(of: forwardsSet) { return backwards }
     
         
         // It's common that the first element or range of both directions is the same, as we don't have a current item set in the predicate.
         // In that case we'll want to drop the first element of one of the arrays before merging them.
-        if ((forwards.first?.targetElement?.isEqual(backwards.first?.targetElement)) != nil) || ((forwards.first?.targetRange?.isEqual(backwards.first?.targetRange)) != nil) {
-            return backwards.dropFirst().reversed() + forwards
+        if ((forwards.results.first?.targetElement?.isEqual(backwards.results.first?.targetElement)) != nil) || ((forwards.results.first?.targetRange?.isEqual(backwards.results.first?.targetRange)) != nil) {
+            let results = backwards.results.dropFirst().reversed() + forwards.results
+            return .init(results: results, limit: backwards.limit.combine(forwards.limit))
         }
         
-        return (backwards.reversed() + forwards).removingDuplicates()
+        let results = (backwards.results.reversed() + forwards.results).removingDuplicates()
+        return .init(results: results, limit: backwards.limit.combine(forwards.limit))
     }
     
-    internal func dumpResults(direction: UIAccessibilityCustomRotor.Direction, limit: Int) -> [UIAccessibilityCustomRotorItemResult] {
+    internal func iterateResults(direction: UIAccessibilityCustomRotor.Direction, limit: Int) -> CollectedRotorResults {
         var results : [UIAccessibilityCustomRotorItemResult] = []
         let predicate = UIAccessibilityCustomRotorSearchPredicate()
         var loopDetection: [Int] = []
         
         predicate.searchDirection = direction
         
-        while results.count < limit {
+        while results.count < (limit) {
             guard let result = self.itemSearchBlock(predicate), !result.compare(predicate.currentItem) else { break }
             
             if let hashable = _hashableRotorResult(result),
@@ -744,13 +780,41 @@ extension UIAccessibilityCustomRotor {
             results.append(result)
             predicate.currentItem = result
         }
+ 
         
         // Reset the results array to end at the first duplicated element
         if !loopDetection.isEmpty, loopDetection.isSequential(), loopDetection.last == results.count {
             results = Array(results.prefix(upTo: loopDetection.first!))
         }
         
-        return results
+        if let last = results.last {
+            predicate.currentItem = last
+        }
+        
+        let limited = results.count <= limit ? countAdditionalResults(predicate) : .none
+        return .init(results: results, limit: limited)
+    }
+    
+    private func countAdditionalResults(_ predicate: UIAccessibilityCustomRotorSearchPredicate, maxCount: Int = CollectedRotorResults.maximumCount) -> CollectedRotorResults.Limit  {
+        // We have a ton of elements, more than we can display in a snapshot. lets get a count of how many there are up to our max count.
+        var count = 0
+        var result: UIAccessibilityCustomRotorItemResult?
+        while count < (maxCount), let next = self.itemSearchBlock(predicate)  {
+            if next.targetElement == nil || (next.targetElement as? NSObject)?.isEqual(result?.targetElement as? NSObject) ?? false {
+                break
+            }
+            result = next
+            count += 1
+            predicate.currentItem = next
+        }
+        if count == 0 {
+            // this is unlikely
+            return .none
+        }
+        if count >= maxCount {
+            return .greaterThanMaxCount
+        }
+        return .underMaxCount(count)
     }
     
     // Use Swift Hashable over NSObject.hash on the UIAccessibilityCustomRotorItemResult to compare the contents alone.

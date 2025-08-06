@@ -5,7 +5,7 @@ import XCTest
 
 final class UIAccessibilityCustomRotorParsingTests : XCTestCase {
     
-    func test_dumpResults() {
+    func test_collectResults() {
         let strings : [NSString] = ["one", "two", "three", "four", "five"]
         
         let basicRotor = UIAccessibilityCustomRotor(name: "basic") { predicate in
@@ -21,18 +21,18 @@ final class UIAccessibilityCustomRotorParsingTests : XCTestCase {
             return UIAccessibilityCustomRotorItemResult(targetElement: strings.first!, targetRange: nil)
         }
         
-        let next = basicRotor.dumpResults(direction: .next, limit: 10)
+        let next = basicRotor.iterateResults(direction: .next, limit: 10).results
         XCTAssertEqual(next.map({ $0.targetElement as! NSString}), strings)
         
-        let prev =  basicRotor.dumpResults(direction: .previous, limit: 10)
+        let prev =  basicRotor.iterateResults(direction: .previous, limit: 10).results
         XCTAssertEqual(prev.count, 1)
         XCTAssertEqual(prev.first!.targetElement as! NSString, strings.first!)
 
         
-        let limited = basicRotor.dumpResults(direction: .next, limit: 2)
+        let limited = basicRotor.iterateResults(direction: .next, limit: 2).results
         XCTAssertEqual(limited.map({ $0.targetElement as! NSString}), Array(strings.prefix(2)))
         
-        let notLimited = basicRotor.dumpResults(direction:.next, limit: 1000)
+        let notLimited = basicRotor.iterateResults(direction:.next, limit: 1000).results
         XCTAssertEqual(notLimited.map({ $0.targetElement as! NSString}), strings)
 
         // this rotor has elements in both directions.
@@ -48,8 +48,8 @@ final class UIAccessibilityCustomRotorParsingTests : XCTestCase {
             return UIAccessibilityCustomRotorItemResult(targetElement: strings[2], targetRange: nil)
         }
         
-        let middleDump = startInTheMiddle.dumpAllResults()
-        XCTAssertEqual(middleDump.map({ $0.targetElement as! NSString}), strings)
+        let middle = startInTheMiddle.collectAllResults().results
+        XCTAssertEqual(middle.map({ $0.targetElement as! NSString}), strings)
         
         // This rotor starts at the back of the array if you pass previous with no current item in the predicate.
         let reversed = UIAccessibilityCustomRotor(name: "reversed") { predicate in
@@ -63,7 +63,7 @@ final class UIAccessibilityCustomRotorParsingTests : XCTestCase {
             return UIAccessibilityCustomRotorItemResult(targetElement: array.first!, targetRange: nil)
         }
         
-        let all = reversed.dumpAllResults()
+        let all = reversed.collectAllResults().results
         XCTAssertEqual(all.map({ $0.targetElement as! NSString}), strings)
         
         // This rotor loops over the array indefinitely
@@ -81,7 +81,11 @@ final class UIAccessibilityCustomRotorParsingTests : XCTestCase {
             }
             return UIAccessibilityCustomRotorItemResult(targetElement:  predicate.searchDirection == .next ? strings.first! : strings.last!, targetRange: nil)
         }
-        let looping = loopingRotor.dumpAllResults()
+        let looping = loopingRotor.collectAllResults().results
         XCTAssertEqual(looping.map({ $0.targetElement as! NSString}), strings)
+        
+        
+        
+        // ADD LIMIT TESTS
     }
 }
