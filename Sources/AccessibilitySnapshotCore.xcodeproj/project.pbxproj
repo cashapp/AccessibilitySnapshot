@@ -44,6 +44,8 @@
 		34A80D482E316C570095BECA /* UIView+InvertColorsSnapshotting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D322E316C570095BECA /* UIView+InvertColorsSnapshotting.swift */; };
 		34A80D492E316C570095BECA /* UIApplication+FirstKeyWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D302E316C570095BECA /* UIApplication+FirstKeyWindow.swift */; };
 		34A80D4A2E316C570095BECA /* SnapshotAndLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2F2E316C570095BECA /* SnapshotAndLegendView.swift */; };
+		AC7A34A32E43B73E006DB8D8 /* NSObject+Accesibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7A34A22E43B73E006DB8D8 /* NSObject+Accesibility.swift */; };
+		AC7A34A42E43B73E006DB8D8 /* NSObject+Accesibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7A34A22E43B73E006DB8D8 /* NSObject+Accesibility.swift */; };
 		ACC8178E2E42368A00B9CA5D /* LegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC8178D2E42368A00B9CA5D /* LegendView.swift */; };
 		ACC8178F2E42368A00B9CA5D /* LegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC8178D2E42368A00B9CA5D /* LegendView.swift */; };
 		ACC817912E4236D600B9CA5D /* CustomActionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACC817902E4236D600B9CA5D /* CustomActionsView.swift */; };
@@ -87,6 +89,7 @@
 		34A80D312E316C570095BECA /* UIView+ImageRendering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+ImageRendering.swift"; sourceTree = "<group>"; };
 		34A80D322E316C570095BECA /* UIView+InvertColorsSnapshotting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+InvertColorsSnapshotting.swift"; sourceTree = "<group>"; };
 		34A80D332E316C570095BECA /* ViewRenderingMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRenderingMode.swift; sourceTree = "<group>"; };
+		AC7A34A22E43B73E006DB8D8 /* NSObject+Accesibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSObject+Accesibility.swift"; sourceTree = "<group>"; };
 		ACC8178D2E42368A00B9CA5D /* LegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegendView.swift; sourceTree = "<group>"; };
 		ACC817902E4236D600B9CA5D /* CustomActionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomActionsView.swift; sourceTree = "<group>"; };
 		ACC817932E4236EF00B9CA5D /* CustomContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomContentView.swift; sourceTree = "<group>"; };
@@ -179,6 +182,7 @@
 				34A80D292E316C570095BECA /* AccessibilitySnapshotView.swift */,
 				ACC817932E4236EF00B9CA5D /* CustomContentView.swift */,
 				ACC817902E4236D600B9CA5D /* CustomActionsView.swift */,
+				AC7A34A22E43B73E006DB8D8 /* NSObject+Accesibility.swift */,
 				ACC8178D2E42368A00B9CA5D /* LegendView.swift */,
 				34A80D2A2E316C570095BECA /* PillsView.swift */,
 				34A80D2D2E316C570095BECA /* HitTargetSnapshotView.swift */,
@@ -345,6 +349,7 @@
 				34A80D442E316C570095BECA /* PillsView.swift in Sources */,
 				34A80D452E316C570095BECA /* UIView+ImageRendering.swift in Sources */,
 				34A80D462E316C570095BECA /* HitTargetSnapshotView.swift in Sources */,
+				AC7A34A42E43B73E006DB8D8 /* NSObject+Accesibility.swift in Sources */,
 				34A80D472E316C570095BECA /* AccessibilitySnapshotView.swift in Sources */,
 				34A80D482E316C570095BECA /* UIView+InvertColorsSnapshotting.swift in Sources */,
 				34A80D492E316C570095BECA /* UIApplication+FirstKeyWindow.swift in Sources */,
@@ -371,6 +376,7 @@
 				34A80D392E316C570095BECA /* PillsView.swift in Sources */,
 				34A80D3A2E316C570095BECA /* UIView+ImageRendering.swift in Sources */,
 				34A80D3B2E316C570095BECA /* HitTargetSnapshotView.swift in Sources */,
+				AC7A34A32E43B73E006DB8D8 /* NSObject+Accesibility.swift in Sources */,
 				34A80D3C2E316C570095BECA /* AccessibilitySnapshotView.swift in Sources */,
 				34A80D3D2E316C570095BECA /* UIView+InvertColorsSnapshotting.swift in Sources */,
 				34A80D3E2E316C570095BECA /* UIApplication+FirstKeyWindow.swift in Sources */,
