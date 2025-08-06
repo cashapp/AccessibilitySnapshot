@@ -111,3 +111,9 @@
 
 /* Description for an accessibility rotor indicating that it has no results available */
 "custom_rotors.no_results" = "<нет результатов>";
+
+/* Format string for an accessibility rotor indicating that it has more results available */
+"custom_rotors.more_results.format" = "+ %@ дополнительных результатов...";
+
+/* Description for an accessibility rotor indicating that it has reached the maximum limit of results available */
+"custom_rotors.max_limit" = "+ Много (%@+) дополнительных результатов...";
