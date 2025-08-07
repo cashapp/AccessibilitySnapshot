@@ -62,6 +62,7 @@
 		AC5C5FE22C627DA300E1C4E7 /* NavBarBackButtonAccessibilityTraitsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC5C5FE12C627DA300E1C4E7 /* NavBarBackButtonAccessibilityTraitsViewController.swift */; };
 		AC725B842B06D07E009AD59B /* AccessibilityCustomContentViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC725B832B06D07E009AD59B /* AccessibilityCustomContentViewController.swift */; };
 		AC7A34A62E43B800006DB8D8 /* AccessibiliyAccessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC7A34A52E43B7F2006DB8D8 /* AccessibiliyAccessorTests.swift */; };
+		ACAB81272E44F23100FB54FE /* BlockBasedAccessibilityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAB81262E44F23100FB54FE /* BlockBasedAccessibilityViewController.swift */; };
 		C47F6C5316FB0C043BEB59F3 /* Pods_AccessibilitySnapshotDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A886964D2E787399E137105 /* Pods_AccessibilitySnapshotDemo.framework */; };
 		D2F76EED2945C879000A453F /* HitTargetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F76EEC2945C879000A453F /* HitTargetTests.swift */; };
 		D38F6F4E508A3D067D677F69 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BFCB4FD6BC17AB232B26E72 /* Pods_UnitTests.framework */; };
@@ -158,6 +159,7 @@
 		AC5C5FE12C627DA300E1C4E7 /* NavBarBackButtonAccessibilityTraitsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavBarBackButtonAccessibilityTraitsViewController.swift; sourceTree = "<group>"; };
 		AC725B832B06D07E009AD59B /* AccessibilityCustomContentViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityCustomContentViewController.swift; sourceTree = "<group>"; };
 		AC7A34A52E43B7F2006DB8D8 /* AccessibiliyAccessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibiliyAccessorTests.swift; sourceTree = "<group>"; };
+		ACAB81262E44F23100FB54FE /* BlockBasedAccessibilityViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockBasedAccessibilityViewController.swift; sourceTree = "<group>"; };
 		C78F90CE7A2A315AADF80144 /* Pods-SnapshotTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SnapshotTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SnapshotTests/Pods-SnapshotTests.debug.xcconfig"; sourceTree = "<group>"; };
 		CCFF2A604706B71DC0CBD38B /* Pods-AccessibilitySnapshotDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AccessibilitySnapshotDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-AccessibilitySnapshotDemo/Pods-AccessibilitySnapshotDemo.release.xcconfig"; sourceTree = "<group>"; };
 		D2F76EEC2945C879000A453F /* HitTargetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HitTargetTests.swift; sourceTree = "<group>"; };
@@ -205,6 +207,7 @@
 				3D39BFAB223314C1009C3EF4 /* TabBarViewController.swift */,
 				AC5C5FE12C627DA300E1C4E7 /* NavBarBackButtonAccessibilityTraitsViewController.swift */,
 				3D04B6D821155942006218A4 /* LabelAccessibilityPropertiesViewController.swift */,
+				ACAB81262E44F23100FB54FE /* BlockBasedAccessibilityViewController.swift */,
 				3D04B6DA21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift */,
 				3D9894F8213509C8006C16F6 /* DescriptionEdgeCasesViewController.swift */,
 				3DF464FD220D594E0048D446 /* ElementSelectionViewController.swift */,
@@ -658,6 +661,7 @@
 				3DF464FE220D594E0048D446 /* ElementSelectionViewController.swift in Sources */,
 				3DC488372212A7D4006D1E15 /* ModalAccessibilityViewController.swift in Sources */,
 				3DF46502220D7F9B0048D446 /* ElementOrderViewController.swift in Sources */,
+				ACAB81272E44F23100FB54FE /* BlockBasedAccessibilityViewController.swift in Sources */,
 				112909BC2B63E57B00B4EBEB /* TextViewViewController.swift in Sources */,
 				3DDE7FF624C6D6BF00999ABA /* AccessibilityCustomActionsViewController.swift in Sources */,
 				3DBAC28F2242E7C700EF4D0A /* ListContainerViewController.swift in Sources */,
