@@ -20,7 +20,8 @@ extension NSObject  {
             (object?.accessibilityContainerTypeBlock?() ?? object?.accessibilityContainerType) ?? .none
         }
         var label: String? {
-            object?.accessibilityLabelBlock?() ?? object?.accessibilityLabel
+            guard let object, object.responds(to: Selector(("accessibilityLabelBlock:"))) else { return object?.accessibilityLabel }
+            return object.accessibilityLabelBlock?() ?? object.accessibilityValue
         }
         var value: String? {
             object?.accessibilityValueBlock?() ?? object?.accessibilityValue
