@@ -164,14 +164,13 @@ final class BlockBasedAccessibilityViewController: AccessibilityViewController {
         }
         labels[4].text = "View 5: Shows dynamic block values that change on each access"
         
-        // View with nil-returning blocks (should fall back to regular properties)
         views[5].accessibilityLabel = "Fallback Label"
         views[5].accessibilityLabelBlock = { nil }
         views[5].accessibilityValue = "Fallback Value"
         views[5].accessibilityValueBlock = { nil }
         views[5].accessibilityHint = "Fallback Hint"
         views[5].accessibilityHintBlock = { nil }
-        labels[5].text = "View 6: Demonstrates fallback to regular properties when blocks return nil"
+        labels[5].text = "View 6: Demonstrates blocks do NOT fallback to regular properties when blocks return nil"
         
         // View testing traits
         views[6].accessibilityTraits = .button

@@ -1,4 +1,5 @@
 import XCTest
+import UIKit.UIAccessibility
 @testable import AccessibilitySnapshot
 
 
@@ -133,7 +134,8 @@ final class AccessibilityAccessorTests: XCTestCase {
         XCTAssertEqual(testView.accessibility.userInputLabels, labels)
         
         testView.accessibilityUserInputLabels = nil
-        XCTAssertNil(testView.accessibility.userInputLabels)
+        // User Input Labels is null_resettable so it will return an empty array.
+        XCTAssertTrue(testView.accessibility.userInputLabels!.isEmpty)
     }
     
     func testCustomActions_Legacy() {
@@ -197,11 +199,18 @@ final class AccessibilityAccessorTests: XCTestCase {
     
     @available(iOS 17.0, *)
     func testElements_PreferBlock() {
-        let fallbackElements: [UIAccessibilityElement] = [.init()]
-        let blockElements: [UIAccessibilityElement] = [.init()]
-        testView.accessibilityElements = fallbackElements
-        testView.accessibilityElementsBlock = { blockElements }
-        XCTAssertEqual(testView.accessibility.elements as? [UIAccessibilityElement], blockElements )
+        final class Element: NSObject {
+             override init() {
+                super.init()
+                isAccessibilityElement = true
+            }
+        }
+        
+        let fallback = Element()
+        let block = Element()
+        testView.accessibilityElements = [fallback]
+        testView.accessibilityElementsBlock = { [block] }
+        XCTAssertEqual(testView.accessibility.elements?.first as? Element, block )
     }
     
     @available(iOS 17.0, *)
@@ -301,7 +310,6 @@ final class AccessibilityAccessorTests: XCTestCase {
         let blockContent = [AXCustomContent(label: "Block", value: "Value")]
         mockCustomContentProvider.accessibilityCustomContent = fallbackContent
         mockCustomContentProvider.accessibilityCustomContentBlock = { blockContent }
-        XCTAssertNotNil(mockCustomContentProvider.accessibilityCustomContentBlock)
         XCTAssertEqual(mockCustomContentProvider.accessibility.customContent.first?.label, "Block")
     }
     
