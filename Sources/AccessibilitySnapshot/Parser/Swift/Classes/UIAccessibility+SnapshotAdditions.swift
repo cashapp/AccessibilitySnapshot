@@ -695,7 +695,7 @@ extension UIAccessibilityCustomRotor {
     public struct CollectedRotorResults : Equatable {
         static let maximumCount: Int = 99
         
-        enum Limit: Equatable {
+        public enum Limit: Equatable {
             case none
             case underMaxCount(Int)
             case greaterThanMaxCount
@@ -717,8 +717,8 @@ extension UIAccessibilityCustomRotor {
             }
         }
         
-        let results: [UIAccessibilityCustomRotorItemResult]
-        let limit: Limit
+        public let results: [UIAccessibilityCustomRotorItemResult]
+        public let limit: Limit
         
         init(results: [UIAccessibilityCustomRotorItemResult], limit: Limit = .none) {
             self.results = results

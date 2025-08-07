@@ -49,7 +49,7 @@ public struct AccessibilityMarker: Equatable {
         
         public var name: String
         public var resultMarkers: [AccessibilityMarker.CustomRotor.ResultMarker] = []
-        let limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit
+        public let limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit
 
         init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil) {
             name = from.displayName
