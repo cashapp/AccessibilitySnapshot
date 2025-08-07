@@ -1,19 +1,3 @@
-//
-//  Copyright 2020 Square Inc.
-//
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
-//
-//  http://www.apache.org/licenses/LICENSE-2.0
-//
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
-//
-
 import Paralayout
 import UIKit
 
@@ -41,7 +25,7 @@ private extension AccessibilityCustomRotorsViewController {
 
         // MARK: - Life Cycle
 
-        init(views: [CustomRotorView], frame: CGRect = .zero) {
+        init(views: [UIView], frame: CGRect = .zero) {
             self.views = views
 
             super.init(frame: frame)
@@ -82,10 +66,7 @@ private extension AccessibilityCustomRotorsViewController {
 
 private extension AccessibilityCustomRotorsViewController {
     
-    protocol CustomRotorView: UIView {}
-    
-    
-    final class PrimesView : UILabel, CustomRotorView {
+    final class PrimesView : UILabel {
         let twoDigitPrimes: [NSString] = [
             "11", "13", "17", "19", "23", "29", "31", "37", "41", "43", "47",
             "53", "59", "61", "67", "71", "73", "79", "83", "89", "97"
@@ -122,7 +103,7 @@ private extension AccessibilityCustomRotorsViewController {
         }
     }
     
-    final class UUIDView: UILabel, CustomRotorView {
+    final class UUIDView: UILabel {
         private var storage = [NSString]()
         
         lazy private var rotor: UIAccessibilityCustomRotor = UIAccessibilityCustomRotor(name: "Random Strings") { predicate in
@@ -150,7 +131,7 @@ private extension AccessibilityCustomRotorsViewController {
         }
     }
     
-    final class CharacterView: UIView, CustomRotorView {
+    final class CharacterView: UIView {
         // MARK: - Life Cycle
         
         private let textView: UITextView
