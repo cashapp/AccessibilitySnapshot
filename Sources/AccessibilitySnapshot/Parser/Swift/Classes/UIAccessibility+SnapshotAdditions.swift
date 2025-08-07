@@ -255,16 +255,9 @@ extension NSObject {
         }
 
         if accessibilityTraits.contains(.textEntry) && !accessibilityTraits.contains(.notEnabled) {
-            if accessibilityTraits.contains(.isEditing) {
-                hintDescription = strings.textEntryIsEditingTraitHint
-            } else {
-                if accessibilityTraits.contains(.scrollable) {
-                    // This is a UITextView/TextEditor
-                    hintDescription = strings.scrollableTextEntryTraitHint
-                } else {
-                    // This is a UITextField/TextField
-                    hintDescription = strings.textEntryTraitHint
-                }
+            if !accessibilityTraits.contains(.isEditing) {
+                // This is a UITextField/TextField
+                hintDescription = strings.textEntryTraitHint
             }
         }
 
@@ -391,10 +384,6 @@ extension NSObject {
         let textEntryTraitName: String
 
         let textEntryTraitHint: String
-
-        let textEntryIsEditingTraitHint: String
-
-        let scrollableTextEntryTraitHint: String
 
         let isEditingTraitName: String
 
@@ -557,16 +546,6 @@ extension NSObject {
             self.textEntryTraitHint = "Double tap to edit.".localized(
                 key: "trait.text_field.hint",
                 comment: "Hint describing how to use elements with the 'text entry' accessibility trait",
-                locale: locale
-            )
-            self.textEntryIsEditingTraitHint = "Use the rotor to access Misspelled Words".localized(
-                key: "trait.text_field_is_editing.hint",
-                comment: "Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited",
-                locale: locale
-            )
-            self.scrollableTextEntryTraitHint = "Double tap to edit., Use the rotor to access Misspelled Words".localized(
-                key: "trait.scrollable_text_field.hint",
-                comment: "Hint describing how to use elements with the 'text entry' and 'scrollable' accessibility traits",
                 locale: locale
             )
             self.isEditingTraitName = "Is editing.".localized(

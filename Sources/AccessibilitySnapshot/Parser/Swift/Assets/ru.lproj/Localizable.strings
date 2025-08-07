@@ -97,11 +97,7 @@
 /* Hint describing how to use elements with the 'text entry' accessibility trait */
 "trait.text_field.hint" = "коснитесь дважды, чтобы редактировать";
 
-/* Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited */
-"trait.text_field_is_editing.hint" = "Используйте ротор для доступа к oбъeкту: Cлова с ошибками";
 
-/* Hint describing how to use elements with the 'text entry' and 'scrollable' accessibility traits */
-"trait.scrollable_text_field.hint" = "коснитесь дважды, чтобы редактировать., Используйте ротор для доступа к oбъeкту: Cлова с ошибками";
 
 /* Description for the 'is editing' accessibility trait */
 "trait.text_field_is_editing.description" = "Идет правка";
