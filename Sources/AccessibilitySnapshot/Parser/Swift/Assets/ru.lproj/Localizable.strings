@@ -97,11 +97,19 @@
 /* Hint describing how to use elements with the 'text entry' accessibility trait */
 "trait.text_field.hint" = "коснитесь дважды, чтобы редактировать";
 
-/* Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited */
-"trait.text_field_is_editing.hint" = "Используйте ротор для доступа к oбъeкту: Cлова с ошибками";
 
-/* Hint describing how to use elements with the 'text entry' and 'scrollable' accessibility traits */
-"trait.scrollable_text_field.hint" = "коснитесь дважды, чтобы редактировать., Используйте ротор для доступа к oбъeкту: Cлова с ошибками";
 
 /* Description for the 'is editing' accessibility trait */
 "trait.text_field_is_editing.description" = "Идет правка";
+
+/* Format string for an accessibility element indicating that it has custom rotors available */
+"custom_Rotors.format" = "Используйте ротор для доступа к: %@";
+
+/* Description for an accessibility rotor indicating that it has no results available */
+"custom_rotors.no_results" = "<нет результатов>";
+
+/* Format string for an accessibility rotor indicating that it has more results available */
+"custom_rotors.more_results.format" = "+ %@ дополнительных результатов...";
+
+/* Description for an accessibility rotor indicating that it has reached the maximum limit of results available */
+"custom_rotors.max_limit" = "+ Много (%@+) дополнительных результатов...";
