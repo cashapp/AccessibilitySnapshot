@@ -41,6 +41,7 @@ public enum ActivationPointDisplayMode {
 /// The overlays and legend will be added when `parseAccessibility()` is called. In order for the coordinates to be
 /// calculated properly, the view must already be in the view hierarchy.
 public final class AccessibilitySnapshotView: SnapshotAndLegendView {
+    public typealias ViewRenderingMode = AccessibilitySnapshot.ViewRenderingMode
 
     // MARK: - Life Cycle
 
