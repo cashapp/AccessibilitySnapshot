@@ -52,7 +52,8 @@ let package = Package(
         .target(
             name: "AccessibilitySnapshotParser",
             dependencies: ["AccessibilitySnapshotParser-ObjC"],
-            path: "Sources/AccessibilitySnapshot/Parser/Swift"
+            path: "Sources/AccessibilitySnapshot/Parser/Swift",
+            resources: [.process("Assets")]
         ),
         .target(
             name: "AccessibilitySnapshotCore",
