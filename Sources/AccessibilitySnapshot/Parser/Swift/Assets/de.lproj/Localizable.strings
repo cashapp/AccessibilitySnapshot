@@ -97,11 +97,19 @@
 /* Hint describing how to use elements with the 'text entry' accessibility trait */
 "trait.text_field.hint" = "Zum Bearbeiten doppeltippen.";
 
-/* Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited */
-"trait.text_field_is_editing.hint" = "Den Rotor für den Zuriff auf „Rechtschreibfehler verwenden";
 
-/* Hint describing how to use elements with the 'text entry' and 'scrollable' accessibility traits */
-"trait.scrollable_text_field.hint" = "Zum Bearbeiten doppeltippen., Den Rotor für den Zuriff auf „Rechtschreibfehler verwenden";
 
 /* Description for the 'is editing' accessibility trait */
 "trait.text_field_is_editing.description" = "Bearbeiten";
+
+/* Format string for an accessibility element indicating that it has custom rotors available */
+"custom_Rotors.format" = "Verwenden Sie den Rotor für den Zugriff auf: %@";
+
+/* Description for an accessibility rotor indicating that it has no results available */
+"custom_rotors.no_results" = "<keine Ergebnisse>";
+
+/* Format string for an accessibility rotor indicating that it has more results available */
+"custom_rotors.more_results.format" = "+ %@ weitere Ergebnisse...";
+
+/* Description for an accessibility rotor indicating that it has reached the maximum limit of results available */
+"custom_rotors.max_limit" = "+ Viele weitere (%@+) Ergebnisse...";
