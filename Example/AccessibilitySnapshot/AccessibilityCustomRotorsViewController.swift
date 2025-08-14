@@ -10,11 +10,10 @@ final class AccessibilityCustomRotorsViewController: AccessibilityViewController
             views: [
                 CharacterView(frame: .zero ),
                 PrimesView(frame: .zero),
-                UUIDView(frame: .zero)
+                ForeverRotorView(frame: .zero)
             ]
         )
     }
-
 }
 
 // MARK: -
@@ -103,12 +102,13 @@ private extension AccessibilityCustomRotorsViewController {
         }
     }
     
-    final class UUIDView: UILabel {
+    final class ForeverRotorView: UILabel {
         private var storage = [NSString]()
         
-        lazy private var rotor: UIAccessibilityCustomRotor = UIAccessibilityCustomRotor(name: "Random Strings") { predicate in
+        lazy private var rotor: UIAccessibilityCustomRotor = UIAccessibilityCustomRotor(name: "Forever") { predicate in
             guard predicate.searchDirection == .next else { return nil }
-            let string = String(UUID().uuidString.split(separator: "-").first ?? "") as NSString
+            let current = predicate.currentItem.targetElement as? NSString ?? ""
+            let string = current.appending("➤ ") as NSString
             string.accessibilityLabel = string as String
             self.storage.append(string)
             return .init(targetElement: string, targetRange: nil)
