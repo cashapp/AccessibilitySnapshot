@@ -843,12 +843,12 @@ private extension CGPoint {
 // MARK: -
 private extension UITableView {
     var accessibleSubviews: [UIView] {
-        (0..<self.numberOfSections).indices.map { (sectionIndex: Int) -> [UIView] in
+        (0..<self.numberOfSections).map { (sectionIndex: Int) -> [UIView] in
             var resultViews = [UIView]()
             if let header = self.headerView(forSection: sectionIndex) {
                 resultViews.append(header)
             }
-            (0..<self.numberOfRows(inSection: sectionIndex)).indices.forEach { (rowIndex: Int) in
+            (0..<self.numberOfRows(inSection: sectionIndex)).forEach { (rowIndex: Int) in
                 if let currentCell = self.cellForRow(at: IndexPath(row: rowIndex, section: sectionIndex)) {
                     resultViews.append(currentCell)
                 }
@@ -864,8 +864,8 @@ private extension UITableView {
 // MARK: -
 private extension UICollectionView {
     var accessibleSubviews: [UICollectionViewCell] {
-        (0..<self.numberOfSections).indices.map { (sectionIndex: Int) -> [UICollectionViewCell] in
-            (0..<self.numberOfItems(inSection: sectionIndex)).indices.compactMap { (rowIndex: Int) -> UICollectionViewCell? in
+        (0..<self.numberOfSections).map { (sectionIndex: Int) -> [UICollectionViewCell] in
+            (0..<self.numberOfItems(inSection: sectionIndex)).compactMap { (rowIndex: Int) -> UICollectionViewCell? in
                 self.cellForItem(at: IndexPath(row: rowIndex, section: sectionIndex))
             }
         }.flatMap { $0 }
