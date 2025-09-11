@@ -648,6 +648,12 @@ private extension NSObject {
             let subviewsToParse: [UIView]
             if let lastModalView = self.subviews.last(where: { $0.accessibilityViewIsModal }) {
                 subviewsToParse = [lastModalView]
+            } else if let tableView = self as? UITableView {
+                subviewsToParse = [tableView.tableHeaderView].compactMap { $0 }
+                + tableView.accessibleSubviews
+                + [tableView.tableFooterView].compactMap { $0 }
+            } else if let collectionView = self as? UICollectionView {
+                subviewsToParse = collectionView.accessibleSubviews
             } else {
                 subviewsToParse = self.subviews
             }
@@ -831,5 +837,37 @@ private extension CGPoint {
 
     func approximatelyEquals(_ other: CGPoint, tolerance: CGFloat) -> Bool {
         return abs(self.x - other.x) < tolerance && abs(self.y - other.y) < tolerance
+    }
+}
+
+// MARK: -
+private extension UITableView {
+    var accessibleSubviews: [UIView] {
+        (0..<self.numberOfSections).indices.map { (sectionIndex: Int) -> [UIView] in
+            var resultViews = [UIView]()
+            if let header = self.headerView(forSection: sectionIndex) {
+                resultViews.append(header)
+            }
+            (0..<self.numberOfRows(inSection: sectionIndex)).indices.forEach { (rowIndex: Int) in
+                if let currentCell = self.cellForRow(at: IndexPath(row: rowIndex, section: sectionIndex)) {
+                    resultViews.append(currentCell)
+                }
+            }
+            if let footer = self.footerView(forSection: sectionIndex) {
+                resultViews.append(footer)
+            }
+            return resultViews
+        }.flatMap { $0 }
+    }
+}
+
+// MARK: -
+private extension UICollectionView {
+    var accessibleSubviews: [UICollectionViewCell] {
+        (0..<self.numberOfSections).indices.map { (sectionIndex: Int) -> [UICollectionViewCell] in
+            (0..<self.numberOfItems(inSection: sectionIndex)).indices.compactMap { (rowIndex: Int) -> UICollectionViewCell? in
+                self.cellForItem(at: IndexPath(row: rowIndex, section: sectionIndex))
+            }
+        }.flatMap { $0 }
     }
 }
