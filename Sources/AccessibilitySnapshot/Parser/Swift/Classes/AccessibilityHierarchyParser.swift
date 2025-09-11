@@ -843,31 +843,59 @@ private extension CGPoint {
 // MARK: -
 private extension UITableView {
     var accessibleSubviews: [UIView] {
-        (0..<self.numberOfSections).map { (sectionIndex: Int) -> [UIView] in
-            var resultViews = [UIView]()
-            if let header = self.headerView(forSection: sectionIndex) {
-                resultViews.append(header)
+        var allViews: [UIView] = []
+        
+        for sectionIndex in 0..<self.numberOfSections {
+            // Add section header if delegate provides one
+            if let delegate = self.delegate, 
+               delegate.responds(to: #selector(UITableViewDelegate.tableView(_:viewForHeaderInSection:))),
+               let header = delegate.tableView?(self, viewForHeaderInSection: sectionIndex) {
+                allViews.append(header)
             }
-            (0..<self.numberOfRows(inSection: sectionIndex)).forEach { (rowIndex: Int) in
+            
+            // Add cells for this section
+            for rowIndex in 0..<self.numberOfRows(inSection: sectionIndex) {
                 if let currentCell = self.cellForRow(at: IndexPath(row: rowIndex, section: sectionIndex)) {
-                    resultViews.append(currentCell)
+                    allViews.append(currentCell)
                 }
             }
-            if let footer = self.footerView(forSection: sectionIndex) {
-                resultViews.append(footer)
+            
+            // Add section footer if delegate provides one
+            if let delegate = self.delegate,
+               delegate.responds(to: #selector(UITableViewDelegate.tableView(_:viewForFooterInSection:))),
+               let footer = delegate.tableView?(self, viewForFooterInSection: sectionIndex) {
+                allViews.append(footer)
             }
-            return resultViews
-        }.flatMap { $0 }
+        }
+        
+        return allViews
     }
 }
 
 // MARK: -
 private extension UICollectionView {
-    var accessibleSubviews: [UICollectionViewCell] {
-        (0..<self.numberOfSections).map { (sectionIndex: Int) -> [UICollectionViewCell] in
-            (0..<self.numberOfItems(inSection: sectionIndex)).compactMap { (rowIndex: Int) -> UICollectionViewCell? in
-                self.cellForItem(at: IndexPath(row: rowIndex, section: sectionIndex))
+    var accessibleSubviews: [UIView] {
+        (0..<self.numberOfSections).map { (sectionIndex: Int) -> [UIView] in
+            var resultViews = [UIView]()
+            
+            // Add section header
+            if let header = self.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: sectionIndex)) {
+                resultViews.append(header)
             }
+            
+            // Add cells
+            (0..<self.numberOfItems(inSection: sectionIndex)).forEach { itemIndex in
+                if let cell = self.cellForItem(at: IndexPath(item: itemIndex, section: sectionIndex)) {
+                    resultViews.append(cell)
+                }
+            }
+            
+            // Add section footer
+            if let footer = self.supplementaryView(forElementKind: UICollectionView.elementKindSectionFooter, at: IndexPath(item: 0, section: sectionIndex)) {
+                resultViews.append(footer)
+            }
+            
+            return resultViews
         }.flatMap { $0 }
     }
 }
