@@ -23,6 +23,7 @@ struct SwiftUITextEntry: View {
             TextField("SwiftUI Text Field", text: .constant("Value in Text Field"))
             if #available(iOS 14.0, *) {
                 TextEditor(text: .constant(""))
+                TextEditor(text: .constant("Value in Text Editor."))
             }
         }
     }
