@@ -86,6 +86,21 @@ final class UIAccessibilityCustomRotorParsingTests : XCTestCase {
         
         
         
-        // ADD LIMIT TESTS
+    }
+    
+    func test_limits() {
+        var storage = [NSString]()
+        let rotor = UIAccessibilityCustomRotor(name: "test") { _ in
+            let uuid = UUID().uuidString as NSString
+            uuid.accessibilityLabel = uuid as String
+            storage.append(uuid)
+            return .init(targetElement: uuid, targetRange: nil)
+        }
+        
+        XCTAssertEqual(rotor.iterateResults(direction: .next, limit: 10).results.count, 10)
+        XCTAssertEqual(rotor.iterateResults(direction: .previous, limit: 10).results.count, 10)
+        
+        XCTAssertEqual(rotor.collectAllResults().results.count, 20)
+
     }
 }

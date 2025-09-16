@@ -732,7 +732,7 @@ extension UIAccessibilityCustomRotor {
         
         // It's common that the first element or range of both directions is the same, as we don't have a current item set in the predicate.
         // In that case we'll want to drop the first element of one of the arrays before merging them.
-        if ((forwards.results.first?.targetElement?.isEqual(backwards.results.first?.targetElement)) != nil) || ((forwards.results.first?.targetRange?.isEqual(backwards.results.first?.targetRange)) != nil) {
+        if forwards.results.first?.compare(backwards.results.first) ?? false {
             let results = backwards.results.dropFirst().reversed() + forwards.results
             return .init(results: results, limit: backwards.limit.combine(forwards.limit))
         }
@@ -822,7 +822,9 @@ extension UIAccessibilityCustomRotor {
     }
 }
 extension UIAccessibilityCustomRotorItemResult {
-    fileprivate func compare(_ other: UIAccessibilityCustomRotorItemResult) -> Bool {
+    fileprivate func compare(_ other: UIAccessibilityCustomRotorItemResult?) -> Bool {
+        guard let other else { return false }
+        
         // 'any NSObjectProtocol' cannot be used as a type conforming to protocol 'Equatable' because 'Equatable' has static requirements
         let target = targetElement as? NSObject
         let otherTarget = other.targetElement as? NSObject
