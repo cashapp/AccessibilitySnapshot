@@ -31,7 +31,7 @@ import AccessibilitySnapshotParser
 /// calculated properly, the view must already be in the view hierarchy.
 public final class AccessibilitySnapshotView: SnapshotAndLegendView {
 
-    /// The configuration struct for snapshot rendering.
+    // The configuration struct for snapshot rendering.
     public let snapshotConfiguration: AccessibilitySnapshotConfiguration
     
     // MARK: - Life Cycle
@@ -49,6 +49,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
 
     
     @available(*, deprecated, message:"Please use `init(containedView:snapshotConfiguration:)` instead.")
+    
     public convenience init(
         containedView: UIView,
         viewRenderingMode: ViewRenderingMode,
@@ -69,9 +70,11 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     ///
     /// - parameter containedView: The view that should be snapshotted, and for which the accessibility markers should
     /// be generated.
+    /// - parameter viewRenderingMode: The method to use when snapshotting the `containedView`.
     /// - parameter snapshotConfiguration: The configuration for the visual effects and markers applied to the snapshots.
     public init(
         containedView: UIView,
+        viewRenderingMode: ViewRenderingMode,
         snapshotConfiguration: AccessibilitySnapshotConfiguration
     ) {
         self.containedView = containedView
