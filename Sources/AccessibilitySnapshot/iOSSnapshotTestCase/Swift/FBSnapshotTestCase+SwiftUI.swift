@@ -74,6 +74,9 @@ extension FBSnapshotTestCase {
                                     size: size,
                                     identifier: identifier,
                                     snapshotConfiguration: configuration,
+                                                                 activationPointDisplayMode: activationPointDisplayMode,
+                                                                 showUserInputLabels: showUserInputLabels,
+                                                                 useMonochromeSnapshot: useMonochromeSnapshot),
                                     suffixes: suffixes,
                                     file: file,
                                     line: line)
