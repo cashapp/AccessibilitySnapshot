@@ -77,6 +77,7 @@ extension FBSnapshotTestCase {
                                     identifier: identifier,
                                     snapshotConfiguration: configuration,
                                         colors: markerColors,
+                                        activationPointDisplayMode: activationPointDisplayMode,
                                         showUserInputLabels: showUserInputLabels,
                                         useMonochromeSnapshot: useMonochromeSnapshot),
                                     suffixes: suffixes,
