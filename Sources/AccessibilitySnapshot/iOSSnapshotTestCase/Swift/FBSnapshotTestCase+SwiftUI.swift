@@ -54,7 +54,7 @@ extension FBSnapshotTestCase {
         _ view: View,
         size: CGSize? = nil,
         identifier: String = "",
-        showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
+        showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
@@ -62,17 +62,40 @@ extension FBSnapshotTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
+        
+        
+        
+        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode,
+                                                               colorRenderingMode: useMonochromeSnapshot ? .monochrome : .fullColor,
+                                                               overlayColors: markerColors,
+                                                               activationPointDisplay: activationPointDisplayMode,
+                                                               includesInputLabels: showUserInputLabels ? .whenOverridden : .never)
+        SnapshotVerifyAccessibility(view,
+                                    size: size,
+                                    identifier: identifier,
+                                    snapshotConfiguration: configuration,
+                                    suffixes: suffixes,
+                                    file: file,
+                                    line: line)
+    }
+    
+        public func SnapshotVerifyAccessibility<View: SwiftUI.View>(
+            _ view: View,
+            size: CGSize? = nil,
+            identifier: String = "",
+            snapshotConfiguration: AccessibilitySnapshotConfiguration,
+            suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+            file: StaticString = #file,
+            line: UInt = #line
+        ) {
         let hostingController = UIHostingController(rootView: view)
         hostingController.view.bounds.size = size ?? hostingController.sizeThatFits(in: .zero)
 
         SnapshotVerifyAccessibility(
             hostingController.view,
             identifier: identifier,
-            showActivationPoints: activationPointDisplayMode,
-            useMonochromeSnapshot: useMonochromeSnapshot,
-            markerColors: markerColors,
+            snapshotConfiguration:snapshotConfiguration,
             suffixes: suffixes,
-            showUserInputLabels: showUserInputLabels,
             file: file,
             line: line
         )

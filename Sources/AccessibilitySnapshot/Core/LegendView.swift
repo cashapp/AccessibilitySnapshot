@@ -8,7 +8,7 @@ internal extension AccessibilitySnapshotView {
         
         // MARK: - Life Cycle
         
-        init(marker: AccessibilityMarker, color: UIColor, showUserInputLabels: Bool) {
+        init(marker: AccessibilityMarker, color: UIColor, configuration: AccessibilitySnapshotConfiguration.Legend) {
             self.hintLabel = marker.hint.map {
                 let label = UILabel()
                 label.text = $0
@@ -49,7 +49,43 @@ internal extension AccessibilitySnapshotView {
             }()
             
             self.userInputLabelsView = {
-                guard showUserInputLabels, let userInputLabels = marker.userInputLabels, userInputLabels.count > 0 else { return nil }
+    
+               let userInputLabels: [String]? = {
+                   
+                   switch configuration.includesUserInputLabels {
+                   case .always:
+                       guard let labels = marker.userInputLabels, !labels.isEmpty else {
+                           /// If no labels are provided the accessibility label will be used, split on spaces.
+                           var labels = marker.label?.split(separator: " ").map(String.init) ?? []
+                           
+                           /// The button trait precedes the adjustable trait if both are present.
+                           if  marker.traits.contains(.button) {
+                               labels.append(Strings.buttonInputLabelText(for: marker.accessibilityLanguage))
+                           }
+                           if marker.traits.contains(.adjustable) {
+                               labels.append(Strings.adjustableInputLabelText(for: marker.accessibilityLanguage))
+                           }
+                           
+                           return labels
+                       }
+                       return marker.userInputLabels
+                       
+                   case .whenOverridden:
+                       guard
+                           marker.respondsToUserInteraction,
+                           let userInputLabels = marker.userInputLabels,
+                           !userInputLabels.isEmpty
+                       else {
+                           return nil
+                       }
+                       return userInputLabels
+                       
+                   case .never:
+                       return nil
+                   }
+               }()
+
+                guard let userInputLabels else { return nil }
                 
                 return .init(titles: userInputLabels, color: color)
             }()
@@ -81,7 +117,7 @@ internal extension AccessibilitySnapshotView {
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
-        
+    
         // MARK: - Private Properties
         
         private let markerView: UIView = .init()

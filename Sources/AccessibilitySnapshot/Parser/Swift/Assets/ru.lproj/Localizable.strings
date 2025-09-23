@@ -105,3 +105,9 @@
 
 /* Description for the 'is editing' accessibility trait */
 "trait.text_field_is_editing.description" = "Идет правка";
+
+/* Description for the 'button' input label in legend view */
+"trait.button.inputLabel" = "Кнопка.";
+
+/* Description for the 'adjustable' input label in legend view */
+"trait.adjustable.inputLabel" = "Элемент регулировки.";

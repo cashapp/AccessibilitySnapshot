@@ -65,7 +65,7 @@ extension FBSnapshotTestCase {
     public func SnapshotImpreciseVerifyAccessibility(
         _ view: UIView,
         identifier: String = "",
-        showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
+        showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
@@ -79,14 +79,13 @@ extension FBSnapshotTestCase {
             XCTFail(ErrorMessageFactory.errorMessageForMissingHostApplication, file: file, line: line)
             return
         }
-
-        let containerView = AccessibilitySnapshotView(
-            containedView: view,
-            viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
-            markerColors: markerColors,
-            activationPointDisplayMode: activationPointDisplayMode,
-            showUserInputLabels: showUserInputLabels
-        )
+        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode,
+                                                               colorRenderingMode: (useMonochromeSnapshot ? .monochrome : .fullColor),
+                                                               overlayColors: markerColors,
+                                                               activationPointDisplay: activationPointDisplayMode,
+                                                               includesInputLabels: showUserInputLabels ? .whenOverridden : .never)
+        
+        let containerView = AccessibilitySnapshotView(containedView: view, snapshotConfiguration: configuration)
 
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.makeKeyAndVisible()
@@ -94,7 +93,7 @@ extension FBSnapshotTestCase {
         window.addSubview(containerView)
 
         do {
-            try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+            try containerView.parseAccessibility()
         } catch {
             XCTFail(ErrorMessageFactory.errorMessageForAccessibilityParsingError(error), file: file, line: line)
             return

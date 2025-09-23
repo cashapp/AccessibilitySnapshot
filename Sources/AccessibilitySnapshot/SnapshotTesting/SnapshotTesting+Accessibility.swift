@@ -47,7 +47,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     /// Control).
     /// - parameter shouldRunInHostApplication: Controls whether a host application is required to run the test or not.
     public static func accessibilityImage(
-        showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
+        showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = [],
@@ -61,21 +61,24 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         return Snapshotting<UIView, UIImage>
             .image(drawHierarchyInKeyWindow: drawHierarchyInKeyWindow)
             .pullback { view in
-                let containerView = AccessibilitySnapshotView(
-                    containedView: view,
+                
+                let configuration = AccessibilitySnapshotConfiguration(
                     viewRenderingMode: drawHierarchyInKeyWindow ? .drawHierarchyInRect : .renderLayerInContext,
-                    markerColors: markerColors,
-                    activationPointDisplayMode: activationPointDisplayMode,
-                    showUserInputLabels: showUserInputLabels
+                    colorRenderingMode: useMonochromeSnapshot ? .monochrome : .fullColor,
+                    overlayColors: markerColors,
+                    activationPointDisplay: activationPointDisplayMode,
+                    includesInputLabels: showUserInputLabels ? .whenOverridden : .never
                 )
-
+               
+                let containerView = AccessibilitySnapshotView(containedView: view, snapshotConfiguration: configuration)
+                
                 let window = UIWindow(frame: UIScreen.main.bounds)
                 window.makeKeyAndVisible()
                 containerView.center = window.center
                 window.addSubview(containerView)
 
                 do {
-                    try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+                    try containerView.parseAccessibility()
                 } catch ImageRenderingError.containedViewExceedsMaximumSize {
                     fatalError(
                         """
@@ -256,7 +259,7 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
     /// Control).
     public static func accessibilityImage(
-        showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
+        showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = [],

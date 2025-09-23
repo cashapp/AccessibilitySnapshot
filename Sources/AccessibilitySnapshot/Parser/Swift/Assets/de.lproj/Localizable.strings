@@ -105,3 +105,9 @@
 
 /* Description for the 'is editing' accessibility trait */
 "trait.text_field_is_editing.description" = "Bearbeiten";
+
+/* Description for the 'button' input label in legend view */
+"trait.button.inputLabel" = "Taste.";
+
+/* Description for the 'adjustable' input label in legend view */
+"trait.adjustable.inputLabel" = "Einstellbar.";
