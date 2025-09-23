@@ -97,11 +97,18 @@
 /* Hint describing how to use elements with the 'text entry' accessibility trait */
 "trait.text_field.hint" = "Double tap to edit.";
 
-/* Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited */
-"trait.text_field_is_editing.hint" = "Use the rotor to access Misspelled Words";
-
-/* Hint describing how to use elements with the 'text entry' and 'scrollable' accessibility traits */
-"trait.scrollable_text_field.hint" = "Double tap to edit., Use the rotor to access Misspelled Words";
 
 /* Description for the 'is editing' accessibility trait */
 "trait.text_field_is_editing.description" = "Is editing.";
+
+/* Format string for an accessibility element indicating that it has custom rotors available */
+"custom_Rotors.format" = "Use the rotor to access: %@";
+
+/* Description for an accessibility rotor indicating that it has no results available */
+"custom_rotors.no_results" = "<no results>";
+
+/* Format string for an accessibility rotor indicating that it has more results available */
+"custom_rotors.more_results.format" = "+ %@ More Results...";
+
+/* Description for an accessibility rotor indicating that it has reached the maximum limit of results available */
+"custom_rotors.max_limit" = "+ Many More (%@+) Results...";

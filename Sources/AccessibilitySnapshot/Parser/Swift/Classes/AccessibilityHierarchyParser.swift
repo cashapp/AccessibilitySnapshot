@@ -18,11 +18,11 @@ import Accessibility
 import SwiftUI
 import UIKit
 
-public struct AccessibilityMarker {
+public struct AccessibilityMarker: Equatable {
 
     // MARK: - Public Types
 
-    public enum Shape {
+    public enum Shape: Equatable {
 
         /// Accessibility frame, in the coordinate space of the view being snapshotted.
         case frame(CGRect)
@@ -31,7 +31,69 @@ public struct AccessibilityMarker {
         case path(UIBezierPath)
 
     }
+    
+    public struct CustomRotor: Equatable, CustomStringConvertible {
+        
+        public struct ResultMarker: Equatable, CustomStringConvertible {
+            public let elementDescription: String
+            public let rangeDescription: String?
+            public let shape: Shape?
 
+            public var description: String {
+                guard let rangeDescription else {
+                    return elementDescription
+                }
+                return "\(elementDescription) \(rangeDescription)"
+            }
+        }
+        
+        public var name: String
+        public var resultMarkers: [AccessibilityMarker.CustomRotor.ResultMarker] = []
+        public let limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit
+
+        init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil) {
+            guard from.isKnownRotorType else { return nil }
+            name = from.displayName
+            let collected = from.collectAllResults()
+            limit = collected.limit
+            resultMarkers = collected.results.compactMap { result in
+                guard let element = result.targetElement as? NSObject else { return nil }
+                var description = element.accessibilityDescription(context: context).description
+                var shape: Shape? = AccessibilityHierarchyParser.accessibilityShape(for: element, in: root)
+                
+                if let range = result.targetRange,
+                   let input = element as? UITextInput {
+                    if let path = input.accessibilityPath(for: range) {
+                        let converted = root.convert(path, from: input as? UIView)
+                        shape = .path(converted)
+                    }
+                    if let substring = input.text(in: range) {
+                        description = substring
+                    }
+                    return ResultMarker(elementDescription: description, rangeDescription: range.formatted(in: input), shape: shape)
+                }
+                return ResultMarker(elementDescription: description, rangeDescription: nil, shape: shape)
+            }
+        }
+        
+        public var description: String {
+            return name + ": " + resultMarkers.map({ $0.description }).joined(separator: "\n")
+        }
+    }
+
+    public struct CustomContent: Codable, Equatable {
+        public var label: String
+        public var value: String
+        public var isImportant: Bool
+
+        @available(iOS 14.0, *)
+        init(from: AXCustomContent) {
+            label = from.label
+            value = from.value
+            isImportant = from.importance == .high
+        }
+    }
+    
     // MARK: - Public Properties
 
     /// The description of the accessibility element that will be read by VoiceOver when the element is brought into
@@ -65,8 +127,11 @@ public struct AccessibilityMarker {
     public var customActions: [String]
     
     /// Any custom content included by the element.
-    public var customContent: [(label: String, value: String, isImportant:Bool)]
+    public var customContent: [CustomContent]
 
+    /// Any custom rotors included by the element.
+    public var customRotors: [CustomRotor]
+    
     /// The language code of the language used to localize strings in the description.
     public var accessibilityLanguage: String?
 
@@ -230,14 +295,15 @@ public final class AccessibilityHierarchyParser {
                 identifier: element.object.identifier,
                 hint: hint,
                 userInputLabels: userInputLabels,
-                shape: accessibilityShape(for: element.object, in: root),
+                shape: Self.accessibilityShape(for: element.object, in: root),
                 activationPoint: root.convert(activationPoint, from: nil),
                 usesDefaultActivationPoint: activationPoint.approximatelyEquals(
-                    defaultActivationPoint(for: element.object),
+                    Self.defaultActivationPoint(for: element.object),
                     tolerance: 1 / (root.window?.screen ?? UIScreen.main).scale
                 ),
                 customActions: element.object.accessibilityCustomActions?.map { $0.name } ?? [],
                 customContent: element.object.customContent,
+                customRotors: element.object.customRotors(in: root, context: element.context),
                 accessibilityLanguage: element.object.accessibilityLanguage
             )
         }
@@ -320,7 +386,7 @@ public final class AccessibilityHierarchyParser {
         let minimumVerticalSeparation = userInterfaceIdiom == .phone ? 8.0 : 13.0
 
         let sortedNodes = explicitlyOrdered ? nodes : nodes
-            .map { ($0, accessibilitySortFrame(for: $0, in: root)) }
+            .map { ($0, Self.accessibilitySortFrame(for: $0, in: root)) }
             .sorted { obj1, obj2 in
                 let origin1 = obj1.1.origin
                 let origin2 = obj2.1.origin
@@ -354,53 +420,6 @@ public final class AccessibilityHierarchyParser {
         }
 
         return sortedElements
-    }
-    /// Returns a CGRect that can be used for sorting by position.
-    private func accessibilitySortFrame(for node: AccessibilityNode, in root: UIView) -> CGRect {
-        switch node {
-        case let .element(frameProvider, _),
-             let .group(_, _, frameProvider?):
-            switch accessibilityShape(for: frameProvider, in: root, preferPath: false) {
-            case let .frame(rect):
-                return rect
-            default:
-                return frameProvider.accessibilityFrame
-            }
-
-        case let .group(elements, _, _):
-            return elements.reduce(CGRect.null) { $0.union(accessibilitySortFrame(for: $1, in: root)) }
-        }
-    }
-
-    /// Returns the shape of the accessibility element in the root view's coordinate space.
-    /// Voiceover prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
-    private func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityMarker.Shape {
-        if let accessibilityPath = element.accessibilityPath, preferPath {
-            return .path(root.convert(accessibilityPath, from: nil))
-
-        } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer, !element.accessibilityFrameInContainerSpace.isNull {
-            return .frame(container.convert(element.accessibilityFrameInContainerSpace, to: root))
-
-        } else {
-            return .frame(root.convert(element.accessibilityFrame, from: nil))
-        }
-    }
-
-    /// Returns the default value for an element's `accessibilityActivationPoint`.
-    private func defaultActivationPoint(for element: NSObject) -> CGPoint {
-        if let element = element as? UISlider {
-            let bounds = element.bounds
-            let trackRect = element.trackRect(forBounds: bounds)
-            let thumbRect = element.thumbRect(forBounds: bounds, trackRect: trackRect, value: element.value)
-            let thumbAccessibilityFrame = UIAccessibility.convertToScreenCoordinates(thumbRect, in: element)
-
-            return CGPoint(x: thumbAccessibilityFrame.midX, y: thumbAccessibilityFrame.midY)
-        }
-
-        // By default, an element's activation point is the center of its accessibility frame, regardless of whether it
-        // uses an accessibility path or frame as its shape.
-        let accessibilityFrame = element.accessibilityFrame
-        return CGPoint(x: accessibilityFrame.midX, y: accessibilityFrame.midY)
     }
 
     /// Returns the context for an `element` provided by the `contextProvider`.
@@ -580,6 +599,56 @@ public final class AccessibilityHierarchyParser {
 
 }
 
+fileprivate extension AccessibilityHierarchyParser {
+    /// Returns a CGRect that can be used for sorting by position.
+    static func accessibilitySortFrame(for node: AccessibilityNode, in root: UIView) -> CGRect {
+        switch node {
+        case let .element(frameProvider, _),
+             let .group(_, _, frameProvider?):
+            switch accessibilityShape(for: frameProvider, in: root, preferPath: false) {
+            case let .frame(rect):
+                return rect
+            default:
+                return frameProvider.accessibilityFrame
+            }
+
+        case let .group(elements, _, _):
+            return elements.reduce(CGRect.null) { $0.union(accessibilitySortFrame(for: $1, in: root)) }
+        }
+    }
+
+    /// Returns the shape of the accessibility element in the root view's coordinate space.
+    /// Voiceover prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
+    static func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityMarker.Shape {
+        if let accessibilityPath = element.accessibilityPath, preferPath {
+            return .path(root.convert(accessibilityPath, from: nil))
+
+        } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer, !element.accessibilityFrameInContainerSpace.isNull {
+            return .frame(container.convert(element.accessibilityFrameInContainerSpace, to: root))
+
+        } else {
+            return .frame(root.convert(element.accessibilityFrame, from: nil))
+        }
+    }
+
+    /// Returns the default value for an element's `accessibilityActivationPoint`.
+    static func defaultActivationPoint(for element: NSObject) -> CGPoint {
+        if let element = element as? UISlider {
+            let bounds = element.bounds
+            let trackRect = element.trackRect(forBounds: bounds)
+            let thumbRect = element.thumbRect(forBounds: bounds, trackRect: trackRect, value: element.value)
+            let thumbAccessibilityFrame = UIAccessibility.convertToScreenCoordinates(thumbRect, in: element)
+
+            return CGPoint(x: thumbAccessibilityFrame.midX, y: thumbAccessibilityFrame.midY)
+        }
+
+        // By default, an element's activation point is the center of its accessibility frame, regardless of whether it
+        // uses an accessibility path or frame as its shape.
+        let accessibilityFrame = element.accessibilityFrame
+        return CGPoint(x: accessibilityFrame.midX, y: accessibilityFrame.midY)
+    }
+}
+
 // MARK: -
 
 private enum AccessibilityNode {
@@ -739,7 +808,7 @@ extension UIView {
 }
 
 fileprivate extension NSObject {
-    var customContent: [(label: String, value: String, isImportant:Bool)] {
+    var customContent: [AccessibilityMarker.CustomContent] {
         // Github runs tests on specific iOS versions against specific versions of Xcode in CI.
         // Forward deployment on old versions of Xcode require a compile time check which require differentiation by swift version rather than iOS SDK.
         // See https://swiftversion.net/ for mapping swift version to Xcode versions.
@@ -752,21 +821,22 @@ fileprivate extension NSObject {
                 if #available(iOS 17.0, *) {
                     if let customContentBlock = provider.accessibilityCustomContentBlock {
                         if let content = customContentBlock?() {
-                            return content.map { content in
-                                return (content.label, content.value, content.importance == .high)
-                            }
+                            return content.map { .init(from: $0) }
                         }
                     }
                 }
                 #endif //swift(>=5.9)
                 if let content = provider.accessibilityCustomContent {
-                    return content.map { content in
-                        return (content.label, content.value, content.importance == .high)
-                    }
+                    return content.map { .init(from: $0) }
                 }
             }
         }
         return []
+    }
+    
+    func customRotors(in root: UIView, context: AccessibilityHierarchyParser.Context?) -> [AccessibilityMarker.CustomRotor] {
+        accessibilityCustomRotors?.compactMap {
+            .init(from: $0, parentElement: self, root: root, context: context) } ?? []
     }
 
     var identifier: String? {
@@ -831,5 +901,34 @@ private extension CGPoint {
 
     func approximatelyEquals(_ other: CGPoint, tolerance: CGFloat) -> Bool {
         return abs(self.x - other.x) < tolerance && abs(self.y - other.y) < tolerance
+    }
+}
+private extension UITextRange {
+    
+    func formatted( in input: UITextInput?) -> String {
+        guard let input else { return "\(self)" }
+
+        let start = input.offset(from: input.beginningOfDocument, to: start)
+        let end = input.offset(from: input.beginningOfDocument, to: end)
+        return "[\(start)..<\(end)]"
+    }
+    
+}
+
+internal extension UITextInput  {
+    
+    func accessibilityPath(for range: UITextRange) -> UIBezierPath? {
+         return selectionRects(for: range).reduce(into: UIBezierPath()) { path, rect in
+             // selectionRects(for:) returns rects that contain no glyphs and are empty space used for text wrapping.
+             // We don't want to include these as they look like they are a separate unexpected element.
+             // Fortunately these extra rects can only occur in the middle of the range so we can safely accept many without question.
+             if !rect.containsEnd && !rect.containsStart && !rect.isVertical {
+                // Check that this rect contains actual glyphs by comparing the closest glyph position to the leading and trailing edges of the rect.
+                 let leading = CGPoint(x: rect.writingDirection == .leftToRight ? rect.rect.minX : rect.rect.maxX, y: rect.rect.midY)
+                 let trailing = CGPoint(x: rect.writingDirection == .leftToRight ? rect.rect.maxX : rect.rect.minX, y: rect.rect.midY)
+                 guard closestPosition(to: leading, within: range) != closestPosition(to: trailing, within: range) else { return }
+             }
+            path.append(UIBezierPath(roundedRect: rect.rect, cornerRadius: 8.0))
+        }
     }
 }
