@@ -46,7 +46,7 @@ final class AccessibilityAccessorTests: XCTestCase {
         let block = Element()
         testView.accessibilityElementsBlock = { [block] }
         testView.accessibilityElements = [fallback]
-        XCTAssertEqual(testView.accessibilityElements?.first as? Element, block )
+        XCTAssertEqual(testView.accessibilityElements?.first as? Element, block)
     }
     
     @available(iOS 17.0, *)
