@@ -56,8 +56,7 @@ final class AccessibilityAccessorTests: XCTestCase {
             XCTFail("This never gets called")
             return .list
         }
-        
-        
+
         XCTAssertEqual(testView.accessibilityContainerType, .landmark)
     }
     
