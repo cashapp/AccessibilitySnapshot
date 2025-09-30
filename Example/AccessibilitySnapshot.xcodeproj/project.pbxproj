@@ -460,7 +460,6 @@
 					};
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
-						DevelopmentTeam = EYF346PHUG;
 						LastSwiftMigration = 0900;
 					};
 					607FACE41AFB9204008FA782 = {
@@ -896,7 +895,7 @@
 			baseConfigurationReference = ED63B7AD78B189E8940B6C80 /* Pods-AccessibilitySnapshotDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = EYF346PHUG;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = AccessibilitySnapshot/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -914,7 +913,7 @@
 			baseConfigurationReference = CCFF2A604706B71DC0CBD38B /* Pods-AccessibilitySnapshotDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = EYF346PHUG;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = AccessibilitySnapshot/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
