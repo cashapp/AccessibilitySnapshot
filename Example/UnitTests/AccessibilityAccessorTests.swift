@@ -22,8 +22,6 @@ final class AccessibilityAccessorTests: XCTestCase {
         super.tearDown()
     }
     
-   
-    
     // MARK: - iOS 17 Block-Based Tests
     
     @available(iOS 17.0, *)
