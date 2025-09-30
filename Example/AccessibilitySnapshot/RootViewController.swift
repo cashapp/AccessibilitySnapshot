@@ -71,6 +71,9 @@ final class RootViewController: UITableViewController {
         if #available(iOS 14.0, *) {
             accessibilityScreens.append( ("Accessibility Custom Content", { _ in return AccessibilityCustomContentViewController() }))
         }
+        if #available(iOS 17.0, *) {
+            accessibilityScreens.append( ("Block based accessors", { _ in return BlockBasedAccessibilityViewController() }))
+        }
         self.accessibilityScreens = accessibilityScreens
         
         super.init(nibName: nil, bundle: nil)

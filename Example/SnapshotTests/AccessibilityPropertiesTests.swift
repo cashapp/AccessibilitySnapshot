@@ -21,6 +21,14 @@ import Paralayout
 @testable import AccessibilitySnapshotDemo
 
 final class AccessibilitySnapshotTests: SnapshotTestCase {
+    
+    func testBlockBasedAccessibility() {
+        if #available(iOS 17.0, *) {
+            let viewController = BlockBasedAccessibilityViewController()
+            viewController.view.frame = UIScreen.main.bounds
+            SnapshotVerifyAccessibility(viewController.view)
+        }
+    }
 
     func testViewDescription() {
         let viewPropertiesViewController = ViewAccessibilityPropertiesViewController()
