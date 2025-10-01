@@ -49,7 +49,7 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// Control).
     public static func accessibilityImage(
         size: CGSize? = nil,
-        showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
+        showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = [],

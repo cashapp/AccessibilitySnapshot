@@ -19,19 +19,8 @@ import UIKit
 import AccessibilitySnapshotParser
 #endif
 
-public enum ActivationPointDisplayMode {
 
-    /// Always show the accessibility activation point indicators.
-    case always
 
-    /// Only show the accessibility activation point indicator for an element when the activation point is different
-    /// than the default activation point for that element.
-    case whenOverridden
-
-    /// Never show the accessibility activation point indicators.
-    case never
-
-}
 
 // MARK: -
 
@@ -42,6 +31,9 @@ public enum ActivationPointDisplayMode {
 /// calculated properly, the view must already be in the view hierarchy.
 public final class AccessibilitySnapshotView: SnapshotAndLegendView {
 
+    /// The configuration struct for snapshot rendering.
+    public let snapshotConfiguration: AccessibilitySnapshotConfiguration
+    
     // MARK: - Life Cycle
 
     /// Initializes a new snapshot container view.
@@ -54,19 +46,37 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     /// - parameter activationPointDisplayMode: Controls when to show indicators for elements' accessibility activation
     /// points.
     /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice Control).
-    public init(
+
+    
+    @available(*, deprecated, message:"Please use `init(containedView:snapshotConfiguration:)` instead.")
+    public convenience init(
         containedView: UIView,
         viewRenderingMode: ViewRenderingMode,
         markerColors: [UIColor] = MarkerColors.defaultColors,
-        activationPointDisplayMode: ActivationPointDisplayMode,
+        activationPointDisplayMode: AccessibilityContentDisplayMode,
         showUserInputLabels: Bool
     ) {
+        
+        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode:viewRenderingMode,
+                                                               overlayColors:markerColors,
+                                                               activationPointDisplay: activationPointDisplayMode,
+                                                               includesInputLabels: showUserInputLabels  ? .whenOverridden : .never)
+        
+        self.init(containedView: containedView, snapshotConfiguration: configuration)
+    }
+    
+    /// Initializes a new snapshot container view.
+    ///
+    /// - parameter containedView: The view that should be snapshotted, and for which the accessibility markers should
+    /// be generated.
+    /// - parameter snapshotConfiguration: The configuration for the visual effects and markers applied to the snapshots.
+    public init(
+        containedView: UIView,
+        snapshotConfiguration: AccessibilitySnapshotConfiguration
+    ) {
         self.containedView = containedView
-        self.viewRenderingMode = viewRenderingMode
-        self.markerColors = markerColors.isEmpty ? MarkerColors.defaultColors : markerColors
-        self.activationPointDisplayMode = activationPointDisplayMode
-        self.showUserInputLabels = showUserInputLabels
-
+        self.snapshotConfiguration = snapshotConfiguration
+        
         super.init(frame: containedView.bounds)
 
         backgroundColor = .init(white: 0.9, alpha: 1.0)
@@ -91,14 +101,6 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
 
     private let containedView: UIView
 
-    private let viewRenderingMode: ViewRenderingMode
-
-    private let markerColors: [UIColor]
-
-    private let activationPointDisplayMode: ActivationPointDisplayMode
-
-    private let showUserInputLabels: Bool
-
     private var displayMarkers: [DisplayMarker] = []
 
     // MARK: - Public Methods
@@ -108,7 +110,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     /// This must be called _after_ the view is in the view hierarchy.
     ///
     /// - Throws: Throws a `RenderError` when the view fails to render a snapshot of the `containedView`.
-    public func parseAccessibility(useMonochromeSnapshot: Bool) throws {
+    public func parseAccessibility() throws {
         // Clean up any previous markers.
         self.displayMarkers.forEach {
             $0.legendView.removeFromSuperview()
@@ -141,8 +143,8 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         containedView.layoutIfNeeded()
 
         snapshotView.image = try containedView.renderToImage(
-            monochrome: useMonochromeSnapshot,
-            viewRenderingMode: viewRenderingMode
+            monochrome: snapshotConfiguration.snapshot.colorMode == .monochrome,
+            viewRenderingMode: snapshotConfiguration.snapshot.viewRenderingMode
         )
         snapshotView.bounds.size = containedView.bounds.size
 
@@ -155,11 +157,11 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
 
         var displayMarkers: [DisplayMarker] = []
         for (index, marker) in markers.enumerated() {
-            let color = markerColors[index % markerColors.count]
+            let color = snapshotConfiguration.overlay.colors[index % snapshotConfiguration.overlay.colors.count]
 
-            let legendView = LegendView(marker: marker, color: color, showUserInputLabels: showUserInputLabels)
+            let legendView = LegendView(marker: marker, color: color, configuration: snapshotConfiguration.legend)
             addSubview(legendView)
-
+            
             let overlayView = UIView()
             snapshotView.addSubview(overlayView)
 
@@ -188,7 +190,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
                 activationPointView: nil
             )
 
-            switch activationPointDisplayMode {
+            switch snapshotConfiguration.overlay.activationPointDisplay {
             case .whenOverridden:
                 if !marker.usesDefaultActivationPoint {
                     fallthrough

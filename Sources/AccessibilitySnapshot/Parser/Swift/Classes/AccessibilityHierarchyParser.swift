@@ -37,6 +37,12 @@ public struct AccessibilityMarker {
     /// The description of the accessibility element that will be read by VoiceOver when the element is brought into
     /// focus.
     public var description: String
+    
+    public var label: String?
+    
+    public var value: String?
+    
+    public var traits: UIAccessibilityTraits
 
     /// A unique identifier for the element, primarily used in UI tests for locating and interacting with elements.
     /// This identifier is not visible to users.
@@ -46,6 +52,10 @@ public struct AccessibilityMarker {
     public var hint: String?
     
     /// The labels that will be used by Voice Control for user input.
+    /// These labels are displayed based on the `AccessibilityContentDisplayMode` configuration:
+    /// - `.always`: Always shows user input labels
+    /// - `.whenOverridden`: Shows labels only when they differ from default values (future enhancement)
+    /// - `.never`: Never shows user input labels
     public var userInputLabels: [String]?
 
     /// The shape that will be highlighted on screen while the element is in focus.
@@ -69,6 +79,9 @@ public struct AccessibilityMarker {
 
     /// The language code of the language used to localize strings in the description.
     public var accessibilityLanguage: String?
+    
+    /// whether the element performs an action based on user interaction.
+    public var respondsToUserInteraction : Bool
 
 }
 
@@ -174,6 +187,12 @@ public final class AccessibilityHierarchyParser {
     /// Parses the accessibility hierarchy starting from the `root` view and returns markers for each element in the
     /// hierarchy, in the order VoiceOver will iterate through them when using flick navigation.
     ///
+    /// The returned `AccessibilityMarker` objects include user input labels that are displayed based on the
+    /// `AccessibilityContentDisplayMode` configuration set in the snapshot testing methods:
+    /// - `.always`: Always includes user input labels in the markers, including default (derived) labels.
+    /// - `.whenOverridden`: Includes labels only when they differ from default values.
+    /// - `.never`: Never includes user input labels in the markers
+    ///
     /// - parameter root: The root view of the accessibility hierarchy. Coordinates in the returned markers will be
     /// relative to this view's coordinate space.
     /// - parameter userInterfaceLayoutDirectionProvider: The provider of the device's user interface layout direction.
@@ -210,26 +229,17 @@ public final class AccessibilityHierarchyParser {
 
         return accessibilityElements.map { element in
             let (description, hint) = element.object.accessibilityDescription(context: element.context)
-            
-            let userInputLabels: [String]? = {
-                guard
-                    element.object.accessibilityRespondsToUserInteraction,
-                    let userInputLabels = element.object.accessibilityUserInputLabels,
-                    !userInputLabels.isEmpty
-                else {
-                    return nil
-                }
-
-                return userInputLabels
-            }()
 
             let activationPoint = element.object.accessibilityActivationPoint
 
             return AccessibilityMarker(
                 description: description,
+                label: element.object.accessibilityLabel,
+                value: element.object.accessibilityValue,
+                traits: element.object.accessibilityTraits,
                 identifier: element.object.identifier,
                 hint: hint,
-                userInputLabels: userInputLabels,
+                userInputLabels: element.object.accessibilityUserInputLabels,
                 shape: accessibilityShape(for: element.object, in: root),
                 activationPoint: root.convert(activationPoint, from: nil),
                 usesDefaultActivationPoint: activationPoint.approximatelyEquals(
@@ -238,7 +248,8 @@ public final class AccessibilityHierarchyParser {
                 ),
                 customActions: element.object.accessibilityCustomActions?.map { $0.name } ?? [],
                 customContent: element.object.customContent,
-                accessibilityLanguage: element.object.accessibilityLanguage
+                accessibilityLanguage: element.object.accessibilityLanguage,
+                respondsToUserInteraction: element.object.accessibilityRespondsToUserInteraction
             )
         }
     }

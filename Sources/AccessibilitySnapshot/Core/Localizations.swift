@@ -26,6 +26,21 @@ enum Strings {
             locale: locale
         )
     }
+    
+    static func adjustableInputLabelText(for locale: String?) -> String {
+        return "Adjustable.".as_localized(
+            key: "trait.adjustable.inputLabel",
+            comment: "Description for the 'adjustable' input label in legend view",
+            locale: locale
+        )
+    }
+    static func buttonInputLabelText(for locale: String?) -> String {
+        return "Button.".as_localized(
+            key: "trait.button.inputLabel",
+            comment: "Description for the 'button' input label in legend view",
+            locale: locale
+        )
+    }
 }
 
 extension String {

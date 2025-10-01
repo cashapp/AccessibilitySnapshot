@@ -53,14 +53,89 @@ extension FBSnapshotTestCase {
     /// Control).
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
+    @available(*, deprecated, message:"Please use `SnapshotVerifyAccessibility(_ view:identifier:snapshotConfiguration:suffixes:file:line:)` instead.")
     public func SnapshotVerifyAccessibility(
         _ view: UIView,
         identifier: String = "",
-        showActivationPoints activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
+        showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         showUserInputLabels: Bool = true,
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        
+        let configuration = AccessibilitySnapshotConfiguration(
+            viewRenderingMode: viewRenderingMode,
+            colorRenderingMode: useMonochromeSnapshot ? .monochrome : .fullColor,
+            overlayColors: markerColors,
+            activationPointDisplay: activationPointDisplayMode,
+            includesInputLabels: showUserInputLabels ? .whenOverridden : .never
+        )
+        SnapshotVerifyAccessibility(view,
+                                    identifier: identifier,
+                                    snapshotConfiguration: configuration,
+                                    suffixes: suffixes,
+                                    file: file,
+                                    line: line)
+    }
+    
+    
+    /// Snapshots the `view` with colored overlays of each accessibility element it contains, as well as an
+    /// approximation of the description that VoiceOver will read for each element.
+    ///
+    /// When `recordMode` is true, records a snapshot of the view. When `recordMode` is false, performs a comparison
+    /// with the existing snapshot.
+    ///
+    /// - Note: This method will modify the view hierarchy in order to snapshot the view. It will attempt to restore the
+    /// hierarchy to its original state as much as possible, but is not guaranteed to be without side effects (for
+    /// example if something observes changes in the view hierarchy).
+    ///
+    /// - parameter view: The view that will be snapshotted.
+    /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple
+    /// snapshot tests in a given test method. Defaults to no identifier.
+    /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
+    /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter file: The file in which the test result should be attributed.
+    /// - parameter line: The line in which the test result should be attributed.
+    public func SnapshotVerifyAccessibility(
+        // Convenience method that takes no required parameters.
+        // This will override the above function for the default case suppressing irrelevant deprecation warnings.
+        _ view: UIView,
+        identifier: String = "",
+        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        SnapshotVerifyAccessibility(view, identifier: identifier, snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode), suffixes: suffixes, file: file, line: line)
+    }
+    
+    
+    
+    /// Snapshots the `view` with colored overlays of each accessibility element it contains, as well as an
+    /// approximation of the description that VoiceOver will read for each element.
+    ///
+    /// When `recordMode` is true, records a snapshot of the view. When `recordMode` is false, performs a comparison
+    /// with the existing snapshot.
+    ///
+    /// - Note: This method will modify the view hierarchy in order to snapshot the view. It will attempt to restore the
+    /// hierarchy to its original state as much as possible, but is not guaranteed to be without side effects (for
+    /// example if something observes changes in the view hierarchy).
+    ///
+    /// - parameter view: The view that will be snapshotted.
+    /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple
+    /// snapshot tests in a given test method. Defaults to no identifier.
+    /// - parameter snapshotConfiguration: The configuration used for rendering and testing the snapshot.
+    /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
+    /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter file: The file in which the test result should be attributed.
+    /// - parameter line: The line in which the test result should be attributed.
+    public func SnapshotVerifyAccessibility(
+        _ view: UIView,
+        identifier: String = "",
+        snapshotConfiguration: AccessibilitySnapshotConfiguration,
+        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -71,11 +146,9 @@ extension FBSnapshotTestCase {
 
         let containerView = AccessibilitySnapshotView(
             containedView: view,
-            viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
-            markerColors: markerColors,
-            activationPointDisplayMode: activationPointDisplayMode,
-            showUserInputLabels: showUserInputLabels
+            snapshotConfiguration: snapshotConfiguration
         )
+
 
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.makeKeyAndVisible()
@@ -83,7 +156,7 @@ extension FBSnapshotTestCase {
         window.addSubview(containerView)
 
         do {
-            try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+            try containerView.parseAccessibility()
         } catch {
             XCTFail(ErrorMessageFactory.errorMessageForAccessibilityParsingError(error), file: file, line: line)
             return
@@ -221,4 +294,9 @@ extension FBSnapshotTestCase {
         return (hostApplication != nil)
     }
 
+}
+extension FBSnapshotTestCase {
+    public var viewRenderingMode: ViewRenderingMode {
+        (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext)
+    }
 }

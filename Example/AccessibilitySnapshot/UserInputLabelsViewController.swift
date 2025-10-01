@@ -37,10 +37,17 @@ private extension UserInputLabelsViewController {
             super.init(frame: frame)
 
             noLabelsButton.setTitle("No labels", for: .normal)
-            oneLabelButton.setTitle("One label", for: .normal)
-            manyLabelsButton.setTitle("Many labels", for: .normal)
-            longLabelButton.setTitle("Long label", for: .normal)
+            noLabelsButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
             
+            oneLabelButton.setTitle("One label", for: .normal)
+            oneLabelButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+
+            manyLabelsButton.setTitle("Many labels", for: .normal)
+            manyLabelsButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+
+            longLabelButton.setTitle("Long label", for: .normal)
+            longLabelButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
+
             nonInteractiveLabel.text = "Non-interactive"
             nonInteractiveLabel.accessibilityUserInputLabels = ["Non-interactive label"]
             
@@ -75,7 +82,11 @@ private extension UserInputLabelsViewController {
         private let manyLabelsButton: UIButton = .init()
         private let longLabelButton: UIButton = .init()
         private let nonInteractiveLabel: UILabel = .init()
-
+        
+        @objc private func buttonTapped(sender: NSObject) {
+            print("Button Tapped: \(String(describing: sender))")
+        }
+        
         private var buttons: [UIButton] {
             return [
                 noLabelsButton,

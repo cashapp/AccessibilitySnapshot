@@ -67,7 +67,7 @@ extension FBSnapshotTestCase {
     internal func snapshotVerifyAccessibility(
         _ view: UIView,
         identifier: String,
-        activationPointDisplayMode: ActivationPointDisplayMode,
+        activationPointDisplayMode: AccessibilityContentDisplayMode,
         useMonochromeSnapshot: Bool,
         perPixelTolerance: CGFloat,
         overallTolerance: CGFloat,
@@ -76,12 +76,14 @@ extension FBSnapshotTestCase {
         guard isRunningInHostApplication else {
             return ErrorMessageFactory.errorMessageForMissingHostApplication
         }
-
+        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode,
+                                                               colorRenderingMode: (useMonochromeSnapshot ? .monochrome : .fullColor),
+                                                               activationPointDisplay: activationPointDisplayMode,
+                                                               includesInputLabels: (showUserInputLabels ? .whenOverridden : .never))
+        
         let containerView = AccessibilitySnapshotView(
             containedView: view,
-            viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
-            activationPointDisplayMode: activationPointDisplayMode,
-            showUserInputLabels: showUserInputLabels
+            snapshotConfiguration: configuration
         )
 
         let window = UIWindow(frame: UIScreen.main.bounds)
@@ -90,7 +92,7 @@ extension FBSnapshotTestCase {
         window.addSubview(containerView)
 
         do {
-            try containerView.parseAccessibility(useMonochromeSnapshot: useMonochromeSnapshot)
+            try containerView.parseAccessibility()
         } catch {
             return ErrorMessageFactory.errorMessageForAccessibilityParsingError(error)
         }
