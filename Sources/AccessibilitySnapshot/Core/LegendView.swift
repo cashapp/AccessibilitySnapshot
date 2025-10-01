@@ -4,11 +4,74 @@ import AccessibilitySnapshotParser
 #endif
 
 internal extension AccessibilitySnapshotView {
-    final class LegendView: UIView {
+    
+    final class ElementMarkerView: UIView {
+        
+        enum Style {
+            case pill, box
+        }
+        
+        private enum Metrics {
+            static let ElementIndexFont = UIFont.systemFont(ofSize: 12)
+        }
+        
+        private let indexLabel = UILabel()
+        private let style: Style
+        
+        
+        init(frame: CGRect = .zero, color: UIColor, index: Int?, style: Style = .box) {
+            self.style = style
+            super.init(frame: frame)
+            indexLabel.numberOfLines = 1
+            indexLabel.text = index.map(String.init) ?? nil
+            indexLabel.font = Metrics.ElementIndexFont
+            addSubview(indexLabel)
+            backgroundColor = color
+
+            switch style {
+            case .pill:
+                indexLabel.textColor = .lightText
+                layer.borderColor = UIColor.lightText.cgColor
+                layer.borderWidth = 1
+                layer.shadowOffset = CGSize(width: 1, height: 1)
+                layer.shadowRadius = 2
+            case .box:
+                indexLabel.textColor = .darkText
+            }
+        }
+        
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+        
+        override func sizeThatFits(_ size: CGSize) -> CGSize {
+           let labelSize = indexLabel.sizeThatFits(size)
+            if labelSize.width > labelSize.height {
+                return labelSize.applying(.init(scaleX: 1.1, y: 1.1))
+            }
+            return CGSize(width: labelSize.height, height: labelSize.height).applying(.init(scaleX: 1.1, y: 1.1))
+        }
+        
+        override func layoutSubviews() {
+            super.layoutSubviews()
+
+            indexLabel.sizeToFit()
+            indexLabel.frame = CGRect(x: (bounds.size.width - indexLabel.frame.width) / 2,
+                                      y: (bounds.size.height - indexLabel.frame.height) / 2,
+                                      width: indexLabel.frame.width,
+                                      height: indexLabel.frame.height)
+            
+            
+            layer.cornerRadius = style == .pill ? indexLabel.frame.height / 2 : 0.0
+        }
+    }
+    
+    
+    final class ElementLegendView: UIView {
         
         // MARK: - Life Cycle
         
-        init(marker: AccessibilityMarker, color: UIColor, configuration: AccessibilitySnapshotConfiguration.Legend) {
+        init(marker: AccessibilityMarker, elementIndex: Int?, color: UIColor, configuration: AccessibilitySnapshotConfiguration.Legend) {
             self.hintLabel = marker.hint.map {
                 let label = UILabel()
                 label.text = $0
@@ -90,9 +153,10 @@ internal extension AccessibilitySnapshotView {
                 return .init(titles: userInputLabels, color: color)
             }()
             
+            markerView = ElementMarkerView(color: color.withAlphaComponent(0.3), index: elementIndex)
+
             super.init(frame: .zero)
             
-            markerView.backgroundColor = color.withAlphaComponent(0.3)
             addSubview(markerView)
             
             descriptionLabel.text =
@@ -120,7 +184,7 @@ internal extension AccessibilitySnapshotView {
     
         // MARK: - Private Properties
         
-        private let markerView: UIView = .init()
+        private let markerView: ElementMarkerView
         
         private let descriptionLabel: UILabel = .init()
         
