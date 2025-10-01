@@ -12,7 +12,6 @@ public struct AccessibilitySnapshotConfiguration {
     public struct Snapshot {
         
         /// The preferred strategy for converting a view to an image.
-        /// Defaults to `.renderLayerInContext` for better performance.
         public let viewRenderingMode: ViewRenderingMode
         
         /// Whether or not the snapshot of the `view` should be monochrome or full color. Using a
@@ -60,12 +59,6 @@ public struct AccessibilitySnapshotConfiguration {
     public let overlay: Overlay
     public let legend: Legend
     
-    private init(snapshot: Snapshot, overlay: Overlay, legend: Legend) {
-        self.snapshot = snapshot
-        self.overlay = overlay
-        self.legend = legend
-    }
-    
     /// Creates a new accessibility snapshot configuration.
     ///
     /// - Parameters:
@@ -81,12 +74,9 @@ public struct AccessibilitySnapshotConfiguration {
                 includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden
                 ) {
         
-        self.init(snapshot: Snapshot(viewRenderingMode:viewRenderingMode,
-                                     colorMode: colorRenderingMode),
-                  overlay: Overlay(colors: overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors,
-                                   activationPointDisplay: activationPointDisplay),
-                  legend: Legend(includesUserInputLabels: includesInputLabels)
-        )
+        self.snapshot = Snapshot(viewRenderingMode:viewRenderingMode, colorMode: colorRenderingMode)
+        self.overlay = Overlay(colors: overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors, activationPointDisplay: activationPointDisplay)
+        self.legend = Legend(includesUserInputLabels: includesInputLabels)
     }
 }
 
