@@ -659,6 +659,12 @@ private extension NSObject {
             let subviewsToParse: [UIView]
             if let lastModalView = self.subviews.last(where: { $0.accessibilityViewIsModal }) {
                 subviewsToParse = [lastModalView]
+            } else if let tableView = self as? UITableView {
+                subviewsToParse = [tableView.tableHeaderView].compactMap { $0 }
+                + tableView.accessibleSubviews
+                + [tableView.tableFooterView].compactMap { $0 }
+            } else if let collectionView = self as? UICollectionView {
+                subviewsToParse = collectionView.accessibleSubviews
             } else {
                 subviewsToParse = self.subviews
             }
@@ -842,5 +848,65 @@ private extension CGPoint {
 
     func approximatelyEquals(_ other: CGPoint, tolerance: CGFloat) -> Bool {
         return abs(self.x - other.x) < tolerance && abs(self.y - other.y) < tolerance
+    }
+}
+
+// MARK: -
+private extension UITableView {
+    var accessibleSubviews: [UIView] {
+        var allViews: [UIView] = []
+        
+        for sectionIndex in 0..<self.numberOfSections {
+            // Add section header if delegate provides one
+            if let delegate = self.delegate, 
+               delegate.responds(to: #selector(UITableViewDelegate.tableView(_:viewForHeaderInSection:))),
+               let header = delegate.tableView?(self, viewForHeaderInSection: sectionIndex) {
+                allViews.append(header)
+            }
+            
+            // Add cells for this section
+            for rowIndex in 0..<self.numberOfRows(inSection: sectionIndex) {
+                if let currentCell = self.cellForRow(at: IndexPath(row: rowIndex, section: sectionIndex)) {
+                    allViews.append(currentCell)
+                }
+            }
+            
+            // Add section footer if delegate provides one
+            if let delegate = self.delegate,
+               delegate.responds(to: #selector(UITableViewDelegate.tableView(_:viewForFooterInSection:))),
+               let footer = delegate.tableView?(self, viewForFooterInSection: sectionIndex) {
+                allViews.append(footer)
+            }
+        }
+        
+        return allViews
+    }
+}
+
+// MARK: -
+private extension UICollectionView {
+    var accessibleSubviews: [UIView] {
+        (0..<self.numberOfSections).map { (sectionIndex: Int) -> [UIView] in
+            var resultViews = [UIView]()
+            
+            // Add section header
+            if let header = self.supplementaryView(forElementKind: UICollectionView.elementKindSectionHeader, at: IndexPath(item: 0, section: sectionIndex)) {
+                resultViews.append(header)
+            }
+            
+            // Add cells
+            (0..<self.numberOfItems(inSection: sectionIndex)).forEach { itemIndex in
+                if let cell = self.cellForItem(at: IndexPath(item: itemIndex, section: sectionIndex)) {
+                    resultViews.append(cell)
+                }
+            }
+            
+            // Add section footer
+            if let footer = self.supplementaryView(forElementKind: UICollectionView.elementKindSectionFooter, at: IndexPath(item: 0, section: sectionIndex)) {
+                resultViews.append(footer)
+            }
+            
+            return resultViews
+        }.flatMap { $0 }
     }
 }
