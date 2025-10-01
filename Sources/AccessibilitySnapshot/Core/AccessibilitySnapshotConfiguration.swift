@@ -36,11 +36,19 @@ public struct AccessibilitySnapshotConfiguration {
         ///  Defaults to `.whenOverridden`.
         public let activationPointDisplay: AccessibilityContentDisplayMode
         
+        
+        /// Controls when to show indicators for elements' accessibility order.
+        ///  Defaults to `.never`.
+        public let elementOrderDisplay: AccessibilityContentDisplayMode
+        
+        
         init(colors: [UIColor] = MarkerColors.defaultColors,
-             activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden
+             activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden,
+             elementOrderDisplay: AccessibilityContentDisplayMode = .never
         )  {
             self.colors = colors.isEmpty ? MarkerColors.defaultColors : colors
             self.activationPointDisplay = activationPointDisplay
+            self.elementOrderDisplay = elementOrderDisplay
         }
     }
     
@@ -71,11 +79,16 @@ public struct AccessibilitySnapshotConfiguration {
                 colorRenderingMode: ColorRenderingMode = .monochrome,
                 overlayColors: [UIColor] = MarkerColors.defaultColors,
                 activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden,
-                includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden
+                includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden,
+                includesElementOrder: AccessibilityContentDisplayMode = .never
                 ) {
         
         self.snapshot = Snapshot(viewRenderingMode:viewRenderingMode, colorMode: colorRenderingMode)
-        self.overlay = Overlay(colors: overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors, activationPointDisplay: activationPointDisplay)
+        
+        self.overlay = Overlay(colors: overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors,
+                               activationPointDisplay: activationPointDisplay,
+                               elementOrderDisplay: includesElementOrder)
+        
         self.legend = Legend(includesUserInputLabels: includesInputLabels)
     }
 }

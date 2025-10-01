@@ -68,7 +68,6 @@ extension Snapshotting where Value == UIView, Format == UIImage {
                     overlayColors: markerColors,
                     activationPointDisplay: activationPointDisplayMode,
                     includesInputLabels: showUserInputLabels ? .whenOverridden : .never
-                        useMonochromeSnapshot: useMonochromeSnapshot)
                 )
                
                 let containerView = AccessibilitySnapshotView(containedView: view, snapshotConfiguration: configuration)

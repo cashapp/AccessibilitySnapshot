@@ -67,11 +67,11 @@ internal extension AccessibilitySnapshotView {
     }
     
     
-    final class LegendView: UIView {
+    final class ElementLegendView: UIView {
         
         // MARK: - Life Cycle
         
-        init(marker: AccessibilityMarker, color: UIColor, configuration: AccessibilitySnapshotConfiguration.Legend) {
+        init(marker: AccessibilityMarker, elementIndex: Int?, color: UIColor, configuration: AccessibilitySnapshotConfiguration.Legend) {
             self.hintLabel = marker.hint.map {
                 let label = UILabel()
                 label.text = $0

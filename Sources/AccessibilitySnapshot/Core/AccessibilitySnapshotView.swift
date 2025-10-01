@@ -74,7 +74,6 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     /// - parameter snapshotConfiguration: The configuration for the visual effects and markers applied to the snapshots.
     public init(
         containedView: UIView,
-        viewRenderingMode: ViewRenderingMode,
         snapshotConfiguration: AccessibilitySnapshotConfiguration
     ) {
         self.containedView = containedView
@@ -97,7 +96,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     }
 
     override var minimumLegendWidth: CGFloat {
-        return LegendView.Metrics.minimumWidth
+        return ElementLegendView.Metrics.minimumWidth
     }
 
     // MARK: - Private Properties
@@ -160,12 +159,14 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
 
         var displayMarkers: [DisplayMarker] = []
         for (index, marker) in markers.enumerated() {
+            let elementIndex: Int? = markers.count > 1 ? index : nil
+            
             let color = snapshotConfiguration.overlay.colors[index % snapshotConfiguration.overlay.colors.count]
 
-            let legendView = LegendView(marker: marker, color: color, configuration: snapshotConfiguration.legend)
+            let legendView = ElementLegendView(marker: marker,
                                         elementIndex: elementIndex,
                                         color: color,
-                                        showUserInputLabels: snapshotConfiguration.showUserInputLabels)
+                                        configuration: snapshotConfiguration.legend)
             addSubview(legendView)
 
             let overlayView = OverlayView()
@@ -247,7 +248,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
 
         var marker: AccessibilityMarker
 
-        var legendView: LegendView
+        var legendView: ElementLegendView
 
         var overlayView: OverlayView
 
@@ -264,7 +265,6 @@ internal extension AccessibilitySnapshotView {
                 guard let markerView else { return }
                 markerView.sizeToFit()
                 let origin = markerPosition
-//                    .applying(CGAffineTransform(translationX: -(markerView.bounds.width / 2), y: -(markerView.bounds.height / 2 )))
                 markerView.frame = CGRect(origin: origin, size: markerView.frame.size)
             }
         }

@@ -76,10 +76,6 @@ extension FBSnapshotTestCase {
         SnapshotVerifyAccessibility(view,
                                     identifier: identifier,
                                     snapshotConfiguration: configuration,
-                                        colors: markerColors,
-                                        activationPointDisplayMode: activationPointDisplayMode,
-                                        showUserInputLabels: showUserInputLabels,
-                                        useMonochromeSnapshot: useMonochromeSnapshot),
                                     suffixes: suffixes,
                                     file: file,
                                     line: line)

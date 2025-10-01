@@ -24,43 +24,50 @@ final class ElementOrderTests: SnapshotTestCase {
     func testScatter() {
         let elementOrderViewController = ElementOrderViewController(configurations: .scatter)
         elementOrderViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: .init(showElementOrderMarkers: true))
+        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode, includesElementOrder: .always)
+        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: configuration)
     }
 
     func testGrid() {
         let elementOrderViewController = ElementOrderViewController(configurations: .grid)
         elementOrderViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: .init(showElementOrderMarkers: true))
+        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode, includesElementOrder: .always)
+        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: configuration)
     }
 
     func testContainerInElementStack() {
         let elementOrderViewController = ElementOrderViewController(configurations: .containerInElementStack)
         elementOrderViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: .init(showElementOrderMarkers: true))
+        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode, includesElementOrder: .always)
+        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: configuration)
     }
 
     func testZeroSizedContainerInElementStack() {
         let elementOrderViewController = ElementOrderViewController(configurations: .zeroSizedContainerInElementStack)
         elementOrderViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: .init(showElementOrderMarkers: true))
+        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode, includesElementOrder: .always)
+        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: configuration)
     }
 
     func testGroupedViewsInElementStack() {
         let elementOrderViewController = ElementOrderViewController(configurations: .groupedViewsInElementStack)
         elementOrderViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: .init(showElementOrderMarkers: true))
+        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode, includesElementOrder: .always)
+        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: configuration)
     }
 
     func testUngroupedViewsInElementStack() {
         let elementOrderViewController = ElementOrderViewController(configurations: .ungroupedViewsInElementStack)
         elementOrderViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: .init(showElementOrderMarkers: true))
+        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode, includesElementOrder: .always)
+        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: configuration)
     }
 
     func testUngroupedViewsInAccessibleParent() {
         let elementOrderViewController = ElementOrderViewController(configurations: .ungroupedViewsInAccessibleParent)
         elementOrderViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: .init(showElementOrderMarkers: true))
+        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode, includesElementOrder: .always)
+        SnapshotVerifyAccessibility(elementOrderViewController.view, snapshotConfiguration: configuration)
     }
 
 }
