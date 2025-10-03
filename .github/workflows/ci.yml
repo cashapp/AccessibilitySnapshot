@@ -9,7 +9,7 @@ on:
 jobs:
   xcode-build:
     name: Xcode Build
-    runs-on: macOS-13
+    runs-on: macos-15
     strategy:
       matrix:
         platform: ['iOS_17', 'iOS_16']
