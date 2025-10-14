@@ -8,10 +8,10 @@ Your local environment should match one these supported versions.
 
 | Software | Versions |
 | --- | --- |
-| Xcode | 12.5.1 (iOS 13 and 14), 14.3.1 (iOS 16) [.github/workflows/ci.yml](https://github.com/cashapp/AccessibilitySnapshot/blob/master/.github/workflows/ci.yml) |
-| Ruby | 3.2.2 [Example/Gemfile](https://github.com/cashapp/AccessibilitySnapshot/blob/master/Example/Gemfile) |
-| Bundler | 2.4.22 [Gemfile.lock](https://github.com/cashapp/AccessibilitySnapshot/blob/master/Gemfile.lock) |
-| Simulators | iOS 16.4, iOS 17.2 - iPhone 14 Pro [Scripts/build.swift](https://github.com/cashapp/AccessibilitySnapshot/blob/master/Scripts/build.swift) |
+| Xcode | 12.5.1 (iOS 13 and 14), 14.3.1 (iOS 16) [.github/workflows/ci.yml](https://github.com/cashapp/AccessibilitySnapshot/blob/main/.github/workflows/ci.yml) |
+| Ruby | 3.2.2 [Example/Gemfile](https://github.com/cashapp/AccessibilitySnapshot/blob/main/Example/Gemfile) |
+| Bundler | 2.4.22 [Gemfile.lock](https://github.com/cashapp/AccessibilitySnapshot/blob/main/Gemfile.lock) |
+| Simulators | iOS 16.4, iOS 17.2 - iPhone 14 Pro [Scripts/build.swift](https://github.com/cashapp/AccessibilitySnapshot/blob/main/Scripts/build.swift) |
 
 ### Setting up environment
 
@@ -76,4 +76,4 @@ Your local environment should match one these supported versions.
 
 ### Getting Snapshot Images from CI
 
-Test results are archived for CI jobs. When there is a failure because of a snapshot test image changing those images can be extracted from the archive. See [Scripts/ExtractImagesFromTestResults.swift](https://github.com/cashapp/AccessibilitySnapshot/blob/master/Scripts/ExtractImagesFromTestResults.swift) for instructions.
+Test results are archived for CI jobs. When there is a failure because of a snapshot test image changing those images can be extracted from the archive. See [Scripts/ExtractImagesFromTestResults.swift](https://github.com/cashapp/AccessibilitySnapshot/blob/main/Scripts/ExtractImagesFromTestResults.swift) for instructions.
