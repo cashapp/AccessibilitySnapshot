@@ -35,7 +35,7 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
     private let content: Content
     private let viewRenderingMode: ViewRenderingMode
     private let markerColors: [Color]
-    private let activationPointDisplayMode: ActivationPointDisplayMode
+    private let accessibilityContentDisplayMode: AccessibilityContentDisplayMode
     private let showUserInputLabels: Bool
     private let renderSize: CGSize
 
@@ -51,20 +51,20 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
     ///   - content: The view that should be snapshotted, and for which the accessibility markers should be generated
     ///   - viewRenderingMode: The method to use when snapshotting the content
     ///   - markerColors: An array of colors to use for the highlighted regions
-    ///   - activationPointDisplayMode: Controls when to show indicators for elements' accessibility activation points
+    ///   - AccessibilityContentDisplayMode: Controls when to show indicators for elements' accessibility activation points
     ///   - showUserInputLabels: Controls when to show elements' accessibility user input labels
     public init(
         @ViewBuilder content: () -> Content,
         viewRenderingMode: ViewRenderingMode,
         markerColors: [Color] = MarkerColors.defaultSwiftUIColors,
-        activationPointDisplayMode: ActivationPointDisplayMode = .whenOverridden,
+        accessibilityContentDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         showUserInputLabels: Bool = false,
         renderSize: CGSize?
     ) {
         self.content = content()
         self.viewRenderingMode = viewRenderingMode
         self.markerColors = markerColors.isEmpty ? MarkerColors.defaultSwiftUIColors : markerColors
-        self.activationPointDisplayMode = activationPointDisplayMode
+        self.accessibilityContentDisplayMode = AccessibilityContentDisplayMode
         self.showUserInputLabels = showUserInputLabels
         self.renderSize = renderSize ?? UIScreen.main.bounds.size
     }
@@ -85,7 +85,7 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
                                     MarkerOverlayView(
                                         marker: displayMarkers[index].marker,
                                         color: markerColors[index % markerColors.count],
-                                        activationPointDisplayMode: activationPointDisplayMode
+                                        accessibilityContentDisplayMode: AccessibilityContentDisplayMode
                                     )
                                     .offset(x: -renderSize.width/2*(1 - scale))
                                     .offset(y: -renderSize.height/2*(1 - scale))
@@ -169,7 +169,7 @@ private struct DisplayMarker {
 private struct MarkerOverlayView: View {
     let marker: AccessibilityMarker
     let color: Color
-    let activationPointDisplayMode: ActivationPointDisplayMode
+    let accessibilityContentDisplayMode: AccessibilityContentDisplayMode
 
     var body: some View {
         ZStack {
@@ -196,7 +196,7 @@ private struct MarkerOverlayView: View {
     }
 
     private var shouldShowActivationPoint: Bool {
-        switch activationPointDisplayMode {
+        switch accessibilityContentDisplayMode {
         case .always:
             return true
         case .whenOverridden:
