@@ -85,7 +85,7 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
                                     MarkerOverlayView(
                                         marker: displayMarkers[index].marker,
                                         color: markerColors[index % markerColors.count],
-                                        accessibilityContentDisplayMode: AccessibilityContentDisplayMode
+                                        accessibilityContentDisplayMode: accessibilityContentDisplayMode
                                     )
                                     .offset(x: -renderSize.width/2*(1 - scale))
                                     .offset(y: -renderSize.height/2*(1 - scale))
