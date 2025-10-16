@@ -16,6 +16,7 @@
 
 import SwiftUI
 import AccessibilitySnapshotParser
+import AccessibilitySnapshotCore
 
 extension View {
     public func accessibilityPreview(renderSize: CGSize? = nil) -> some View {
