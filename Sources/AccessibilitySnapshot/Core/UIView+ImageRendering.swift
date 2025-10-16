@@ -42,7 +42,7 @@ public enum ImageRenderingError: Swift.Error {
 
 extension UIView {
 
-    package func renderToImage(
+    public func renderToImage(
         monochrome: Bool,
         viewRenderingMode: ViewRenderingMode
     ) throws -> UIImage {

@@ -51,7 +51,7 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
     ///   - content: The view that should be snapshotted, and for which the accessibility markers should be generated
     ///   - viewRenderingMode: The method to use when snapshotting the content
     ///   - markerColors: An array of colors to use for the highlighted regions
-    ///   - AccessibilityContentDisplayMode: Controls when to show indicators for elements' accessibility activation points
+    ///   - accessibilityContentDisplayMode: Controls when to show indicators for elements' accessibility activation points
     ///   - showUserInputLabels: Controls when to show elements' accessibility user input labels
     public init(
         @ViewBuilder content: () -> Content,
@@ -64,7 +64,7 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
         self.content = content()
         self.viewRenderingMode = viewRenderingMode
         self.markerColors = markerColors.isEmpty ? MarkerColors.defaultSwiftUIColors : markerColors
-        self.accessibilityContentDisplayMode = AccessibilityContentDisplayMode
+        self.accessibilityContentDisplayMode = accessibilityContentDisplayMode
         self.showUserInputLabels = showUserInputLabels
         self.renderSize = renderSize ?? UIScreen.main.bounds.size
     }
