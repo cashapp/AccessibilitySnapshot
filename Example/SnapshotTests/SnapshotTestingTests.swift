@@ -177,6 +177,18 @@ final class SnapshotTestingTests: XCTestCase {
         )
     }
 
+    func testTallViewController() {
+        let viewController = TallViewController()
+        viewController.view.frame = .init(origin: .zero, size: .init(width: 420, height: 7250))
+        viewController.view.sizeToFit()
+        assertSnapshot(
+            matching: viewController,
+            as: .accessibilityImage,
+            named: nameForDevice(),
+            record: true
+        )
+    }
+
     // MARK: - Private Methods
 
     private func nameForDevice(baseName: String? = nil) -> String {

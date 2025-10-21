@@ -64,6 +64,7 @@
 		AC969EC52E4B6F1E007D8B7A /* AccessibilityAccessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC969EC42E4B6F1E007D8B7A /* AccessibilityAccessorTests.swift */; };
 		ACAB81272E44F23100FB54FE /* BlockBasedAccessibilityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAB81262E44F23100FB54FE /* BlockBasedAccessibilityViewController.swift */; };
 		C47F6C5316FB0C043BEB59F3 /* Pods_AccessibilitySnapshotDemo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6A886964D2E787399E137105 /* Pods_AccessibilitySnapshotDemo.framework */; };
+		C8FCC95F2EA6B0660074E565 /* TallViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8FCC95E2EA6B0600074E565 /* TallViewController.swift */; };
 		D2F76EED2945C879000A453F /* HitTargetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F76EEC2945C879000A453F /* HitTargetTests.swift */; };
 		D38F6F4E508A3D067D677F69 /* Pods_UnitTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0BFCB4FD6BC17AB232B26E72 /* Pods_UnitTests.framework */; };
 /* End PBXBuildFile section */
@@ -161,6 +162,7 @@
 		AC969EC42E4B6F1E007D8B7A /* AccessibilityAccessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityAccessorTests.swift; sourceTree = "<group>"; };
 		ACAB81262E44F23100FB54FE /* BlockBasedAccessibilityViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockBasedAccessibilityViewController.swift; sourceTree = "<group>"; };
 		C78F90CE7A2A315AADF80144 /* Pods-SnapshotTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SnapshotTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-SnapshotTests/Pods-SnapshotTests.debug.xcconfig"; sourceTree = "<group>"; };
+		C8FCC95E2EA6B0600074E565 /* TallViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TallViewController.swift; sourceTree = "<group>"; };
 		CCFF2A604706B71DC0CBD38B /* Pods-AccessibilitySnapshotDemo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-AccessibilitySnapshotDemo.release.xcconfig"; path = "Pods/Target Support Files/Pods-AccessibilitySnapshotDemo/Pods-AccessibilitySnapshotDemo.release.xcconfig"; sourceTree = "<group>"; };
 		D2F76EEC2945C879000A453F /* HitTargetTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HitTargetTests.swift; sourceTree = "<group>"; };
 		DBA3D7413A13111BA7DE4750 /* Pods-UnitTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-UnitTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-UnitTests/Pods-UnitTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -199,6 +201,7 @@
 		3D04B6D72115592B006218A4 /* Accessibility Screens */ = {
 			isa = PBXGroup;
 			children = (
+				C8FCC95E2EA6B0600074E565 /* TallViewController.swift */,
 				83A295832AC22D9D00DFBE4F /* UserInputLabelsViewController.swift */,
 				3D4674672116A3F100278B57 /* ViewAccessibilityPropertiesViewController.swift */,
 				1104A8CE2B580AC500B6715F /* SwiftUITextEntry.swift */,
@@ -671,6 +674,7 @@
 				1104A8CF2B580AC500B6715F /* SwiftUITextEntry.swift in Sources */,
 				3D39BFAC223314C1009C3EF4 /* TabBarViewController.swift in Sources */,
 				3D04B6DB21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift in Sources */,
+				C8FCC95F2EA6B0660074E565 /* TallViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
