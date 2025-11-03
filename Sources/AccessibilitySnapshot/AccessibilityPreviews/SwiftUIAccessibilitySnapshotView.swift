@@ -41,7 +41,7 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
 
     @State private var displayMarkers: [DisplayMarker] = []
     @State private var snapshotImage: UIImage?
-    @State private var renderError: Error?
+    @State private var parseError: Error?
 
     // MARK: - Initialization
 
@@ -96,10 +96,10 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
                         }
                     )
 
-            } else if let renderError {
+            } else if let parseError {
                 VStack {
                     Image(systemName: "exclamationmark.triangle.fill")
-                    Text(renderError.localizedDescription)
+                    Text(parseError.localizedDescription)
                 }
                 content
             }
@@ -122,7 +122,7 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
             do {
                 try parseAccessibility(useMonochromeSnapshot: false)
             } catch {
-                self.renderError = error
+                self.parseError = error
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
