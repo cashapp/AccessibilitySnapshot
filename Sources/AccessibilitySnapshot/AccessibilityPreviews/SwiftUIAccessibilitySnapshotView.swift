@@ -20,7 +20,7 @@ import AccessibilitySnapshotCore
 
 extension View {
     public func accessibilityPreview(renderSize: CGSize? = nil) -> some View {
-        SwiftUIAccessibilitySnapshotView(content: { self }, viewRenderingMode: .drawHierarchyInRect, renderSize: renderSize)
+        SwiftUIAccessibilitySnapshotView(content: { self }, renderSize: renderSize)
     }
 }
 
@@ -33,7 +33,6 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
     // MARK: - Properties
 
     private let content: Content
-    private let viewRenderingMode: ViewRenderingMode
     private let markerColors: [Color]
     private let activationPointDisplayMode: AccessibilityContentDisplayMode
     private let showUserInputLabels: Bool
@@ -49,20 +48,17 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
     ///
     /// - Parameters:
     ///   - content: The view that should be snapshotted, and for which the accessibility markers should be generated
-    ///   - viewRenderingMode: The method to use when snapshotting the content
     ///   - markerColors: An array of colors to use for the highlighted regions
     ///   - activationPointDisplayMode: Controls when to show indicators for elements' accessibility activation points
     ///   - showUserInputLabels: Controls when to show elements' accessibility user input labels
     public init(
         @ViewBuilder content: () -> Content,
-        viewRenderingMode: ViewRenderingMode,
         markerColors: [Color] = MarkerColors.defaultSwiftUIColors,
         activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         showUserInputLabels: Bool = false,
         renderSize: CGSize?
     ) {
         self.content = content()
-        self.viewRenderingMode = viewRenderingMode
         self.markerColors = markerColors.isEmpty ? MarkerColors.defaultSwiftUIColors : markerColors
         self.activationPointDisplayMode = activationPointDisplayMode
         self.showUserInputLabels = showUserInputLabels
@@ -144,9 +140,10 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
         let hostingController = UIHostingController(rootView: adjustedContent)
         hostingController.view.frame = CGRect(origin: .zero, size: renderSize)
 
+        // Only works with `.drawHierarchyInRect`.
         snapshotImage = try hostingController.view.renderToImage(
             monochrome: useMonochromeSnapshot,
-            viewRenderingMode: viewRenderingMode
+            viewRenderingMode: .drawHierarchyInRect
         )
         let parser = AccessibilityHierarchyParser()
         let markers = parser.parseAccessibilityElements(in: hostingController.view)
