@@ -33,7 +33,7 @@ let package = Package(
         ),
         .library(
             name: "AccessibilityPreviews_Experimental",
-            targets: ["AccessibilityPreviews"]
+            targets: ["AccessibilityPreviews_Experimental"]
         ),
     ],
     dependencies: [
@@ -65,7 +65,7 @@ let package = Package(
             path: "Sources/AccessibilitySnapshot/Core"
         ),
         .target(
-            name: "AccessibilityPreviews",
+            name: "AccessibilityPreviews_Experimental",
             dependencies: ["AccessibilitySnapshotParser"],
             path: "Sources/AccessibilitySnapshot/AccessibilityPreviews"
         ),
