@@ -31,6 +31,10 @@ let package = Package(
             name: "AccessibilitySnapshotParser",
             targets: ["AccessibilitySnapshotParser"]
         ),
+        .library(
+            name: "AccessibilityPreviews_Experimental",
+            targets: ["AccessibilityPreviews_Experimental"]
+        ),
     ],
     dependencies: [
         .package(
@@ -52,12 +56,18 @@ let package = Package(
         .target(
             name: "AccessibilitySnapshotParser",
             dependencies: ["AccessibilitySnapshotParser-ObjC"],
-            path: "Sources/AccessibilitySnapshot/Parser/Swift"
+            path: "Sources/AccessibilitySnapshot/Parser/Swift",
+            resources: [.process("Assets")]
         ),
         .target(
             name: "AccessibilitySnapshotCore",
             dependencies: ["AccessibilitySnapshotParser"],
             path: "Sources/AccessibilitySnapshot/Core"
+        ),
+        .target(
+            name: "AccessibilityPreviews_Experimental",
+            dependencies: ["AccessibilitySnapshotParser"],
+            path: "Sources/AccessibilitySnapshot/AccessibilityPreviews"
         ),
         .target(
             name: "AccessibilitySnapshot",
