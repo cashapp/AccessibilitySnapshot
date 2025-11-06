@@ -106,8 +106,77 @@
 /* Description for the 'is editing' accessibility trait */
 "trait.text_field_is_editing.description" = "Идет правка";
 
+/* Description for an accessibility rotor indicating that it has no results available */
+"custom_rotors.no_results" = "<нет результатов>";
+
+/* Format string for an accessibility rotor indicating that it has more results available */
+"custom_rotors.more_results.format" = "+ %@ дополнительных результатов...";
+
+/* Description for an accessibility rotor indicating that it has reached the maximum limit of results available */
+"custom_rotors.max_limit" = "+ Много (%@+) дополнительных результатов...";
+
 /* Description for the 'button' input label in legend view */
 "trait.button.inputLabel" = "Кнопка.";
 
 /* Description for the 'adjustable' input label in legend view */
 "trait.adjustable.inputLabel" = "Элемент регулировки.";
+
+/* Description for a rotor with no type */
+"rotor.none.description" = "Нет";
+
+/* Description for the 'links' rotor */
+"rotor.link.description" = "Ссылки";
+
+/* Description for the 'visited links' rotor */
+"rotor.visited_link.description" = "Посещенные ссылки";
+
+/* Description for the 'headings' rotor */
+"rotor.heading.description" = "Заголовки";
+
+/* Description for the 'heading level 1' rotor */
+"rotor.heading_level1.description" = "Заголовок 1";
+
+/* Description for the 'heading level 2' rotor */
+"rotor.heading_level2.description" = "Заголовок 2";
+
+/* Description for the 'heading level 3' rotor */
+"rotor.heading_level3.description" = "Заголовок 3";
+
+/* Description for the 'heading level 4' rotor */
+"rotor.heading_level4.description" = "Заголовок 4";
+
+/* Description for the 'heading level 5' rotor */
+"rotor.heading_level5.description" = "Заголовок 5";
+
+/* Description for the 'heading level 6' rotor */
+"rotor.heading_level6.description" = "Заголовок 6";
+
+/* Description for the 'bold text' rotor */
+"rotor.bold_text.description" = "Жирный текст";
+
+/* Description for the 'italic text' rotor */
+"rotor.italic_text.description" = "Курсив";
+
+/* Description for the 'underlined text' rotor */
+"rotor.underline_text.description" = "Подчеркнутый текст";
+
+/* Description for the 'misspelled words' rotor */
+"rotor.misspelled_word.description" = "Слова с ошибками";
+
+/* Description for the 'images' rotor */
+"rotor.image.description" = "Изображения";
+
+/* Description for the 'text fields' rotor */
+"rotor.text_field.description" = "Текстовые поля";
+
+/* Description for the 'tables' rotor */
+"rotor.table.description" = "Таблицы";
+
+/* Description for the 'lists' rotor */
+"rotor.list.description" = "Списки";
+
+/* Description for the 'landmarks' rotor */
+"rotor.landmark.description" = "Ориентиры";
+
+/* Format for description of an unknown rotor type; param0: the raw value */
+"rotor.unknown.description_format" = "Неизвестный тип ротора, значение: %lld";

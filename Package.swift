@@ -71,12 +71,20 @@ let package = Package(
         ),
         .target(
             name: "AccessibilitySnapshot",
-            dependencies: ["AccessibilitySnapshotCore", "SnapshotTesting"],
+            dependencies: [
+                "AccessibilitySnapshotCore",
+                "AccessibilitySnapshotParser-ObjC",
+                "SnapshotTesting"
+            ],
             path: "Sources/AccessibilitySnapshot/SnapshotTesting"
         ),
         .target(
             name: "FBSnapshotTestCase+Accessibility",
-            dependencies: ["AccessibilitySnapshotCore", "iOSSnapshotTestCase"],
+            dependencies: [
+                "AccessibilitySnapshotCore",
+                "AccessibilitySnapshotParser-ObjC",
+                "iOSSnapshotTestCase"
+            ],
             path: "Sources/AccessibilitySnapshot/iOSSnapshotTestCase/Swift"
         ),
         .target(

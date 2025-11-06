@@ -55,6 +55,7 @@ final class RootViewController: UITableViewController {
             ("Accessibility Paths", { _ in return AccessibilityPathViewController() }),
             ("Accessibility Activation Point", { _ in return ActivationPointViewController() }),
             ("Accessibility Custom Actions", { _ in return AccessibilityCustomActionsViewController() }),
+            ("Accessibility Custom Rotors", { _ in return AccessibilityCustomRotorsViewController() }),
             ("Data Table", { presentingViewController in
                 return DataTableViewController.makeConfigurationSelectionViewController(
                     presentingViewController: presentingViewController
@@ -68,6 +69,7 @@ final class RootViewController: UITableViewController {
             ("Text View", { _ in return TextViewViewController() }),
             ("SwiftUI Text Entry", { _ in return UIHostingController(rootView: SwiftUITextEntry()) }),
         ]
+        
         if #available(iOS 14.0, *) {
             accessibilityScreens.append( ("Accessibility Custom Content", { _ in return AccessibilityCustomContentViewController() }))
         }

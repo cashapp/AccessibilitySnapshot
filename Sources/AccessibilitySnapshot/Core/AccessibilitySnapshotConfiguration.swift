@@ -49,9 +49,14 @@ public struct AccessibilitySnapshotConfiguration {
         /// Controls when to show elements' accessibility user input labels (used by Voice Control).
         ///  Defaults to `.whenOverridden`.
         public let includesUserInputLabels: AccessibilityContentDisplayMode
-        
-        init(includesUserInputLabels: AccessibilityContentDisplayMode = .whenOverridden) {
+
+        /// Controls when to show elements' accessibility rotors and their contents.
+        ///  Defaults to `.whenOverridden`.
+        public let includesCustomRotors: AccessibilityContentDisplayMode
+
+        init(includesUserInputLabels: AccessibilityContentDisplayMode = .whenOverridden, includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden) {
             self.includesUserInputLabels = includesUserInputLabels
+            self.includesCustomRotors = includesCustomRotors
         }
     }
     
@@ -67,16 +72,19 @@ public struct AccessibilitySnapshotConfiguration {
     ///   - overlayColors: Colors to use for highlighted regions. Defaults to `MarkerColors.defaultColors`.
     ///   - activationPointDisplay: When to show accessibility activation point indicators. Defaults to `.whenOverridden`.
     ///   - includesInputLabels: When to show accessibility user input labels. Defaults to `.whenOverridden`.
+    ///   - includesCustomRotors: When to show accessibility custom rotors and their contents. Defaults to `.whenOverridden`.
+
     public init(viewRenderingMode: ViewRenderingMode,
                 colorRenderingMode: ColorRenderingMode = .monochrome,
                 overlayColors: [UIColor] = MarkerColors.defaultColors,
                 activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden,
-                includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden
+                includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden,
+                includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden
                 ) {
         
         self.snapshot = Snapshot(viewRenderingMode:viewRenderingMode, colorMode: colorRenderingMode)
         self.overlay = Overlay(colors: overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors, activationPointDisplay: activationPointDisplay)
-        self.legend = Legend(includesUserInputLabels: includesInputLabels)
+        self.legend = Legend(includesUserInputLabels: includesInputLabels, includesCustomRotors: includesCustomRotors)
     }
 }
 

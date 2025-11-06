@@ -26,18 +26,51 @@ enum Strings {
             locale: locale
         )
     }
-    
-    static func adjustableInputLabelText(for locale: String?) -> String {
+
+	static func adjustableInputLabelText(for locale: String?) -> String {
         return "Adjustable.".as_localized(
             key: "trait.adjustable.inputLabel",
             comment: "Description for the 'adjustable' input label in legend view",
             locale: locale
         )
     }
+
     static func buttonInputLabelText(for locale: String?) -> String {
         return "Button.".as_localized(
             key: "trait.button.inputLabel",
             comment: "Description for the 'button' input label in legend view",
+            locale: locale
+        )
+    }
+    
+    static func noResultsText(for locale: String?) -> String {
+        return "<no results>".as_localized(
+            key: "custom_rotors.no_results",
+            comment: "Description for an accessibility rotor indicating that it has no results available",
+            locale: locale
+        )
+    }
+    
+    static func moreResultsText(count: Int, for locale: String?) -> String {
+        String(format: moreResultsFormatString(for: locale), String(count))
+    }
+    
+    private static func moreResultsFormatString(for locale: String?) -> String {
+        return "+ %@ More Results...".as_localized(
+            key: "custom_rotors.more_results.format",
+            comment: "Format string for an accessibility rotor indicating that it has more results available, the placeholder is a string representing the count of additional results.",
+            locale: locale
+        )
+    }
+    
+    static func maxLimitText(max: Int, for locale: String?) -> String {
+        String(format: maxLimitText(for: locale), String(max))
+    }
+    
+    static func maxLimitText(for locale: String?) -> String {
+        return "+ Many More (%@+) Results...".as_localized(
+            key: "custom_rotors.max_limit",
+            comment: "Description for an accessibility rotor indicating that it has reached the maximum limit of results available the placeholder is a string representing the maximum limit of results we will count.",
             locale: locale
         )
     }
