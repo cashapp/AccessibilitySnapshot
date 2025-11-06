@@ -51,16 +51,16 @@ public struct AccessibilityMarker: Equatable {
         public var resultMarkers: [AccessibilityMarker.CustomRotor.ResultMarker] = []
         public let limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit
 
-        init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil) {
+        init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int = 10) {
             guard from.isKnownRotorType else { return nil }
             name = from.displayName(locale: parentElement.accessibilityLanguage)
-            let collected = from.collectAllResults()
+            let collected = from.collectAllResults(nextLimit: resultLimit, previousLimit: resultLimit)
             limit = collected.limit
             resultMarkers = collected.results.compactMap { result in
                 guard let element = result.targetElement as? NSObject else { return nil }
                 var description = element.accessibilityDescription(context: context).description
                 var shape: Shape? = AccessibilityHierarchyParser.accessibilityShape(for: element, in: root)
-                
+
                 if let range = result.targetRange,
                    let input = element as? UITextInput {
                     if let path = input.accessibilityPath(for: range) {
@@ -260,10 +260,12 @@ public final class AccessibilityHierarchyParser {
     ///
     /// - parameter root: The root view of the accessibility hierarchy. Coordinates in the returned markers will be
     /// relative to this view's coordinate space.
+    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction.
     /// - parameter userInterfaceLayoutDirectionProvider: The provider of the device's user interface layout direction.
     /// In most cases, this should use the default value, `UIApplication.shared`.
     public func parseAccessibilityElements(
         in root: UIView,
+        rotorResultLimit: Int = 10,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
         userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
     ) -> [AccessibilityMarker] {
@@ -313,7 +315,7 @@ public final class AccessibilityHierarchyParser {
                 ),
                 customActions: element.object.accessibilityCustomActions?.map { $0.name } ?? [],
                 customContent: element.object.customContent,
-                customRotors: element.object.customRotors(in: root, context: element.context),
+                customRotors: element.object.customRotors(in: root, context: element.context, resultLimit: rotorResultLimit),
                 accessibilityLanguage: element.object.accessibilityLanguage,
                 respondsToUserInteraction: element.object.accessibilityRespondsToUserInteraction
             )
@@ -845,9 +847,9 @@ fileprivate extension NSObject {
         return []
     }
     
-    func customRotors(in root: UIView, context: AccessibilityHierarchyParser.Context?) -> [AccessibilityMarker.CustomRotor] {
+    func customRotors(in root: UIView, context: AccessibilityHierarchyParser.Context?, resultLimit: Int) -> [AccessibilityMarker.CustomRotor] {
         accessibilityCustomRotors?.compactMap {
-            .init(from: $0, parentElement: self, root: root, context: context) } ?? []
+            .init(from: $0, parentElement: self, root: root, context: context, resultLimit: resultLimit) } ?? []
     }
 
     var identifier: String? {

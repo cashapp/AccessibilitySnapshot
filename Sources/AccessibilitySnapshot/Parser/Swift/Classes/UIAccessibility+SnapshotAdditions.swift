@@ -787,6 +787,8 @@ extension UIAccessibilityCustomRotor {
     }
     
     public struct CollectedRotorResults : Equatable {
+        // Maximum number of results to count before stopping enumeration.
+        // When this limit is reached, we stop counting and report "99+ More Results"
         public static let maximumCount: Int = 99
         
         public enum Limit: Equatable {
@@ -819,8 +821,10 @@ extension UIAccessibilityCustomRotor {
             self.limit = limit
         }
     }
-    
 
+    // Collects rotor results in both directions to capture all accessible items.
+    // Some rotors only provide results in one direction, so we check both.
+    // Intelligently merges results, removing duplicates and handling edge cases.
     internal func collectAllResults(nextLimit: Int = 10, previousLimit: Int = 10) -> CollectedRotorResults {
         let forwards = iterateResults(direction: .next, limit: nextLimit)
         let backwards = iterateResults(direction: .previous, limit: nextLimit)
@@ -834,9 +838,10 @@ extension UIAccessibilityCustomRotor {
         if forwardsSet.isSuperset(of: backwardsSet) { return forwards }
         if backwardsSet.isSuperset(of: forwardsSet) { return backwards }
     
-        
-        // It's common that the first element or range of both directions is the same, as we don't have a current item set in the predicate.
-        // In that case we'll want to drop the first element of one of the arrays before merging them.
+
+        // When starting iteration without a currentItem, both directions often return
+        // the same first element. Drop one copy before merging to avoid duplicates.
+        // Example: forward=[A,B,C], backward=[A,D,E] -> result=[E,D,A,B,C] not [E,D,A,A,B,C]
         if forwards.results.first?.compare(backwards.results.first) ?? false {
             let results = backwards.results.dropFirst().reversed() + forwards.results
             return .init(results: results, limit: backwards.limit.combine(forwards.limit))
@@ -860,8 +865,11 @@ extension UIAccessibilityCustomRotor {
                 resultSet(results).contains(hashable) {
                 loopDetection.append(results.count)
             }
+            // Loop detection: Track when we encounter duplicate results.
+            // If we see 3 duplicates in a row (sequential indices), we're in an infinite loop.
+            // Example: [A,B,C,D,E,C,D,E,C,D,E] - indices [5,7,9] are sequential, stop at index 5.
+            // Non-sequential duplicates are OK (e.g., A->B->C->A->D->E->F is not a loop).
             if loopDetection.count >= 3{
-                // We have three sequential elements that already existed in the array, we can presume that we are in a loop.
                 if loopDetection.isSequential() {
                     break
                 }
@@ -911,7 +919,9 @@ extension UIAccessibilityCustomRotor {
         return .underMaxCount(count)
     }
     
-    // Use Swift Hashable over NSObject.hash on the UIAccessibilityCustomRotorItemResult to compare the contents alone.
+    // Helper for duplicate detection in rotor results.
+    // NSObject uses identity equality (===), but we need value equality
+    // to detect when a rotor returns the same logical item multiple times.
     private struct _hashableRotorResult: Hashable {
         var element: NSObject
         var range: UITextRange?

@@ -54,9 +54,15 @@ public struct AccessibilitySnapshotConfiguration {
         ///  Defaults to `.whenOverridden`.
         public let includesCustomRotors: AccessibilityContentDisplayMode
 
-        init(includesUserInputLabels: AccessibilityContentDisplayMode = .whenOverridden, includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden) {
+        /// The maximum number of rotor results to collect in each direction (forward and backward).
+        /// This limit helps keep snapshot sizes reasonable while showing enough context for debugging.
+        ///  Defaults to `10`.
+        public let rotorResultLimit: Int
+
+        init(includesUserInputLabels: AccessibilityContentDisplayMode = .whenOverridden, includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden, rotorResultLimit: Int = 10) {
             self.includesUserInputLabels = includesUserInputLabels
             self.includesCustomRotors = includesCustomRotors
+            self.rotorResultLimit = rotorResultLimit
         }
     }
     
@@ -73,18 +79,20 @@ public struct AccessibilitySnapshotConfiguration {
     ///   - activationPointDisplay: When to show accessibility activation point indicators. Defaults to `.whenOverridden`.
     ///   - includesInputLabels: When to show accessibility user input labels. Defaults to `.whenOverridden`.
     ///   - includesCustomRotors: When to show accessibility custom rotors and their contents. Defaults to `.whenOverridden`.
+    ///   - rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to `10`.
 
     public init(viewRenderingMode: ViewRenderingMode,
                 colorRenderingMode: ColorRenderingMode = .monochrome,
                 overlayColors: [UIColor] = MarkerColors.defaultColors,
                 activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden,
                 includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden,
-                includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden
+                includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden,
+                rotorResultLimit: Int = 10
                 ) {
-        
+
         self.snapshot = Snapshot(viewRenderingMode:viewRenderingMode, colorMode: colorRenderingMode)
         self.overlay = Overlay(colors: overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors, activationPointDisplay: activationPointDisplay)
-        self.legend = Legend(includesUserInputLabels: includesInputLabels, includesCustomRotors: includesCustomRotors)
+        self.legend = Legend(includesUserInputLabels: includesInputLabels, includesCustomRotors: includesCustomRotors, rotorResultLimit: rotorResultLimit)
     }
 }
 
