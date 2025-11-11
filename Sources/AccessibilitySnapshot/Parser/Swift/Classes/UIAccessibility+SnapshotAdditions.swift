@@ -825,7 +825,7 @@ extension UIAccessibilityCustomRotor {
     // Collects rotor results in both directions to capture all accessible items.
     // Some rotors only provide results in one direction, so we check both.
     // Intelligently merges results, removing duplicates and handling edge cases.
-    internal func collectAllResults(nextLimit: Int = 10, previousLimit: Int = 10) -> CollectedRotorResults {
+    internal func collectAllResults(nextLimit: Int, previousLimit: Int) -> CollectedRotorResults {
         let forwards = iterateResults(direction: .next, limit: nextLimit)
         let backwards = iterateResults(direction: .previous, limit: nextLimit)
                 

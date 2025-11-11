@@ -51,7 +51,7 @@ public struct AccessibilityMarker: Equatable {
         public var resultMarkers: [AccessibilityMarker.CustomRotor.ResultMarker] = []
         public let limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit
 
-        init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int = 10) {
+        init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int) {
             guard from.isKnownRotorType else { return nil }
             name = from.displayName(locale: parentElement.accessibilityLanguage)
             let collected = from.collectAllResults(nextLimit: resultLimit, previousLimit: resultLimit)
@@ -265,7 +265,7 @@ public final class AccessibilityHierarchyParser {
     /// In most cases, this should use the default value, `UIApplication.shared`.
     public func parseAccessibilityElements(
         in root: UIView,
-        rotorResultLimit: Int = 10,
+        rotorResultLimit: Int,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
         userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
     ) -> [AccessibilityMarker] {
