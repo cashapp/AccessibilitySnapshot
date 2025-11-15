@@ -756,9 +756,9 @@ private extension UIView {
     /// in the tree contains any UITabBarButton instances, returns all subviews at that level
     /// whose class name matches "UITabBarButton". If none are found anywhere, returns an empty array.
     func firstLevelSubviewsContainingUITabBarButtons() -> [UIView] {
-        var queue: [[UIView]] = [subviews]
+        var queue: ArraySlice<[UIView]> = [subviews]
         while !queue.isEmpty {
-          let elements = queue.first ?? []
+          let elements = queue.removeFirst()
           let matches = elements.filter { ["UITabBarButton", "_UITabButton"].contains(NSStringFromClass(type(of: $0))) }
           if !matches.isEmpty {
             return matches
@@ -766,7 +766,6 @@ private extension UIView {
           for view in elements {
             queue.append(view.subviews)
           }
-          queue = Array(queue.dropFirst())
         }
 
         return []
