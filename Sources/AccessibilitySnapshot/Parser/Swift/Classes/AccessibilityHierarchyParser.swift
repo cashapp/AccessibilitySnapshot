@@ -758,14 +758,14 @@ private extension UIView {
     func firstLevelSubviewsContainingUITabBarButtons() -> [UIView] {
         var queue: ArraySlice<[UIView]> = [subviews]
         while !queue.isEmpty {
-          let elements = queue.removeFirst()
-          let matches = elements.filter { ["UITabBarButton", "_UITabButton"].contains(NSStringFromClass(type(of: $0))) }
-          if !matches.isEmpty {
-            return matches
-          }
-          for view in elements {
-            queue.append(view.subviews)
-          }
+            let elements = queue.removeFirst()
+            let matches = elements.filter { ["UITabBarButton", "_UITabButton"].contains(NSStringFromClass(type(of: $0))) }
+            if !matches.isEmpty {
+                return matches
+            }
+            for view in elements {
+                queue.append(view.subviews)
+            }
         }
 
         return []
