@@ -81,7 +81,7 @@ public enum StringLocalization {
             return cachedBundle
         }
 
-        guard let availableLocalizationBundles = resourceBundle.urls(forResourcesWithExtension: "lproj", subdirectory: nil) else {
+        guard let availableLocalizationBundles = resourceBundle.urls(forResourcesWithExtension: "lproj", subdirectory: "Assets") else {
             return resourceBundle
         }
 

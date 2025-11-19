@@ -1,4 +1,7 @@
 import UIKit
+#if SWIFT_PACKAGE
+import AccessibilitySnapshotParser
+#endif
 
 /// Configuration struct that centralizes all accessibility snapshot settings.
 /// 
@@ -46,12 +49,24 @@ public struct AccessibilitySnapshotConfiguration {
     
     /// Configuration for the accessibility information displayed alongside the snapshot.
     public struct Legend {
+
         /// Controls when to show elements' accessibility user input labels (used by Voice Control).
         ///  Defaults to `.whenOverridden`.
         public let includesUserInputLabels: AccessibilityContentDisplayMode
-        
-        init(includesUserInputLabels: AccessibilityContentDisplayMode = .whenOverridden) {
+
+        /// Controls when to show elements' accessibility rotors and their contents.
+        ///  Defaults to `.whenOverridden`.
+        public let includesCustomRotors: AccessibilityContentDisplayMode
+
+        /// The maximum number of rotor results to collect in each direction (forward and backward).
+        /// This limit helps keep snapshot sizes reasonable while showing enough context for debugging.
+        ///  Defaults to `10`.
+        public let rotorResultLimit: Int
+
+        init(includesUserInputLabels: AccessibilityContentDisplayMode = .whenOverridden, includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden, rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit) {
             self.includesUserInputLabels = includesUserInputLabels
+            self.includesCustomRotors = includesCustomRotors
+            self.rotorResultLimit = rotorResultLimit
         }
     }
     
@@ -67,16 +82,21 @@ public struct AccessibilitySnapshotConfiguration {
     ///   - overlayColors: Colors to use for highlighted regions. Defaults to `MarkerColors.defaultColors`.
     ///   - activationPointDisplay: When to show accessibility activation point indicators. Defaults to `.whenOverridden`.
     ///   - includesInputLabels: When to show accessibility user input labels. Defaults to `.whenOverridden`.
+    ///   - includesCustomRotors: When to show accessibility custom rotors and their contents. Defaults to `.whenOverridden`.
+    ///   - rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to `10`.
+
     public init(viewRenderingMode: ViewRenderingMode,
                 colorRenderingMode: ColorRenderingMode = .monochrome,
                 overlayColors: [UIColor] = MarkerColors.defaultColors,
                 activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden,
-                includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden
+                includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden,
+                includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden,
+                rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit
                 ) {
-        
+
         self.snapshot = Snapshot(viewRenderingMode:viewRenderingMode, colorMode: colorRenderingMode)
         self.overlay = Overlay(colors: overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors, activationPointDisplay: activationPointDisplay)
-        self.legend = Legend(includesUserInputLabels: includesInputLabels)
+        self.legend = Legend(includesUserInputLabels: includesInputLabels, includesCustomRotors: includesCustomRotors, rotorResultLimit: rotorResultLimit)
     }
 }
 

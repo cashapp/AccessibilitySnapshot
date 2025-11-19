@@ -153,8 +153,9 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         containedView.layoutIfNeeded()
 
         let parser = AccessibilityHierarchyParser()
-        let markers = parser.parseAccessibilityElements(in: containedView)
-
+        let markers = parser.parseAccessibilityElements(in: containedView, rotorResultLimit: snapshotConfiguration.legend.rotorResultLimit)
+        
+        
         var displayMarkers: [DisplayMarker] = []
         for (index, marker) in markers.enumerated() {
             let color = snapshotConfiguration.overlay.colors[index % snapshotConfiguration.overlay.colors.count]
@@ -162,27 +163,16 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
             let legendView = LegendView(marker: marker, color: color, configuration: snapshotConfiguration.legend)
             addSubview(legendView)
             
-            let overlayView = UIView()
+            let rotorResultsShapes = marker.displayRotors(snapshotConfiguration.legend.includesCustomRotors).flatMap(\.resultMarkers).compactMap(\.shape)
+            
+            let overlayView = OverlayView(
+                frame: snapshotView.bounds,
+                elementShape: marker.shape,
+                includedShapes: rotorResultsShapes,
+                color: color)
+            
             snapshotView.addSubview(overlayView)
-
-            switch marker.shape {
-            case let .frame(rect):
-                // The `overlayView` itself is used to highlight the region.
-                overlayView.backgroundColor = color.withAlphaComponent(0.3)
-                overlayView.frame = rect
-
-            case let .path(path):
-                // The `overlayView` acts as a container for the highlight path. Since the `path` is already relative to
-                // the `snaphotView`, the `overlayView` takes up the entire size of its parent.
-                overlayView.frame = snapshotView.bounds
-                let overlayLayer = CAShapeLayer()
-                overlayLayer.lineWidth = 4
-                overlayLayer.strokeColor = color.withAlphaComponent(0.3).cgColor
-                overlayLayer.fillColor = nil
-                overlayLayer.path = path.cgPath
-                overlayView.layer.addSublayer(overlayLayer)
-            }
-
+            
             var displayMarker = DisplayMarker(
                 marker: marker,
                 legendView: legendView,
@@ -234,6 +224,9 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     }
 
 }
+
+
+// MARK: -
 
 private extension UIView {
 
