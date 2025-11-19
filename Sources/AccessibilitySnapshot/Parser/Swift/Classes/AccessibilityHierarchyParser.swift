@@ -19,6 +19,9 @@ import SwiftUI
 import UIKit
 
 public struct AccessibilityMarker: Equatable {
+    
+    /// Default number of rotor results to collect in each direction.
+    public static let defaultRotorResultLimit: Int = 10
 
     // MARK: - Public Types
 
@@ -260,12 +263,12 @@ public final class AccessibilityHierarchyParser {
     ///
     /// - parameter root: The root view of the accessibility hierarchy. Coordinates in the returned markers will be
     /// relative to this view's coordinate space.
-    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction.
+    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to 10.
     /// - parameter userInterfaceLayoutDirectionProvider: The provider of the device's user interface layout direction.
     /// In most cases, this should use the default value, `UIApplication.shared`.
     public func parseAccessibilityElements(
         in root: UIView,
-        rotorResultLimit: Int,
+        rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
         userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
     ) -> [AccessibilityMarker] {

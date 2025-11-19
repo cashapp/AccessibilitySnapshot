@@ -48,7 +48,7 @@ final class UIAccessibilityCustomRotorParsingTests : XCTestCase {
             return UIAccessibilityCustomRotorItemResult(targetElement: strings[2], targetRange: nil)
         }
         
-        let middle = startInTheMiddle.collectAllResults().results
+        let middle = startInTheMiddle.collectAllResults(nextLimit: 10, previousLimit: 10).results
         XCTAssertEqual(middle.map({ $0.targetElement as! NSString}), strings)
         
         // This rotor starts at the back of the array if you pass previous with no current item in the predicate.
@@ -63,7 +63,7 @@ final class UIAccessibilityCustomRotorParsingTests : XCTestCase {
             return UIAccessibilityCustomRotorItemResult(targetElement: array.first!, targetRange: nil)
         }
         
-        let all = reversed.collectAllResults().results
+        let all = reversed.collectAllResults(nextLimit: 10, previousLimit: 10).results
         XCTAssertEqual(all.map({ $0.targetElement as! NSString}), strings)
         
         // This rotor loops over the array indefinitely
@@ -81,7 +81,7 @@ final class UIAccessibilityCustomRotorParsingTests : XCTestCase {
             }
             return UIAccessibilityCustomRotorItemResult(targetElement:  predicate.searchDirection == .next ? strings.first! : strings.last!, targetRange: nil)
         }
-        let looping = loopingRotor.collectAllResults().results
+        let looping = loopingRotor.collectAllResults(nextLimit: 10, previousLimit: 10).results
         XCTAssertEqual(looping.map({ $0.targetElement as! NSString}), strings)
         
         
@@ -100,7 +100,7 @@ final class UIAccessibilityCustomRotorParsingTests : XCTestCase {
         XCTAssertEqual(rotor.iterateResults(direction: .next, limit: 10).results.count, 10)
         XCTAssertEqual(rotor.iterateResults(direction: .previous, limit: 10).results.count, 10)
         
-        XCTAssertEqual(rotor.collectAllResults().results.count, 20)
+        XCTAssertEqual(rotor.collectAllResults(nextLimit: 10, previousLimit: 10).results.count, 20)
 
     }
 }

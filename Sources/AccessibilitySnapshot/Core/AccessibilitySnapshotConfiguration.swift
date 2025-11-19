@@ -1,4 +1,7 @@
 import UIKit
+#if SWIFT_PACKAGE
+import AccessibilitySnapshotParser
+#endif
 
 /// Configuration struct that centralizes all accessibility snapshot settings.
 /// 
@@ -46,8 +49,6 @@ public struct AccessibilitySnapshotConfiguration {
     
     /// Configuration for the accessibility information displayed alongside the snapshot.
     public struct Legend {
-        /// Default number of rotor results to collect in each direction.
-        public static let defaultRotorResultLimit: Int = 10
 
         /// Controls when to show elements' accessibility user input labels (used by Voice Control).
         ///  Defaults to `.whenOverridden`.
@@ -62,7 +63,7 @@ public struct AccessibilitySnapshotConfiguration {
         ///  Defaults to `10`.
         public let rotorResultLimit: Int
 
-        init(includesUserInputLabels: AccessibilityContentDisplayMode = .whenOverridden, includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden, rotorResultLimit: Int = Legend.defaultRotorResultLimit) {
+        init(includesUserInputLabels: AccessibilityContentDisplayMode = .whenOverridden, includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden, rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit) {
             self.includesUserInputLabels = includesUserInputLabels
             self.includesCustomRotors = includesCustomRotors
             self.rotorResultLimit = rotorResultLimit
@@ -90,7 +91,7 @@ public struct AccessibilitySnapshotConfiguration {
                 activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden,
                 includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden,
                 includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden,
-                rotorResultLimit: Int = Legend.defaultRotorResultLimit
+                rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit
                 ) {
 
         self.snapshot = Snapshot(viewRenderingMode:viewRenderingMode, colorMode: colorRenderingMode)
