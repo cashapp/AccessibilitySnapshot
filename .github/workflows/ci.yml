@@ -8,11 +8,15 @@ on:
 
 jobs:
   xcode-build:
-    name: Xcode Build
-    runs-on: macOS-13
+    name: Xcode Build (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        platform: ['iOS_17', 'iOS_16']
+        include:
+          - platform: iOS_17
+            runner: macOS-14
+          - platform: iOS_18
+            runner: macOS-15
       fail-fast: false
     steps:
       - name: Checkout Repo
@@ -34,9 +38,10 @@ jobs:
         with:
           name: Test Results (${{ matrix.platform }})
           path: .build/derivedData/**/Logs/Test/*.xcresult
+
   pod-lint:
     name: Pod Lint
-    runs-on: macOS-13
+    runs-on: macOS-14
     steps:
       - name: Checkout Repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
@@ -49,12 +54,13 @@ jobs:
         run: bundle exec --gemfile=Example/Gemfile pod install --project-directory=Example
       - name: Lint Podspec
         run: bundle exec --gemfile=Example/Gemfile pod lib lint --verbose --fail-fast
+
   spm:
     name: SPM Build
-    runs-on: macOS-13
+    runs-on: macOS-14
     strategy:
       matrix:
-        platform: ['iOS_16']
+        platform: ['iOS_17']
       fail-fast: false
     steps:
       - name: Checkout Repo
@@ -63,17 +69,19 @@ jobs:
         run: Scripts/github/prepare-simulators.sh ${{ matrix.platform }}
       - name: Build
         run: Scripts/build.swift spm ${{ matrix.platform }}
+
   carthage:
     name: Carthage Build
-    runs-on: macOS-13
+    runs-on: macOS-14
     steps:
       - name: Checkout Repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Build
         run: carthage build --no-skip-current --platform iOS --use-xcframeworks --verbose
+
   validate-strings:
     name: Validate Localized Strings
-    runs-on: macOS-13
+    runs-on: macOS-14
     steps:
       - name: Checkout Repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
