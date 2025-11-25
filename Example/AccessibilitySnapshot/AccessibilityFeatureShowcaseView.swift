@@ -33,9 +33,11 @@ struct AccessibilityFeatureShowcaseView: View {
                     .fontWeight(.bold)
                     .accessibilityHidden(true)
 
+                // Just a label
                 Text("Basic label")
                     .font(.headline)
 
+                // Label and value
                 HStack(spacing: 4) {
                     Text("Basic label with value")
                         .bold()
@@ -45,15 +47,27 @@ struct AccessibilityFeatureShowcaseView: View {
                 .accessibilityLabel(Text("Basic label with value"))
                 .accessibilityValue(Text("Here is the value"))
 
-                CustomInputLabelsUIKitView()
+                // Custom hint
+                Text("Something with a hint")
+                .accessibilityHint(Text("Here's the hint."))
 
-                ValueFeatureCard()
-                HintFeatureCard()
+                // Custom input labels
+                Text("Custom input labels")
+                    .accessibilityRespondsToUserInteraction()
+                    .accessibilityInputLabels([Text("Custom Label 1"), Text("Another custom label")])
+
+                // Header trait
+                Text("A label marked as a header")
+                    .accessibilityAddTraits(.isHeader)
+
+                // Button trait
+                Button("Something with the button trait", action: { })
+
+                // Link trait
+                Text("Something with the link trait")
+                    .accessibilityAddTraits(.isLink)
+
                 CustomActionFeatureCard()
-                HeaderTraitFeatureCard()
-                ButtonTraitFeatureCard()
-                LinkTraitFeatureCard()
-                UserInputLabelsFeatureCard()
 
                 RotorTraitFeatureCard()
             }
@@ -62,57 +76,19 @@ struct AccessibilityFeatureShowcaseView: View {
     }
 }
 
-// MARK: - Individual Feature Views
-
-@available(iOS 16.0, *)
-private struct ValueFeatureCard: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Balance")
-                .font(.headline)
-            Text("$24.18 due today")
-                .font(.body)
-            Text("Values show up on their own line.")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .accessibilityLabel(Text("Account balance"))
-        .accessibilityValue(Text("$24.18 due today"))
-    }
-}
-
-@available(iOS 16.0, *)
-private struct HintFeatureCard: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Rewards progress")
-                .font(.headline)
-            Text("Hints clarify what happens after activation.")
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text("Rewards progress"))
-        .accessibilityHint(Text("Double-tap for reward history"))
-    }
-}
-
 @available(iOS 16.0, *)
 private struct CustomActionFeatureCard: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Conversation from Jordan")
-                .font(.headline)
-            Text("Shows the buttons VoiceOver exposes in the legend.")
-                .font(.caption)
-                .foregroundColor(.secondary)
+        VStack {
+            Text("Three buttons combined. The latter two become accessibility custom actions")
+            HStack {
+                Button("Primary button") { }
+                Button("Reply") { }
+                Button("Archive") { }
+            }
         }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text("Conversation from Jordan"))
-        .accessibilityValue(Text("2 new replies"))
-        .accessibilityHint(Text("VoiceOver exposes Archive and Reply actions."))
-        .accessibilityAction(named: Text("Reply")) { }
-        .accessibilityAction(named: Text("Archive")) { }
+        .buttonStyle(.bordered)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -183,12 +159,6 @@ private struct UserInputLabelsFeatureCard: View {
         .accessibilityLabel(Text("Donation amount"))
         .accessibilityValue(Text("$\(donationAmount) donation"))
         .accessibilityHint(Text("Adjust with the custom voice labels."))
-//        .accessibilityAddTraits(.isAdjustable)
-//        .accessibilityUserInputLabels(
-//            Text("Add five dollars"),
-//            Text("Remove five dollars"),
-//            Text("Max donation")
-//        )
         .accessibilityAdjustableAction { direction in
             switch direction {
             case .increment:
@@ -209,22 +179,6 @@ private struct RotorTraitFeatureCard: View {
             .frame(maxWidth: .infinity)
             .frame(minHeight: 200)
     }
-}
-
-@available(iOS 16.0, *)
-private struct CustomInputLabelsUIKitView: UIViewRepresentable {
-    func makeUIView(context: Context) -> UILabel {
-        let label = UILabel()
-        label.text = "Custom input labels"
-        label.font = .preferredFont(forTextStyle: .headline)
-        label.numberOfLines = 1
-        label.isAccessibilityElement = true
-        label.accessibilityLabel = "Custom input labels"
-        label.accessibilityUserInputLabels = ["Custom2", "Input", "Labels"]
-        return label
-    }
-
-    func updateUIView(_ uiView: UILabel, context: Context) {}
 }
 
 // MARK: - Rotor Showcase Backed by UIKit
@@ -446,5 +400,13 @@ private extension UIFont {
             return self
         }
         return UIFont(descriptor: descriptor, size: 0)
+    }
+}
+
+#Preview {
+    if #available(iOS 16.0, *) {
+        AccessibilityFeatureShowcaseView()
+    } else {
+        Text("Not available")
     }
 }
