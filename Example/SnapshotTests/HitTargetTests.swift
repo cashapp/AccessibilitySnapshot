@@ -33,11 +33,13 @@ final class HitTargetTests: SnapshotTestCase {
     }
 
     @available(iOS 14, *)
-    func testTableHitTarget() throws {
-        try XCTSkipUnless(
+    func testTableHitTarget() {
+        do { try XCTSkipUnless(
             ProcessInfo().operatingSystemVersion.majorVersion >= 14,
             "This test only supports iOS 14 and later"
-        )
+        )} catch {
+            XCTFail(String(describing: error))
+        }
 
         let viewController = TableViewController()
         viewController.view.frame = UIScreen.main.bounds
@@ -48,7 +50,7 @@ final class HitTargetTests: SnapshotTestCase {
         )
     }
 
-    func testPerformance() throws {
+    func testPerformance() {
         let buttonTraitsViewController = ButtonAccessibilityTraitsViewController()
         buttonTraitsViewController.view.frame = UIScreen.main.bounds
 
