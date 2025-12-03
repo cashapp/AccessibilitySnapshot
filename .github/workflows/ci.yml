@@ -17,8 +17,6 @@ jobs:
             runner: macOS-14
           - platform: iOS_18
             runner: macOS-15
-          - platform: iOS_26
-            runner: macOS-15
       fail-fast: false
     steps:
       - name: Checkout Repo
