@@ -19,6 +19,7 @@ jobs:
             runner: macOS-15
           - platform: iOS_26
             runner: macOS-15
+            xcode-version: '26.0.1'
       fail-fast: false
     steps:
       - name: Checkout Repo
@@ -26,6 +27,9 @@ jobs:
       - uses: ruby/setup-ruby@a4effe49ee8ee5b8b5091268c473a4628afb5651 # ratchet:ruby/setup-ruby@v1
         with:
           ruby-version: '3.2.2'
+      - name: Select Xcode Version
+        if: matrix.xcode-version
+        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode-version }}.app
       - name: Bundle Install
         run: bundle install --gemfile=Example/Gemfile
       - name: Prepare Simulator Runtimes
