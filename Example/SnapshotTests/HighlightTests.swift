@@ -40,7 +40,7 @@ final class HighlightTests: SnapshotTestCase {
         view.textColor = .red
         view.sizeToFit()
 
-        SnapshotVerifyAccessibility(view, useMonochromeSnapshot: false)
+        SnapshotVerifyAccessibility(view, snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode, colorRenderingMode: .fullColor))
     }
 
 }

@@ -24,19 +24,19 @@ final class ActivationPointTests: SnapshotTestCase {
     func testActivationPointDisabled() {
         let viewController = ActivationPointViewController()
         viewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(viewController.view, showActivationPoints: .never)
+        SnapshotVerifyAccessibility(viewController.view, snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode, activationPointDisplay: .never))
     }
 
     func testActivationPointEnabledWhenOverridden() {
         let viewController = ActivationPointViewController()
         viewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(viewController.view, showActivationPoints: .whenOverridden)
+        SnapshotVerifyAccessibility(viewController.view, snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode, activationPointDisplay: .whenOverridden))
     }
 
     func testActivationPointEnabled() {
         let viewController = ActivationPointViewController()
         viewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(viewController.view, showActivationPoints: .always)
+        SnapshotVerifyAccessibility(viewController.view, snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode, activationPointDisplay: .always))
     }
 
 }
