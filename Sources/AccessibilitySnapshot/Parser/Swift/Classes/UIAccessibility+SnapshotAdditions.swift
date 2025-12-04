@@ -791,7 +791,7 @@ extension UIAccessibilityCustomRotor {
         // When this limit is reached, we stop counting and report "99+ More Results"
         public static let maximumCount: Int = 99
         
-        public enum Limit: Equatable {
+        public enum Limit: Equatable, Codable {
             case none
             case underMaxCount(Int)
             case greaterThanMaxCount

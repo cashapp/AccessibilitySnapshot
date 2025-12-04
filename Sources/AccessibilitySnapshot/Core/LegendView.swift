@@ -7,9 +7,9 @@ internal extension AccessibilitySnapshotView {
     final class LegendView: UIView {
 
         // MARK: - Life Cycle
-        
-        init(marker: AccessibilityMarker, color: UIColor, configuration: AccessibilitySnapshotConfiguration) {
-            self.hintLabel = marker.hint.map {
+
+        init(element: AccessibilityElement, color: UIColor, configuration: AccessibilitySnapshotConfiguration) {
+            self.hintLabel = element.hint.map {
                 let label = UILabel()
                 label.text = $0
                 label.font = Metrics.hintLabelFont
@@ -19,82 +19,82 @@ internal extension AccessibilitySnapshotView {
             }
 
             // If our description and hint are both empty, but we have custom actions, we'll use the description label
-            // to show the "Actions Available" text, since this makes our layout simpler when we align to the marker.
-            let showActionsAvailableInDescription = (marker.description.isEmpty && !marker.customActions.isEmpty)
+            // to show the "Actions Available" text, since this makes our layout simpler when we align to the element.
+            let showActionsAvailableInDescription = (element.description.isEmpty && !element.customActions.isEmpty)
 
             self.customActionsView = {
-                guard !marker.customActions.isEmpty else { return nil }
-                
+                guard !element.customActions.isEmpty else { return nil }
+
                 return .init(
                     actionsAvailableText: showActionsAvailableInDescription
                         ? nil
-                        : Strings.actionsAvailableText(for: marker.accessibilityLanguage),
-                    customActions: marker.customActions
+                        : Strings.actionsAvailableText(for: element.accessibilityLanguage),
+                    customActions: element.customActions
                 )
             }()
-            
+
             // If our description and hint are both empty, and we don't have custom actions, but we do have custom content, we'll use the description label
-            // to show the "Custom Content Available" text, since this makes our layout simpler when we align to the marker.
-            let showCustomContentInDescription = (marker.description.isEmpty &&
+            // to show the "Custom Content Available" text, since this makes our layout simpler when we align to the element.
+            let showCustomContentInDescription = (element.description.isEmpty &&
                                                   !showActionsAvailableInDescription &&
-                                                  !marker.customContent.isEmpty)
+                                                  !element.customContent.isEmpty)
 
             self.customContentView = {
-                guard !marker.customContent.isEmpty else { return nil }
-                
+                guard !element.customContent.isEmpty else { return nil }
+
                 return .init(
                     customContentText: showCustomContentInDescription
                         ? nil
-                        : Strings.moreContentAvailableText(for: marker.accessibilityLanguage),
-                    customContent: marker.customContent
+                        : Strings.moreContentAvailableText(for: element.accessibilityLanguage),
+                    customContent: element.customContent
                 )
             }()
 
-            let rotors = marker.displayRotors(configuration.rotors.displayMode)
+            let rotors = element.displayRotors(configuration.rotors.displayMode)
             self.customRotorsView = rotors.isEmpty ? nil : .init(
                     rotors: rotors,
-                    locale: marker.accessibilityLanguage
+                    locale: element.accessibilityLanguage
                 )
-            
+
             self.userInputLabelsView = {
-    
+
                let userInputLabels: [String]? = {
-                   
+
                    switch configuration.inputLabelDisplayMode {
                    case .always:
-                       guard let labels = marker.userInputLabels, !labels.isEmpty else {
+                       guard let labels = element.userInputLabels, !labels.isEmpty else {
                            /// If no labels are provided the accessibility label will be used, split on spaces.
-                           var labels = marker.label?.split(separator: " ").map(String.init) ?? []
-                           
+                           var labels = element.label?.split(separator: " ").map(String.init) ?? []
+
                            /// The button trait precedes the adjustable trait if both are present.
-                           if  marker.traits.contains(.button) {
-                               labels.append(Strings.buttonInputLabelText(for: marker.accessibilityLanguage))
+                           if  element.traits.contains(.button) {
+                               labels.append(Strings.buttonInputLabelText(for: element.accessibilityLanguage))
                            }
-                           if marker.traits.contains(.adjustable) {
-                               labels.append(Strings.adjustableInputLabelText(for: marker.accessibilityLanguage))
+                           if element.traits.contains(.adjustable) {
+                               labels.append(Strings.adjustableInputLabelText(for: element.accessibilityLanguage))
                            }
-                           
+
                            return labels
                        }
-                       return marker.userInputLabels
-                       
+                       return element.userInputLabels
+
                    case .whenOverridden:
                        guard
-                           marker.respondsToUserInteraction,
-                           let userInputLabels = marker.userInputLabels,
+                           element.respondsToUserInteraction,
+                           let userInputLabels = element.userInputLabels,
                            !userInputLabels.isEmpty
                        else {
                            return nil
                        }
                        return userInputLabels
-                       
+
                    case .never:
                        return nil
                    }
                }()
 
                 guard let userInputLabels else { return nil }
-                
+
                 return .init(titles: userInputLabels, color: color)
             }()
 
@@ -105,11 +105,11 @@ internal extension AccessibilitySnapshotView {
 
             descriptionLabel.text =
                 showCustomContentInDescription
-                ? Strings.moreContentAvailableText(for: marker.accessibilityLanguage)
+                ? Strings.moreContentAvailableText(for: element.accessibilityLanguage)
                 : showActionsAvailableInDescription
-                ? Strings.actionsAvailableText(for: marker.accessibilityLanguage)
-                : marker.description
-            
+                ? Strings.actionsAvailableText(for: element.accessibilityLanguage)
+                : element.description
+
             descriptionLabel.font = Metrics.descriptionLabelFont
             descriptionLabel.textColor = .black
             descriptionLabel.numberOfLines = 0
@@ -161,11 +161,11 @@ internal extension AccessibilitySnapshotView {
             let hintLabelSize = hintLabel?.sizeThatFits(labelSizeToFit) ?? .zero
 
             let customActionsSize = customActionsView?.sizeThatFits(labelSizeToFit) ?? .zero
-            
+
             let customContentSize = customContentView?.sizeThatFits(labelSizeToFit) ?? .zero
-            
+
             let customRotorsSize = customRotorsView?.sizeThatFits(labelSizeToFit) ?? .zero
-            
+
             let userInputLabelsViewSize = userInputLabelsView?.sizeThatFits(labelSizeToFit) ?? .zero
 
             let widthComponents = [
@@ -238,7 +238,7 @@ internal extension AccessibilitySnapshotView {
                     y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
                 )
             }
-            
+
             if let customContentView {
                 let alignmentLabel = customActionsView ?? hintLabel ?? descriptionLabel
 
@@ -248,7 +248,7 @@ internal extension AccessibilitySnapshotView {
                     y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
                 )
             }
-            
+
             if let customRotorsView {
                 let alignmentLabel = customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
 
@@ -258,10 +258,10 @@ internal extension AccessibilitySnapshotView {
                     y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
                 )
             }
-            
+
             if let userInputLabelsView  {
                 let alignmentControl = customRotorsView ?? customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
-                
+
                 userInputLabelsView.bounds.size = userInputLabelsView.sizeThatFits(labelSizeToFit)
                 userInputLabelsView.frame.origin = CGPoint(
                     x: alignmentControl.frame.minX,
@@ -289,8 +289,147 @@ internal extension AccessibilitySnapshotView {
     }
 }
 
-internal extension AccessibilityMarker {
-    func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityMarker.CustomRotor] {
+// MARK: - Container Legend View
+
+internal extension AccessibilitySnapshotView {
+    /// A legend view that displays container information with nested children
+    final class ContainerLegendView: UIView {
+
+        // MARK: - Life Cycle
+
+        init(container: AccessibilityContainer, color: UIColor, childViews: [UIView]) {
+            self.container = container
+            self.childViews = childViews
+            self.containerColor = color
+
+            super.init(frame: .zero)
+
+            // Container header
+            containerHeaderView.backgroundColor = color.withAlphaComponent(0.15)
+            containerHeaderView.layer.borderColor = color.withAlphaComponent(0.3).cgColor
+            containerHeaderView.layer.borderWidth = 1
+            containerHeaderView.layer.cornerRadius = 4
+            addSubview(containerHeaderView)
+
+            // Container type label
+            typeLabel.text = container.typeDescription
+            typeLabel.font = .boldSystemFont(ofSize: 11)
+            typeLabel.textColor = color
+            containerHeaderView.addSubview(typeLabel)
+
+            // Container label (if any)
+            if let label = container.label {
+                labelLabel = UILabel()
+                labelLabel?.text = label
+                labelLabel?.font = .systemFont(ofSize: 11)
+                labelLabel?.textColor = .darkGray
+                labelLabel?.numberOfLines = 0
+                containerHeaderView.addSubview(labelLabel!)
+            }
+
+            // Add child views
+            for childView in childViews {
+                addSubview(childView)
+            }
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        // MARK: - Private Properties
+
+        private let container: AccessibilityContainer
+        private let childViews: [UIView]
+        private let containerColor: UIColor
+
+        private let containerHeaderView = UIView()
+        private let typeLabel = UILabel()
+        private var labelLabel: UILabel?
+
+        // MARK: - Layout
+
+        override func sizeThatFits(_ size: CGSize) -> CGSize {
+            let headerHeight = calculateHeaderHeight(for: size.width)
+            let childrenHeight = childViews.reduce(CGFloat(0)) { total, child in
+                total + child.sizeThatFits(CGSize(width: size.width - Metrics.childIndent, height: .greatestFiniteMagnitude)).height + Metrics.childSpacing
+            }
+
+            return CGSize(
+                width: size.width,
+                height: headerHeight + childrenHeight
+            )
+        }
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+
+            let headerHeight = calculateHeaderHeight(for: bounds.width)
+            containerHeaderView.frame = CGRect(x: 0, y: 0, width: bounds.width, height: headerHeight)
+
+            // Layout type label
+            let typeLabelSize = typeLabel.sizeThatFits(CGSize(width: bounds.width - 2 * Metrics.headerPadding, height: .greatestFiniteMagnitude))
+            typeLabel.frame = CGRect(x: Metrics.headerPadding, y: Metrics.headerPadding, width: typeLabelSize.width, height: typeLabelSize.height)
+
+            // Layout label label
+            if let labelLabel {
+                let labelSize = labelLabel.sizeThatFits(CGSize(width: bounds.width - 2 * Metrics.headerPadding, height: .greatestFiniteMagnitude))
+                labelLabel.frame = CGRect(x: Metrics.headerPadding, y: typeLabel.frame.maxY + 2, width: labelSize.width, height: labelSize.height)
+            }
+
+            // Layout children
+            var yOffset = headerHeight + Metrics.childSpacing
+            for childView in childViews {
+                let childSize = childView.sizeThatFits(CGSize(width: bounds.width - Metrics.childIndent, height: .greatestFiniteMagnitude))
+                childView.frame = CGRect(x: Metrics.childIndent, y: yOffset, width: childSize.width, height: childSize.height)
+                yOffset += childSize.height + Metrics.childSpacing
+            }
+        }
+
+        private func calculateHeaderHeight(for width: CGFloat) -> CGFloat {
+            let typeLabelSize = typeLabel.sizeThatFits(CGSize(width: width - 2 * Metrics.headerPadding, height: .greatestFiniteMagnitude))
+            var height = Metrics.headerPadding + typeLabelSize.height + Metrics.headerPadding
+
+            if let labelLabel {
+                let labelSize = labelLabel.sizeThatFits(CGSize(width: width - 2 * Metrics.headerPadding, height: .greatestFiniteMagnitude))
+                height = Metrics.headerPadding + typeLabelSize.height + 2 + labelSize.height + Metrics.headerPadding
+            }
+
+            return height
+        }
+
+        private enum Metrics {
+            static let headerPadding: CGFloat = 6
+            static let childIndent: CGFloat = 16
+            static let childSpacing: CGFloat = 4
+        }
+    }
+}
+
+// MARK: - Container Type Description
+
+extension AccessibilityContainer {
+    var typeDescription: String {
+        switch type {
+        case .none:
+            return "Container"
+        case .dataTable:
+            return "Data Table"
+        case .list:
+            return "List"
+        case .landmark:
+            return "Landmark"
+        case .semanticGroup:
+            return "Semantic Group"
+        @unknown default:
+            return "Container"
+        }
+    }
+}
+
+internal extension AccessibilityElement {
+    func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityElement.CustomRotor] {
         switch mode {
         case .always:
             return customRotors
