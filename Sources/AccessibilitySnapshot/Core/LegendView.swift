@@ -7,9 +7,9 @@ internal extension AccessibilitySnapshotView {
     final class LegendView: UIView {
 
         // MARK: - Life Cycle
-        
-        init(marker: AccessibilityMarker, color: UIColor, configuration: AccessibilitySnapshotConfiguration.Legend) {
-            self.hintLabel = marker.hint.map {
+
+        init(element: AccessibilityElement, color: UIColor, configuration: AccessibilitySnapshotConfiguration.Legend) {
+            self.hintLabel = element.hint.map {
                 let label = UILabel()
                 label.text = $0
                 label.font = Metrics.hintLabelFont
@@ -19,82 +19,82 @@ internal extension AccessibilitySnapshotView {
             }
 
             // If our description and hint are both empty, but we have custom actions, we'll use the description label
-            // to show the "Actions Available" text, since this makes our layout simpler when we align to the marker.
-            let showActionsAvailableInDescription = (marker.description.isEmpty && !marker.customActions.isEmpty)
+            // to show the "Actions Available" text, since this makes our layout simpler when we align to the element.
+            let showActionsAvailableInDescription = (element.description.isEmpty && !element.customActions.isEmpty)
 
             self.customActionsView = {
-                guard !marker.customActions.isEmpty else { return nil }
-                
+                guard !element.customActions.isEmpty else { return nil }
+
                 return .init(
                     actionsAvailableText: showActionsAvailableInDescription
                         ? nil
-                        : Strings.actionsAvailableText(for: marker.accessibilityLanguage),
-                    customActions: marker.customActions
+                        : Strings.actionsAvailableText(for: element.accessibilityLanguage),
+                    customActions: element.customActions
                 )
             }()
-            
+
             // If our description and hint are both empty, and we don't have custom actions, but we do have custom content, we'll use the description label
-            // to show the "Custom Content Available" text, since this makes our layout simpler when we align to the marker.
-            let showCustomContentInDescription = (marker.description.isEmpty &&
+            // to show the "Custom Content Available" text, since this makes our layout simpler when we align to the element.
+            let showCustomContentInDescription = (element.description.isEmpty &&
                                                   !showActionsAvailableInDescription &&
-                                                  !marker.customContent.isEmpty)
+                                                  !element.customContent.isEmpty)
 
             self.customContentView = {
-                guard !marker.customContent.isEmpty else { return nil }
-                
+                guard !element.customContent.isEmpty else { return nil }
+
                 return .init(
                     customContentText: showCustomContentInDescription
                         ? nil
-                        : Strings.moreContentAvailableText(for: marker.accessibilityLanguage),
-                    customContent: marker.customContent
+                        : Strings.moreContentAvailableText(for: element.accessibilityLanguage),
+                    customContent: element.customContent
                 )
             }()
 
-            let rotors = marker.displayRotors(configuration.includesCustomRotors)
+            let rotors = element.displayRotors(configuration.includesCustomRotors)
             self.customRotorsView = rotors.isEmpty ? nil : .init(
                     rotors: rotors,
-                    locale: marker.accessibilityLanguage
+                    locale: element.accessibilityLanguage
                 )
-            
+
             self.userInputLabelsView = {
-    
+
                let userInputLabels: [String]? = {
-                   
+
                    switch configuration.includesUserInputLabels {
                    case .always:
-                       guard let labels = marker.userInputLabels, !labels.isEmpty else {
+                       guard let labels = element.userInputLabels, !labels.isEmpty else {
                            /// If no labels are provided the accessibility label will be used, split on spaces.
-                           var labels = marker.label?.split(separator: " ").map(String.init) ?? []
-                           
+                           var labels = element.label?.split(separator: " ").map(String.init) ?? []
+
                            /// The button trait precedes the adjustable trait if both are present.
-                           if  marker.traits.contains(.button) {
-                               labels.append(Strings.buttonInputLabelText(for: marker.accessibilityLanguage))
+                           if  element.traits.contains(.button) {
+                               labels.append(Strings.buttonInputLabelText(for: element.accessibilityLanguage))
                            }
-                           if marker.traits.contains(.adjustable) {
-                               labels.append(Strings.adjustableInputLabelText(for: marker.accessibilityLanguage))
+                           if element.traits.contains(.adjustable) {
+                               labels.append(Strings.adjustableInputLabelText(for: element.accessibilityLanguage))
                            }
-                           
+
                            return labels
                        }
-                       return marker.userInputLabels
-                       
+                       return element.userInputLabels
+
                    case .whenOverridden:
                        guard
-                           marker.respondsToUserInteraction,
-                           let userInputLabels = marker.userInputLabels,
+                           element.respondsToUserInteraction,
+                           let userInputLabels = element.userInputLabels,
                            !userInputLabels.isEmpty
                        else {
                            return nil
                        }
                        return userInputLabels
-                       
+
                    case .never:
                        return nil
                    }
                }()
 
                 guard let userInputLabels else { return nil }
-                
+
                 return .init(titles: userInputLabels, color: color)
             }()
 
@@ -105,10 +105,10 @@ internal extension AccessibilitySnapshotView {
 
             descriptionLabel.text =
                 showCustomContentInDescription
-                ? Strings.moreContentAvailableText(for: marker.accessibilityLanguage)
+                ? Strings.moreContentAvailableText(for: element.accessibilityLanguage)
                 : showActionsAvailableInDescription
-                ? Strings.actionsAvailableText(for: marker.accessibilityLanguage)
-                : marker.description
+                ? Strings.actionsAvailableText(for: element.accessibilityLanguage)
+                : element.description
             
             descriptionLabel.font = Metrics.descriptionLabelFont
             descriptionLabel.textColor = .black
@@ -289,8 +289,8 @@ internal extension AccessibilitySnapshotView {
     }
 }
 
-internal extension AccessibilityMarker {
-    func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityMarker.CustomRotor] {
+internal extension AccessibilityElement {
+    func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityElement.CustomRotor] {
         switch mode {
         case .always:
             return customRotors
@@ -298,6 +298,155 @@ internal extension AccessibilityMarker {
             return customRotors.filter { !$0.resultMarkers.isEmpty }
         case .never:
             return []
+        }
+    }
+}
+
+// MARK: - Container Legend View
+
+internal extension AccessibilitySnapshotView {
+    /// A legend view for accessibility containers, displayed with a dashed border marker
+    final class ContainerLegendView: UIView {
+
+        // MARK: - Life Cycle
+
+        init(container: AccessibilityContainer, color: UIColor, childViews: [UIView]) {
+            self.color = color
+            self.container = container
+            self.childViews = childViews
+
+            super.init(frame: .zero)
+
+            markerView.backgroundColor = .clear
+            addSubview(markerView)
+
+            // Build description: if there's a label, use it; otherwise show the type
+            let descriptionText: String?
+            if let label = container.label, !label.isEmpty {
+                descriptionText = label
+            } else if container.traits.contains(.tabBar) {
+                // Special case for tab bar containers
+                descriptionText = "Tab Bar"
+            } else {
+                // No label - show container type
+                switch container.type {
+                case .list:
+                    descriptionText = "List"
+                case .landmark:
+                    descriptionText = "Landmark"
+                case .dataTable:
+                    descriptionText = "Data Table"
+                case .semanticGroup:
+                    descriptionText = "Group"
+                case .none:
+                    descriptionText = nil
+                @unknown default:
+                    descriptionText = "Container"
+                }
+            }
+
+            descriptionLabel.text = descriptionText
+            descriptionLabel.font = LegendView.Metrics.hintLabelFont  // Italic for containers
+            descriptionLabel.textColor = .black
+            descriptionLabel.numberOfLines = 0
+            addSubview(descriptionLabel)
+
+            // Add child views
+            childViews.forEach(addSubview)
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        // MARK: - Private Properties
+
+        private let color: UIColor
+        private let container: AccessibilityContainer
+        private let childViews: [UIView]
+        private let markerView: DashedBorderView = DashedBorderView()
+        private let descriptionLabel: UILabel = .init()
+
+        // MARK: - UIView
+
+        override func sizeThatFits(_ size: CGSize) -> CGSize {
+            let labelSizeToFit = CGSize(
+                width: size.width - LegendView.Metrics.markerSize - LegendView.Metrics.markerToLabelSpacing,
+                height: .greatestFiniteMagnitude
+            )
+
+            let descriptionLabelSize = descriptionLabel.sizeThatFits(labelSizeToFit)
+
+            // Calculate total height including children
+            var totalHeight = max(LegendView.Metrics.markerSize, descriptionLabelSize.height)
+
+            for childView in childViews {
+                let childSize = childView.sizeThatFits(CGSize(
+                    width: size.width - LegendView.Metrics.markerToLabelSpacing,
+                    height: .greatestFiniteMagnitude
+                ))
+                totalHeight += LegendView.Metrics.interSectionSpacing + childSize.height
+            }
+
+            return CGSize(
+                width: size.width,
+                height: totalHeight
+            )
+        }
+
+        override func layoutSubviews() {
+            markerView.frame = CGRect(x: 0, y: 0, width: LegendView.Metrics.markerSize, height: LegendView.Metrics.markerSize)
+            markerView.color = color
+
+            let labelSizeToFit = CGSize(
+                width: bounds.size.width - LegendView.Metrics.markerSize - LegendView.Metrics.markerToLabelSpacing,
+                height: .greatestFiniteMagnitude
+            )
+
+            let descriptionLabelSizeThatFits = descriptionLabel.sizeThatFits(labelSizeToFit)
+
+            descriptionLabel.frame = .init(
+                x: markerView.frame.maxX + LegendView.Metrics.markerToLabelSpacing,
+                y: (LegendView.Metrics.markerSize - descriptionLabelSizeThatFits.height) / 2,
+                width: descriptionLabelSizeThatFits.width,
+                height: descriptionLabelSizeThatFits.height
+            )
+
+            // Layout child views below the description
+            var currentY = max(markerView.frame.maxY, descriptionLabel.frame.maxY) + LegendView.Metrics.interSectionSpacing
+
+            for childView in childViews {
+                let childSize = childView.sizeThatFits(CGSize(
+                    width: bounds.width - LegendView.Metrics.markerToLabelSpacing,
+                    height: .greatestFiniteMagnitude
+                ))
+                childView.frame = CGRect(
+                    x: LegendView.Metrics.markerToLabelSpacing,
+                    y: currentY,
+                    width: childSize.width,
+                    height: childSize.height
+                )
+                currentY = childView.frame.maxY + LegendView.Metrics.interSectionSpacing
+            }
+        }
+
+        /// A view that draws a dashed border
+        private class DashedBorderView: UIView {
+            var color: UIColor = .black {
+                didSet {
+                    setNeedsDisplay()
+                }
+            }
+
+            override func draw(_ rect: CGRect) {
+                guard let context = UIGraphicsGetCurrentContext() else { return }
+
+                context.setStrokeColor(color.withAlphaComponent(0.3).cgColor)
+                context.setLineWidth(2)
+                context.setLineDash(phase: 0, lengths: [4, 2])
+                context.stroke(rect.insetBy(dx: 1, dy: 1))
+            }
         }
     }
 }

@@ -90,7 +90,8 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     // MARK: - SnapshotAndLegendView
 
     override var legendViews: [UIView] {
-        return displayMarkers.map { $0.legendView }
+        // Return all legend views sorted by vertical position
+        return allLegendViews
     }
 
     override var minimumLegendWidth: CGFloat {
@@ -102,6 +103,11 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     private let containedView: UIView
 
     private var displayMarkers: [DisplayMarker] = []
+
+    private var containerOverlays: [UIView] = []
+
+    /// All legend views (containers and elements) sorted by vertical position
+    private var allLegendViews: [UIView] = []
 
     // MARK: - Public Methods
 
@@ -117,6 +123,8 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
             $0.overlayView.removeFromSuperview()
             $0.activationPointView?.removeFromSuperview()
         }
+        self.containerOverlays.forEach { $0.removeFromSuperview() }
+        self.allLegendViews.forEach { $0.removeFromSuperview() }
 
         let viewController = containedView.next as? UIViewController
         let originalParent = viewController?.parent
@@ -153,28 +161,44 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         containedView.layoutIfNeeded()
 
         let parser = AccessibilityHierarchyParser()
-        let markers = parser.parseAccessibilityElements(in: containedView, rotorResultLimit: snapshotConfiguration.legend.rotorResultLimit)
-        
-        
+
+        // Parse the accessibility hierarchy (tree with containers and elements)
+        let hierarchy = parser.parseAccessibilityHierarchy(
+            in: containedView,
+            rotorResultLimit: snapshotConfiguration.legend.rotorResultLimit
+        )
+
+        // Flatten to get elements in traversal order
+        let elements = hierarchy.flattenToElements()
+
+        // Render container overlays if enabled
+        if snapshotConfiguration.overlay.showContainers {
+            renderContainerOverlays(hierarchy.flattenToContainers())
+        }
+
+        let containerHierarchy = hierarchy
+
         var displayMarkers: [DisplayMarker] = []
-        for (index, marker) in markers.enumerated() {
+        var elementLegendViews: [LegendView] = []
+
+        for (index, element) in elements.enumerated() {
             let color = snapshotConfiguration.overlay.colors[index % snapshotConfiguration.overlay.colors.count]
 
-            let legendView = LegendView(marker: marker, color: color, configuration: snapshotConfiguration.legend)
-            addSubview(legendView)
-            
-            let rotorResultsShapes = marker.displayRotors(snapshotConfiguration.legend.includesCustomRotors).flatMap(\.resultMarkers).compactMap(\.shape)
-            
+            let legendView = LegendView(element: element, color: color, configuration: snapshotConfiguration.legend)
+            elementLegendViews.append(legendView)
+
+            let rotorResultsShapes = element.displayRotors(snapshotConfiguration.legend.includesCustomRotors).flatMap(\.resultMarkers).compactMap(\.shape)
+
             let overlayView = OverlayView(
                 frame: snapshotView.bounds,
-                elementShape: marker.shape,
+                elementShape: element.shape,
                 includedShapes: rotorResultsShapes,
                 color: color)
-            
+
             snapshotView.addSubview(overlayView)
-            
+
             var displayMarker = DisplayMarker(
-                marker: marker,
+                element: element,
                 legendView: legendView,
                 overlayView: overlayView,
                 activationPointView: nil
@@ -182,12 +206,12 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
 
             switch snapshotConfiguration.overlay.activationPointDisplay {
             case .whenOverridden:
-                if !marker.usesDefaultActivationPoint {
+                if !element.usesDefaultActivationPoint {
                     fallthrough
                 }
 
             case .always:
-                guard containedView.bounds.contains(marker.activationPoint) else {
+                guard containedView.bounds.contains(element.activationPoint) else {
                     break
                 }
 
@@ -195,7 +219,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
                     image: UIImage(named: "Crosshairs", in: Bundle.accessibilitySnapshotResources, compatibleWith: nil)
                 )
                 activationPointView.bounds.size = .init(width: 16, height: 16)
-                activationPointView.center = marker.activationPoint
+                activationPointView.center = element.activationPoint
                 activationPointView.tintColor = color
                 snapshotView.addSubview(activationPointView)
                 displayMarker.activationPointView = activationPointView
@@ -207,13 +231,116 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
             displayMarkers.append(displayMarker)
         }
         self.displayMarkers = displayMarkers
+
+        // Build legend views - either hierarchical with containers or flat
+        self.allLegendViews = []
+
+        if snapshotConfiguration.overlay.showContainers && !containerHierarchy.isEmpty {
+            // Build legend views from hierarchy tree (which includes both containers and elements)
+            var colorIndex = 0
+            let legendViews = buildHierarchicalLegend(
+                hierarchy: containerHierarchy,
+                elementLegendViews: elementLegendViews,
+                colorIndex: &colorIndex
+            )
+
+            for view in legendViews {
+                addSubview(view)
+                allLegendViews.append(view)
+            }
+        } else {
+            // No containers - add all element legend views in order
+            for legendView in elementLegendViews {
+                addSubview(legendView)
+                allLegendViews.append(legendView)
+            }
+        }
+    }
+
+    // MARK: - Private Methods
+
+    /// Renders container overlays as dashed borders on the snapshot
+    private func renderContainerOverlays(_ containers: [AccessibilityContainer]) {
+        var newOverlays: [UIView] = []
+
+        for (index, container) in containers.enumerated() {
+            let color = snapshotConfiguration.overlay.colors[
+                index % snapshotConfiguration.overlay.colors.count
+            ]
+
+            let overlayView = createContainerOverlay(for: container, color: color)
+            snapshotView.addSubview(overlayView)
+            newOverlays.append(overlayView)
+        }
+
+        self.containerOverlays = newOverlays
+    }
+
+    /// Builds hierarchical legend views from the hierarchy tree.
+    /// The hierarchy tree contains both containers and elements, already sorted by sortIndex.
+    private func buildHierarchicalLegend(
+        hierarchy: [AccessibilityHierarchy],
+        elementLegendViews: [LegendView],
+        colorIndex: inout Int
+    ) -> [UIView] {
+        var legendViews: [UIView] = []
+
+        for node in hierarchy {
+            switch node {
+            case .container(let container, let children):
+                let color = snapshotConfiguration.overlay.colors[colorIndex % snapshotConfiguration.overlay.colors.count]
+                colorIndex += 1
+
+                // Recursively build child legend views
+                let childLegendViews = buildHierarchicalLegend(
+                    hierarchy: children,
+                    elementLegendViews: elementLegendViews,
+                    colorIndex: &colorIndex
+                )
+
+                let containerLegendView = ContainerLegendView(
+                    container: container,
+                    color: color,
+                    childViews: childLegendViews
+                )
+                legendViews.append(containerLegendView)
+
+            case .element(_, let traversalIndex):
+                // Use the pre-built legend view for this element
+                if traversalIndex < elementLegendViews.count {
+                    legendViews.append(elementLegendViews[traversalIndex])
+                }
+            }
+        }
+
+        return legendViews
+    }
+
+    /// Creates a visual overlay for a container as a dashed border
+    private func createContainerOverlay(for container: AccessibilityContainer, color: UIColor) -> UIView {
+        let overlayView = UIView()
+        overlayView.frame = container.frame
+        overlayView.backgroundColor = .clear
+        overlayView.isUserInteractionEnabled = false
+
+        // Create dashed border layer
+        let borderLayer = CAShapeLayer()
+        borderLayer.path = UIBezierPath(rect: overlayView.bounds).cgPath
+        borderLayer.fillColor = nil
+        borderLayer.strokeColor = color.withAlphaComponent(0.3).cgColor
+        borderLayer.lineWidth = 2
+        borderLayer.lineDashPattern = [6, 3]  // 6pt dash, 3pt gap
+
+        overlayView.layer.addSublayer(borderLayer)
+
+        return overlayView
     }
 
     // MARK: - Private Types
 
     private struct DisplayMarker {
 
-        var marker: AccessibilityMarker
+        var element: AccessibilityElement
 
         var legendView: LegendView
 
