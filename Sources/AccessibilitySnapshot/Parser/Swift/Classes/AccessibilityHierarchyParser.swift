@@ -637,7 +637,66 @@ fileprivate extension AccessibilityHierarchyParser {
     /// Voiceover prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
     static func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityMarker.Shape {
         if let accessibilityPath = element.accessibilityPath, preferPath {
-            return .path(root.convert(accessibilityPath, from: nil))
+            // DEBUG: Log coordinate conversion details for iOS 18 investigation
+            let pathBounds = accessibilityPath.bounds
+            let convertedPath = root.convert(accessibilityPath, from: nil)
+            let convertedBounds = convertedPath.bounds
+            let screenOffset = root.convert(CGPoint.zero, from: nil)
+            let accessibilityFrame = element.accessibilityFrame
+
+            // Screen space info
+            let screen = root.window?.screen ?? UIScreen.main
+            let screenBounds = screen.bounds
+            let screenScale = screen.scale
+            let screenNativeBounds = screen.nativeBounds
+            let screenNativeScale = screen.nativeScale
+
+            // Window info
+            let windowFrame = root.window?.frame ?? .zero
+            let windowBounds = root.window?.bounds ?? .zero
+            let safeAreaInsets = root.window?.safeAreaInsets ?? .zero
+
+            // View info
+            let viewFrame = (element as? UIView)?.frame ?? .zero
+            let viewBounds = (element as? UIView)?.bounds ?? .zero
+            let viewCenter = (element as? UIView)?.center ?? .zero
+            let viewFrameInScreen = (element as? UIView)?.convert((element as? UIView)?.bounds ?? .zero, to: nil) ?? .zero
+
+            print("""
+                [AccessibilityPath Debug]
+                  Element: \(type(of: element))
+                  iOS version: \(UIDevice.current.systemVersion)
+
+                  Screen:
+                    bounds: \(screenBounds)
+                    scale: \(screenScale)
+                    nativeBounds: \(screenNativeBounds)
+                    nativeScale: \(screenNativeScale)
+
+                  Window:
+                    frame: \(windowFrame)
+                    bounds: \(windowBounds)
+                    safeAreaInsets: \(safeAreaInsets)
+
+                  View:
+                    frame: \(viewFrame)
+                    bounds: \(viewBounds)
+                    center: \(viewCenter)
+                    frameInScreen (convert to nil): \(viewFrameInScreen)
+
+                  Accessibility:
+                    accessibilityPath bounds: \(pathBounds)
+                    accessibilityFrame: \(accessibilityFrame)
+
+                  Conversion:
+                    screen offset (root.convert(.zero, from: nil)): \(screenOffset)
+                    converted path bounds: \(convertedBounds)
+
+                  Ratios:
+                    path.x / frame.x: \(accessibilityFrame.origin.x != 0 ? pathBounds.origin.x / accessibilityFrame.origin.x : 0)
+                    path.y / frame.y: \(accessibilityFrame.origin.y != 0 ? pathBounds.origin.y / accessibilityFrame.origin.y : 0)
+                """)
+            return .path(convertedPath)
 
         } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer, !element.accessibilityFrameInContainerSpace.isNull {
             return .frame(container.convert(element.accessibilityFrameInContainerSpace, to: root))
