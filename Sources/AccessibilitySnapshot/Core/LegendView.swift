@@ -8,7 +8,7 @@ internal extension AccessibilitySnapshotView {
 
         // MARK: - Life Cycle
         
-        init(marker: AccessibilityMarker, color: UIColor, configuration: AccessibilitySnapshotConfiguration.Legend) {
+        init(marker: AccessibilityMarker, color: UIColor, configuration: AccessibilitySnapshotConfiguration) {
             self.hintLabel = marker.hint.map {
                 let label = UILabel()
                 label.text = $0
@@ -50,7 +50,7 @@ internal extension AccessibilitySnapshotView {
                 )
             }()
 
-            let rotors = marker.displayRotors(configuration.includesCustomRotors)
+            let rotors = marker.displayRotors(configuration.rotors.displayMode)
             self.customRotorsView = rotors.isEmpty ? nil : .init(
                     rotors: rotors,
                     locale: marker.accessibilityLanguage
@@ -60,7 +60,7 @@ internal extension AccessibilitySnapshotView {
     
                let userInputLabels: [String]? = {
                    
-                   switch configuration.includesUserInputLabels {
+                   switch configuration.inputLabelDisplayMode {
                    case .always:
                        guard let labels = marker.userInputLabels, !labels.isEmpty else {
                            /// If no labels are provided the accessibility label will be used, split on spaces.
