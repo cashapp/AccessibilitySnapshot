@@ -637,7 +637,22 @@ fileprivate extension AccessibilityHierarchyParser {
     /// Voiceover prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
     static func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityMarker.Shape {
         if let accessibilityPath = element.accessibilityPath, preferPath {
-            return .path(root.convert(accessibilityPath, from: nil))
+            // DEBUG: Log coordinate conversion details for iOS 18 investigation
+            let pathBounds = accessibilityPath.bounds
+            let convertedPath = root.convert(accessibilityPath, from: nil)
+            let convertedBounds = convertedPath.bounds
+            let screenOffset = root.convert(CGPoint.zero, from: nil)
+            let accessibilityFrame = element.accessibilityFrame
+            print("""
+                [AccessibilityPath Debug]
+                  Element: \(type(of: element))
+                  accessibilityPath bounds: \(pathBounds)
+                  accessibilityFrame: \(accessibilityFrame)
+                  screen offset (root.convert(.zero, from: nil)): \(screenOffset)
+                  converted path bounds: \(convertedBounds)
+                  iOS version: \(UIDevice.current.systemVersion)
+                """)
+            return .path(convertedPath)
 
         } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer, !element.accessibilityFrameInContainerSpace.isNull {
             return .frame(container.convert(element.accessibilityFrameInContainerSpace, to: root))
