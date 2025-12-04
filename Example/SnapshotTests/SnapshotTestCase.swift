@@ -46,7 +46,7 @@ class SnapshotTestCase: FBSnapshotTestCase {
     private static let testedDevices = [
         TestDeviceConfig(systemVersion: "17.5", screenSize: CGSize(width: 393, height: 852), screenScale: 3),
         TestDeviceConfig(systemVersion: "18.5", screenSize: CGSize(width: 402, height: 874), screenScale: 3),
-        TestDeviceConfig(systemVersion: "26.0.1", screenSize: CGSize(width: 402, height: 874), screenScale: 3),
+        TestDeviceConfig(systemVersion: "26.1", screenSize: CGSize(width: 402, height: 874), screenScale: 3),
     ]
 
     // MARK: - FBSnapshotTestCase
@@ -67,6 +67,14 @@ class SnapshotTestCase: FBSnapshotTestCase {
         }
 
         fileNameOptions = [.OS, .screenSize, .screenScale]
+
+        // Use drawViewHierarchyInRect for iOS 26+ snapshots
+        // iOS 26 introduced Liquid Glass effects which require drawViewHierarchyInRect
+        // to render properly (similar to UIVisualEffect, UIAppearance, etc.)
+        let majorVersion = ProcessInfo().operatingSystemVersion.majorVersion
+        if majorVersion >= 26 {
+            usesDrawViewHierarchyInRect = true
+        }
 
         recordMode = false
     }
