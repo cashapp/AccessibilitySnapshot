@@ -79,6 +79,17 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
     }
 
     func testTabBars() {
+        // Skip on iOS 26 due to tab bar rendering differences
+        do {
+            try XCTSkipIf(
+                ProcessInfo().operatingSystemVersion.majorVersion >= 26,
+                "Tab bar rendering differs on iOS 26+"
+            )
+        } catch {
+            XCTFail("Failed to skip test: \(error)")
+            return
+        }
+
         let tabBarViewController = TabBarViewController()
         tabBarViewController.view.frame = UIScreen.main.bounds
         SnapshotVerifyAccessibility(tabBarViewController.view)
