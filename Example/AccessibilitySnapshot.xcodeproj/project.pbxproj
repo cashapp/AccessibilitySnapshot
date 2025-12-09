@@ -29,6 +29,7 @@
 		3DBAC28722406EBB00EF4D0A /* AccessibilityContainersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBAC28622406EBB00EF4D0A /* AccessibilityContainersTests.swift */; };
 		3DBAC28F2242E7C700EF4D0A /* ListContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBAC28E2242E7C700EF4D0A /* ListContainerViewController.swift */; };
 		3DBAC2912242F9B200EF4D0A /* LandmarkContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBAC2902242F9B200EF4D0A /* LandmarkContainerViewController.swift */; };
+		AC0000002F00000000000001 /* ContainerHierarchyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC0000002F00000000000000 /* ContainerHierarchyViewController.swift */; };
 		3DBEAA5B2222953E00FAE61D /* SwitchControlViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBEAA5A2222953E00FAE61D /* SwitchControlViewController.swift */; };
 		3DBEAA5F2223D0DA00FAE61D /* AccessibilityPathViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DBEAA5E2223D0DA00FAE61D /* AccessibilityPathViewController.swift */; };
 		3DC2C67921F4478A003184E4 /* LayoutTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3DC2C67721F4478A003184E4 /* LayoutTests.swift */; };
@@ -119,6 +120,7 @@
 		3DBAC28622406EBB00EF4D0A /* AccessibilityContainersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityContainersTests.swift; sourceTree = "<group>"; };
 		3DBAC28E2242E7C700EF4D0A /* ListContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListContainerViewController.swift; sourceTree = "<group>"; };
 		3DBAC2902242F9B200EF4D0A /* LandmarkContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LandmarkContainerViewController.swift; sourceTree = "<group>"; };
+		AC0000002F00000000000000 /* ContainerHierarchyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerHierarchyViewController.swift; sourceTree = "<group>"; };
 		3DBEAA5A2222953E00FAE61D /* SwitchControlViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchControlViewController.swift; sourceTree = "<group>"; };
 		3DBEAA5E2223D0DA00FAE61D /* AccessibilityPathViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityPathViewController.swift; sourceTree = "<group>"; };
 		3DC2C67721F4478A003184E4 /* LayoutTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LayoutTests.swift; sourceTree = "<group>"; };
@@ -226,6 +228,7 @@
 				3DA12A3122405B9E00EB3C33 /* DataTableViewController.swift */,
 				3DBAC28E2242E7C700EF4D0A /* ListContainerViewController.swift */,
 				3DBAC2902242F9B200EF4D0A /* LandmarkContainerViewController.swift */,
+				AC0000002F00000000000000 /* ContainerHierarchyViewController.swift */,
 				3D3F2E132263E6B900F7608E /* InvertColorsViewController.swift */,
 				3DDE7FF524C6D6BF00999ABA /* AccessibilityCustomActionsViewController.swift */,
 				AC3C4C792E3B7A0C00D16410 /* AccessibilityCustomRotorsViewController.swift */,
@@ -676,6 +679,7 @@
 				AC5C5FE22C627DA300E1C4E7 /* NavBarBackButtonAccessibilityTraitsViewController.swift in Sources */,
 				3DBEAA5B2222953E00FAE61D /* SwitchControlViewController.swift in Sources */,
 				3DBAC2912242F9B200EF4D0A /* LandmarkContainerViewController.swift in Sources */,
+				AC0000002F00000000000001 /* ContainerHierarchyViewController.swift in Sources */,
 				1104A8CF2B580AC500B6715F /* SwiftUITextEntry.swift in Sources */,
 				3D39BFAC223314C1009C3EF4 /* TabBarViewController.swift in Sources */,
 				3D04B6DB21155D92006218A4 /* ButtonAccessibilityTraitsViewController.swift in Sources */,

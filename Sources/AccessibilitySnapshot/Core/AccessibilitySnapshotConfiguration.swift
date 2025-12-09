@@ -34,16 +34,22 @@ public struct AccessibilitySnapshotConfiguration {
         /// order, repeating through the array as necessary.
         ///  Defaults to `MarkerColors.defaultColors`.
         public let colors: [UIColor]
-        
+
         /// Controls when to show indicators for elements' accessibility activation points.
         ///  Defaults to `.whenOverridden`.
         public let activationPointDisplay: AccessibilityContentDisplayMode
-        
+
+        /// Whether to show container overlays (dashed borders around accessibility containers).
+        /// Defaults to `false`.
+        public let showContainers: Bool
+
         init(colors: [UIColor] = MarkerColors.defaultColors,
-             activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden
+             activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden,
+             showContainers: Bool = false
         )  {
             self.colors = colors.isEmpty ? MarkerColors.defaultColors : colors
             self.activationPointDisplay = activationPointDisplay
+            self.showContainers = showContainers
         }
     }
     
@@ -97,6 +103,13 @@ public struct AccessibilitySnapshotConfiguration {
         self.snapshot = Snapshot(viewRenderingMode:viewRenderingMode, colorMode: colorRenderingMode)
         self.overlay = Overlay(colors: overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors, activationPointDisplay: activationPointDisplay)
         self.legend = Legend(includesUserInputLabels: includesInputLabels, includesCustomRotors: includesCustomRotors, rotorResultLimit: rotorResultLimit)
+    }
+    
+    /// Internal initializer for creating configurations with pre-built sub-configurations.
+    internal init(snapshot: Snapshot, overlay: Overlay, legend: Legend) {
+        self.snapshot = snapshot
+        self.overlay = overlay
+        self.legend = legend
     }
 }
 
