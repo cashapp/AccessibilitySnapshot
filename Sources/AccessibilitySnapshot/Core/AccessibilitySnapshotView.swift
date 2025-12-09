@@ -143,9 +143,9 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         containedView.layoutIfNeeded()
 
         snapshotView.image = try containedView.renderToImage(
-            monochrome: snapshotConfiguration.rendering.colorMode == .monochrome,
-            viewRenderingMode: snapshotConfiguration.rendering.renderMode
+            configuration: snapshotConfiguration.rendering
         )
+        
         snapshotView.bounds.size = containedView.bounds.size
 
         // Complete the layout pass after the view is restored to this container, in case it was modified during the

@@ -41,11 +41,20 @@ public enum ImageRenderingError: Swift.Error {
 }
 
 extension UIView {
-
+    
+    @available(*, deprecated, message:"Please use `renderToImage(configuration:)` instead.")
     public func renderToImage(
         monochrome: Bool,
         viewRenderingMode: ViewRenderingMode
     ) throws -> UIImage {
+        let config = AccessibilitySnapshotConfiguration.Rendering(renderMode: viewRenderingMode, colorMode: monochrome ? .monochrome : .fullColor)
+        return try renderToImage(configuration: config)
+    }
+
+    public func renderToImage(
+        configuration: AccessibilitySnapshotConfiguration.Rendering
+    ) throws -> UIImage {
+        
         let renderer = UIGraphicsImageRenderer(bounds: bounds)
 
         // Hide the cursor of text inputs to prevent test flakes.
@@ -67,7 +76,7 @@ extension UIView {
         var error: Error?
 
         let snapshot = renderer.image { context in
-            switch viewRenderingMode {
+            switch configuration.renderMode {
             case .drawHierarchyInRect:
                 if bounds.width > UIView.tileSideLength || bounds.height > UIView.tileSideLength {
                     drawTiledHierarchySnapshots(in: context, error: &error)
@@ -84,7 +93,7 @@ extension UIView {
             throw error
         }
 
-        if monochrome {
+        if configuration.colorMode == .monochrome {
             return try monochromeSnapshot(for: snapshot) ?? snapshot
 
         } else {
