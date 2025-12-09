@@ -2,8 +2,16 @@ import UIKit
 
 // MARK: - UIKit Type Codable Extensions
 
-extension UIAccessibilityTraits: @retroactive Codable {
-    
+#if swift(>=6.0)
+extension UIAccessibilityTraits: @retroactive Codable {}
+extension UIAccessibilityContainerType: @retroactive Codable {}
+#else
+extension UIAccessibilityTraits: Codable {}
+extension UIAccessibilityContainerType: Codable {}
+#endif
+
+extension UIAccessibilityTraits {
+
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let rawValue = try container.decode(UInt64.self)
@@ -16,7 +24,7 @@ extension UIAccessibilityTraits: @retroactive Codable {
     }
 }
 
-extension UIAccessibilityContainerType: @retroactive Codable {
+extension UIAccessibilityContainerType {
 
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
