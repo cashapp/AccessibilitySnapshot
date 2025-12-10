@@ -64,10 +64,9 @@ public enum HitTargetSnapshotUtility {
         let bounds = view.bounds
         let renderer = UIGraphicsImageRenderer(bounds: bounds)
 
-        let viewImage = try view.renderToImage(
-            monochrome: useMonochromeSnapshot,
-            viewRenderingMode: viewRenderingMode
-        )
+        let config = AccessibilitySnapshotConfiguration.Rendering(renderMode: viewRenderingMode,
+                                                                  colorMode: useMonochromeSnapshot ? .monochrome : .fullColor)
+        let viewImage = try view.renderToImage(configuration: config)
 
         guard view.bounds.width > 0 && view.bounds.height > 0 else {
             throw ImageRenderingError.containedViewHasZeroSize(viewSize: view.bounds.size)

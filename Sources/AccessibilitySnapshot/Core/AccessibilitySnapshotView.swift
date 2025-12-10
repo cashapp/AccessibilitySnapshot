@@ -143,9 +143,9 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         containedView.layoutIfNeeded()
 
         snapshotView.image = try containedView.renderToImage(
-            monochrome: snapshotConfiguration.snapshot.colorMode == .monochrome,
-            viewRenderingMode: snapshotConfiguration.snapshot.viewRenderingMode
+            configuration: snapshotConfiguration.rendering
         )
+        
         snapshotView.bounds.size = containedView.bounds.size
 
         // Complete the layout pass after the view is restored to this container, in case it was modified during the
@@ -153,17 +153,17 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         containedView.layoutIfNeeded()
 
         let parser = AccessibilityHierarchyParser()
-        let markers = parser.parseAccessibilityElements(in: containedView, rotorResultLimit: snapshotConfiguration.legend.rotorResultLimit)
+        let markers = parser.parseAccessibilityElements(in: containedView, rotorResultLimit: snapshotConfiguration.rotors.resultLimit)
         
         
         var displayMarkers: [DisplayMarker] = []
         for (index, marker) in markers.enumerated() {
-            let color = snapshotConfiguration.overlay.colors[index % snapshotConfiguration.overlay.colors.count]
+            let color = snapshotConfiguration.markerColors[index % snapshotConfiguration.markerColors.count]
 
-            let legendView = LegendView(marker: marker, color: color, configuration: snapshotConfiguration.legend)
+            let legendView = LegendView(marker: marker, color: color, configuration: snapshotConfiguration)
             addSubview(legendView)
             
-            let rotorResultsShapes = marker.displayRotors(snapshotConfiguration.legend.includesCustomRotors).flatMap(\.resultMarkers).compactMap(\.shape)
+            let rotorResultsShapes = marker.displayRotors(snapshotConfiguration.rotors.displayMode).flatMap(\.resultMarkers).compactMap(\.shape)
             
             let overlayView = OverlayView(
                 frame: snapshotView.bounds,
@@ -180,7 +180,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
                 activationPointView: nil
             )
 
-            switch snapshotConfiguration.overlay.activationPointDisplay {
+            switch snapshotConfiguration.activationPointDisplayMode {
             case .whenOverridden:
                 if !marker.usesDefaultActivationPoint {
                     fallthrough
