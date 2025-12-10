@@ -173,7 +173,9 @@ private extension AccessibilityPathViewController {
 
         override var accessibilityPath: UIBezierPath? {
             get {
-                return UIAccessibility.convertToScreenCoordinates(relativePath, in: self)
+                // Copy the path before conversion to avoid UIAccessibility mutating it.
+                guard let path = relativePath.copy() as? UIBezierPath else { return nil }
+                return UIAccessibility.convertToScreenCoordinates(path, in: self)
             }
             set {
                 super.accessibilityPath = newValue
