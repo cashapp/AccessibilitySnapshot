@@ -30,41 +30,62 @@ final class AccessibilityPathViewController: AccessibilityViewController {
     override func loadView() {
         view = View(
             views: [
-                AccessibilityPathView(relativePath: UIBezierPath(
-                    roundedRect: CGRect(x: 0, y: 0, width: 60, height: 40),
-                    cornerRadius: 20
-                )),
-                AccessibilityPathView(relativePath: UIBezierPath(
-                    arcCenter: CGPoint(x: 30, y: 20),
-                    radius: 20,
-                    startAngle: 0,
-                    endAngle: 1.57,
-                    clockwise: true
-                )),
-                AccessibilityPathView(relativePath: UIBezierPath(
-                    ovalIn: CGRect(x: 0, y: 0, width: 60, height: 40)
-                )),
-                AccessibilityPathView(relativePath: UIBezierPath(
-                    cgPath: {
-                        let path = CGMutablePath()
-                        path.move(to: .zero)
-                        path.addQuadCurve(
-                            to: .init(x: 60, y: 40),
-                            control: .init(x: 15, y: 30)
-                        )
-                        return path
-                    }()
-                )),
-                AccessibilityPathView(relativePath: UIBezierPath(
-                    cgPath: {
-                        let path = CGMutablePath()
-                        path.move(to: CGPoint(x: 0, y: 40))
-                        path.addLine(to: CGPoint(x: 20, y: 15))
-                        path.addLine(to: CGPoint(x: 40, y: 25))
-                        path.addLine(to: CGPoint(x: 60, y: 0))
-                        return path
-                    }()
-                )),
+                AccessibilityPathView(
+                    label: "Rounded Rect",
+                    relativePath: UIBezierPath(
+                        roundedRect: CGRect(x: 0, y: 0, width: 60, height: 40),
+                        cornerRadius: 20
+                    )
+                ),
+                AccessibilityPathView(
+                    label: "Rect",
+                    relativePath: UIBezierPath(
+                        rect: CGRect(x: 0, y: 0, width: 60, height: 40)
+                    )
+                ),
+                AccessibilityPathView(
+                    label: "Arc",
+                    relativePath: UIBezierPath(
+                        arcCenter: CGPoint(x: 30, y: 20),
+                        radius: 20,
+                        startAngle: 0,
+                        endAngle: 1.57,
+                        clockwise: true
+                    )
+                ),
+                AccessibilityPathView(
+                    label: "Oval",
+                    relativePath: UIBezierPath(
+                        ovalIn: CGRect(x: 0, y: 0, width: 60, height: 40)
+                    )
+                ),
+                AccessibilityPathView(
+                    label: "Quad Curve",
+                    relativePath: UIBezierPath(
+                        cgPath: {
+                            let path = CGMutablePath()
+                            path.move(to: .zero)
+                            path.addQuadCurve(
+                                to: .init(x: 60, y: 40),
+                                control: .init(x: 15, y: 30)
+                            )
+                            return path
+                        }()
+                    )
+                ),
+                AccessibilityPathView(
+                    label: "Lines",
+                    relativePath: UIBezierPath(
+                        cgPath: {
+                            let path = CGMutablePath()
+                            path.move(to: CGPoint(x: 0, y: 40))
+                            path.addLine(to: CGPoint(x: 20, y: 15))
+                            path.addLine(to: CGPoint(x: 40, y: 25))
+                            path.addLine(to: CGPoint(x: 60, y: 0))
+                            return path
+                        }()
+                    )
+                ),
             ]
         )
     }
@@ -74,8 +95,6 @@ final class AccessibilityPathViewController: AccessibilityViewController {
 
         for subview in views {
             subview.backgroundColor = .lightGray
-            subview.isAccessibilityElement = true
-            subview.accessibilityLabel = "Label"
             subview.frame.size = .init(width: 60, height: 40)
         }
     }
@@ -132,10 +151,13 @@ private extension AccessibilityPathViewController {
 
         // MARK: - Life Cycle
 
-        init(relativePath: UIBezierPath) {
+        init(label: String, relativePath: UIBezierPath) {
             self.relativePath = relativePath
 
             super.init(frame: .zero)
+
+            isAccessibilityElement = true
+            accessibilityLabel = label
         }
 
         @available(*, unavailable)
