@@ -173,7 +173,8 @@ private extension AccessibilityPathViewController {
 
         override var accessibilityPath: UIBezierPath? {
             get {
-                // Copy the path before conversion to avoid UIAccessibility mutating it.
+                // We discovered a bug in UIAccessibility.convertToScreenCoordinates(:in:) where the view's offset gets accumulated over multiple calls with the same input path. This accumulation causes the path to drift away from the element and eventually beyond the bounds of the screen.
+                // Copy the path before conversion to avoid UIAccessibility accumulating it.
                 guard let path = relativePath.copy() as? UIBezierPath else { return nil }
                 return UIAccessibility.convertToScreenCoordinates(path, in: self)
             }
