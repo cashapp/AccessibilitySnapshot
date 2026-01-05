@@ -96,7 +96,23 @@ public struct AccessibilityMarker: Equatable {
             isImportant = from.importance == .high
         }
     }
-    
+
+    public struct CustomAction: Equatable {
+        public var name: String
+        public var image: UIImage?
+
+        init(name: String, image: UIImage?) {
+            self.name = name
+            self.image = image
+        }
+
+        @available(iOS 14.0, *)
+        init(from: UIAccessibilityCustomAction) {
+            name = from.name
+            image = from.image
+        }
+    }
+
     // MARK: - Public Properties
 
     /// The description of the accessibility element that will be read by VoiceOver when the element is brought into
@@ -137,8 +153,8 @@ public struct AccessibilityMarker: Equatable {
     public var usesDefaultActivationPoint: Bool
 
     /// The names of the custom actions supported by the element.
-    public var customActions: [String]
-    
+    public var customActions: [CustomAction]
+
     /// Any custom content included by the element.
     public var customContent: [CustomContent]
 
@@ -316,7 +332,7 @@ public final class AccessibilityHierarchyParser {
                     Self.defaultActivationPoint(for: element.object),
                     tolerance: 1 / (root.window?.screen ?? UIScreen.main).scale
                 ),
-                customActions: element.object.accessibilityCustomActions?.map { $0.name } ?? [],
+                customActions: element.object.accessibilityCustomActions?.map { AccessibilityMarker.CustomAction(name: $0.name, image: $0.image) } ?? [],
                 customContent: element.object.customContent,
                 customRotors: element.object.customRotors(in: root, context: element.context, resultLimit: rotorResultLimit),
                 accessibilityLanguage: element.object.accessibilityLanguage,

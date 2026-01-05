@@ -17,34 +17,37 @@
 import Paralayout
 import UIKit
 
-//  ┌──────────────────────────────────────────────────────────────────────────────┐
-//  │                                                                              │
-//  │                        View Accessibility Properties                         │
-//  │                                                                              │
-//  ├────┬─────────┬─────────┬─────────┬─────────┬─────────────────────────────────┤
-//  │ ## │  label  │  value  │  hint   │ element │      VoiceOver Description      │
-//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
-//  │ 01 │         │         │         │  true   │ ""                              │
-//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
-//  │ 02 │    X    │         │         │  true   │ "Label"                         │
-//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
-//  │ 03 │         │    X    │         │  true   │ "Value"                         │
-//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
-//  │ 04 │         │         │    X    │  true   │ "Hint"                          │
-//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
-//  │ 05 │    X    │    X    │         │  true   │ "Label: Value"                  │
-//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
-//  │ 06 │    X    │         │    X    │  true   │ "Label", "Hint"                 │
-//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
-//  │ 07 │         │    X    │    X    │  true   │ "Value", "Hint"                 │
-//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
-//  │ 08 │    X    │    X    │    X    │  true   │ "Label: Value", "Hint"          │
-//  └────┴─────────┴─────────┴─────────┴─────────┴─────────────────────────────────┘
+//  ┌─────────────────────────────────────────────────────────────────────────────────────────┐
+//  │                                                                                         │
+//  │                              View Accessibility Properties                              │
+//  │                                                                                         │
+//  ├────┬─────────┬─────────┬─────────┬─────────┬─────────┬──────────────────────────────────┤
+//  │ ## │  label  │  value  │  hint   │ element │ actions │       VoiceOver Description      │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+//  │ 01 │         │         │         │  true   │  false  │  ""                              │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+//  │ 02 │    X    │         │         │  true   │  false  │  "Label"                         │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+//  │ 03 │         │    X    │         │  true   │  false  │  "Value"                         │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+//  │ 04 │         │         │    X    │  true   │  false  │  "Hint"                          │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+//  │ 05 │    X    │    X    │         │  true   │  false  │  "Label: Value"                  │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+//  │ 06 │    X    │         │    X    │  true   │  false  │  "Label", "Hint"                 │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+//  │ 07 │         │    X    │    X    │  true   │  false  │  "Value", "Hint"                 │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+//  │ 08 │    X    │    X    │    X    │  true   │  false  │  "Label: Value", "Hint"          │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────┼──────────────────────────────────┤
+//  │ 09 │    X    │    X    │    X    │  true   │  true   │  "Label: Value", "Hint",         │
+//  |    |         |         |         |         |         |  "Actions Available"             │
+//  └────┴─────────┴─────────┴─────────┴─────────┴─────────┴──────────────────────────────────┘
 final class ViewAccessibilityPropertiesViewController: AccessibilityViewController {
 
     // MARK: - Private Properties
 
-    private let views = (0..<8).map { _ in UIView() }
+    private let views = (0..<9).map { _ in UIView() }
 
     // MARK: - UIViewController
 
@@ -100,6 +103,22 @@ final class ViewAccessibilityPropertiesViewController: AccessibilityViewControll
         views[7].accessibilityLabel = "Label"
         views[7].accessibilityValue = "Value"
         views[7].accessibilityHint = "Hint"
+
+        // View with label, value, hint, and custom actions.
+        views[8].accessibilityLabel = "Label"
+        views[8].accessibilityValue = "Value"
+        views[8].accessibilityHint = "Hint"
+        if #available(iOS 14.0, *) {
+            views[8].accessibilityCustomActions = [
+                UIAccessibilityCustomAction(name: "Action without image", image: nil) { _ in return false },
+                UIAccessibilityCustomAction(name: "Action with checkmark.circle image", image: UIImage(systemName: "checkmark.circle")) { _ in return false },
+                UIAccessibilityCustomAction(name: "Action with checkmark.circle.fill image", image: UIImage(systemName: "checkmark.circle.fill")) { _ in return false },
+                UIAccessibilityCustomAction(name: "This is a really long action without an image. The name is quite long to ensure that it will span multiple lines.", image: nil) { _ in return false },
+                UIAccessibilityCustomAction(name: "こんにちは", image: nil) { _ in return false },
+                UIAccessibilityCustomAction(name: "నమస్కారం", image: nil) { _ in return false },
+                UIAccessibilityCustomAction(name: "مرحبًا", image: nil) { _ in return false },
+            ]
+        }
     }
 
 }
