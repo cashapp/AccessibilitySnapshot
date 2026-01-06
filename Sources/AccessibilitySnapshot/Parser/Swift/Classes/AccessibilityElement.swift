@@ -149,7 +149,7 @@ public struct AccessibilityElement: Equatable, Codable {
     /// The language code of the language used to localize strings in the description.
     public var accessibilityLanguage: String?
 
-    /// whether the element performs an action based on user interaction.
-    public var respondsToUserInteraction : Bool
+    /// Whether the element performs an action based on user interaction.
+    public var respondsToUserInteraction: Bool
 
 }
