@@ -62,6 +62,7 @@ final class RootViewController: UITableViewController {
                 )
             }),
             ("List Container", { _ in return ListContainerViewController() }),
+            ("Semantic Container", { _ in return SemanticContainerViewController() }),
             ("Landmark Container", { _ in return LandmarkContainerViewController() }),
             ("Invert Colors", { _ in return InvertColorsViewController() }),
             ("User Input Labels", { _ in return UserInputLabelsViewController() }),

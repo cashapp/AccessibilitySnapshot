@@ -70,7 +70,7 @@ extension NSObject {
 
                 descriptionContainsContext = true
 
-            case .series, .tab, .tabBarItem, .listStart, .listEnd, .landmarkStart, .landmarkEnd:
+            case .series, .tab, .tabBarItem, .listStart, .listEnd, .landmarkStart, .landmarkEnd, .semanticGroupStart, .semanticGroupEnd:
                 descriptionContainsContext = false
             }
 
@@ -241,6 +241,33 @@ extension NSObject {
                     strings.landmarkEndContext
                 )
 
+            case .semanticGroupStart(let label):
+                let trailingPeriod = accessibilityDescription.hasSuffix(".") ? "" : "."
+                if let label = label?.nonEmpty() {
+                    accessibilityDescription = String(format:
+                        "%@%@ %@",
+                        accessibilityDescription,
+                        trailingPeriod,
+                        String(format: strings.semanticGroupStartContextFormat, label)
+                    )
+                } else {
+                    accessibilityDescription = String(format:
+                        "%@%@ %@",
+                        accessibilityDescription,
+                        trailingPeriod,
+                        strings.semanticGroupStartContext
+                    )
+                }
+
+            case .semanticGroupEnd:
+                let trailingPeriod = accessibilityDescription.hasSuffix(".") ? "" : "."
+                accessibilityDescription = String(format:
+                    "%@%@ %@",
+                    accessibilityDescription,
+                    trailingPeriod,
+                    strings.semanticGroupEndContext
+                )
+
             case .dataTableCell:
                 break
             }
@@ -292,7 +319,7 @@ extension NSObject {
         case .tabBarItem(index: _, count: _, item: _):
             return nil
 
-        case .series, .tab, .dataTableCell, .listStart, .listEnd, .landmarkStart, .landmarkEnd:
+        case .series, .tab, .dataTableCell, .listStart, .listEnd, .landmarkStart, .landmarkEnd, .semanticGroupStart, .semanticGroupEnd:
             return nil
         }
     }
@@ -310,7 +337,7 @@ extension NSObject {
         case .tabBarItem(index: _, count: _, item: _):
             return false
 
-        case .series, .tab, .dataTableCell, .listStart, .listEnd, .landmarkStart, .landmarkEnd:
+        case .series, .tab, .dataTableCell, .listStart, .listEnd, .landmarkStart, .landmarkEnd, .semanticGroupStart, .semanticGroupEnd:
             return false
         }
     }
@@ -387,6 +414,12 @@ extension NSObject {
         let landmarkStartContext: String
 
         let landmarkEndContext: String
+
+        let semanticGroupStartContext: String
+
+        let semanticGroupStartContextFormat: String
+
+        let semanticGroupEndContext: String
 
         let textEntryTraitName: String
 
@@ -549,6 +582,21 @@ extension NSObject {
                 comment: "Description of the last element in a landmark container",
                 locale: locale
             )
+            self.semanticGroupStartContext = "In Semantic Group.".localized(
+                key: "context.semantic_group_start.description",
+                comment: "Description of the first element in a semantic group container",
+                locale: locale
+            )
+            self.semanticGroupStartContextFormat = "In %@, Semantic Group.".localized(
+                key: "context.semantic_group_start.description_format",
+                comment: "Format for description of the first element in a semantic group container with a label; param0: the label",
+                locale: locale
+            )
+            self.semanticGroupEndContext = "End Group.".localized(
+                key: "context.semantic_group_end.description",
+                comment: "Description of the last element in a semantic group container",
+                locale: locale
+            )
             self.textEntryTraitName = "Text Field.".localized(
                 key: "trait.text_field.description",
                 comment: "Description for the 'text entry' accessibility trait",
@@ -623,7 +671,7 @@ extension AccessibilityHierarchyParser.Context {
 
     var hidesButtonTrait: Bool {
         switch self {
-        case .series, .tabBarItem, .dataTableCell, .listStart, .listEnd, .landmarkStart, .landmarkEnd:
+        case .series, .tabBarItem, .dataTableCell, .listStart, .listEnd, .landmarkStart, .landmarkEnd, .semanticGroupStart, .semanticGroupEnd:
             return false
 
         case .tab:
@@ -633,7 +681,7 @@ extension AccessibilityHierarchyParser.Context {
 
     var showsTabTrait: Bool {
         switch self {
-        case .series, .dataTableCell, .listStart, .listEnd, .landmarkStart, .landmarkEnd:
+        case .series, .dataTableCell, .listStart, .listEnd, .landmarkStart, .landmarkEnd, .semanticGroupStart, .semanticGroupEnd:
             return false
 
         case .tab, .tabBarItem:
