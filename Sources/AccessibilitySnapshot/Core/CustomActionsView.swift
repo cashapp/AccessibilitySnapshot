@@ -9,21 +9,25 @@ internal extension AccessibilitySnapshotView {
         
         // MARK: - Life Cycle
         
-        init(actionsAvailableText: String?, customActions: [String]) {
+        init(actionsAvailableText: String?, customActions: [AccessibilityMarker.CustomAction]) {
             actionLabels = customActions.map {
-                let iconLabel = UILabel()
-                iconLabel.text = "↓"
-                iconLabel.font = Metrics.font
-                iconLabel.textColor = .black
-                iconLabel.numberOfLines = 0
-                
+                let iconView: UIView
+                if let image = $0.image {
+                    let imageView = UIImageView()
+                    imageView.image = image
+                    imageView.tintColor = .darkGray
+                    iconView = imageView
+                } else {
+                    iconView = LetterIconView(letter: $0.name.uppercased().first ?? "?", size: CGSize(width: 20, height: 20))
+                }
+
                 let actionDescriptionLabel = UILabel()
-                actionDescriptionLabel.text = $0
+                actionDescriptionLabel.text = $0.name
                 actionDescriptionLabel.font = Metrics.font
                 actionDescriptionLabel.textColor = .black
                 actionDescriptionLabel.numberOfLines = 0
                 
-                return (iconLabel, actionDescriptionLabel)
+                return (iconView, actionDescriptionLabel)
             }
             
             if let actionsAvailableText = actionsAvailableText {
@@ -56,20 +60,20 @@ internal extension AccessibilitySnapshotView {
         
         private let actionsAvailableLabel: UILabel?
         
-        private let actionLabels: [(UILabel, UILabel)]
+        private let actionLabels: [(UIView, UILabel)]
         
         // MARK: - UIView
         
         override func sizeThatFits(_ size: CGSize) -> CGSize {
             let actionsAvailableHeight = actionsAvailableLabel?.sizeThatFits(size).height ?? -Metrics.verticalSpacing
             
-            guard let (firstIconLabel, _) = actionLabels.first else {
+            guard let (firstIconView, _) = actionLabels.first else {
                 return .init(width: max(size.width, 0), height: actionsAvailableHeight)
             }
             
             let descriptionWidthToFit = [
                 Metrics.actionIconInset,
-                firstIconLabel.sizeThatFits(size).width,
+                firstIconView.sizeThatFits(size).width,
                 Metrics.iconToDescriptionSpacing,
             ].reduce(size.width, -)
             let descriptionSizeToFit = CGSize(width: descriptionWidthToFit, height: .greatestFiniteMagnitude)
@@ -95,37 +99,47 @@ internal extension AccessibilitySnapshotView {
                 firstPairYPosition = 0
             }
             
-            guard let (firstIconLabel, firstDescriptionLabel) = actionLabels.first else {
+            guard !actionLabels.isEmpty else {
                 return
             }
+
+            // Size icon heights to match a single line of text, width adjusts for aspect ratio
+            let singleLineHeight = Metrics.font.lineHeight
+
+            // First pass: calculate all icon sizes and find the maximum width
+            let iconSizes: [CGSize] = actionLabels.map { (iconView, _) in
+                let intrinsicSize = iconView.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
+                let iconWidth: CGFloat
+                if intrinsicSize.height > 0 {
+                    iconWidth = singleLineHeight * (intrinsicSize.width / intrinsicSize.height)
+                } else {
+                    iconWidth = singleLineHeight
+                }
+                return CGSize(width: iconWidth, height: singleLineHeight)
+            }
             
-            firstIconLabel.sizeToFit()
-            
-            // All of the icon labels should be the same size, so we only need to calculate the description width once.
-            let descriptionWidthToFit = [
-                Metrics.actionIconInset,
-                firstIconLabel.bounds.width,
-                Metrics.iconToDescriptionSpacing,
-            ].reduce(bounds.width, -)
+            let maxIconWidth = iconSizes.map(\.width).max() ?? singleLineHeight
+
+            // Calculate description width based on max icon width
+            let descriptionXPosition = Metrics.actionIconInset + maxIconWidth + Metrics.iconToDescriptionSpacing
+            let descriptionWidthToFit = bounds.width - descriptionXPosition
             let descriptionSizeToFit = CGSize(width: descriptionWidthToFit, height: .greatestFiniteMagnitude)
-            
-            firstDescriptionLabel.bounds.size = firstDescriptionLabel.sizeThatFits(descriptionSizeToFit)
-            
-            firstIconLabel.frame.origin = .init(x: Metrics.actionIconInset, y: firstPairYPosition)
-            
-            let descriptionXPosition = firstIconLabel.frame.maxX + Metrics.iconToDescriptionSpacing
-            
-            firstDescriptionLabel.frame.origin = .init(x: descriptionXPosition, y: firstPairYPosition)
-            
-            let zippedActionLabels = zip(actionLabels.dropFirst(), actionLabels)
-            for ((iconLabel, descriptionLabel), (_, previousDescriptionLabel)) in zippedActionLabels {
-                iconLabel.sizeToFit()
+
+            // Second pass: position all elements
+            var yPosition = firstPairYPosition
+            for (index, (iconView, descriptionLabel)) in actionLabels.enumerated() {
+                let iconSize = iconSizes[index]
+                iconView.bounds.size = iconSize
                 descriptionLabel.bounds.size = descriptionLabel.sizeThatFits(descriptionSizeToFit)
-                
-                let yPosition = previousDescriptionLabel.frame.maxY + Metrics.verticalSpacing
-                
-                iconLabel.frame.origin = .init(x: Metrics.actionIconInset, y: yPosition)
+
+                // Right-align icon: position so right edge aligns with (actionIconInset + maxIconWidth)
+                let iconXPosition = Metrics.actionIconInset + maxIconWidth - iconSize.width
+                iconView.frame.origin = .init(x: iconXPosition, y: yPosition)
+
+                // Left-align description label
                 descriptionLabel.frame.origin = .init(x: descriptionXPosition, y: yPosition)
+
+                yPosition = descriptionLabel.frame.maxY + Metrics.verticalSpacing
             }
         }
         
