@@ -452,7 +452,7 @@ public final class AccessibilityHierarchyParser {
         switch contextProvider {
         case let .superview(view):
             if let tabBar = view as? UITabBar, let element = element as? UIView {
-                let tabBarButtons = view.subviews.filter { NSStringFromClass(type(of: $0)) == "UITabBarButton" }
+                let tabBarButtons = view.firstLevelSubviewsContainingUITabBarButtons()
                 let tabBarItems = tabBar.items ?? []
 
                 // This logic assumes that the UITabBar has the same number of buttons as it does items, and that they
@@ -464,7 +464,9 @@ public final class AccessibilityHierarchyParser {
                     "UITabBar does not have the same number of tab views as tab items."
                 )
 
-                guard let index = tabBarButtons.firstIndex(of: element) else {
+              guard let index = tabBarButtons.firstIndex(where: { view in
+                view.frame == element.frame
+              }) else {
                     fatalError("Can't find tab bar button in UITabBar")
                 }
 
@@ -821,6 +823,27 @@ extension UIView {
         return newPath
     }
 
+}
+
+private extension UIView {
+    /// Performs a breadth-first search over the subview hierarchy. As soon as a level
+    /// in the tree contains any UITabBarButton instances, returns all subviews at that level
+    /// whose class name matches "UITabBarButton". If none are found anywhere, returns an empty array.
+    func firstLevelSubviewsContainingUITabBarButtons() -> [UIView] {
+        var queue: ArraySlice<[UIView]> = [subviews]
+        while !queue.isEmpty {
+            let elements = queue.removeFirst()
+            let matches = elements.filter { ["UITabBarButton", "_UITabButton"].contains(NSStringFromClass(type(of: $0))) }
+            if !matches.isEmpty {
+                return matches
+            }
+            for view in elements {
+                queue.append(view.subviews)
+            }
+        }
+
+        return []
+    }
 }
 
 fileprivate extension NSObject {
