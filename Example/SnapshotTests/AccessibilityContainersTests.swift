@@ -71,4 +71,10 @@ final class AccessibilityContainersTests: SnapshotTestCase {
         SnapshotVerifyAccessibility(viewController.view)
     }
 
+    func testSemanticContainer() {
+        let viewController = SemanticContainerViewController()
+        viewController.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(viewController.view)
+    }
+
 }

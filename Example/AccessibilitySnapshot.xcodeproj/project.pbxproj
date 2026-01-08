@@ -57,6 +57,7 @@
 		66E2CD14CD63946657E17B15 /* Pods_SnapshotTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A3192D7B9B16BD10FB517A2 /* Pods_SnapshotTests.framework */; };
 		83A295842AC22D9D00DFBE4F /* UserInputLabelsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A295832AC22D9D00DFBE4F /* UserInputLabelsViewController.swift */; };
 		83A295862AC22EEE00DFBE4F /* UserInputLabelsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A295852AC22EEE00DFBE4F /* UserInputLabelsTests.swift */; };
+		AAAA00012242E7C700AAAA02 /* SemanticContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAAA00012242E7C700AAAA01 /* SemanticContainerViewController.swift */; };
 		AC3C4C782E39432300D16410 /* UIAccessibilityCustomRotorParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3C4C772E39431800D16410 /* UIAccessibilityCustomRotorParsingTests.swift */; };
 		AC3C4C7A2E3B7A0C00D16410 /* AccessibilityCustomRotorsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC3C4C792E3B7A0C00D16410 /* AccessibilityCustomRotorsViewController.swift */; };
 		AC59D4702D83326F0096B803 /* ElementFrameComparisonController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC59D46F2D83326F0096B803 /* ElementFrameComparisonController.swift */; };
@@ -156,6 +157,7 @@
 		83A295832AC22D9D00DFBE4F /* UserInputLabelsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserInputLabelsViewController.swift; sourceTree = "<group>"; };
 		83A295852AC22EEE00DFBE4F /* UserInputLabelsTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserInputLabelsTests.swift; sourceTree = "<group>"; };
 		88C33CBF672C290CE1EE86AF /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
+		AAAA00012242E7C700AAAA01 /* SemanticContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SemanticContainerViewController.swift; sourceTree = "<group>"; };
 		AC3C4C772E39431800D16410 /* UIAccessibilityCustomRotorParsingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIAccessibilityCustomRotorParsingTests.swift; sourceTree = "<group>"; };
 		AC3C4C792E3B7A0C00D16410 /* AccessibilityCustomRotorsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilityCustomRotorsViewController.swift; sourceTree = "<group>"; };
 		AC59D46F2D83326F0096B803 /* ElementFrameComparisonController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElementFrameComparisonController.swift; sourceTree = "<group>"; };
@@ -225,6 +227,7 @@
 				3D39BFB12239BEA5009C3EF4 /* ActivationPointViewController.swift */,
 				3DA12A3122405B9E00EB3C33 /* DataTableViewController.swift */,
 				3DBAC28E2242E7C700EF4D0A /* ListContainerViewController.swift */,
+				AAAA00012242E7C700AAAA01 /* SemanticContainerViewController.swift */,
 				3DBAC2902242F9B200EF4D0A /* LandmarkContainerViewController.swift */,
 				3D3F2E132263E6B900F7608E /* InvertColorsViewController.swift */,
 				3DDE7FF524C6D6BF00999ABA /* AccessibilityCustomActionsViewController.swift */,
@@ -466,6 +469,7 @@
 					};
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
+						DevelopmentTeam = EYF346PHUG;
 						LastSwiftMigration = 0900;
 					};
 					607FACE41AFB9204008FA782 = {
@@ -672,6 +676,7 @@
 				3DDE7FF624C6D6BF00999ABA /* AccessibilityCustomActionsViewController.swift in Sources */,
 				AC3C4C7A2E3B7A0C00D16410 /* AccessibilityCustomRotorsViewController.swift in Sources */,
 				3DBAC28F2242E7C700EF4D0A /* ListContainerViewController.swift in Sources */,
+				AAAA00012242E7C700AAAA02 /* SemanticContainerViewController.swift in Sources */,
 				AC725B842B06D07E009AD59B /* AccessibilityCustomContentViewController.swift in Sources */,
 				AC5C5FE22C627DA300E1C4E7 /* NavBarBackButtonAccessibilityTraitsViewController.swift in Sources */,
 				3DBEAA5B2222953E00FAE61D /* SwitchControlViewController.swift in Sources */,
@@ -903,7 +908,7 @@
 			baseConfigurationReference = ED63B7AD78B189E8940B6C80 /* Pods-AccessibilitySnapshotDemo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EYF346PHUG;
 				INFOPLIST_FILE = AccessibilitySnapshot/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -921,7 +926,7 @@
 			baseConfigurationReference = CCFF2A604706B71DC0CBD38B /* Pods-AccessibilitySnapshotDemo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = EYF346PHUG;
 				INFOPLIST_FILE = AccessibilitySnapshot/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";

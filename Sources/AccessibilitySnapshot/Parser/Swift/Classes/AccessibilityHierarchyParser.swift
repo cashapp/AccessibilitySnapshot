@@ -18,6 +18,34 @@ import Accessibility
 import SwiftUI
 import UIKit
 
+/// The result of parsing an accessibility hierarchy, containing both element markers and container information.
+public struct ParsedAccessibilityHierarchy {
+
+    public var markers: [AccessibilityMarker]
+
+    public var containers: [AccessibilityContainer]
+
+}
+
+/// Represents an accessibility container (such as semantic group, list, or landmark).
+public struct AccessibilityContainer: Equatable {
+
+    public enum ContainerType: Equatable {
+        case semanticGroup
+        case list
+        case landmark
+    }
+
+    public var containerType: ContainerType
+
+    /// The frame of the container in the root view's coordinate space.
+    public var frame: CGRect
+
+    /// The accessibility label of the container.
+    public var label: String?
+
+}
+
 public struct AccessibilityMarker: Equatable {
     
     /// Default number of rotor results to collect in each direction.
@@ -244,6 +272,16 @@ public final class AccessibilityHierarchyParser {
         /// If an element is the only element in the landmark container, it will only get a `landmarkStart` context.
         case landmarkEnd
 
+        /// Indicates the element is the first element in a semantic group container.
+        ///
+        /// - `label`: The accessibility label of the semantic group container, if any.
+        case semanticGroupStart(label: String?)
+
+        /// Indicates the element is the last element in a semantic group container.
+        ///
+        /// If an element is the only element in the semantic group container, it will only get a `semanticGroupStart` context.
+        case semanticGroupEnd
+
     }
 
     // MARK: - Life Cycle
@@ -252,29 +290,25 @@ public final class AccessibilityHierarchyParser {
 
     // MARK: - Public Methods
 
-    /// Parses the accessibility hierarchy starting from the `root` view and returns markers for each element in the
-    /// hierarchy, in the order VoiceOver will iterate through them when using flick navigation.
-    ///
-    /// The returned `AccessibilityMarker` objects include user input labels that are displayed based on the
-    /// `AccessibilityContentDisplayMode` configuration set in the snapshot testing methods:
-    /// - `.always`: Always includes user input labels in the markers, including default (derived) labels.
-    /// - `.whenOverridden`: Includes labels only when they differ from default values.
-    /// - `.never`: Never includes user input labels in the markers
+    /// Parses the accessibility hierarchy starting from the `root` view and returns both element markers
+    /// and container information in a single pass.
     ///
     /// - parameter root: The root view of the accessibility hierarchy. Coordinates in the returned markers will be
     /// relative to this view's coordinate space.
     /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to 10.
     /// - parameter userInterfaceLayoutDirectionProvider: The provider of the device's user interface layout direction.
     /// In most cases, this should use the default value, `UIApplication.shared`.
-    public func parseAccessibilityElements(
+    public func parseAccessibilityHierarchy(
         in root: UIView,
         rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
         userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
-    ) -> [AccessibilityMarker] {
+    ) -> ParsedAccessibilityHierarchy {
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
         let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
-        
+
+        var collectedContainers: [ObjectIdentifier: AccessibilityContainer] = [:]
+
         let accessibilityNodes = root.recursiveAccessibilityHierarchy()
 
         let uncontextualizedElements = sortedElements(
@@ -286,6 +320,11 @@ public final class AccessibilityHierarchyParser {
         )
 
         let accessibilityElements = uncontextualizedElements.map { element in
+            // Collect container information from context providers
+            if let contextProvider = element.contextProvider {
+                Self.collectContainer(from: contextProvider, in: root, into: &collectedContainers)
+            }
+
             return ContextualElement(
                 object: element.object,
                 context: context(
@@ -297,7 +336,7 @@ public final class AccessibilityHierarchyParser {
             )
         }
 
-        return accessibilityElements.map { element in
+        let markers = accessibilityElements.map { element in
             let (description, hint) = element.object.accessibilityDescription(context: element.context)
 
             let activationPoint = element.object.accessibilityActivationPoint
@@ -322,6 +361,101 @@ public final class AccessibilityHierarchyParser {
                 accessibilityLanguage: element.object.accessibilityLanguage,
                 respondsToUserInteraction: element.object.accessibilityRespondsToUserInteraction
             )
+        }
+
+        return ParsedAccessibilityHierarchy(
+            markers: markers,
+            containers: Array(collectedContainers.values)
+        )
+    }
+
+    /// Parses the accessibility hierarchy starting from the `root` view and returns markers for each element in the
+    /// hierarchy, in the order VoiceOver will iterate through them when using flick navigation.
+    ///
+    /// The returned `AccessibilityMarker` objects include user input labels that are displayed based on the
+    /// `AccessibilityContentDisplayMode` configuration set in the snapshot testing methods:
+    /// - `.always`: Always includes user input labels in the markers, including default (derived) labels.
+    /// - `.whenOverridden`: Includes labels only when they differ from default values.
+    /// - `.never`: Never includes user input labels in the markers
+    ///
+    /// - parameter root: The root view of the accessibility hierarchy. Coordinates in the returned markers will be
+    /// relative to this view's coordinate space.
+    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to 10.
+    /// - parameter userInterfaceLayoutDirectionProvider: The provider of the device's user interface layout direction.
+    /// In most cases, this should use the default value, `UIApplication.shared`.
+    public func parseAccessibilityElements(
+        in root: UIView,
+        rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit,
+        userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
+    ) -> [AccessibilityMarker] {
+        return parseAccessibilityHierarchy(
+            in: root,
+            rotorResultLimit: rotorResultLimit,
+            userInterfaceLayoutDirectionProvider: userInterfaceLayoutDirectionProvider,
+            userInterfaceIdiomProvider: userInterfaceIdiomProvider
+        ).markers
+    }
+
+    /// Parses the accessibility hierarchy starting from the `root` view and returns information about
+    /// accessibility containers (semantic groups, lists, landmarks) for visualization.
+    ///
+    /// - parameter root: The root view of the accessibility hierarchy. Coordinates in the returned containers will be
+    /// relative to this view's coordinate space.
+    public func parseAccessibilityContainers(in root: UIView) -> [AccessibilityContainer] {
+        return parseAccessibilityHierarchy(in: root).containers
+    }
+
+    /// Collects container information from a context provider into the containers dictionary.
+    private static func collectContainer(
+        from contextProvider: ContextProvider,
+        in root: UIView,
+        into containers: inout [ObjectIdentifier: AccessibilityContainer]
+    ) {
+        let object: NSObject
+        switch contextProvider {
+        case .superview(let view):
+            object = view
+        case .accessibilityContainer(let container):
+            object = container
+        case .dataTable:
+            return // Data tables are not visualized as containers
+        }
+
+        // Check if we've already collected this container
+        let identifier = ObjectIdentifier(object)
+        guard containers[identifier] == nil else { return }
+
+        // Check if this is a visualizable container type
+        guard let containerType = containerType(for: object) else { return }
+
+        let frame: CGRect
+        if let view = object as? UIView {
+            frame = root.convert(view.bounds, from: view)
+        } else {
+            frame = root.convert(object.accessibilityFrame, from: nil)
+        }
+
+        containers[identifier] = AccessibilityContainer(
+            containerType: containerType,
+            frame: frame,
+            label: object.accessibilityLabel
+        )
+    }
+
+    /// Returns the container type for visualization purposes, or nil if the object is not a visualizable container.
+    private static func containerType(for object: NSObject) -> AccessibilityContainer.ContainerType? {
+        switch object.accessibilityContainerType {
+        case .semanticGroup:
+            return .semanticGroup
+        case .list:
+            return .list
+        case .landmark:
+            return .landmark
+        case .none, .dataTable:
+            return nil
+        @unknown default:
+            return nil
         }
     }
 
@@ -535,6 +669,14 @@ public final class AccessibilityHierarchyParser {
                     return .landmarkStart
                 } else if elementIndex == container.accessibilityElementCount() - 1 {
                     return .landmarkEnd
+                }
+            }
+
+            if container.accessibilityContainerType == .semanticGroup {
+                if elementIndex == 0 {
+                    return .semanticGroupStart(label: container.accessibilityLabel)
+                } else if elementIndex == container.accessibilityElementCount() - 1 {
+                    return .semanticGroupEnd
                 }
             }
 
@@ -769,6 +911,7 @@ private extension NSObject {
             || accessibilityTraits.contains(.tabBar)
             || accessibilityContainerType == .list
             || accessibilityContainerType == .landmark
+            || accessibilityContainerType == .semanticGroup
             || (self is UIAccessibilityContainerDataTable && accessibilityContainerType == .dataTable)
     }
 
@@ -948,3 +1091,4 @@ internal extension UITextInput  {
         }
     }
 }
+
