@@ -14,7 +14,12 @@
 //  limitations under the License.
 //
 
+#if SWIFT_PACKAGE
+import AccessibilitySnapshotCore
+import AccessibilitySnapshotParser
+#else
 import AccessibilitySnapshot
+#endif
 import UIKit
 import XCTest
 

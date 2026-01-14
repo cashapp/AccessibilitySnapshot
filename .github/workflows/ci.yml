@@ -87,3 +87,38 @@ jobs:
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
       - name: Validate Localized Strings
         run: Scripts/ValidateLocalizedStrings.swift
+
+  tuist-build:
+    name: Tuist Build (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - platform: iOS_17
+            runner: macOS-14
+            device: "iPhone 15 Pro"
+            os: "17.5"
+          - platform: iOS_18
+            runner: macOS-15
+            device: "iPhone 16 Pro"
+            os: "18.5"
+      fail-fast: false
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - name: Install mise
+        uses: jdx/mise-action@v2
+        with:
+          experimental: true
+      - name: Prepare Simulator Runtimes
+        run: Scripts/github/prepare-simulators.sh ${{ matrix.platform }}
+      - name: Build
+        run: tuist build --path Example AccessibilitySnapshotTuist-App
+      - name: Test
+        run: tuist test --path Example -d '${{ matrix.device }}' -o ${{ matrix.os }} --platform iOS AccessibilitySnapshotTuist-App
+      - name: Upload Results
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: Tuist Test Results (${{ matrix.platform }})
+          path: .tuist/*/xcresults/*.xcresult
