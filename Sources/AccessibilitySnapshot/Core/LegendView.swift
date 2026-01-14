@@ -172,6 +172,20 @@ internal extension AccessibilitySnapshotView {
         private let attributedValueView: AttributedLabelView?
         
         private let attributedHintView: AttributedLabelView?
+        
+        /// Ordered list of secondary views that appear below the description label.
+        private var secondaryViews: [UIView] {
+            return [
+                hintLabel,
+                customActionsView,
+                customContentView,
+                customRotorsView,
+                userInputLabelsView,
+                attributedLabelView,
+                attributedValueView,
+                attributedHintView
+            ].compactMap { $0 }
+        }
 
         // MARK: - UIView
 
@@ -188,49 +202,29 @@ internal extension AccessibilitySnapshotView {
             descriptionLabel.numberOfLines = 0
             let descriptionLabelSize = descriptionLabel.sizeThatFits(labelSizeToFit)
 
-            let hintLabelSize = hintLabel?.sizeThatFits(labelSizeToFit) ?? .zero
+            // Calculate sizes for all secondary views
+            let secondaryViewSizes = secondaryViews.map { $0.sizeThatFits(labelSizeToFit) }
 
-            let customActionsSize = customActionsView?.sizeThatFits(labelSizeToFit) ?? .zero
-            
-            let customContentSize = customContentView?.sizeThatFits(labelSizeToFit) ?? .zero
-            
-            let customRotorsSize = customRotorsView?.sizeThatFits(labelSizeToFit) ?? .zero
-            
-            let userInputLabelsViewSize = userInputLabelsView?.sizeThatFits(labelSizeToFit) ?? .zero
-            
-            let attributedLabelViewSize = attributedLabelView?.sizeThatFits(labelSizeToFit) ?? .zero
-            
-            let attributedValueViewSize = attributedValueView?.sizeThatFits(labelSizeToFit) ?? .zero
-            
-            let attributedHintViewSize = attributedHintView?.sizeThatFits(labelSizeToFit) ?? .zero
+            // Width is the max of description and all secondary views
+            let maxSecondaryWidth = secondaryViewSizes.map(\.width).max() ?? 0
+            let contentWidth = max(descriptionLabelSize.width, maxSecondaryWidth)
 
             let widthComponents = [
                 Metrics.markerSize,
                 Metrics.markerToLabelSpacing,
-                max(
-                    descriptionLabelSize.width,
-                    hintLabelSize.width,
-                    customActionsSize.width,
-                    customContentSize.width,
-                    customRotorsSize.width,
-                    userInputLabelsViewSize.width,
-                    attributedLabelViewSize.width,
-                    attributedValueViewSize.width,
-                    attributedHintViewSize.width
-                ),
+                contentWidth
             ]
+
+            // Height is description + all secondary views with spacing
+            let secondaryHeight = secondaryViewSizes
+                .filter { $0.height > 0 }
+                .map { $0.height + Metrics.interSectionSpacing }
+                .reduce(0, +)
 
             let heightComponents = [
                 markerSizeAboveDescriptionLabel,
                 descriptionLabelSize.height,
-                (hintLabelSize.height == 0 ? 0 : hintLabelSize.height + Metrics.interSectionSpacing),
-                (customActionsSize.height == 0 ? 0 : customActionsSize.height + Metrics.interSectionSpacing),
-                (customContentSize.height == 0 ? 0 : customContentSize.height + Metrics.interSectionSpacing),
-                (customRotorsSize.height == 0 ? 0 : customRotorsSize.height + Metrics.interSectionSpacing),
-                (userInputLabelsViewSize.height == 0 ? 0 : userInputLabelsViewSize.height + Metrics.interSectionSpacing),
-                (attributedLabelViewSize.height == 0 ? 0 : attributedLabelViewSize.height + Metrics.interSectionSpacing),
-                (attributedValueViewSize.height == 0 ? 0 : attributedValueViewSize.height + Metrics.interSectionSpacing),
-                (attributedHintViewSize.height == 0 ? 0 : attributedHintViewSize.height + Metrics.interSectionSpacing)
+                secondaryHeight
             ]
 
             return CGSize(
@@ -263,82 +257,15 @@ internal extension AccessibilitySnapshotView {
                 height: descriptionLabelSizeThatFits.height
             )
 
-            if let hintLabel {
-                hintLabel.bounds.size = hintLabel.sizeThatFits(labelSizeToFit)
-                hintLabel.frame.origin = .init(
+            // Layout secondary views in order, each positioned below the previous
+            var previousView: UIView = descriptionLabel
+            for view in secondaryViews {
+                view.bounds.size = view.sizeThatFits(labelSizeToFit)
+                view.frame.origin = CGPoint(
                     x: descriptionLabel.frame.minX,
-                    y: descriptionLabel.frame.maxY + Metrics.interSectionSpacing
+                    y: previousView.frame.maxY + Metrics.interSectionSpacing
                 )
-            }
-
-            if let customActionsView {
-                let alignmentLabel = hintLabel ?? descriptionLabel
-
-                customActionsView.bounds.size = customActionsView.sizeThatFits(labelSizeToFit)
-                customActionsView.frame.origin = .init(
-                    x: alignmentLabel.frame.minX,
-                    y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
-                )
-            }
-            
-            if let customContentView {
-                let alignmentLabel = customActionsView ?? hintLabel ?? descriptionLabel
-
-                customContentView.bounds.size = customContentView.sizeThatFits(labelSizeToFit)
-                customContentView.frame.origin = .init(
-                    x: alignmentLabel.frame.minX,
-                    y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
-                )
-            }
-            
-            if let customRotorsView {
-                let alignmentLabel = customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
-
-                customRotorsView.bounds.size = customRotorsView.sizeThatFits(labelSizeToFit)
-                customRotorsView.frame.origin = .init(
-                    x: alignmentLabel.frame.minX,
-                    y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
-                )
-            }
-            
-            if let userInputLabelsView  {
-                let alignmentControl = customRotorsView ?? customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
-                
-                userInputLabelsView.bounds.size = userInputLabelsView.sizeThatFits(labelSizeToFit)
-                userInputLabelsView.frame.origin = CGPoint(
-                    x: alignmentControl.frame.minX,
-                    y: alignmentControl.frame.maxY + Metrics.interSectionSpacing
-                )
-            }
-            
-            if let attributedLabelView {
-                let alignmentControl = userInputLabelsView ?? customRotorsView ?? customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
-                
-                attributedLabelView.bounds.size = attributedLabelView.sizeThatFits(labelSizeToFit)
-                attributedLabelView.frame.origin = CGPoint(
-                    x: alignmentControl.frame.minX,
-                    y: alignmentControl.frame.maxY + Metrics.interSectionSpacing
-                )
-            }
-            
-            if let attributedValueView {
-                let alignmentControl = attributedLabelView ?? userInputLabelsView ?? customRotorsView ?? customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
-                
-                attributedValueView.bounds.size = attributedValueView.sizeThatFits(labelSizeToFit)
-                attributedValueView.frame.origin = CGPoint(
-                    x: alignmentControl.frame.minX,
-                    y: alignmentControl.frame.maxY + Metrics.interSectionSpacing
-                )
-            }
-            
-            if let attributedHintView {
-                let alignmentControl = attributedValueView ?? attributedLabelView ?? userInputLabelsView ?? customRotorsView ?? customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
-                
-                attributedHintView.bounds.size = attributedHintView.sizeThatFits(labelSizeToFit)
-                attributedHintView.frame.origin = CGPoint(
-                    x: alignmentControl.frame.minX,
-                    y: alignmentControl.frame.maxY + Metrics.interSectionSpacing
-                )
+                previousView = view
             }
         }
 
