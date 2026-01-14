@@ -67,6 +67,7 @@ final class RootViewController: UITableViewController {
             ("User Input Labels", { _ in return UserInputLabelsViewController() }),
             ("Text Field", { _ in return TextFieldViewController() }),
             ("Text View", { _ in return TextViewViewController() }),
+            ("SwiftUI View", { _ in return UIHostingController(rootView: SwiftUIView()) }),
             ("SwiftUI Text Entry", { _ in return UIHostingController(rootView: SwiftUITextEntry()) }),
         ]
         

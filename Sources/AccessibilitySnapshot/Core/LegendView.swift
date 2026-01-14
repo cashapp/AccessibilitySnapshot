@@ -97,7 +97,28 @@ internal extension AccessibilitySnapshotView {
                 
                 return .init(titles: userInputLabels, color: color)
             }()
-
+            
+            self.attributedLabelView = {
+                guard let attributedLabel = marker.attributedLabel else { return nil }
+                let view = AttributedLabelView(attributedString: attributedLabel, type: .label)
+                // Only show if there are accessibility attributes to display
+                return view.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)).height > 0 ? view : nil
+            }()
+            
+            self.attributedValueView = {
+                guard let attributedValue = marker.attributedValue else { return nil }
+                let view = AttributedLabelView(attributedString: attributedValue, type: .value)
+                // Only show if there are accessibility attributes to display
+                return view.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)).height > 0 ? view : nil
+            }()
+            
+            self.attributedHintView = {
+                guard let attributedHint = marker.attributedHint else { return nil }
+                let view = AttributedLabelView(attributedString: attributedHint, type: .hint)
+                // Only show if there are accessibility attributes to display
+                return view.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude)).height > 0 ? view : nil
+            }()
+            
             super.init(frame: .zero)
 
             markerView.backgroundColor = color.withAlphaComponent(0.3)
@@ -120,6 +141,9 @@ internal extension AccessibilitySnapshotView {
             customContentView.map(addSubview)
             customRotorsView.map(addSubview)
             userInputLabelsView.map(addSubview)
+            attributedLabelView.map(addSubview)
+            attributedValueView.map(addSubview)
+            attributedHintView.map(addSubview)
         }
 
         @available(*, unavailable)
@@ -142,6 +166,12 @@ internal extension AccessibilitySnapshotView {
         private let customRotorsView: CustomRotorsView?
 
         private let userInputLabelsView: PillsView?
+        
+        private let attributedLabelView: AttributedLabelView?
+        
+        private let attributedValueView: AttributedLabelView?
+        
+        private let attributedHintView: AttributedLabelView?
 
         // MARK: - UIView
 
@@ -167,6 +197,12 @@ internal extension AccessibilitySnapshotView {
             let customRotorsSize = customRotorsView?.sizeThatFits(labelSizeToFit) ?? .zero
             
             let userInputLabelsViewSize = userInputLabelsView?.sizeThatFits(labelSizeToFit) ?? .zero
+            
+            let attributedLabelViewSize = attributedLabelView?.sizeThatFits(labelSizeToFit) ?? .zero
+            
+            let attributedValueViewSize = attributedValueView?.sizeThatFits(labelSizeToFit) ?? .zero
+            
+            let attributedHintViewSize = attributedHintView?.sizeThatFits(labelSizeToFit) ?? .zero
 
             let widthComponents = [
                 Metrics.markerSize,
@@ -177,7 +213,10 @@ internal extension AccessibilitySnapshotView {
                     customActionsSize.width,
                     customContentSize.width,
                     customRotorsSize.width,
-                    userInputLabelsViewSize.width
+                    userInputLabelsViewSize.width,
+                    attributedLabelViewSize.width,
+                    attributedValueViewSize.width,
+                    attributedHintViewSize.width
                 ),
             ]
 
@@ -188,7 +227,10 @@ internal extension AccessibilitySnapshotView {
                 (customActionsSize.height == 0 ? 0 : customActionsSize.height + Metrics.interSectionSpacing),
                 (customContentSize.height == 0 ? 0 : customContentSize.height + Metrics.interSectionSpacing),
                 (customRotorsSize.height == 0 ? 0 : customRotorsSize.height + Metrics.interSectionSpacing),
-                (userInputLabelsViewSize.height == 0 ? 0 : userInputLabelsViewSize.height + Metrics.interSectionSpacing)
+                (userInputLabelsViewSize.height == 0 ? 0 : userInputLabelsViewSize.height + Metrics.interSectionSpacing),
+                (attributedLabelViewSize.height == 0 ? 0 : attributedLabelViewSize.height + Metrics.interSectionSpacing),
+                (attributedValueViewSize.height == 0 ? 0 : attributedValueViewSize.height + Metrics.interSectionSpacing),
+                (attributedHintViewSize.height == 0 ? 0 : attributedHintViewSize.height + Metrics.interSectionSpacing)
             ]
 
             return CGSize(
@@ -264,6 +306,36 @@ internal extension AccessibilitySnapshotView {
                 
                 userInputLabelsView.bounds.size = userInputLabelsView.sizeThatFits(labelSizeToFit)
                 userInputLabelsView.frame.origin = CGPoint(
+                    x: alignmentControl.frame.minX,
+                    y: alignmentControl.frame.maxY + Metrics.interSectionSpacing
+                )
+            }
+            
+            if let attributedLabelView {
+                let alignmentControl = userInputLabelsView ?? customRotorsView ?? customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
+                
+                attributedLabelView.bounds.size = attributedLabelView.sizeThatFits(labelSizeToFit)
+                attributedLabelView.frame.origin = CGPoint(
+                    x: alignmentControl.frame.minX,
+                    y: alignmentControl.frame.maxY + Metrics.interSectionSpacing
+                )
+            }
+            
+            if let attributedValueView {
+                let alignmentControl = attributedLabelView ?? userInputLabelsView ?? customRotorsView ?? customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
+                
+                attributedValueView.bounds.size = attributedValueView.sizeThatFits(labelSizeToFit)
+                attributedValueView.frame.origin = CGPoint(
+                    x: alignmentControl.frame.minX,
+                    y: alignmentControl.frame.maxY + Metrics.interSectionSpacing
+                )
+            }
+            
+            if let attributedHintView {
+                let alignmentControl = attributedValueView ?? attributedLabelView ?? userInputLabelsView ?? customRotorsView ?? customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
+                
+                attributedHintView.bounds.size = attributedHintView.sizeThatFits(labelSizeToFit)
+                attributedHintView.frame.origin = CGPoint(
                     x: alignmentControl.frame.minX,
                     y: alignmentControl.frame.maxY + Metrics.interSectionSpacing
                 )
