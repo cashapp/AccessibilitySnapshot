@@ -468,15 +468,17 @@ public final class AccessibilityHierarchyParser {
         switch contextProvider {
         case let .superview(view):
             if let tabBar = view as? UITabBar, let element = element as? UIView {
-                let tabBarButtons = view.subviews.filter { NSStringFromClass(type(of: $0)) == "UITabBarButton" }
+                let tabBarButtons = view.allUITabBarButtons()
                 let tabBarItems = tabBar.items ?? []
 
                 // This logic assumes that the UITabBar has the same number of buttons as it does items, and that they
                 // are in the same order. From testing, this seems to always be true, but there may be some cases that
                 // aren't handled properly here.
-
+                //
+                // We use modulo instead of equality because iOS 26 tab bars have multiple sets of tab buttons at
+                // different levels in the view hierarchy, so the total count may be a multiple of the item count.
                 precondition(
-                    tabBarButtons.count == tabBarItems.count,
+                    tabBarButtons.count % tabBarItems.count == 0,
                     "UITabBar does not have the same number of tab views as tab items."
                 )
 
@@ -484,10 +486,13 @@ public final class AccessibilityHierarchyParser {
                     fatalError("Can't find tab bar button in UITabBar")
                 }
 
+                // Use modulo to get the tab item index since there may be multiple sets of buttons
+                let tabIndex = index % tabBarItems.count
+
                 return .tabBarItem(
-                    index: index + 1,
-                    count: tabBarButtons.count,
-                    item: tabBarItems[index]
+                    index: tabIndex + 1,
+                    count: tabBarItems.count,
+                    item: tabBarItems[tabIndex]
                 )
             }
 
@@ -837,6 +842,30 @@ extension UIView {
         return newPath
     }
 
+}
+
+private extension UIView {
+    /// Recursively searches the entire subview hierarchy and returns all views
+    /// whose class is "UITabBarButton" or "_UITabButton".
+    func allUITabBarButtons() -> [UIView] {
+        let tabBarButtonClasses: [AnyClass] = [
+            NSClassFromString("UITabBarButton"),
+            NSClassFromString("_UITabButton")
+        ].compactMap { $0 }
+
+        func collect(from view: UIView) -> [UIView] {
+            var result: [UIView] = []
+            for subview in view.subviews {
+                if tabBarButtonClasses.contains(where: { subview.isKind(of: $0) }) {
+                    result.append(subview)
+                }
+                result.append(contentsOf: collect(from: subview))
+            }
+            return result
+        }
+
+        return collect(from: self)
+    }
 }
 
 fileprivate extension NSObject {
