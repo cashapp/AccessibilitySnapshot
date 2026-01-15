@@ -69,7 +69,7 @@ let project = Project(
         .target(
             name: "AccessibilitySnapshotParser_ObjC",
             destinations: .iOS,
-            product: .staticLibrary,
+            product: .framework,
             bundleId: "com.cashapp.AccessibilitySnapshotParser-ObjC",
             deploymentTargets: .iOS("13.0"),
             sources: ["../Sources/AccessibilitySnapshot/Parser/ObjC/**/*.{h,m}"],
@@ -88,7 +88,7 @@ let project = Project(
         .target(
             name: "AccessibilitySnapshotParser",
             destinations: .iOS,
-            product: .staticLibrary,
+            product: .framework,
             bundleId: "com.cashapp.AccessibilitySnapshotParser",
             deploymentTargets: .iOS("13.0"),
             sources: ["../Sources/AccessibilitySnapshot/Parser/Swift/Classes/**/*.swift"],
@@ -103,7 +103,7 @@ let project = Project(
         .target(
             name: "AccessibilitySnapshotCore",
             destinations: .iOS,
-            product: .staticLibrary,
+            product: .framework,
             bundleId: "com.cashapp.AccessibilitySnapshotCore",
             deploymentTargets: .iOS("13.0"),
             sources: ["../Sources/AccessibilitySnapshot/Core/*.swift"],
@@ -115,13 +115,14 @@ let project = Project(
         .target(
             name: "AccessibilitySnapshot",
             destinations: .iOS,
-            product: .staticLibrary,
+            product: .framework,
             bundleId: "com.cashapp.AccessibilitySnapshot",
             deploymentTargets: .iOS("13.0"),
             sources: ["../Sources/AccessibilitySnapshot/SnapshotTesting/*.swift"],
             dependencies: [
                 .target(name: "AccessibilitySnapshotCore"),
                 .target(name: "AccessibilitySnapshotParser_ObjC"),
+                .package(product: "SnapshotTesting"),
             ],
             settings: .settings(
                 base: [
@@ -133,7 +134,7 @@ let project = Project(
         .target(
             name: "FBSnapshotTestCase_Accessibility",
             destinations: .iOS,
-            product: .staticLibrary,
+            product: .framework,
             bundleId: "com.cashapp.FBSnapshotTestCase-Accessibility",
             deploymentTargets: .iOS("13.0"),
             sources: ["../Sources/AccessibilitySnapshot/iOSSnapshotTestCase/Swift/*.swift"],
@@ -152,7 +153,7 @@ let project = Project(
         .target(
             name: "FBSnapshotTestCase_Accessibility_ObjC",
             destinations: .iOS,
-            product: .staticLibrary,
+            product: .framework,
             bundleId: "com.cashapp.FBSnapshotTestCase-Accessibility-ObjC",
             deploymentTargets: .iOS("13.0"),
             sources: ["../Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC/**/*.{h,m}"],
@@ -198,7 +199,13 @@ let project = Project(
             ],
             dependencies: [
                 .package(product: "Paralayout"),
-            ]
+                .target(name: "AccessibilitySnapshotCore"),
+            ],
+            settings: .settings(
+                base: [
+                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "TUIST_BUILD",
+                ]
+            )
         ),
 
         // MARK: - Snapshot Tests
