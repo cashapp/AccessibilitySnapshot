@@ -23,13 +23,16 @@ import XCTest
 /// Tests covering the integration between the core components of AccessibilitySnapshot and SnapshotTesting.
 final class SnapshotTestingTests: XCTestCase {
 
+    private let recordMode = false
+
     // MARK: - Tests
 
     func testSimpleSwiftUIConfiguration() throws {
         assertSnapshot(
             matching: SwiftUIView(),
             as: .accessibilityImage(size: UIScreen.main.bounds.size),
-            named: nameForDevice()
+            named: nameForDevice(),
+            record: recordMode
         )
     }
 
@@ -37,14 +40,20 @@ final class SnapshotTestingTests: XCTestCase {
         assertSnapshot(
             matching: SwiftUIViewWithScrollView(),
             as: .accessibilityImage(size: UIScreen.main.bounds.size),
-            named: nameForDevice()
+            named: nameForDevice(),
+            record: recordMode
         )
     }
 
     func testSimpleConfiguration() {
         let viewController = ViewAccessibilityPropertiesViewController()
         viewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: viewController, as: .accessibilityImage, named: nameForDevice())
+        assertSnapshot(
+            matching: viewController,
+            as: .accessibilityImage,
+            named: nameForDevice(),
+            record: recordMode
+        )
     }
 
     func testShowingActivationPoint() {
@@ -54,19 +63,22 @@ final class SnapshotTestingTests: XCTestCase {
         assertSnapshot(
             matching: viewController,
             as: .accessibilityImage(showActivationPoints: .always),
-            named: nameForDevice(baseName: "always")
+            named: nameForDevice(baseName: "always"),
+            record: recordMode
         )
 
         assertSnapshot(
             matching: viewController,
             as: .accessibilityImage(showActivationPoints: .whenOverridden),
-            named: nameForDevice(baseName: "whenOverridden")
+            named: nameForDevice(baseName: "whenOverridden"),
+            record: recordMode
         )
 
         assertSnapshot(
             matching: viewController,
             as: .accessibilityImage(showActivationPoints: .never),
-            named: nameForDevice(baseName: "never")
+            named: nameForDevice(baseName: "never"),
+            record: recordMode
         )
     }
 
@@ -79,13 +91,15 @@ final class SnapshotTestingTests: XCTestCase {
         assertSnapshot(
             matching: view,
             as: .accessibilityImage(useMonochromeSnapshot: false),
-            named: nameForDevice(baseName: "false")
+            named: nameForDevice(baseName: "false"),
+            record: recordMode
         )
 
         assertSnapshot(
             matching: view,
             as: .accessibilityImage(useMonochromeSnapshot: true),
-            named: nameForDevice(baseName: "true")
+            named: nameForDevice(baseName: "true"),
+            record: recordMode
         )
     }
 
@@ -105,13 +119,15 @@ final class SnapshotTestingTests: XCTestCase {
         assertSnapshot(
             matching: container,
             as: .accessibilityImage(drawHierarchyInKeyWindow: false),
-            named: nameForDevice(baseName: "false")
+            named: nameForDevice(baseName: "false"),
+            record: recordMode
         )
 
         assertSnapshot(
             matching: container,
             as: .accessibilityImage(drawHierarchyInKeyWindow: true),
-            named: nameForDevice(baseName: "true")
+            named: nameForDevice(baseName: "true"),
+            record: recordMode
         )
     }
 
@@ -122,26 +138,38 @@ final class SnapshotTestingTests: XCTestCase {
         assertSnapshot(
             matching: view,
             as: .accessibilityImage(),
-            named: nameForDevice(baseName: "default")
+            named: nameForDevice(baseName: "default"),
+            record: recordMode
         )
 
         assertSnapshot(
             matching: view,
             as: .accessibilityImage(markerColors: [.red, .green, .blue]),
-            named: nameForDevice(baseName: "custom")
+            named: nameForDevice(baseName: "custom"),
+            record: recordMode
         )
     }
 
     func testInvertColors() {
         let viewController = InvertColorsViewController()
         viewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: viewController, as: .imageWithSmartInvert, named: nameForDevice())
+        assertSnapshot(
+            matching: viewController,
+            as: .imageWithSmartInvert,
+            named: nameForDevice(),
+            record: recordMode
+        )
     }
 
     func testHitTargets() {
         let viewController = ButtonAccessibilityTraitsViewController()
         viewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: viewController, as: .imageWithHitTargets(), named: nameForDevice())
+        assertSnapshot(
+            matching: viewController,
+            as: .imageWithHitTargets(),
+            named: nameForDevice(),
+            record: recordMode
+        )
     }
 
     func testUIKitTextField() {
@@ -151,7 +179,8 @@ final class SnapshotTestingTests: XCTestCase {
         assertSnapshot(
             matching: viewController,
             as: .accessibilityImage,
-            named: nameForDevice()
+            named: nameForDevice(),
+            record: recordMode
         )
     }
 
@@ -162,7 +191,8 @@ final class SnapshotTestingTests: XCTestCase {
         assertSnapshot(
             matching: viewController,
             as: .accessibilityImage,
-            named: nameForDevice()
+            named: nameForDevice(),
+            record: recordMode
         )
     }
 
@@ -173,7 +203,8 @@ final class SnapshotTestingTests: XCTestCase {
         assertSnapshot(
             matching: view,
             as: .accessibilityImage,
-            named: nameForDevice()
+            named: nameForDevice(),
+            record: recordMode
         )
     }
 

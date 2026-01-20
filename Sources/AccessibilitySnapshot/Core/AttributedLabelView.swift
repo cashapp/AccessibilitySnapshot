@@ -36,7 +36,7 @@ internal extension AccessibilitySnapshotView {
             if !formattedAttributes.isEmpty {
                 let label = UILabel()
                 label.text = type.headerText
-                label.font = Metrics.headerFont
+                label.font = Metrics.font
                 label.textColor = .darkGray
                 self.headerLabel = label
                 
@@ -160,9 +160,8 @@ internal extension AccessibilitySnapshotView {
             static let verticalSpacing: CGFloat = 4
             static let attributeIconInset: CGFloat = 4
             static let iconToDescriptionSpacing: CGFloat = 4
-            
-            static let headerFont: UIFont = .italicSystemFont(ofSize: 11)
-            static let font: UIFont = .monospacedSystemFont(ofSize: 10, weight: .regular)
+
+            static let font: UIFont = .systemFont(ofSize: 10)
         }
         
         // MARK: - Private Static Methods
