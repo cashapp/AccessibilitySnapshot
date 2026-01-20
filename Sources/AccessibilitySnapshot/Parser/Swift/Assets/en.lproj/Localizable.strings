@@ -22,6 +22,9 @@
 /* Description for the 'header' accessibility trait */
 "trait.header.description" = "Heading.";
 
+/* Format for the description of the 'header' accessibility trait with a specific level; param0: the heading level (1-6) */
+"trait.header.level.format" = "Heading Level %d.";
+
 /* Description for the 'link' accessibility trait */
 "trait.link.description" = "Link.";
 

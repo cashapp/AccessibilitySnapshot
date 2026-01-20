@@ -95,10 +95,83 @@ struct SwiftUIView: View {
                         .accessibilityCustomContent("Key", "Value")
                         .accessibilityCustomContent("Important Key", "Important Value", importance: .high)
                 }
+
+                if #available(iOS 15.0, *) {
+                    Circle()
+                        .accessibility(label: Text(getAccessibilityAttributedLabel()))
+                }
+
+                if #available(iOS 15.0, *) {
+                    Circle()
+                        .accessibility(label: Text(getAccessibilityAttributedLabel()))
+                        .accessibility(value: Text(getAccessibilityAttributedValue()))
+                        .accessibility(hint: Text(getAccessibilityAttributedHint()))
+                }
+                
+                // View with IPA notation for pronunciation
+                if #available(iOS 15.0, *) {
+                    Circle()
+                        .accessibility(label: Text(getAccessibilityIPALabel()))
+                }
+
+                if #available(iOS 15.0, *) {
+                    Text("Section Title")
+                        .font(.headline)
+                        .accessibilityAddTraits(.isHeader)
+                        .accessibilityHeading(.h1)
+                }
+
+                if #available(iOS 15.0, *) {
+                    Text("Section Subtitle")
+                        .font(.subheadline)
+                        .accessibilityAddTraits(.isHeader)
+                        .accessibilityHeading(.h2)
+                }
             }
             
             Spacer()
         }
+    }
+
+    @available(iOS 15, *)
+    func getAccessibilityAttributedLabel() -> AttributedString {
+        var attributedString = AttributedString("Hello Bonjour")
+
+        // Unfortunately, SwiftUI does not appear to respect this attribute, so VoiceOver will not read
+        // "Bonjour" in French. This is not an issue on UIKit. A feedback item has been filed with Apple.
+        // The .languageIdentifier key works in place of this. However, we do not intend to show it in the
+        // legend as its scope goes beyond accessibility.
+        let languageAttribute = AttributeContainer([.accessibilitySpeechLanguage: "fr-CA"])
+        if let range = attributedString.range(of: "Bonjour") {
+            attributedString[range].setAttributes(languageAttribute)
+        }
+        let headingAttribute = AttributeContainer([.accessibilityTextHeadingLevel: 1])
+        attributedString.setAttributes(headingAttribute)
+        return attributedString
+    }
+
+    @available(iOS 15, *)
+    func getAccessibilityAttributedValue() -> AttributedString {
+        let spellOutAttribute = AttributeContainer([.accessibilitySpeechSpellOut: true])
+        let attributedString = AttributedString("50%", attributes: spellOutAttribute)
+        return attributedString
+    }
+
+    @available(iOS 15, *)
+    func getAccessibilityAttributedHint() -> AttributedString {
+        let attributes = AttributeContainer([
+            .accessibilitySpeechPitch: 1.5,
+            .accessibilitySpeechPunctuation: true
+        ])
+        let attributedString = AttributedString("This is a high-pitched hint.", attributes: attributes)
+        return attributedString
+    }
+    
+    @available(iOS 15, *)
+    func getAccessibilityIPALabel() -> AttributedString {
+        let ipaAttribute = AttributeContainer([.accessibilitySpeechIPANotation: "ˈkiːnwɑː"])
+        let attributedString = AttributedString("Quinoa", attributes: ipaAttribute)
+        return attributedString
     }
 }
 

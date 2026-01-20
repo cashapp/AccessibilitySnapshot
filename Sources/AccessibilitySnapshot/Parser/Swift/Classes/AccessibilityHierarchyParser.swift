@@ -121,7 +121,15 @@ public struct AccessibilityMarker: Equatable {
     
     public var label: String?
     
+    /// The attributed label for the accessibility element, if one is set.
+    /// This contains the raw `NSAttributedString` with any accessibility-related attributes.
+    public var attributedLabel: NSAttributedString?
+    
     public var value: String?
+    
+    /// The attributed value for the accessibility element, if one is set.
+    /// This contains the raw `NSAttributedString` with any accessibility-related attributes.
+    public var attributedValue: NSAttributedString?
     
     public var traits: UIAccessibilityTraits
 
@@ -131,6 +139,14 @@ public struct AccessibilityMarker: Equatable {
 
     /// A hint that will be read by VoiceOver if focus remains on the element after the `description` is read.
     public var hint: String?
+    
+    /// The attributed hint for the accessibility element, if one is set.
+    /// This contains the raw `NSAttributedString` with any accessibility-related attributes.
+    public var attributedHint: NSAttributedString?
+    
+    /// The heading level for the accessibility element (1-6), if one is set.
+    /// This is used by VoiceOver to announce elements as headings with their level.
+    public var headingLevel: Int?
     
     /// The labels that will be used by Voice Control for user input.
     /// These labels are displayed based on the `AccessibilityContentDisplayMode` configuration:
@@ -317,14 +333,21 @@ public final class AccessibilityHierarchyParser {
             let (description, hint) = element.object.accessibilityDescription(context: element.context)
 
             let activationPoint = element.object.accessibilityActivationPoint
+            
+            // Get heading level via Key-Value Coding (set by SwiftUI's .accessibilityHeading() modifier)
+            let headingLevel = element.object.value(forKey: "accessibilityHeadingLevel") as? Int
 
             return AccessibilityMarker(
                 description: description,
                 label: element.object.accessibilityLabel,
+                attributedLabel: element.object.accessibilityAttributedLabel,
                 value: element.object.accessibilityValue,
+                attributedValue: element.object.accessibilityAttributedValue,
                 traits: element.object.accessibilityTraits,
                 identifier: element.object.identifier,
                 hint: hint,
+                attributedHint: element.object.accessibilityAttributedHint,
+                headingLevel: headingLevel,
                 userInputLabels: element.object.accessibilityUserInputLabels,
                 shape: Self.accessibilityShape(for: element.object, in: root),
                 activationPoint: root.convert(activationPoint, from: nil),

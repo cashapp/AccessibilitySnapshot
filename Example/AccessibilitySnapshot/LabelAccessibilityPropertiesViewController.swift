@@ -39,6 +39,16 @@ import UIKit
 //  │ 07 │         │    X    │    X    │  true   │ "07: Text: Value", "Hint"       │
 //  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
 //  │ 08 │    X    │    X    │    X    │  true   │ "Label: Value", "Hint"          │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
+//  │ 09 │ Attr.X  │         │         │  true   │ Attributed label (fr-CA)        │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
+//  │ 10 │ Attr.X  │ Attr.X  │ Attr.X  │  true   │ Attr label/value/hint           │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
+//  │ 11 │ Attr.X  │         │         │  true   │ IPA notation ("Quinoa")         │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
+//  │ 12 │ Attr.X  │         │         │  true   │ Heading Level 1                 │
+//  ├────┼─────────┼─────────┼─────────┼─────────┼─────────────────────────────────┤
+//  │ 13 │ Attr.X  │         │         │  true   │ Heading Level 2                 │
 //  └────┴─────────┴─────────┴─────────┴─────────┴─────────────────────────────────┘
 final class LabelAccessibilityPropertiesViewController: AccessibilityViewController {
 
@@ -104,6 +114,77 @@ final class LabelAccessibilityPropertiesViewController: AccessibilityViewControl
         labels[7].accessibilityLabel = "Label"
         labels[7].accessibilityValue = "Value"
         labels[7].accessibilityHint = "Hint"
+        
+        // Label with attributed label containing accessibility speech attributes.
+        // This demonstrates how attributed strings with accessibility attributes are displayed.
+        let bonjourLabel = NSMutableAttributedString(string: "Hello Bonjour")
+
+        // Set language attribute for "Bonjour" (spoken in French)
+        bonjourLabel.addAttribute(
+            .accessibilitySpeechLanguage,
+            value: "fr-CA",
+            range: NSRange(location: 6, length: 7)
+        )
+        
+        labels[8].accessibilityAttributedLabel = bonjourLabel
+        labels[8].accessibilityValue = nil
+        labels[8].accessibilityHint = nil
+        
+        // Label with attributed label, value, AND hint.
+        // This demonstrates having attributes in all three properties.
+        let bonjourLabel2 = NSMutableAttributedString(string: "Hello Bonjour")
+        bonjourLabel2.addAttribute(
+            .accessibilitySpeechLanguage,
+            value: "fr-CA",
+            range: NSRange(location: 6, length: 7)
+        )
+        
+        let fiftyPercentValue = NSMutableAttributedString(string: "50%")
+        fiftyPercentValue.addAttribute(
+            .accessibilitySpeechSpellOut,
+            value: true,
+            range: NSRange(location: 0, length: 3)
+        )
+        
+        let hint = NSMutableAttributedString(string: "Dies ist ein Hinweis.")
+        hint.addAttribute(
+            .accessibilitySpeechLanguage,
+            value: "de-DE",
+            range: NSRange(location: 0, length: 21)
+        )
+        
+        labels[9].accessibilityAttributedLabel = bonjourLabel2
+        labels[9].accessibilityAttributedValue = fiftyPercentValue
+        labels[9].accessibilityAttributedHint = hint
+
+        // Label with IPA notation for pronunciation
+        let ipaLabel = NSMutableAttributedString(string: "Quinoa")
+        ipaLabel.addAttribute(
+            .accessibilitySpeechIPANotation,
+            value: "ˈkiːnwɑː",
+            range: NSRange(location: 0, length: 6)
+        )
+        labels[10].accessibilityAttributedLabel = ipaLabel
+        
+        // Label with heading level 1
+        let titleLabel = NSMutableAttributedString(string: "Section Title")
+        titleLabel.addAttribute(
+            .accessibilityTextHeadingLevel,
+            value: NSNumber(value: 1),
+            range: NSRange(location: 0, length: 13)
+        )
+        labels[11].accessibilityAttributedLabel = titleLabel
+        labels[11].accessibilityTraits = [.header]
+
+        // Label with heading level 2
+        let subtitleLabel = NSMutableAttributedString(string: "Section Subtitle")
+        subtitleLabel.addAttribute(
+            .accessibilityTextHeadingLevel,
+            value: NSNumber(value: 2),
+            range: NSRange(location: 0, length: 16)
+        )
+        labels[12].accessibilityAttributedLabel = subtitleLabel
+        labels[12].accessibilityTraits = [.header]
     }
 
 }
@@ -127,7 +208,7 @@ extension LabelAccessibilityPropertiesViewController {
 
         // MARK: - Public Properties
 
-        let labels = (0..<8).map { _ in UILabel() }
+        let labels = (0..<13).map { _ in UILabel() }
 
         // MARK: - UIView
 

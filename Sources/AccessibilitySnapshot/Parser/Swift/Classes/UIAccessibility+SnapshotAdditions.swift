@@ -158,7 +158,12 @@ extension NSObject {
         }
 
         if accessibilityTraits.contains(.header) {
-            traitSpecifiers.append(strings.headerTraitName)
+            // Check for heading level via KVC (set by SwiftUI's .accessibilityHeading() modifier or UIKit)
+            if let headingLevel = value(forKey: "accessibilityHeadingLevel") as? Int, headingLevel > 0 {
+                traitSpecifiers.append(String(format: strings.headerLevelTraitFormat, headingLevel))
+            } else {
+                traitSpecifiers.append(strings.headerTraitName)
+            }
         }
 
         if accessibilityTraits.contains(.link) {
@@ -345,6 +350,8 @@ extension NSObject {
         let tabTraitName: String
 
         let headerTraitName: String
+        
+        let headerLevelTraitFormat: String
 
         let linkTraitName: String
 
@@ -439,6 +446,11 @@ extension NSObject {
             self.headerTraitName = "Heading.".localized(
                 key: "trait.header.description",
                 comment: "Description for the 'header' accessibility trait",
+                locale: locale
+            )
+            self.headerLevelTraitFormat = "Heading Level %d.".localized(
+                key: "trait.header.level.format",
+                comment: "Format for the description of the 'header' accessibility trait with a specific level; param0: the heading level (1-6)",
                 locale: locale
             )
             self.linkTraitName = "Link.".localized(

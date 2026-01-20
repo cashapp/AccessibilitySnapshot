@@ -42,6 +42,8 @@
 		34A80D482E316C570095BECA /* UIView+InvertColorsSnapshotting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D322E316C570095BECA /* UIView+InvertColorsSnapshotting.swift */; };
 		34A80D492E316C570095BECA /* UIApplication+FirstKeyWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D302E316C570095BECA /* UIApplication+FirstKeyWindow.swift */; };
 		34A80D4A2E316C570095BECA /* SnapshotAndLegendView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34A80D2F2E316C570095BECA /* SnapshotAndLegendView.swift */; };
+		8344AFD12F1751E6007AFD3F /* AttributedLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8344AFD02F1751E6007AFD3F /* AttributedLabelView.swift */; };
+		8344AFD22F1751E6007AFD3F /* AttributedLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8344AFD02F1751E6007AFD3F /* AttributedLabelView.swift */; };
 		836FEEAF2F0C66BC00BCA1FD /* LetterIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836FEEAE2F0C66BC00BCA1FD /* LetterIconView.swift */; };
 		836FEEB02F0C66C400BCA1FD /* LetterIconView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836FEEAE2F0C66BC00BCA1FD /* LetterIconView.swift */; };
 		AC2128A02E8406BB0041155B /* AccessibilitySnapshotConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC21289F2E8406BB0041155B /* AccessibilitySnapshotConfiguration.swift */; };
@@ -92,6 +94,7 @@
 		34A80D302E316C570095BECA /* UIApplication+FirstKeyWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+FirstKeyWindow.swift"; sourceTree = "<group>"; };
 		34A80D312E316C570095BECA /* UIView+ImageRendering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+ImageRendering.swift"; sourceTree = "<group>"; };
 		34A80D322E316C570095BECA /* UIView+InvertColorsSnapshotting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+InvertColorsSnapshotting.swift"; sourceTree = "<group>"; };
+		8344AFD02F1751E6007AFD3F /* AttributedLabelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttributedLabelView.swift; sourceTree = "<group>"; };
 		836FEEAE2F0C66BC00BCA1FD /* LetterIconView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LetterIconView.swift; sourceTree = "<group>"; };
 		AC21289F2E8406BB0041155B /* AccessibilitySnapshotConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessibilitySnapshotConfiguration.swift; sourceTree = "<group>"; };
 		ACC8178D2E42368A00B9CA5D /* LegendView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegendView.swift; sourceTree = "<group>"; };
@@ -184,6 +187,7 @@
 		34A80D342E316C570095BECA /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				8344AFD02F1751E6007AFD3F /* AttributedLabelView.swift */,
 				836FEEAE2F0C66BC00BCA1FD /* LetterIconView.swift */,
 				34A80D2B2E316C570095BECA /* DefaultColors.swift */,
 				34A80D2C2E316C570095BECA /* HitTargetSnapshotUtility.swift */,
@@ -367,6 +371,7 @@
 				34A80D442E316C570095BECA /* PillsView.swift in Sources */,
 				34A80D452E316C570095BECA /* UIView+ImageRendering.swift in Sources */,
 				836FEEB02F0C66C400BCA1FD /* LetterIconView.swift in Sources */,
+				8344AFD22F1751E6007AFD3F /* AttributedLabelView.swift in Sources */,
 				ACC8179A2E42515E00B9CA5D /* OverlayView.swift in Sources */,
 				34A80D462E316C570095BECA /* HitTargetSnapshotView.swift in Sources */,
 				34A80D472E316C570095BECA /* AccessibilitySnapshotView.swift in Sources */,
@@ -396,6 +401,7 @@
 				34A80D392E316C570095BECA /* PillsView.swift in Sources */,
 				34A80D3A2E316C570095BECA /* UIView+ImageRendering.swift in Sources */,
 				836FEEAF2F0C66BC00BCA1FD /* LetterIconView.swift in Sources */,
+				8344AFD12F1751E6007AFD3F /* AttributedLabelView.swift in Sources */,
 				ACC8179B2E42515E00B9CA5D /* OverlayView.swift in Sources */,
 				34A80D3B2E316C570095BECA /* HitTargetSnapshotView.swift in Sources */,
 				34A80D3C2E316C570095BECA /* AccessibilitySnapshotView.swift in Sources */,
