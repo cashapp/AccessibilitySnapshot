@@ -52,16 +52,6 @@ targets: [
 ```
 </details>
 
-<details>
-<summary>Carthage</summary>
-
-Only the core accessibility parser (not the snapshot integration layers) can be installed via Carthage. To install AccessibilitySnapshotCore via [Carthage](https://github.com/Carthage/Carthage), add the following to your `Cartfile`:
-
-```ogdl
-github "cashapp/AccessibilitySnapshot"
-```
-</details>
-
 ## Usage
 
 AccessibilitySnapshot builds on top of existing snapshot frameworks to add support for snapshotting your app's accessibility. By default it uses the [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing) framework for snapshotting, but can be switched over to [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) as well.

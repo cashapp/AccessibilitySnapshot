@@ -22,9 +22,6 @@ DerivedData
 # Bundler
 .bundle
 
-# Carthage
-Carthage/Build
-
 # Swift Package Manager
 generated/
 .build/

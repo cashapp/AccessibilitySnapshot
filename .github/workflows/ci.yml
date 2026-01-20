@@ -22,15 +22,6 @@ jobs:
       - name: Build
         run: Scripts/build.swift spm ${{ matrix.platform }}
 
-  carthage:
-    name: Carthage Build
-    runs-on: macOS-14
-    steps:
-      - name: Checkout Repo
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
-      - name: Build
-        run: carthage build --no-skip-current --platform iOS --use-xcframeworks --verbose
-
   validate-strings:
     name: Validate Localized Strings
     runs-on: macOS-14
