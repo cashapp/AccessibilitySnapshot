@@ -32,3 +32,10 @@ Pods/
 generated/
 .build/
 .swiftpm/
+
+# Tuist
+# Generated Xcode projects and workspaces (regenerated via `tuist generate`)
+*.xcodeproj
+*.xcworkspace
+# Generated files (Info.plists, synthesized resource accessors)
+Derived/

@@ -1,0 +1,5 @@
+module FBSnapshotTestCase_Accessibility_ObjC {
+    header "../../../Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC/include/FBSnapshotTestCase_Accessibility.h"
+    header "../../../Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC/include/FBSnapshotTestCase_ImpreciseAccessibility.h"
+    export *
+}

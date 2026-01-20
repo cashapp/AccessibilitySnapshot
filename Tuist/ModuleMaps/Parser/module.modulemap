@@ -1,0 +1,4 @@
+module AccessibilitySnapshotParser_ObjC {
+    header "../../../Sources/AccessibilitySnapshot/Parser/ObjC/include/UIAccessibilityStatusUtility.h"
+    export *
+}

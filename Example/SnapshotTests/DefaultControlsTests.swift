@@ -14,8 +14,13 @@
 //  limitations under the License.
 //
 
+#if SWIFT_PACKAGE
+import FBSnapshotTestCase_Accessibility
+import iOSSnapshotTestCase
+#else
 import AccessibilitySnapshot
 import FBSnapshotTestCase
+#endif
 
 final class DefaultControlsTests: SnapshotTestCase {
 

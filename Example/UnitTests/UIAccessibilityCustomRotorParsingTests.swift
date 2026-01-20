@@ -1,7 +1,13 @@
 import Foundation
 import UIKit
 import XCTest
+
+#if SWIFT_PACKAGE
+@testable import AccessibilitySnapshotCore
+@testable import AccessibilitySnapshotParser
+#else
 @testable import AccessibilitySnapshot
+#endif
 
 final class UIAccessibilityCustomRotorParsingTests : XCTestCase {
     
