@@ -182,51 +182,46 @@ internal extension AccessibilitySnapshotView {
                 let sortedAttributes = attributes.sorted { $0.key.rawValue < $1.key.rawValue }
                 
                 for (key, value) in sortedAttributes {
-                    // Check for accessibility speech language
-                    if key == .accessibilitySpeechLanguage, let language = value as? String {
-                        // SwiftUI attributed strings contain the locale even if it's the default locale, so we need to filter it out.
-                        if !isDefaultLocaleLanguage(language) {
-                            descriptions.append("\"\(substring)\": Language = \(language)")
-                        }
-                    }
-                    
-                    // Check for spell out attribute
-                    if key == .accessibilitySpeechSpellOut {
-                        let shouldSpellOut = (value as? Bool) ?? (value as? NSNumber)?.boolValue ?? false
-                        if shouldSpellOut {
-                            descriptions.append("\"\(substring)\": Spell Out")
-                        }
-                    }
-                    
-                    // Check for IPA notation
-                    if key == .accessibilitySpeechIPANotation, let ipa = value as? String {
-                        descriptions.append("\"\(substring)\": IPA = \(ipa)")
-                    }
-
-                    // Check for punctuation attribute
-                    if key == .accessibilitySpeechPunctuation {
-                        let shouldSpeakPunctuation = (value as? Bool) ?? (value as? NSNumber)?.boolValue ?? false
-                        if shouldSpeakPunctuation {
-                            descriptions.append("\"\(substring)\": Speak Punctuation")
-                        }
-                    }
-
-                    // Check for pitch
-                    if key == .accessibilitySpeechPitch, let pitch = value as? NSNumber {
-                        descriptions.append("\"\(substring)\": Pitch = \(pitch)")
-                    }
-                    
-                    // Check for heading level
-                    if key == .accessibilityTextHeadingLevel, let level = value as? NSNumber {
-                        let headingLevel = level.intValue
-                        if headingLevel > 0 {
-                            descriptions.append("\"\(substring)\": Heading Level = \(headingLevel)")
-                        }
+                    if let description = formatAttribute(key: key, value: value, substring: substring) {
+                        descriptions.append(description)
                     }
                 }
             }
             
             return descriptions
+        }
+        
+        /// Formats a single accessibility attribute into a human-readable description.
+        /// Returns nil if the attribute is not an accessibility-related attribute or should be filtered out.
+        private static func formatAttribute(key: NSAttributedString.Key, value: Any, substring: String) -> String? {
+            switch key {
+            case .accessibilitySpeechLanguage:
+                guard let language = value as? String, !isDefaultLocaleLanguage(language) else { return nil }
+                return "\"\(substring)\": Language = \(language)"
+                
+            case .accessibilitySpeechSpellOut:
+                let shouldSpellOut = (value as? Bool) ?? (value as? NSNumber)?.boolValue ?? false
+                return shouldSpellOut ? "\"\(substring)\": Spell Out" : nil
+                
+            case .accessibilitySpeechIPANotation:
+                guard let ipa = value as? String else { return nil }
+                return "\"\(substring)\": IPA = \(ipa)"
+                
+            case .accessibilitySpeechPunctuation:
+                let shouldSpeak = (value as? Bool) ?? (value as? NSNumber)?.boolValue ?? false
+                return shouldSpeak ? "\"\(substring)\": Speak Punctuation" : nil
+                
+            case .accessibilitySpeechPitch:
+                guard let pitch = value as? NSNumber else { return nil }
+                return "\"\(substring)\": Pitch = \(pitch)"
+                
+            case .accessibilityTextHeadingLevel:
+                guard let level = value as? NSNumber, level.intValue > 0 else { return nil }
+                return "\"\(substring)\": Heading Level = \(level.intValue)"
+                
+            default:
+                return nil
+            }
         }
         
         /// Checks if the given language tag matches or is a variant of the device's current locale.
