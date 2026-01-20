@@ -1,9 +1,7 @@
 # AccessibilitySnapshot
 
 [![CI Status](https://img.shields.io/github/actions/workflow/status/CashApp/AccessibilitySnapshot/ci.yml?branch=main)](https://github.com/CashApp/AccessibilitySnapshot/actions?query=workflow%3ACI+branch%3Amain)
-[![Version](https://img.shields.io/cocoapods/v/AccessibilitySnapshot.svg?style=flat)](https://cocoapods.org/pods/AccessibilitySnapshot)
-[![License](https://img.shields.io/cocoapods/l/AccessibilitySnapshot.svg?style=flat)](https://cocoapods.org/pods/AccessibilitySnapshot)
-[![Platform](https://img.shields.io/cocoapods/p/AccessibilitySnapshot.svg?style=flat)](https://cocoapods.org/pods/AccessibilitySnapshot)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 
 AccessibilitySnapshot makes it simple to add regression tests for accessibility in iOS apps. The framework builds on the idea of snapshot testing to provide snapshots of the accessibility hierarchy.
 
@@ -14,28 +12,6 @@ AccessibilitySnapshot makes it simple to add regression tests for accessibility 
 ## Getting Started
 
 By default, AccessibilitySnapshot uses [SnapshotTesting](https://github.com/pointfreeco/swift-snapshot-testing) to record snapshots and perform comparisons. The framework also includes support for using [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) as the snapshotting engine instead. Before setting up accessibility snapshot tests, make sure your project is set up for standard snapshot testing. Accessibility snapshot tests require that the test target has a host application. See the [Extensions](#extensions) section below for a list of other available snapshotting options.
-
-<details>
-<summary>CocoaPods</summary>
-
-Install with [CocoaPods](https://cocoapods.org) by adding the following to your `Podfile`:
-
-```ruby
-pod 'AccessibilitySnapshot'
-```
-
-To use only the core accessibility parser, add a dependency on the Core subspec alone:
-
-```ruby
-pod 'AccessibilitySnapshot/Core'
-```
-
-Alternatively, if you wish to use [iOSSnapshotTestCase](https://github.com/uber/ios-snapshot-test-case) to perform image comparisons, you can add a dependency on the `iOSSnapshotTestCase` subspec instead (or in addition - you can use both in the same project):
-
-```ruby
-pod 'AccessibilitySnapshot/iOSSnapshotTestCase'
-```
-</details>
 
 <details>
 <summary>Swift Package Manager</summary>

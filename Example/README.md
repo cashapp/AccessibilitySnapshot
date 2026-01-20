@@ -9,8 +9,7 @@ Your local environment should match one these supported versions.
 | Software | Versions |
 | --- | --- |
 | Xcode | 12.5.1 (iOS 13 and 14), 14.3.1 (iOS 16) [.github/workflows/ci.yml](https://github.com/cashapp/AccessibilitySnapshot/blob/main/.github/workflows/ci.yml) |
-| Ruby | 3.2.2 [Example/Gemfile](https://github.com/cashapp/AccessibilitySnapshot/blob/main/Example/Gemfile) |
-| Bundler | 2.4.22 [Gemfile.lock](https://github.com/cashapp/AccessibilitySnapshot/blob/main/Gemfile.lock) |
+| Tuist | See [Tuist installation docs](https://docs.tuist.io/guides/quick-start/install-tuist) |
 | Simulators | iOS 16.4, iOS 17.2 - iPhone 14 Pro [Scripts/build.swift](https://github.com/cashapp/AccessibilitySnapshot/blob/main/Scripts/build.swift) |
 
 ### Setting up environment
@@ -24,56 +23,46 @@ Your local environment should match one these supported versions.
      xcode-select -p
      ```
 
-1. RVM can be used for Ruby version management. Instructions here: https://rvm.io/rvm/install
+1. Install Tuist
 
-   - Install the current Ruby version
+   ```sh
+   curl -Ls https://install.tuist.io | bash
+   ```
 
-     ```sh
-     rvm install ruby-3.2.2 --with-openssl-dir=/opt/homebrew/opt/openssl@3
-     ```
+   Verify your installation:
 
-     NOTE: This can take a while as RVM will typically build Ruby from source.
-
-   - Restart your shell session after installing RVM and Ruby or: `source ~/.zshrc` / `source ~/.bashrc`
-
-   - Verify your installation of RVM and Ruby
-
-     ```sh
-     which ruby # /Users/<LDAP>/.rvm/rubies/ruby-3.2.2/bin/ruby
-     ```
-
-1. Install Bundler
-
-     ```sh
-     gem install bundler -v 2.4.22
-     ```
-
-    Verify your installation of Bundler
-
-     ```sh
-     bundle -v # Bundler version 2.4.22
-     ```
+   ```sh
+   tuist version
+   ```
 
 ### Building the project
 
-1. Install the required Gems in the `Gemfile`
+1. This project uses [Mise](https://mise.jdx.dev/) and [Tuist](https://tuist.io/) to generate a project for local development. Follow the steps below for the recommended setup for zsh.
 
-    ```sh
-    bundle install
-    ```
-
-1. Install CocoaPod dependencies from `Podfile` and update the CocoaPod source repositories
+```sh
+# install mise
+brew install mise
+# add mise activation line to your zshrc
+echo 'eval "$(mise activate zsh)"' >> ~/.zshrc
+# load mise into your shell
+source ~/.zshrc
+# tell mise to trust the config file
+mise trust
+# install dependencies
+mise install
+```
+1. Generate the Xcode project using Tuist
+```sh
+# only necessary for first setup or after changing dependencies
+tuist install --path Example
+# generates and opens the Xcode project
+tuist generate --path Example
+```
+1. Open the generated workspace
 
    ```sh
-   bundle exec pod install
+   open Example/AccessibilitySnapshotTuist.xcworkspace
    ```
-
-1. Open the newly generated workspace
-
-   ```sh
-   xed AccessibilitySnapshot.xcworkspace
-   ```
-
 ### Getting Snapshot Images from CI
 
 Test results are archived for CI jobs. When there is a failure because of a snapshot test image changing those images can be extracted from the archive. See [Scripts/ExtractImagesFromTestResults.swift](https://github.com/cashapp/AccessibilitySnapshot/blob/main/Scripts/ExtractImagesFromTestResults.swift) for instructions.
