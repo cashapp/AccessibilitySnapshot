@@ -139,10 +139,10 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         label.align(withSuperview: .center)
 
         if ProcessInfo().operatingSystemVersion.majorVersion != 13 {
-            SnapshotVerifyAccessibility(view, identifier: "monochrome", useMonochromeSnapshot: true)
+            SnapshotVerifyAccessibility(view, identifier: "monochrome", snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode, colorRenderingMode: .monochrome))
         }
 
-        SnapshotVerifyAccessibility(view, identifier: "polychrome", useMonochromeSnapshot: false)
+        SnapshotVerifyAccessibility(view, identifier: "polychrome", snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode, colorRenderingMode: .fullColor))
     }
 
     // This test is currently disabled due to a bug in iOSSnapshotTestCase. See cashapp/AccessibilitySnapshot#75.
@@ -153,7 +153,7 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         )
 
         usingDrawViewHierarchyInRect {
-            SnapshotVerifyAccessibility(view, useMonochromeSnapshot: false)
+            SnapshotVerifyAccessibility(view, snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode, colorRenderingMode: .fullColor))
         }
     }
 
@@ -222,7 +222,7 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         parent.view.addSubview(view)
 
         usingDrawViewHierarchyInRect {
-            SnapshotVerifyAccessibility(view, useMonochromeSnapshot: false)
+            SnapshotVerifyAccessibility(view, snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode, colorRenderingMode: .fullColor))
         }
     }
 
