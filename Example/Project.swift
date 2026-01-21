@@ -97,12 +97,7 @@ let project = Project(
             ],
             dependencies: [
                 .target(name: "AccessibilitySnapshotParser_ObjC"),
-            ],
-            settings: .settings(
-                base: [
-                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "SWIFT_PACKAGE",
-                ]
-            )
+            ]
         ),
 
         .target(
@@ -114,12 +109,7 @@ let project = Project(
             sources: ["../Sources/AccessibilitySnapshot/Core/*.swift"],
             dependencies: [
                 .target(name: "AccessibilitySnapshotParser"),
-            ],
-            settings: .settings(
-                base: [
-                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "SWIFT_PACKAGE",
-                ]
-            )
+            ]
         ),
 
         .target(
@@ -136,7 +126,6 @@ let project = Project(
             settings: .settings(
                 base: [
                     "ENABLE_TESTING_SEARCH_PATHS": "YES",
-                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "SWIFT_PACKAGE",
                 ]
             )
         ),
@@ -156,7 +145,6 @@ let project = Project(
             settings: .settings(
                 base: [
                     "ENABLE_TESTING_SEARCH_PATHS": "YES",
-                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "SWIFT_PACKAGE",
                 ]
             )
         ),
@@ -243,8 +231,6 @@ let project = Project(
                     "FB_REFERENCE_IMAGE_DIR": "$(SOURCE_ROOT)/SnapshotTests/ReferenceImages/",
                     "IMAGE_DIFF_DIR": "$(SOURCE_ROOT)/SnapshotTests/FailureDiffs/",
                     "ENABLE_TESTING_SEARCH_PATHS": "YES",
-                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "SWIFT_PACKAGE",
-                    "GCC_PREPROCESSOR_DEFINITIONS": "TUIST_BUILD=1",
                     "OTHER_LDFLAGS": "$(inherited) -ObjC",
                 ]
             )
@@ -272,8 +258,6 @@ let project = Project(
             settings: .settings(
                 base: [
                     "SWIFT_OBJC_BRIDGING_HEADER": "$(SRCROOT)/UnitTests/Supporting Files/UnitTests-Bridging-Header.h",
-                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "SWIFT_PACKAGE",
-                    "GCC_PREPROCESSOR_DEFINITIONS": "TUIST_BUILD=1",
                     "OTHER_LDFLAGS": "$(inherited) -ObjC"
                 ]
             )

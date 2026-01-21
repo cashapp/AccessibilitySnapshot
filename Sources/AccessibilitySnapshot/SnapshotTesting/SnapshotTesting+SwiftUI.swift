@@ -17,11 +17,8 @@
 import SnapshotTesting
 import SwiftUI
 import UIKit
-
-#if SWIFT_PACKAGE
 import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser_ObjC
-#endif
 
 extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
 
