@@ -1,5 +1,45 @@
 import ProjectDescription
 
+// MARK: - Helpers
+
+/// Creates a scheme for the demo app with a specific language
+func makeLanguageScheme(language: String, languageCode: String) -> Scheme {
+    return .scheme(
+        name: "AccessibilitySnapshotDemo (\(languageCode))",
+        shared: true,
+        buildAction: .buildAction(targets: [
+            .target("AccessibilitySnapshotDemo"),
+        ]),
+        testAction: .targets(
+            [
+                .testableTarget(target: .target("SnapshotTests")),
+                .testableTarget(target: .target("UnitTests")),
+            ],
+            expandVariableFromTarget: .target("AccessibilitySnapshotDemo"),
+            skippedTests: [
+                "AccessibilityContainersTests/testDataTableWithUndefinedColumns()",
+                "AccessibilityContainersTests/testDataTableWithUndefinedRowsAndColumns()",
+                "AccessibilitySnapshotTests/testLargeViewInViewControllerThatRequiresTiling()",
+                "AccessibilitySnapshotTests/testLargeViewThatRequiresTiling()",
+                "DefaultControlsTests/testDatePicker()",
+                "HitTargetTests/testPerformance()",
+                "TextAccessibilityTests",
+            ]
+        ),
+        runAction: .runAction(
+            configuration: .debug,
+            executable: .target("AccessibilitySnapshotDemo"),
+            arguments: .arguments(
+                environmentVariables: [
+                    "FB_REFERENCE_IMAGE_DIR": .environmentVariable(value: "$(SOURCE_ROOT)/SnapshotTests/ReferenceImages/", isEnabled: true),
+                    "IMAGE_DIFF_DIR": .environmentVariable(value: "$(SOURCE_ROOT)/SnapshotTests/FailureDiffs/", isEnabled: true),
+                ]
+            ),
+            options: .options(language: .init(identifier: languageCode))
+        )
+    )
+}
+
 // MARK: - Project
 
 let project = Project(
@@ -57,12 +97,7 @@ let project = Project(
             ],
             dependencies: [
                 .target(name: "AccessibilitySnapshotParser_ObjC"),
-            ],
-            settings: .settings(
-                base: [
-                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "SWIFT_PACKAGE",
-                ]
-            )
+            ]
         ),
 
         .target(
@@ -74,12 +109,7 @@ let project = Project(
             sources: ["../Sources/AccessibilitySnapshot/Core/*.swift"],
             dependencies: [
                 .target(name: "AccessibilitySnapshotParser"),
-            ],
-            settings: .settings(
-                base: [
-                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "SWIFT_PACKAGE",
-                ]
-            )
+            ]
         ),
 
         .target(
@@ -96,7 +126,6 @@ let project = Project(
             settings: .settings(
                 base: [
                     "ENABLE_TESTING_SEARCH_PATHS": "YES",
-                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "SWIFT_PACKAGE",
                 ]
             )
         ),
@@ -116,7 +145,6 @@ let project = Project(
             settings: .settings(
                 base: [
                     "ENABLE_TESTING_SEARCH_PATHS": "YES",
-                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "SWIFT_PACKAGE",
                 ]
             )
         ),
@@ -203,8 +231,6 @@ let project = Project(
                     "FB_REFERENCE_IMAGE_DIR": "$(SOURCE_ROOT)/SnapshotTests/ReferenceImages/",
                     "IMAGE_DIFF_DIR": "$(SOURCE_ROOT)/SnapshotTests/FailureDiffs/",
                     "ENABLE_TESTING_SEARCH_PATHS": "YES",
-                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "SWIFT_PACKAGE",
-                    "GCC_PREPROCESSOR_DEFINITIONS": "TUIST_BUILD=1",
                     "OTHER_LDFLAGS": "$(inherited) -ObjC",
                 ]
             )
@@ -232,46 +258,14 @@ let project = Project(
             settings: .settings(
                 base: [
                     "SWIFT_OBJC_BRIDGING_HEADER": "$(SRCROOT)/UnitTests/Supporting Files/UnitTests-Bridging-Header.h",
-                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "SWIFT_PACKAGE",
-                    "GCC_PREPROCESSOR_DEFINITIONS": "TUIST_BUILD=1",
                     "OTHER_LDFLAGS": "$(inherited) -ObjC"
                 ]
             )
         ),
     ],
     schemes: [
-        .scheme(
-            name: "AccessibilitySnapshotTuist-App",
-            shared: true,
-            buildAction: .buildAction(targets: [
-                .target("AccessibilitySnapshotDemo"),
-            ]),
-            testAction: .targets(
-                [
-                    .testableTarget(target: .target("SnapshotTests")),
-                    .testableTarget(target: .target("UnitTests")),
-                ],
-                expandVariableFromTarget: .target("AccessibilitySnapshotDemo"),
-                skippedTests: [
-                    "AccessibilityContainersTests/testDataTableWithUndefinedColumns()",
-                    "AccessibilityContainersTests/testDataTableWithUndefinedRowsAndColumns()",
-                    "AccessibilitySnapshotTests/testLargeViewInViewControllerThatRequiresTiling()",
-                    "AccessibilitySnapshotTests/testLargeViewThatRequiresTiling()",
-                    "DefaultControlsTests/testDatePicker()",
-                    "HitTargetTests/testPerformance()",
-                    "TextAccessibilityTests",
-                ]
-            ),
-            runAction: .runAction(
-                configuration: .debug,
-                executable: .target("AccessibilitySnapshotDemo"),
-                arguments: .arguments(
-                    environmentVariables: [
-                        "FB_REFERENCE_IMAGE_DIR": "$(SOURCE_ROOT)/SnapshotTests/ReferenceImages/",
-                        "IMAGE_DIFF_DIR": "$(SOURCE_ROOT)/SnapshotTests/FailureDiffs/",
-                    ]
-                )
-            )
-        ),
-    ]
+        ("English", "en"),
+        ("German", "de"),
+        ("Russian", "ru"),
+    ].map { makeLanguageScheme(language: $0.0, languageCode: $0.1) }
 )

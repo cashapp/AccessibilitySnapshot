@@ -30,16 +30,8 @@ extension String {
 
 extension Bundle {
 
-    private final class Sentinel {}
-
     public static var accessibilitySnapshotResources: Bundle = {
-        #if SWIFT_PACKAGE
         return Bundle.module
-        #else
-        let container = Bundle(for: Sentinel.self)
-        let resources = container.url(forResource: "AccessibilitySnapshot", withExtension: "bundle")!
-        return Bundle(url: resources)!
-        #endif
     }()
 
 }
@@ -53,21 +45,7 @@ public enum StringLocalization {
     private static var localeToBundleMap: [String: Bundle] = [:]
 
     private static let resourceBundle: Bundle = {
-        #if SWIFT_PACKAGE
         return Bundle.module
-        #else
-        let frameworkBundle = Bundle(for: AccessibilityHierarchyParser.self)
-
-        guard let resourceBundlePath = frameworkBundle.path(forResource: "AccessibilitySnapshot", ofType: "bundle") else {
-            fatalError("Resource bundle not found for AccessibilitySnapshot framework.")
-        }
-
-        guard let resourceBundle = Bundle(path: resourceBundlePath) else {
-            fatalError("Failed to load resource bundle for AccessibilitySnapshot framework.")
-        }
-
-        return resourceBundle
-        #endif
     }()
 
     // MARK: - Public Static Methods

@@ -15,13 +15,8 @@
 //
 
 import SwiftUI
-
-#if SWIFT_PACKAGE
 import AccessibilitySnapshotCore
 import iOSSnapshotTestCase
-#else
-import FBSnapshotTestCase
-#endif
 
 extension FBSnapshotTestCase {
 

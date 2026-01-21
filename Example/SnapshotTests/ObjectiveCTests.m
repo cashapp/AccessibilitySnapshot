@@ -14,13 +14,8 @@
 //  limitations under the License.
 //
 
-#if TUIST_BUILD
 @import FBSnapshotTestCase_Accessibility_ObjC;
 @import iOSSnapshotTestCaseCore;
-#else
-@import AccessibilitySnapshot;
-@import FBSnapshotTestCase;
-#endif
 @import XCTest;
 
 

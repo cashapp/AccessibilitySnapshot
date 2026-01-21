@@ -14,11 +14,7 @@
 //  limitations under the License.
 //
 
-#if SWIFT_PACKAGE
 import AccessibilitySnapshotParser_ObjC
-#else
-import AccessibilitySnapshot
-#endif
 import XCTest
 
 final class UIAccessibilityStatusUtilityTests: XCTestCase {

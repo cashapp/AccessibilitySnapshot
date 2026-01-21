@@ -1,7 +1,5 @@
 import UIKit
-#if SWIFT_PACKAGE
 import AccessibilitySnapshotParser
-#endif
 
 internal extension AccessibilitySnapshotView {
     

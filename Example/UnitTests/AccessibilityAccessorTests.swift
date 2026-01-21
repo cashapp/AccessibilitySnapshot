@@ -1,11 +1,7 @@
 import XCTest
 import UIKit.UIAccessibility
 
-#if SWIFT_PACKAGE
 @testable import AccessibilitySnapshotCore
-#else
-@testable import AccessibilitySnapshot
-#endif
 
 
 @available(iOS 17.0, *)

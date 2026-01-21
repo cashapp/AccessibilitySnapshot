@@ -5,9 +5,7 @@
 //  Created by Soroush Khanlou on 7/1/25.
 //
 
-#if SWIFT_PACKAGE
 import AccessibilitySnapshotParser
-#endif
 
 enum Strings {
 

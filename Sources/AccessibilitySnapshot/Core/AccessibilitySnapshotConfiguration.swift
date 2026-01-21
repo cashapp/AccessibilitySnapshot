@@ -1,7 +1,5 @@
 import UIKit
-#if SWIFT_PACKAGE
 import AccessibilitySnapshotParser
-#endif
 
 /// Configuration struct that centralizes all accessibility snapshot settings.
 ///

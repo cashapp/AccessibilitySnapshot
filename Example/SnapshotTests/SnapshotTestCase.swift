@@ -14,11 +14,7 @@
 //  limitations under the License.
 //
 
-#if SWIFT_PACKAGE
 import iOSSnapshotTestCase
-#else
-import FBSnapshotTestCase
-#endif
 
 class SnapshotTestCase: FBSnapshotTestCase {
 

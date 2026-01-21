@@ -14,11 +14,7 @@
 //  limitations under the License.
 //
 
-#if TUIST_BUILD
 @import AccessibilitySnapshotParser_ObjC;
-#else
-@import AccessibilitySnapshot;
-#endif
 @import XCTest;
 
 
