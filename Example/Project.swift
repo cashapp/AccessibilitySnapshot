@@ -1,5 +1,45 @@
 import ProjectDescription
 
+// MARK: - Helpers
+
+/// Creates a scheme for the demo app with a specific language
+func makeLanguageScheme(language: String, languageCode: String) -> Scheme {
+    return .scheme(
+        name: "AccessibilitySnapshotDemo (\(languageCode))",
+        shared: true,
+        buildAction: .buildAction(targets: [
+            .target("AccessibilitySnapshotDemo"),
+        ]),
+        testAction: .targets(
+            [
+                .testableTarget(target: .target("SnapshotTests")),
+                .testableTarget(target: .target("UnitTests")),
+            ],
+            expandVariableFromTarget: .target("AccessibilitySnapshotDemo"),
+            skippedTests: [
+                "AccessibilityContainersTests/testDataTableWithUndefinedColumns()",
+                "AccessibilityContainersTests/testDataTableWithUndefinedRowsAndColumns()",
+                "AccessibilitySnapshotTests/testLargeViewInViewControllerThatRequiresTiling()",
+                "AccessibilitySnapshotTests/testLargeViewThatRequiresTiling()",
+                "DefaultControlsTests/testDatePicker()",
+                "HitTargetTests/testPerformance()",
+                "TextAccessibilityTests",
+            ]
+        ),
+        runAction: .runAction(
+            configuration: .debug,
+            executable: .target("AccessibilitySnapshotDemo"),
+            arguments: .arguments(
+                environmentVariables: [
+                    "FB_REFERENCE_IMAGE_DIR": .environmentVariable(value: "$(SOURCE_ROOT)/SnapshotTests/ReferenceImages/", isEnabled: true),
+                    "IMAGE_DIFF_DIR": .environmentVariable(value: "$(SOURCE_ROOT)/SnapshotTests/FailureDiffs/", isEnabled: true),
+                ]
+            ),
+            options: .options(language: .init(identifier: languageCode))
+        )
+    )
+}
+
 // MARK: - Project
 
 let project = Project(
@@ -240,38 +280,8 @@ let project = Project(
         ),
     ],
     schemes: [
-        .scheme(
-            name: "AccessibilitySnapshotTuist-App",
-            shared: true,
-            buildAction: .buildAction(targets: [
-                .target("AccessibilitySnapshotDemo"),
-            ]),
-            testAction: .targets(
-                [
-                    .testableTarget(target: .target("SnapshotTests")),
-                    .testableTarget(target: .target("UnitTests")),
-                ],
-                expandVariableFromTarget: .target("AccessibilitySnapshotDemo"),
-                skippedTests: [
-                    "AccessibilityContainersTests/testDataTableWithUndefinedColumns()",
-                    "AccessibilityContainersTests/testDataTableWithUndefinedRowsAndColumns()",
-                    "AccessibilitySnapshotTests/testLargeViewInViewControllerThatRequiresTiling()",
-                    "AccessibilitySnapshotTests/testLargeViewThatRequiresTiling()",
-                    "DefaultControlsTests/testDatePicker()",
-                    "HitTargetTests/testPerformance()",
-                    "TextAccessibilityTests",
-                ]
-            ),
-            runAction: .runAction(
-                configuration: .debug,
-                executable: .target("AccessibilitySnapshotDemo"),
-                arguments: .arguments(
-                    environmentVariables: [
-                        "FB_REFERENCE_IMAGE_DIR": "$(SOURCE_ROOT)/SnapshotTests/ReferenceImages/",
-                        "IMAGE_DIFF_DIR": "$(SOURCE_ROOT)/SnapshotTests/FailureDiffs/",
-                    ]
-                )
-            )
-        ),
-    ]
+        ("English", "en"),
+        ("German", "de"),
+        ("Russian", "ru"),
+    ].map { makeLanguageScheme(language: $0.0, languageCode: $0.1) }
 )
