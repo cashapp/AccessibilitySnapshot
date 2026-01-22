@@ -27,7 +27,7 @@ final class SnapshotTestingTests: XCTestCase {
 
     func testSimpleSwiftUIConfiguration() throws {
         assertSnapshot(
-            matching: SwiftUIView(),
+            of: SwiftUIView(),
             as: .accessibilityImage(size: UIScreen.main.bounds.size),
             named: nameForDevice()
         )
@@ -35,7 +35,7 @@ final class SnapshotTestingTests: XCTestCase {
 
     func testSimpleSwiftUIWithScrollViewConfiguration() throws {
         assertSnapshot(
-            matching: SwiftUIViewWithScrollView(),
+            of: SwiftUIViewWithScrollView(),
             as: .accessibilityImage(size: UIScreen.main.bounds.size),
             named: nameForDevice()
         )
@@ -44,7 +44,7 @@ final class SnapshotTestingTests: XCTestCase {
     func testSimpleConfiguration() {
         let viewController = ViewAccessibilityPropertiesViewController()
         viewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: viewController, as: .accessibilityImage, named: nameForDevice())
+        assertSnapshot(of: viewController, as: .accessibilityImage, named: nameForDevice())
     }
 
     func testShowingActivationPoint() {
@@ -52,19 +52,19 @@ final class SnapshotTestingTests: XCTestCase {
         viewController.view.frame = UIScreen.main.bounds
 
         assertSnapshot(
-            matching: viewController,
+            of: viewController,
             as: .accessibilityImage(showActivationPoints: .always),
             named: nameForDevice(baseName: "always")
         )
 
         assertSnapshot(
-            matching: viewController,
+            of: viewController,
             as: .accessibilityImage(showActivationPoints: .whenOverridden),
             named: nameForDevice(baseName: "whenOverridden")
         )
 
         assertSnapshot(
-            matching: viewController,
+            of: viewController,
             as: .accessibilityImage(showActivationPoints: .never),
             named: nameForDevice(baseName: "never")
         )
@@ -77,13 +77,13 @@ final class SnapshotTestingTests: XCTestCase {
         view.sizeToFit()
 
         assertSnapshot(
-            matching: view,
+            of: view,
             as: .accessibilityImage(useMonochromeSnapshot: false),
             named: nameForDevice(baseName: "false")
         )
 
         assertSnapshot(
-            matching: view,
+            of: view,
             as: .accessibilityImage(useMonochromeSnapshot: true),
             named: nameForDevice(baseName: "true")
         )
@@ -103,13 +103,13 @@ final class SnapshotTestingTests: XCTestCase {
         container.addSubview(view)
 
         assertSnapshot(
-            matching: container,
+            of: container,
             as: .accessibilityImage(drawHierarchyInKeyWindow: false),
             named: nameForDevice(baseName: "false")
         )
 
         assertSnapshot(
-            matching: container,
+            of: container,
             as: .accessibilityImage(drawHierarchyInKeyWindow: true),
             named: nameForDevice(baseName: "true")
         )
@@ -120,13 +120,13 @@ final class SnapshotTestingTests: XCTestCase {
         view.sizeToFit()
 
         assertSnapshot(
-            matching: view,
+            of: view,
             as: .accessibilityImage(),
             named: nameForDevice(baseName: "default")
         )
 
         assertSnapshot(
-            matching: view,
+            of: view,
             as: .accessibilityImage(markerColors: [.red, .green, .blue]),
             named: nameForDevice(baseName: "custom")
         )
@@ -135,13 +135,13 @@ final class SnapshotTestingTests: XCTestCase {
     func testInvertColors() {
         let viewController = InvertColorsViewController()
         viewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: viewController, as: .imageWithSmartInvert, named: nameForDevice())
+        assertSnapshot(of: viewController, as: .imageWithSmartInvert, named: nameForDevice())
     }
 
     func testHitTargets() {
         let viewController = ButtonAccessibilityTraitsViewController()
         viewController.view.frame = UIScreen.main.bounds
-        assertSnapshot(matching: viewController, as: .imageWithHitTargets(), named: nameForDevice())
+        assertSnapshot(of: viewController, as: .imageWithHitTargets(), named: nameForDevice())
     }
 
     func testUIKitTextField() {
@@ -149,7 +149,7 @@ final class SnapshotTestingTests: XCTestCase {
         viewController.view.frame = UIScreen.main.bounds
 
         assertSnapshot(
-            matching: viewController,
+            of: viewController,
             as: .accessibilityImage,
             named: nameForDevice()
         )
@@ -160,7 +160,7 @@ final class SnapshotTestingTests: XCTestCase {
         viewController.view.frame = UIScreen.main.bounds
 
         assertSnapshot(
-            matching: viewController,
+            of: viewController,
             as: .accessibilityImage,
             named: nameForDevice()
         )
@@ -171,7 +171,7 @@ final class SnapshotTestingTests: XCTestCase {
             .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
 
         assertSnapshot(
-            matching: view,
+            of: view,
             as: .accessibilityImage,
             named: nameForDevice()
         )

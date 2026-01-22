@@ -49,7 +49,7 @@ final class BlockBasedAccessibilityViewController: AccessibilityViewController {
             "CustomActions",
         ]
         
-        for (index, string) in properties.enumerated() {
+        for (index, _) in properties.enumerated() {
             let circle = UIView()
             circle.backgroundColor = .lightGray
             circle.layer.cornerRadius = circleSize / 2
