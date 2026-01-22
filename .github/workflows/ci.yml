@@ -55,9 +55,13 @@ jobs:
           experimental: true
       - name: Prepare Simulator Runtimes
         run: Scripts/github/prepare-simulators.sh ${{ matrix.platform }}
-      - name: Build
+      - name: Tuist Install
+        run: tuist install --path Example
+      - name: Tuist Generate
+        run: tuist generate --path Example
+      - name: Tuist Build
         run: tuist build --path Example
-      - name: Test
+      - name: Tuist Test - en
         run: tuist test --path Example -d '${{ matrix.device }}' -o ${{ matrix.os }} --platform iOS "AccessibilitySnapshotDemo (en)"
       - name: Upload Results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
