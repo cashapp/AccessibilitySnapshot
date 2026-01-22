@@ -101,6 +101,8 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
 
     private var displayMarkers: [DisplayMarker] = []
 
+    private var containerOverlayViews: [UIView] = []
+
     // MARK: - Public Methods
 
     /// Parse the `containedView`'s accessibility and add appropriate visual elements to represent it.
@@ -115,6 +117,10 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
             $0.overlayView.removeFromSuperview()
             $0.activationPointView?.removeFromSuperview()
         }
+
+        // Clean up any previous container overlays.
+        self.containerOverlayViews.forEach { $0.removeFromSuperview() }
+        self.containerOverlayViews = []
 
         let viewController = containedView.next as? UIViewController
         let originalParent = viewController?.parent
@@ -151,11 +157,20 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         containedView.layoutIfNeeded()
 
         let parser = AccessibilityHierarchyParser()
-        let markers = parser.parseAccessibilityElements(in: containedView, rotorResultLimit: snapshotConfiguration.rotors.resultLimit)
-        
+        let parsedHierarchy = parser.parseAccessibilityHierarchy(in: containedView, rotorResultLimit: snapshotConfiguration.rotors.resultLimit)
+
+        // Add container overlays (dashed rounded rectangles for semantic groups, etc.)
+        for container in parsedHierarchy.containers {
+            let containerOverlayView = ContainerOverlayView(
+                frame: snapshotView.bounds,
+                container: container
+            )
+            snapshotView.addSubview(containerOverlayView)
+            containerOverlayViews.append(containerOverlayView)
+        }
         
         var displayMarkers: [DisplayMarker] = []
-        for (index, marker) in markers.enumerated() {
+        for (index, marker) in parsedHierarchy.markers.enumerated() {
             let color = snapshotConfiguration.markerColors[index % snapshotConfiguration.markerColors.count]
 
             let legendView = LegendView(marker: marker, color: color, configuration: snapshotConfiguration)

@@ -41,4 +41,31 @@ internal extension AccessibilitySnapshotView {
             fatalError("init(coder:) has not been implemented")
         }
     }
+
+    /// A view that draws a dashed rounded rectangle to represent an accessibility container.
+    final class ContainerOverlayView: UIView {
+
+        init(frame: CGRect, container: AccessibilityContainer) {
+            super.init(frame: frame)
+
+            backgroundColor = .clear
+
+            let insetRect = container.frame.insetBy(dx: -4, dy: -4)
+            let path = UIBezierPath(roundedRect: insetRect, cornerRadius: 12)
+
+            let borderLayer = CAShapeLayer()
+            borderLayer.path = path.cgPath
+            borderLayer.strokeColor = UIColor.darkGray.cgColor
+            borderLayer.fillColor = UIColor.clear.cgColor
+            borderLayer.lineWidth = 2
+            borderLayer.lineDashPattern = [6, 4] as [NSNumber]
+            borderLayer.lineCap = .round
+
+            layer.addSublayer(borderLayer)
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
 }
