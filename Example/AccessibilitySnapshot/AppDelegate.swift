@@ -17,4 +17,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         return true
     }
+
+    // MARK: - Menus
+
+    override func buildMenu(with builder: UIMenuBuilder) {
+        super.buildMenu(with: builder)
+        MenuController.shared.buildMenu(with: builder)
+    }
+
+    // MARK: - Menu Actions
+
+    @objc func handleKeyboardShortcut(_ sender: UIKeyCommand) {
+        print("Keyboard shortcut activated: \(sender.title)")
+    }
 }

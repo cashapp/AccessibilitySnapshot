@@ -113,16 +113,6 @@ public extension FBSnapshotTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        // Check if usesDrawViewHierarchyInRect is set correctly for iOS 26+
-        // iOS 26+ requires drawViewHierarchyInRect for Liquid Glass effects
-        let majorVersion = ProcessInfo().operatingSystemVersion.majorVersion
-        if majorVersion >= 26 {
-            let expectedValue = true
-            if usesDrawViewHierarchyInRect != expectedValue {
-                print("⚠️ WARNING: iOS \(majorVersion) detected but usesDrawViewHierarchyInRect is \(usesDrawViewHierarchyInRect), expected \(expectedValue). Liquid Glass effects require drawViewHierarchyInRect to render correctly.")
-            }
-        }
-
         guard isRunningInHostApplication else {
             XCTFail(ErrorMessageFactory.errorMessageForMissingHostApplication, file: file, line: line)
             return
