@@ -105,8 +105,14 @@ final class RootViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let viewController = accessibilityScreens[indexPath.row].1(self)
         viewController.modalPresentationStyle = .fullScreen
-        present(viewController, animated: true, completion: nil)
+        let navigationController = UINavigationController(rootViewController: viewController)
+        viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "xmark"), style: .plain, target: self, action: #selector(dismiss(_:)))
+        present(navigationController, animated: true, completion: nil)
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
+    @objc
+    func dismiss(_ sender: UIViewController) {
+        self.dismiss(animated: true, completion: nil)
+    }
 }
