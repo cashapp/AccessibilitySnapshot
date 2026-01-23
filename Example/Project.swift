@@ -68,7 +68,7 @@ let project = Project(
             settings: .settings(
                 base: [
                     "CLANG_ENABLE_MODULES": "YES",
-                    "DEFINES_MODULE": "YES",
+                    "DEFINES_MODULE": "NO",
                     "MODULEMAP_FILE": "$(SRCROOT)/../Tuist/ModuleMaps/Parser/module.modulemap",
                 ]
             )
@@ -155,7 +155,7 @@ let project = Project(
             settings: .settings(
                 base: [
                     "CLANG_ENABLE_MODULES": "YES",
-                    "DEFINES_MODULE": "YES",
+                    "DEFINES_MODULE": "NO",
                     "MODULEMAP_FILE": "$(SRCROOT)/../Tuist/ModuleMaps/iOSSnapshotTestCase/module.modulemap",
                     "ENABLE_TESTING_SEARCH_PATHS": "YES",
                 ]
