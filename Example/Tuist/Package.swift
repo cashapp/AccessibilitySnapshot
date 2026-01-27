@@ -19,7 +19,7 @@ let packageSettings = PackageSettings(
 #endif
 
 let package = Package(
-    name: "AccessibilitySnapshotTuist",
+    name: "AccessibilitySnapshot",
     dependencies: [
         .package(
             name: "iOSSnapshotTestCase",

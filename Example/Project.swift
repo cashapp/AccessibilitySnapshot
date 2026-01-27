@@ -46,7 +46,7 @@ func makeLanguageScheme(language: String, languageCode: String) -> Scheme {
 // MARK: - Project
 
 let project = Project(
-    name: "AccessibilitySnapshotTuist",
+    name: "AccessibilitySnapshot",
     options: .options(
         automaticSchemesOptions: .disabled,
         defaultKnownRegions: ["en", "de", "ru"],
