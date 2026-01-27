@@ -61,7 +61,7 @@ tuist generate --path Example
 1. Open the generated workspace
 
    ```sh
-   open Example/AccessibilitySnapshotTuist.xcworkspace
+   open Example/AccessibilitySnapshot.xcworkspace
    ```
 ### Getting Snapshot Images from CI
 
