@@ -66,3 +66,10 @@ tuist generate --path Example
 ### Getting Snapshot Images from CI
 
 Test results are archived for CI jobs. When there is a failure because of a snapshot test image changing those images can be extracted from the archive. See [Scripts/ExtractImagesFromTestResults.swift](https://github.com/cashapp/AccessibilitySnapshot/blob/main/Scripts/ExtractImagesFromTestResults.swift) for instructions.
+
+### Testing on hardware
+
+If you would like to run the demo app on a real device, add `export TUIST_DEVELOPMENT_TEAM=ABCDEFG123` (where `ABCDEFG123` is your Apple development team ID) to your `.zshrc` or `.bashrc` file. Alternatively, run the Tuist generation command as follows:
+```sh
+TUIST_DEVELOPMENT_TEAM=ABCDEFG123 tuist generate --path Example
+```

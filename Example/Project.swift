@@ -191,6 +191,7 @@ let project = Project(
             settings: .settings(
                 base: [
                     "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "TUIST_BUILD",
+                    "DEVELOPMENT_TEAM": SettingValue.string(Environment.developmentTeam.getString(default: "")),
                 ]
             )
         ),
