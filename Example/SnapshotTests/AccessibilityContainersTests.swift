@@ -71,4 +71,36 @@ final class AccessibilityContainersTests: SnapshotTestCase {
         SnapshotVerifyAccessibility(viewController.view)
     }
 
+    func testContainerHierarchy() {
+        let viewController = ContainerHierarchyViewController()
+        viewController.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(
+            viewController.view,
+            snapshotConfiguration: .withContainers()
+        )
+    }
+
+}
+
+
+extension AccessibilitySnapshotConfiguration {
+
+    /// Creates a configuration with container visualization enabled.
+    ///
+    /// This is a convenience factory method that returns a configuration suitable for
+    /// visualizing accessibility containers with dashed borders around semantic groups,
+    /// lists, landmarks, and other container types.
+    ///
+    /// - Parameter viewRenderingMode: The preferred strategy for converting a view to an image. Defaults to `.drawHierarchyInRect`.
+    /// - Returns: A configuration with `showContainers` enabled.
+    fileprivate static func withContainers(
+        viewRenderingMode: ViewRenderingMode = .drawHierarchyInRect
+    ) -> AccessibilitySnapshotConfiguration {
+        return AccessibilitySnapshotConfiguration(
+            viewRenderingMode: viewRenderingMode,
+            colorRenderingMode: .monochrome,
+            showContainers: true
+        )
+    }
+
 }
