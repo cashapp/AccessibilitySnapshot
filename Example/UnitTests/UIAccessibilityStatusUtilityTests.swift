@@ -18,7 +18,6 @@ import AccessibilitySnapshotParser_ObjC
 import XCTest
 
 final class UIAccessibilityStatusUtilityTests: XCTestCase {
-
     func testInvertColorsStatus() {
         let statusUtility = UIAccessibilityStatusUtility()
 
@@ -30,5 +29,4 @@ final class UIAccessibilityStatusUtilityTests: XCTestCase {
         statusUtility.unmockStatuses()
         XCTAssertFalse(UIAccessibility.isInvertColorsEnabled)
     }
-
 }

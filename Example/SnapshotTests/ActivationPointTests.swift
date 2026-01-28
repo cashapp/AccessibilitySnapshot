@@ -20,7 +20,6 @@ import iOSSnapshotTestCase
 @testable import AccessibilitySnapshotDemo
 
 final class ActivationPointTests: SnapshotTestCase {
-
     func testActivationPointDisabled() {
         let viewController = ActivationPointViewController()
         viewController.view.frame = UIScreen.main.bounds
@@ -47,5 +46,4 @@ final class ActivationPointTests: SnapshotTestCase {
             snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode, activationPointDisplay: .always)
         )
     }
-
 }

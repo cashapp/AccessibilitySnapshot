@@ -18,21 +18,17 @@ import Paralayout
 import UIKit
 
 final class UserIntefaceDirectionViewController: AccessibilityViewController {
-
     // MARK: - UIViewController
 
     override func loadView() {
         view = View()
     }
-
 }
 
 // MARK: -
 
 private extension UserIntefaceDirectionViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -76,7 +72,7 @@ private extension UserIntefaceDirectionViewController {
         override func layoutSubviews() {
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
             for subview in [unspecifiedView, playbackView, spatialView, forceLeftToRightView, forceRightToLeftView] {
                 subview.frame.size = .init(width: 200, height: 32)
                 distributionSpecifiers.append(subview)
@@ -84,17 +80,13 @@ private extension UserIntefaceDirectionViewController {
             }
             applyVerticalSubviewDistribution(distributionSpecifiers)
         }
-
     }
-
 }
 
 // MARK: -
 
 private extension UserIntefaceDirectionViewController {
-
     final class ContainerView: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -127,7 +119,5 @@ private extension UserIntefaceDirectionViewController {
         override func layoutSubviews() {
             applyHorizontalSubviewDistribution(subviews)
         }
-
     }
-
 }

@@ -41,7 +41,6 @@ import UIKit
 //  │ 08 │    X    │    X    │    X    │  true   │ "Label: Value", "Hint"          │
 //  └────┴─────────┴─────────┴─────────┴─────────┴─────────────────────────────────┘
 final class LabelAccessibilityPropertiesViewController: AccessibilityViewController {
-
     // MARK: - Private Properties
 
     private var labels: [UILabel] {
@@ -105,15 +104,12 @@ final class LabelAccessibilityPropertiesViewController: AccessibilityViewControl
         labels[7].accessibilityValue = "Value"
         labels[7].accessibilityHint = "Hint"
     }
-
 }
 
 // MARK: -
 
 extension LabelAccessibilityPropertiesViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -127,7 +123,7 @@ extension LabelAccessibilityPropertiesViewController {
 
         // MARK: - Public Properties
 
-        let labels = (0..<8).map { _ in UILabel() }
+        let labels = (0 ..< 8).map { _ in UILabel() }
 
         // MARK: - UIView
 
@@ -136,14 +132,12 @@ extension LabelAccessibilityPropertiesViewController {
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
             for label in labels {
                 distributionSpecifiers.append(label.distributionItemUsingCapInsets)
                 distributionSpecifiers.append(1.flexible)
             }
             applyVerticalSubviewDistribution(distributionSpecifiers)
         }
-
     }
-
 }

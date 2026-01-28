@@ -20,7 +20,6 @@ import UIKit
 
 @available(iOS 14.0, *)
 final class AccessibilityCustomContentViewController: AccessibilityViewController {
-
     // MARK: - UIViewController
 
     override func loadView() {
@@ -33,15 +32,13 @@ final class AccessibilityCustomContentViewController: AccessibilityViewControlle
             ]
         )
     }
-
 }
 
 // MARK: -
+
 @available(iOS 14.0, *)
 private extension AccessibilityCustomContentViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         init(views: [CustomContentView], frame: CGRect = .zero) {
@@ -68,22 +65,20 @@ private extension AccessibilityCustomContentViewController {
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
             for subview in views {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
             applyVerticalSubviewDistribution(distributionSpecifiers)
         }
-
     }
-
 }
 
 // MARK: -
+
 @available(iOS 14.0, *)
 private extension AccessibilityCustomContentViewController {
-    
     final class CustomContentView: UIView, AXCustomContentProvider {
         // MARK: - Life Cycle
 
@@ -104,12 +99,13 @@ private extension AccessibilityCustomContentViewController {
         }
 
         // MARK: - UIAccessibility
+
         var accessibilityCustomContent: [AXCustomContent]! = {
             let customContent = AXCustomContent(label: "Custom Content Label", value: "Custom Content Value")
 
             let highImportance = AXCustomContent(label: "High Importance Label", value: "High Importance Value")
             highImportance.importance = .high
-           
+
             return [customContent, highImportance]
         }()
     }

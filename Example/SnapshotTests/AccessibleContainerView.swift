@@ -18,7 +18,6 @@ import Paralayout
 import UIKit
 
 final class AccessibleContainerView: UIView {
-
     // MARK: - Life Cycle
 
     init(count: Int, innerMargin: CGFloat) {
@@ -26,7 +25,7 @@ final class AccessibleContainerView: UIView {
 
         super.init(frame: .zero)
 
-        for _ in 0..<count {
+        for _ in 0 ..< count {
             let view = UIView(frame: CGRect(x: 0, y: 0, width: subviewSize, height: subviewSize))
             view.isAccessibilityElement = true
             view.accessibilityLabel = "Hello World"
@@ -50,11 +49,11 @@ final class AccessibleContainerView: UIView {
     // MARK: - UIView
 
     override func layoutSubviews() {
-        var distribution: [ViewDistributionItem] = [ outerMargin.fixed ]
+        var distribution: [ViewDistributionItem] = [outerMargin.fixed]
         for subview in subviews {
             distribution.append(contentsOf: [
                 subview.distributionItem,
-                1.flexible
+                1.flexible,
             ])
         }
         distribution.removeLast()
@@ -69,5 +68,4 @@ final class AccessibleContainerView: UIView {
             height: subviewSize + 2 * outerMargin
         )
     }
-
 }

@@ -19,7 +19,6 @@ import CoreImage
 import UIKit
 
 extension UIView {
-
     // MARK: - Public Methods
 
     public func drawHierarchyWithInvertedColors(in rect: CGRect, using context: UIGraphicsImageRendererContext) {
@@ -91,5 +90,4 @@ extension UIView {
 
         return subviews.contains { $0.hasSubviewInHierarchyThatIgnoresInvertColors }
     }
-
 }

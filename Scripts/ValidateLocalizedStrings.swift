@@ -25,10 +25,10 @@ for filePath in enumerator {
 }
 
 print("Found source files:")
-swiftFiles.forEach { print("  \($0)")}
+swiftFiles.forEach { print("  \($0)") }
 
 print("Found strings files:")
-stringsFiles.forEach { print("  \($0)")}
+stringsFiles.forEach { print("  \($0)") }
 
 let localizedStringRegex = Regex {
     "localized("
@@ -43,7 +43,7 @@ let localizedStringRegex = Regex {
 }
 
 let localizedKeys = try swiftFiles.flatMap { filePath in
-    return try String(contentsOfFile: filePath)
+    try String(contentsOfFile: filePath)
         .matches(of: localizedStringRegex)
         .map { $0.1 }
 }

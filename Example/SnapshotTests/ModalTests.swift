@@ -20,7 +20,6 @@ import iOSSnapshotTestCase
 @testable import AccessibilitySnapshotDemo
 
 final class ModalTests: SnapshotTestCase {
-
     func testSingleModal() {
         let modalAccessibilityViewController = ModalAccessibilityViewController(
             topLevelCount: 1,
@@ -80,5 +79,4 @@ final class ModalTests: SnapshotTestCase {
         modalAccessibilityViewController.view.frame = UIScreen.main.bounds
         SnapshotVerifyAccessibility(modalAccessibilityViewController.view)
     }
-
 }

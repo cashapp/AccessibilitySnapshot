@@ -14,11 +14,8 @@
 //  limitations under the License.
 //
 
-import UIKit
 import AccessibilitySnapshotParser
-
-
-
+import UIKit
 
 // MARK: -
 
@@ -28,10 +25,9 @@ import AccessibilitySnapshotParser
 /// The overlays and legend will be added when `parseAccessibility()` is called. In order for the coordinates to be
 /// calculated properly, the view must already be in the view hierarchy.
 public final class AccessibilitySnapshotView: SnapshotAndLegendView {
-
     /// The configuration struct for snapshot rendering.
     public let snapshotConfiguration: AccessibilitySnapshotConfiguration
-    
+
     // MARK: - Life Cycle
 
     /// Initializes a new snapshot container view.
@@ -45,8 +41,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     /// points.
     /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice Control).
 
-    
-    @available(*, deprecated, message:"Please use `init(containedView:snapshotConfiguration:)` instead.")
+    @available(*, deprecated, message: "Please use `init(containedView:snapshotConfiguration:)` instead.")
     public convenience init(
         containedView: UIView,
         viewRenderingMode: ViewRenderingMode,
@@ -54,15 +49,14 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         activationPointDisplayMode: AccessibilityContentDisplayMode,
         showUserInputLabels: Bool
     ) {
-        
-        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode:viewRenderingMode,
-                                                               overlayColors:markerColors,
+        let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode,
+                                                               overlayColors: markerColors,
                                                                activationPointDisplay: activationPointDisplayMode,
-                                                               includesInputLabels: showUserInputLabels  ? .whenOverridden : .never)
-        
+                                                               includesInputLabels: showUserInputLabels ? .whenOverridden : .never)
+
         self.init(containedView: containedView, snapshotConfiguration: configuration)
     }
-    
+
     /// Initializes a new snapshot container view.
     ///
     /// - parameter containedView: The view that should be snapshotted, and for which the accessibility markers should
@@ -74,7 +68,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     ) {
         self.containedView = containedView
         self.snapshotConfiguration = snapshotConfiguration
-        
+
         super.init(frame: containedView.bounds)
 
         backgroundColor = .init(white: 0.9, alpha: 1.0)
@@ -143,7 +137,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         snapshotView.image = try containedView.renderToImage(
             configuration: snapshotConfiguration.rendering
         )
-        
+
         snapshotView.bounds.size = containedView.bounds.size
 
         // Complete the layout pass after the view is restored to this container, in case it was modified during the
@@ -152,25 +146,25 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
 
         let parser = AccessibilityHierarchyParser()
         let markers = parser.parseAccessibilityElements(in: containedView, rotorResultLimit: snapshotConfiguration.rotors.resultLimit)
-        
-        
+
         var displayMarkers: [DisplayMarker] = []
         for (index, marker) in markers.enumerated() {
             let color = snapshotConfiguration.markerColors[index % snapshotConfiguration.markerColors.count]
 
             let legendView = LegendView(marker: marker, color: color, configuration: snapshotConfiguration)
             addSubview(legendView)
-            
+
             let rotorResultsShapes = marker.displayRotors(snapshotConfiguration.rotors.displayMode).flatMap(\.resultMarkers).compactMap(\.shape)
-            
+
             let overlayView = OverlayView(
                 frame: snapshotView.bounds,
                 elementShape: marker.shape,
                 includedShapes: rotorResultsShapes,
-                color: color)
-            
+                color: color
+            )
+
             snapshotView.addSubview(overlayView)
-            
+
             var displayMarker = DisplayMarker(
                 marker: marker,
                 legendView: legendView,
@@ -210,7 +204,6 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     // MARK: - Private Types
 
     private struct DisplayMarker {
-
         var marker: AccessibilityMarker
 
         var legendView: LegendView
@@ -218,16 +211,12 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         var overlayView: UIView
 
         var activationPointView: UIView?
-
     }
-
 }
-
 
 // MARK: -
 
 private extension UIView {
-
     func superviewWithSubviewIndex() -> (UIView, Int)? {
         guard let superview = superview else {
             return nil
@@ -239,5 +228,4 @@ private extension UIView {
 
         return (superview, index)
     }
-
 }

@@ -20,7 +20,6 @@ import iOSSnapshotTestCase
 @testable import AccessibilitySnapshotDemo
 
 final class ElementOrderTests: SnapshotTestCase {
-
     func testScatter() {
         let elementOrderViewController = ElementOrderViewController(configurations: .scatter)
         elementOrderViewController.view.frame = UIScreen.main.bounds
@@ -62,5 +61,4 @@ final class ElementOrderTests: SnapshotTestCase {
         elementOrderViewController.view.frame = UIScreen.main.bounds
         SnapshotVerifyAccessibility(elementOrderViewController.view)
     }
-
 }

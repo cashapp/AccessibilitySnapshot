@@ -20,7 +20,6 @@ import iOSSnapshotTestCase
 @testable import AccessibilitySnapshotDemo
 
 final class AccessibilityContainersTests: SnapshotTestCase {
-
     // This test technically doesn't match VoiceOver behavior. VoiceOver says the
     // last cell is element "5 of 1," which seems like a bug in VoiceOver that isn't
     // easy to replicate in the snapshots.
@@ -70,5 +69,4 @@ final class AccessibilityContainersTests: SnapshotTestCase {
         viewController.view.frame = UIScreen.main.bounds
         SnapshotVerifyAccessibility(viewController.view)
     }
-
 }

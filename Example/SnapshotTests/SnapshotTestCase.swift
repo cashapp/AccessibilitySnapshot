@@ -17,11 +17,9 @@
 import iOSSnapshotTestCase
 
 class SnapshotTestCase: FBSnapshotTestCase {
-
     // MARK: - Private Types
 
     private struct TestDeviceConfig {
-
         // MARK: - Public Properties
 
         let systemVersion: String
@@ -38,7 +36,6 @@ class SnapshotTestCase: FBSnapshotTestCase {
                 && screen.bounds.size == screenSize
                 && screen.scale == screenScale
         }
-
     }
 
     // MARK: - Private Static Properties
@@ -70,5 +67,4 @@ class SnapshotTestCase: FBSnapshotTestCase {
 
         recordMode = false
     }
-
 }

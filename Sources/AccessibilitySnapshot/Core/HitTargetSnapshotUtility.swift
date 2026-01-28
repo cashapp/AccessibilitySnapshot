@@ -18,7 +18,6 @@ import CoreImage
 import UIKit
 
 public enum HitTargetSnapshotUtility {
-
     /// Generates an image of the provided `view` with hit target regions highlighted.
     ///
     /// The hit target regions are highlighted using the following rules:
@@ -68,7 +67,7 @@ public enum HitTargetSnapshotUtility {
                                                                   colorMode: useMonochromeSnapshot ? .monochrome : .fullColor)
         let viewImage = try view.renderToImage(configuration: config)
 
-        guard view.bounds.width > 0 && view.bounds.height > 0 else {
+        guard view.bounds.width > 0, view.bounds.height > 0 else {
             throw ImageRenderingError.containedViewHasZeroSize(viewSize: view.bounds.size)
         }
 
@@ -114,7 +113,7 @@ public enum HitTargetSnapshotUtility {
                     CGRect(
                         x: startingAtX,
                         y: y,
-                        width: (endingAtX - startingAtX),
+                        width: endingAtX - startingAtX,
                         height: lineHeight
                     )
                 )
@@ -145,9 +144,8 @@ public enum HitTargetSnapshotUtility {
 
                     } else {
                         // We've moved on to a new view, so draw the scan line for the previous view.
-                        scanLine.append(((lastHit.0...x), lastHit.1))
+                        scanLine.append((lastHit.0 ... x, lastHit.1))
                         lastHit = (x, hitView)
-
                     }
                 }
 
@@ -173,7 +171,7 @@ public enum HitTargetSnapshotUtility {
 
                 // Finish the scan line if necessary.
                 if lastHit.0 != bounds.maxX {
-                    scanLine.append(((lastHit.0...bounds.maxX), lastHit.1))
+                    scanLine.append((lastHit.0 ... bounds.maxX, lastHit.1))
                 }
 
                 return scanLine
@@ -200,7 +198,7 @@ public enum HitTargetSnapshotUtility {
 
             // Step through every full point along the Y axis and check if it's equal to the above line. If so, draw the
             // line at a full point width. If not, step through the pixel lines and draw each individually.
-            var previousScanLine: (y: CGFloat, scanLine: ScanLine)? = nil
+            var previousScanLine: (y: CGFloat, scanLine: ScanLine)?
             for y in stride(from: bounds.minY, to: bounds.maxY, by: maxPermissibleMissedRegionHeight) {
                 let fullScanLine = scanLine(y: y + touchOffset)
 
@@ -237,5 +235,4 @@ public enum HitTargetSnapshotUtility {
 
         return (image, orderedViewColorPairs)
     }
-
 }

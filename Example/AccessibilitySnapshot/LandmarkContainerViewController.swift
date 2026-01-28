@@ -18,25 +18,21 @@ import Paralayout
 import UIKit
 
 final class LandmarkContainerViewController: AccessibilityViewController {
-
     // MARK: - UIViewController
 
     override func loadView() {
-        self.view = View()
+        view = View()
     }
-
 }
 
 // MARK: -
 
 private extension LandmarkContainerViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
-            views = (1..<5).map {
+            views = (1 ..< 5).map {
                 let label = UILabel()
                 label.text = "Label \($0)"
                 return label
@@ -65,7 +61,7 @@ private extension LandmarkContainerViewController {
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
             for subview in views {
                 distributionSpecifiers.append(subview.distributionItemUsingCapInsets)
                 distributionSpecifiers.append(1.flexible)
@@ -83,7 +79,5 @@ private extension LandmarkContainerViewController {
                 // No-op.
             }
         }
-
     }
-
 }

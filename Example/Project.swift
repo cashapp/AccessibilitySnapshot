@@ -247,7 +247,7 @@ let project = Project(
             settings: .settings(
                 base: [
                     "SWIFT_OBJC_BRIDGING_HEADER": "$(SRCROOT)/UnitTests/Supporting Files/UnitTests-Bridging-Header.h",
-                    "OTHER_LDFLAGS": "$(inherited) -ObjC"
+                    "OTHER_LDFLAGS": "$(inherited) -ObjC",
                 ]
             )
         ),

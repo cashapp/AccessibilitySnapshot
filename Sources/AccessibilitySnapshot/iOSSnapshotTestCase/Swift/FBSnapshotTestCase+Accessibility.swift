@@ -14,13 +14,12 @@
 //  limitations under the License.
 //
 
-import XCTest
 import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser_ObjC
 import iOSSnapshotTestCase
+import XCTest
 
-extension FBSnapshotTestCase {
-
+public extension FBSnapshotTestCase {
     /// Snapshots the `view` with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
     ///
@@ -48,8 +47,8 @@ extension FBSnapshotTestCase {
     /// Control).
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
-    @available(*, deprecated, message:"Please use `SnapshotVerifyAccessibility(_ view:identifier:snapshotConfiguration:suffixes:file:line:)` instead.")
-    public func SnapshotVerifyAccessibility(
+    @available(*, deprecated, message: "Please use `SnapshotVerifyAccessibility(_ view:identifier:snapshotConfiguration:suffixes:file:line:)` instead.")
+    func SnapshotVerifyAccessibility(
         _ view: UIView,
         identifier: String = "",
         showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
@@ -60,7 +59,6 @@ extension FBSnapshotTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        
         let configuration = AccessibilitySnapshotConfiguration(
             viewRenderingMode: viewRenderingMode,
             colorRenderingMode: useMonochromeSnapshot ? .monochrome : .fullColor,
@@ -75,8 +73,7 @@ extension FBSnapshotTestCase {
                                     file: file,
                                     line: line)
     }
-    
-    
+
     /// Snapshots the `view` with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
     ///
@@ -94,7 +91,7 @@ extension FBSnapshotTestCase {
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
-    public func SnapshotVerifyAccessibility(
+    func SnapshotVerifyAccessibility(
         // Convenience method that takes no required parameters.
         // This will override the above function for the default case suppressing irrelevant deprecation warnings.
         _ view: UIView,
@@ -105,9 +102,7 @@ extension FBSnapshotTestCase {
     ) {
         SnapshotVerifyAccessibility(view, identifier: identifier, snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode), suffixes: suffixes, file: file, line: line)
     }
-    
-    
-    
+
     /// Snapshots the `view` with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
     ///
@@ -126,7 +121,7 @@ extension FBSnapshotTestCase {
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
-    public func SnapshotVerifyAccessibility(
+    func SnapshotVerifyAccessibility(
         _ view: UIView,
         identifier: String = "",
         snapshotConfiguration: AccessibilitySnapshotConfiguration,
@@ -153,7 +148,6 @@ extension FBSnapshotTestCase {
             containedView: view,
             snapshotConfiguration: snapshotConfiguration
         )
-
 
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.makeKeyAndVisible()
@@ -183,7 +177,7 @@ extension FBSnapshotTestCase {
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
-    public func SnapshotVerifyWithInvertedColors(
+    func SnapshotVerifyWithInvertedColors(
         _ view: UIView,
         identifier: String = "",
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
@@ -263,7 +257,7 @@ extension FBSnapshotTestCase {
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
-    public func SnapshotVerifyWithHitTargets(
+    func SnapshotVerifyWithHitTargets(
         _ view: UIView,
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
@@ -291,17 +285,17 @@ extension FBSnapshotTestCase {
 
     // MARK: - Internal Properties
 
-    var isRunningInHostApplication: Bool {
+    internal var isRunningInHostApplication: Bool {
         // The tests must be run in a host application in order for the accessibility properties to be populated
         // correctly. The `UIApplication.shared` singleton is non-optional, but will be uninitialized when the tests are
         // running outside of a host application, so we can use this check to determine whether we have a test host.
         let hostApplication: UIApplication? = UIApplication.shared
-        return (hostApplication != nil)
+        return hostApplication != nil
     }
-
 }
-extension FBSnapshotTestCase {
-    public var viewRenderingMode: ViewRenderingMode {
-        (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext)
+
+public extension FBSnapshotTestCase {
+    var viewRenderingMode: ViewRenderingMode {
+        usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext
     }
 }

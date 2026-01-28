@@ -16,10 +16,8 @@
 
 import UIKit
 
-
-extension UIApplication {
-
-    public var firstKeyWindow: UIWindow? {
+public extension UIApplication {
+    var firstKeyWindow: UIWindow? {
         UIApplication
             .shared
             .connectedScenes

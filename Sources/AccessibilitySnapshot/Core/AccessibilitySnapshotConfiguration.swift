@@ -1,5 +1,5 @@
-import UIKit
 import AccessibilitySnapshotParser
+import UIKit
 
 /// Configuration struct that centralizes all accessibility snapshot settings.
 ///
@@ -10,7 +10,6 @@ import AccessibilitySnapshotParser
 /// - `activationPointDisplayMode`: Controls activation point indicator display
 /// - `inputLabelDisplayMode`: Controls user input label display (for Voice Control)
 public struct AccessibilitySnapshotConfiguration {
-
     // MARK: - Nested Configuration Types
 
     /// Configuration for how the view snapshot is rendered.
@@ -83,22 +82,20 @@ public struct AccessibilitySnapshotConfiguration {
         includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden,
         rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit
     ) {
-        self.rendering = Rendering(renderMode: viewRenderingMode, colorMode: colorRenderingMode)
-        self.rotors = Rotors(displayMode: includesCustomRotors, resultLimit: rotorResultLimit)
-        self.markerColors = overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors
-        self.activationPointDisplayMode = activationPointDisplay
-        self.inputLabelDisplayMode = includesInputLabels
+        rendering = Rendering(renderMode: viewRenderingMode, colorMode: colorRenderingMode)
+        rotors = Rotors(displayMode: includesCustomRotors, resultLimit: rotorResultLimit)
+        markerColors = overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors
+        activationPointDisplayMode = activationPointDisplay
+        inputLabelDisplayMode = includesInputLabels
     }
 }
 
 public enum ViewRenderingMode {
-
     /// Render the view's layer in a `CGContext` using the `render(in:)` method.
     case renderLayerInContext
 
     /// Draw the view's hierarchy after screen updates using the `drawHierarchy(in:afterScreenUpdates:)` method.
     case drawHierarchyInRect
-
 }
 
 public enum ColorRenderingMode {

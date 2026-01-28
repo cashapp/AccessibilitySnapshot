@@ -83,4 +83,3 @@ for case let fileURL as URL in testResultsEnumerator {
             <TestName>.375x812-13-7-3x.png
 
  */
-

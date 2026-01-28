@@ -17,18 +17,16 @@
 import UIKit
 
 extension NSObject {
-
     /// Returns a tuple consisting of the `description` and (optionally) a `hint` that VoiceOver will read for the object.
     func accessibilityDescription(context: AccessibilityHierarchyParser.Context?) -> (description: String, hint: String?) {
         let strings = Strings(locale: accessibilityLanguage)
 
         var accessibilityDescription =
             accessibilityLabelOverride(for: context) ??
-        (hidesAccessibilityLabel(backDescriptor: strings.backDescriptor) ? "" :
-                                                            accessibilityLabel ?? "" )
+            (hidesAccessibilityLabel(backDescriptor: strings.backDescriptor) ? "" :
+                accessibilityLabel ?? "")
 
         var hintDescription = accessibilityHint?.nonEmpty()
-
 
         let numberFormatter = NumberFormatter()
         if let localeIdentifier = accessibilityLanguage {
@@ -61,12 +59,12 @@ extension NSObject {
 
                 accessibilityDescription =
                     headersDescription
-                    + accessibilityDescription
-                    + trailingPeriod
-                    + (showsHeight ? " " + String(format: strings.dataTableRowSpanFormat, numberFormatter.string(from: .init(value: height))!) : "")
-                    + (showsWidth ? " " + String(format: strings.dataTableColumnSpanFormat, numberFormatter.string(from: .init(value: width))!) : "")
-                    + (showsRow ? " " + String(format: strings.dataTableRowFormat, numberFormatter.string(from: .init(value: row + 1))!) : "")
-                    + (showsColumn ? " " + String(format: strings.dataTableColumnFormat, numberFormatter.string(from: .init(value: column + 1))!) : "")
+                        + accessibilityDescription
+                        + trailingPeriod
+                        + (showsHeight ? " " + String(format: strings.dataTableRowSpanFormat, numberFormatter.string(from: .init(value: height))!) : "")
+                        + (showsWidth ? " " + String(format: strings.dataTableColumnSpanFormat, numberFormatter.string(from: .init(value: width))!) : "")
+                        + (showsRow ? " " + String(format: strings.dataTableRowFormat, numberFormatter.string(from: .init(value: row + 1))!) : "")
+                        + (showsColumn ? " " + String(format: strings.dataTableColumnFormat, numberFormatter.string(from: .init(value: column + 1))!) : "")
 
                 descriptionContainsContext = true
 
@@ -109,7 +107,7 @@ extension NSObject {
         if accessibilityTraits.contains(.button) && !hidesButtonTraitFromTraits && !hidesButtonTraitInContext {
             traitSpecifiers.append(strings.buttonTraitName)
         }
-        
+
         if accessibilityTraits.contains(.backButton) {
             traitSpecifiers.append(strings.backButtonTraitName)
         }
@@ -133,8 +131,8 @@ extension NSObject {
                 // Prior to iOS 17 the then private trait would suppress any other accessibility values.
                 // Once the trait became public in 17 values other than the above are announced with the trait specifiers.
                 if #available(iOS 17.0, *), let accessibilityValue {
-                        traitSpecifiers.append(accessibilityValue)
-                    }
+                    traitSpecifiers.append(accessibilityValue)
+                }
             }
         }
 
@@ -202,8 +200,7 @@ extension NSObject {
                     strings.seriesContextFormat,
                     accessibilityDescription,
                     numberFormatter.string(from: .init(value: index))!,
-                    numberFormatter.string(from: .init(value: count))!
-                )
+                    numberFormatter.string(from: .init(value: count))!)
 
             case .listStart:
                 let trailingPeriod = accessibilityDescription.hasSuffix(".") ? "" : "."
@@ -211,8 +208,7 @@ extension NSObject {
                     "%@%@ %@",
                     accessibilityDescription,
                     trailingPeriod,
-                    strings.listStartContext
-                )
+                    strings.listStartContext)
 
             case .listEnd:
                 let trailingPeriod = accessibilityDescription.hasSuffix(".") ? "" : "."
@@ -220,8 +216,7 @@ extension NSObject {
                     "%@%@ %@",
                     accessibilityDescription,
                     trailingPeriod,
-                    strings.listEndContext
-                )
+                    strings.listEndContext)
 
             case .landmarkStart:
                 let trailingPeriod = accessibilityDescription.hasSuffix(".") ? "" : "."
@@ -229,8 +224,7 @@ extension NSObject {
                     "%@%@ %@",
                     accessibilityDescription,
                     trailingPeriod,
-                    strings.landmarkStartContext
-                )
+                    strings.landmarkStartContext)
 
             case .landmarkEnd:
                 let trailingPeriod = accessibilityDescription.hasSuffix(".") ? "" : "."
@@ -238,8 +232,7 @@ extension NSObject {
                     "%@%@ %@",
                     accessibilityDescription,
                     trailingPeriod,
-                    strings.landmarkEndContext
-                )
+                    strings.landmarkEndContext)
 
             case .dataTableCell:
                 break
@@ -270,7 +263,7 @@ extension NSObject {
 
         let hasHintOnly = (accessibilityHint?.nonEmpty() != nil) && (accessibilityLabel?.nonEmpty() == nil) && (accessibilityValue?.nonEmpty() == nil)
         let hidesAdjustableHint = accessibilityTraits.contains(.notEnabled) || accessibilityTraits.contains(.switchButton) || hasHintOnly
-        if accessibilityTraits.contains(.adjustable) && !hidesAdjustableHint {
+        if accessibilityTraits.contains(.adjustable), !hidesAdjustableHint {
             if let existingHintDescription = hintDescription?.nonEmpty()?.strippingTrailingPeriod() {
                 hintDescription = String(format: strings.adjustableTraitHintFormat, existingHintDescription)
             } else {
@@ -314,7 +307,7 @@ extension NSObject {
             return false
         }
     }
-    
+
     private func hidesAccessibilityLabel(backDescriptor: String) -> Bool {
         // To prevent duplication, Back Button elements omit their label if it matches the localized "Back" descriptor.
         guard accessibilityTraits.contains(.backButton),
@@ -327,7 +320,6 @@ extension NSObject {
     // MARK: - Private
 
     private struct Strings {
-
         // MARK: - Public Properties
 
         let selectedTraitName: String
@@ -337,9 +329,9 @@ extension NSObject {
         let notEnabledTraitName: String
 
         let buttonTraitName: String
-        
+
         let backButtonTraitName: String
-        
+
         let backDescriptor: String
 
         let tabTraitName: String
@@ -401,189 +393,186 @@ extension NSObject {
         // MARK: - Life Cycle
 
         init(locale: String?) {
-            self.selectedTraitName = "Selected.".localized(
+            selectedTraitName = "Selected.".localized(
                 key: "trait.selected.description",
                 comment: "Description for the 'selected' accessibility trait",
                 locale: locale
             )
-            self.selectedTraitFormat = "Selected: %@".localized(
+            selectedTraitFormat = "Selected: %@".localized(
                 key: "trait.selected.format",
                 comment: "Format for the description of the selected element; param0: the description of the element",
                 locale: locale
             )
-            self.notEnabledTraitName = "Dimmed.".localized(
+            notEnabledTraitName = "Dimmed.".localized(
                 key: "trait.not_enabled.description",
                 comment: "Description for the 'not enabled' accessibility trait",
                 locale: locale
             )
-            self.buttonTraitName = "Button.".localized(
+            buttonTraitName = "Button.".localized(
                 key: "trait.button.description",
                 comment: "Description for the 'button' accessibility trait",
                 locale: locale
             )
-            self.backButtonTraitName = "Back Button.".localized(
+            backButtonTraitName = "Back Button.".localized(
                 key: "trait.backbutton.description",
                 comment: "Description for the 'back button' accessibility trait",
                 locale: locale
             )
-            self.backDescriptor = "Back".localized(
+            backDescriptor = "Back".localized(
                 key: "back.descriptor",
                 comment: "Descriptor for the 'back' portion of the 'back button' accessibility trait",
                 locale: locale
             )
-            self.tabTraitName = "Tab.".localized(
+            tabTraitName = "Tab.".localized(
                 key: "trait.tab.description",
                 comment: "Description for the 'tab' accessibility trait",
                 locale: locale
             )
-            self.headerTraitName = "Heading.".localized(
+            headerTraitName = "Heading.".localized(
                 key: "trait.header.description",
                 comment: "Description for the 'header' accessibility trait",
                 locale: locale
             )
-            self.linkTraitName = "Link.".localized(
+            linkTraitName = "Link.".localized(
                 key: "trait.link.description",
                 comment: "Description for the 'link' accessibility trait",
                 locale: locale
             )
-            self.adjustableTraitName = "Adjustable.".localized(
+            adjustableTraitName = "Adjustable.".localized(
                 key: "trait.adjustable.description",
                 comment: "Description for the 'adjustable' accessibility trait",
                 locale: locale
             )
-            self.adjustableTraitHint = "Swipe up or down with one finger to adjust the value.".localized(
+            adjustableTraitHint = "Swipe up or down with one finger to adjust the value.".localized(
                 key: "trait.adjustable.hint",
                 comment: "Hint describing how to use elements with the 'adjustable' accessibility trait",
                 locale: locale
             )
-            self.adjustableTraitHintFormat = "%@. Swipe up or down with one finger to adjust the value.".localized(
+            adjustableTraitHintFormat = "%@. Swipe up or down with one finger to adjust the value.".localized(
                 key: "trait.adjustable.hint_format",
                 comment: "Format for hint describing how to use elements with the 'adjustable' accessibility trait; " +
-                         "param0: the existing hint",
+                    "param0: the existing hint",
                 locale: locale
             )
-            self.imageTraitName = "Image.".localized(
+            imageTraitName = "Image.".localized(
                 key: "trait.image.description",
                 comment: "Description for the 'image' accessibility trait",
                 locale: locale
             )
-            self.searchFieldTraitName = "Search Field.".localized(
+            searchFieldTraitName = "Search Field.".localized(
                 key: "trait.search_field.description",
                 comment: "Description for the 'search field' accessibility trait",
                 locale: locale
             )
-            self.switchButtonTraitName = "Switch Button.".localized(
+            switchButtonTraitName = "Switch Button.".localized(
                 key: "trait.switch_button.description",
                 comment: "Description for the 'switch button' accessibility trait",
                 locale: locale
             )
-            self.switchButtonOnStateName = "On.".localized(
+            switchButtonOnStateName = "On.".localized(
                 key: "trait.switch_button.state_on.description",
                 comment: "Description for the 'switch button' accessibility trait, when the switch is on",
                 locale: locale
             )
-            self.switchButtonOffStateName = "Off.".localized(
+            switchButtonOffStateName = "Off.".localized(
                 key: "trait.switch_button.state_off.description",
                 comment: "Description for the 'switch button' accessibility trait, when the switch is off",
                 locale: locale
             )
-            self.switchButtonMixedStateName = "Mixed.".localized(
+            switchButtonMixedStateName = "Mixed.".localized(
                 key: "trait.switch_button.state_mixed.description",
                 comment: "Description for the 'switch button' accessibility trait, when the switch is in a mixed state",
                 locale: locale
             )
-            self.switchButtonTraitHint = "Double tap to toggle setting.".localized(
+            switchButtonTraitHint = "Double tap to toggle setting.".localized(
                 key: "trait.switch_button.hint",
                 comment: "Hint describing how to use elements with the 'switch button' accessibility trait",
                 locale: locale
             )
-            self.switchButtonTraitHintFormat = "%@. Double tap to toggle setting.".localized(
+            switchButtonTraitHintFormat = "%@. Double tap to toggle setting.".localized(
                 key: "trait.switch_button.hint_format",
                 comment: "Format for hint describing how to use elements with the 'switch button' accessibility trait; " +
-                         "param0: the existing hint",
+                    "param0: the existing hint",
                 locale: locale
             )
-            self.seriesContextFormat = "%@ %@ of %@.".localized(
+            seriesContextFormat = "%@ %@ of %@.".localized(
                 key: "context.series.description_format",
                 comment: "Format for the description of an element in a series; param0: the description of the element, " +
-                         "param1: the index of the element in the series, param2: the number of elements in the series",
+                    "param1: the index of the element in the series, param2: the number of elements in the series",
                 locale: locale
             )
-            self.dataTableRowSpanFormat = "Spans %@ rows.".localized(
+            dataTableRowSpanFormat = "Spans %@ rows.".localized(
                 key: "context.data_table.row_span_format",
                 comment: "Format for the description of the height of a cell in a table; param0: the number of rows the cell spans",
                 locale: locale
             )
-            self.dataTableColumnSpanFormat = "Spans %@ columns.".localized(
+            dataTableColumnSpanFormat = "Spans %@ columns.".localized(
                 key: "context.data_table.column_span_format",
                 comment: "Format for the description of the width of a cell in a table; param0: the number of columns the cell spans",
                 locale: locale
             )
-            self.dataTableRowFormat = "Row %@.".localized(
+            dataTableRowFormat = "Row %@.".localized(
                 key: "context.data_table.row_format",
                 comment: "Format for the description of the vertical location of a cell in a table; param0: the row in which the cell resides",
                 locale: locale
             )
-            self.dataTableColumnFormat = "Column %@.".localized(
+            dataTableColumnFormat = "Column %@.".localized(
                 key: "context.data_table.column_format",
                 comment: "Format for the description of the horizontal location of a cell in a table; param0: the column in which the cell resides",
                 locale: locale
             )
-            self.listStartContext = "List Start.".localized(
+            listStartContext = "List Start.".localized(
                 key: "context.list_start.description",
                 comment: "Description of the first element in a list",
                 locale: locale
             )
-            self.listEndContext = "List End.".localized(
+            listEndContext = "List End.".localized(
                 key: "context.list_end.description",
                 comment: "Description of the last element in a list",
                 locale: locale
             )
-            self.landmarkStartContext = "Landmark.".localized(
+            landmarkStartContext = "Landmark.".localized(
                 key: "context.landmark_start.description",
                 comment: "Description of the first element in a landmark container",
                 locale: locale
             )
-            self.landmarkEndContext = "End.".localized(
+            landmarkEndContext = "End.".localized(
                 key: "context.landmark_end.description",
                 comment: "Description of the last element in a landmark container",
                 locale: locale
             )
-            self.textEntryTraitName = "Text Field.".localized(
+            textEntryTraitName = "Text Field.".localized(
                 key: "trait.text_field.description",
                 comment: "Description for the 'text entry' accessibility trait",
                 locale: locale
             )
-            self.textEntryTraitHint = "Double tap to edit.".localized(
+            textEntryTraitHint = "Double tap to edit.".localized(
                 key: "trait.text_field.hint",
                 comment: "Hint describing how to use elements with the 'text entry' accessibility trait",
                 locale: locale
             )
-            self.textEntryIsEditingTraitHint = "Use the rotor to access Misspelled Words".localized(
+            textEntryIsEditingTraitHint = "Use the rotor to access Misspelled Words".localized(
                 key: "trait.text_field_is_editing.hint",
                 comment: "Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited",
                 locale: locale
             )
-            self.scrollableTextEntryTraitHint = "Double tap to edit., Use the rotor to access Misspelled Words".localized(
+            scrollableTextEntryTraitHint = "Double tap to edit., Use the rotor to access Misspelled Words".localized(
                 key: "trait.scrollable_text_field.hint",
                 comment: "Hint describing how to use elements with the 'text entry' and 'scrollable' accessibility traits",
                 locale: locale
             )
-            self.isEditingTraitName = "Is editing.".localized(
+            isEditingTraitName = "Is editing.".localized(
                 key: "trait.text_field_is_editing.description",
                 comment: "Description for the 'is editing' accessibility trait",
                 locale: locale
             )
         }
-
     }
-
 }
 
 // MARK: -
 
 extension String {
-
     /// Returns the string if it is non-empty, otherwise nil.
     func nonEmpty() -> String? {
         return isEmpty ? nil : self
@@ -596,31 +585,27 @@ extension String {
             return self
         }
     }
-
 }
 
 // MARK: -
 
 extension UIAccessibilityTraits {
-
     static let textEntry = UIAccessibilityTraits(rawValue: 1 << 18) // 0x0000000000040000
-    
-    static let isEditing = UIAccessibilityTraits(rawValue: 1 << 21) // 0x0000000000200000
-    
-    static let backButton = UIAccessibilityTraits(rawValue: 1 << 27) // 0x0000000008000000
-    
-    static let tabBarItem = UIAccessibilityTraits(rawValue: 1 << 28) // 0x0000000010000000
-    
-    static let scrollable = UIAccessibilityTraits(rawValue: 1 << 47) // 0x0000800000000000
-    
-    static let switchButton = UIAccessibilityTraits(rawValue: 1 << 53) //0x0020000000000000
 
+    static let isEditing = UIAccessibilityTraits(rawValue: 1 << 21) // 0x0000000000200000
+
+    static let backButton = UIAccessibilityTraits(rawValue: 1 << 27) // 0x0000000008000000
+
+    static let tabBarItem = UIAccessibilityTraits(rawValue: 1 << 28) // 0x0000000010000000
+
+    static let scrollable = UIAccessibilityTraits(rawValue: 1 << 47) // 0x0000800000000000
+
+    static let switchButton = UIAccessibilityTraits(rawValue: 1 << 53) // 0x0020000000000000
 }
 
 // MARK: -
 
 extension AccessibilityHierarchyParser.Context {
-
     var hidesButtonTrait: Bool {
         switch self {
         case .series, .tabBarItem, .dataTableCell, .listStart, .listEnd, .landmarkStart, .landmarkEnd:
@@ -640,26 +625,24 @@ extension AccessibilityHierarchyParser.Context {
             return true
         }
     }
-
 }
 
 extension UIAccessibilityCustomRotor {
-    
-    internal var isKnownRotorType: Bool {
-        switch self.systemRotorType {
+    var isKnownRotorType: Bool {
+        switch systemRotorType {
         case .none, .link, .visitedLink, .heading, .headingLevel1, .headingLevel2, .headingLevel3, .headingLevel4, .headingLevel5, .headingLevel6, .boldText, .italicText, .underlineText, .misspelledWord, .image, .textField, .table, .list, .landmark:
             return true
         @unknown default:
             return false
         }
     }
-    
-    internal func displayName(locale: String? = nil) -> String {
+
+    func displayName(locale: String? = nil) -> String {
         guard name.isEmpty else {
             return name
         }
 
-        switch self.systemRotorType {
+        switch systemRotorType {
         case .none:
             return "None".localized(
                 key: "rotor.none.description",
@@ -781,41 +764,40 @@ extension UIAccessibilityCustomRotor {
                     comment: "Format for description of an unknown rotor type; param0: the raw value",
                     locale: locale
                 ),
-                self.systemRotorType.rawValue
-            )
+                systemRotorType.rawValue)
         }
     }
-    
-    public struct CollectedRotorResults : Equatable {
+
+    public struct CollectedRotorResults: Equatable {
         // Maximum number of results to count before stopping enumeration.
         // When this limit is reached, we stop counting and report "99+ More Results"
         public static let maximumCount: Int = 99
-        
+
         public enum Limit: Equatable {
             case none
             case underMaxCount(Int)
             case greaterThanMaxCount
-            
+
             func combine(_ other: Limit) -> Limit {
                 switch (self, other) {
                 case (.none, .none):
                     return .none
                 case (_, .greaterThanMaxCount), (.greaterThanMaxCount, _):
                     return .greaterThanMaxCount
-                case (.underMaxCount(let count), .none), (.none, .underMaxCount(let count)):
+                case let (.underMaxCount(count), .none), let (.none, .underMaxCount(count)):
                     return .underMaxCount(count)
-                case (.underMaxCount(let a), .underMaxCount(let b)):
+                case let (.underMaxCount(a), .underMaxCount(b)):
                     if a + b <= maximumCount {
-                        return .underMaxCount(a+b)
+                        return .underMaxCount(a + b)
                     }
                     return .greaterThanMaxCount
                 }
             }
         }
-        
+
         public let results: [UIAccessibilityCustomRotorItemResult]
         public let limit: Limit
-        
+
         init(results: [UIAccessibilityCustomRotorItemResult], limit: Limit = .none) {
             self.results = results
             self.limit = limit
@@ -825,19 +807,18 @@ extension UIAccessibilityCustomRotor {
     // Collects rotor results in both directions to capture all accessible items.
     // Some rotors only provide results in one direction, so we check both.
     // Intelligently merges results, removing duplicates and handling edge cases.
-    internal func collectAllResults(nextLimit: Int, previousLimit: Int) -> CollectedRotorResults {
+    func collectAllResults(nextLimit: Int, previousLimit: Int) -> CollectedRotorResults {
         let forwards = iterateResults(direction: .next, limit: nextLimit)
         let backwards = iterateResults(direction: .previous, limit: nextLimit)
-                
+
         // Its common that backwards and forwards contain the same elements with differing orders.
-        
+
         let forwardsSet = resultSet(forwards.results)
         let backwardsSet = resultSet(backwards.results)
-        
+
         if forwardsSet == backwardsSet { return forwards }
         if forwardsSet.isSuperset(of: backwardsSet) { return forwards }
         if backwardsSet.isSuperset(of: forwardsSet) { return backwards }
-    
 
         // When starting iteration without a currentItem, both directions often return
         // the same first element. Drop one copy before merging to avoid duplicates.
@@ -846,30 +827,31 @@ extension UIAccessibilityCustomRotor {
             let results = backwards.results.dropFirst().reversed() + forwards.results
             return .init(results: results, limit: backwards.limit.combine(forwards.limit))
         }
-        
+
         let results = (backwards.results.reversed() + forwards.results).removingDuplicates()
         return .init(results: results, limit: backwards.limit.combine(forwards.limit))
     }
-    
-    internal func iterateResults(direction: UIAccessibilityCustomRotor.Direction, limit: Int) -> CollectedRotorResults {
-        var results : [UIAccessibilityCustomRotorItemResult] = []
+
+    func iterateResults(direction: UIAccessibilityCustomRotor.Direction, limit: Int) -> CollectedRotorResults {
+        var results: [UIAccessibilityCustomRotorItemResult] = []
         let predicate = UIAccessibilityCustomRotorSearchPredicate()
         var loopDetection: [Int] = []
-        
+
         predicate.searchDirection = direction
-        
-        while results.count < (limit) {
-            guard let result = self.itemSearchBlock(predicate), !result.compare(predicate.currentItem) else { break }
-            
+
+        while results.count < limit {
+            guard let result = itemSearchBlock(predicate), !result.compare(predicate.currentItem) else { break }
+
             if let hashable = _hashableRotorResult(result),
-                resultSet(results).contains(hashable) {
+               resultSet(results).contains(hashable)
+            {
                 loopDetection.append(results.count)
             }
             // Loop detection: Track when we encounter duplicate results.
             // If we see 3 duplicates in a row (sequential indices), we're in an infinite loop.
             // Example: [A,B,C,D,E,C,D,E,C,D,E] - indices [5,7,9] are sequential, stop at index 5.
             // Non-sequential duplicates are OK (e.g., A->B->C->A->D->E->F is not a loop).
-            if loopDetection.count >= 3{
+            if loopDetection.count >= 3 {
                 if loopDetection.isSequential() {
                     break
                 }
@@ -878,30 +860,29 @@ extension UIAccessibilityCustomRotor {
                     loopDetection = []
                 }
             }
-            
+
             results.append(result)
             predicate.currentItem = result
         }
- 
-        
+
         // Reset the results array to end at the first duplicated element
         if !loopDetection.isEmpty, loopDetection.isSequential(), loopDetection.last == results.count {
             results = Array(results.prefix(upTo: loopDetection.first!))
         }
-        
+
         if let last = results.last {
             predicate.currentItem = last
         }
-        
+
         let limited = results.count <= limit ? countAdditionalResults(predicate) : .none
         return .init(results: results, limit: limited)
     }
-    
-    private func countAdditionalResults(_ predicate: UIAccessibilityCustomRotorSearchPredicate, maxCount: Int = CollectedRotorResults.maximumCount) -> CollectedRotorResults.Limit  {
+
+    private func countAdditionalResults(_ predicate: UIAccessibilityCustomRotorSearchPredicate, maxCount: Int = CollectedRotorResults.maximumCount) -> CollectedRotorResults.Limit {
         // We have a ton of elements, more than we can display in a snapshot. lets get a count of how many there are up to our max count.
         var count = 0
         var result: UIAccessibilityCustomRotorItemResult?
-        while count < (maxCount), let next = self.itemSearchBlock(predicate)  {
+        while count < maxCount, let next = itemSearchBlock(predicate) {
             if next.targetElement == nil || (next.targetElement as? NSObject)?.isEqual(result?.targetElement as? NSObject) ?? false {
                 break
             }
@@ -918,7 +899,7 @@ extension UIAccessibilityCustomRotor {
         }
         return .underMaxCount(count)
     }
-    
+
     // Helper for duplicate detection in rotor results.
     // NSObject uses identity equality (===), but we need value equality
     // to detect when a rotor returns the same logical item multiple times.
@@ -928,18 +909,19 @@ extension UIAccessibilityCustomRotor {
         init?(_ result: UIAccessibilityCustomRotorItemResult) {
             guard let element = result.targetElement as? NSObject else { return nil }
             self.element = element
-            self.range = result.targetRange
+            range = result.targetRange
         }
     }
-    
+
     private func resultSet(_ results: [UIAccessibilityCustomRotorItemResult]) -> Set<_hashableRotorResult> {
-        Set(results.compactMap({ _hashableRotorResult($0) }))
+        Set(results.compactMap { _hashableRotorResult($0) })
     }
 }
-extension UIAccessibilityCustomRotorItemResult {
-    fileprivate func compare(_ other: UIAccessibilityCustomRotorItemResult?) -> Bool {
+
+private extension UIAccessibilityCustomRotorItemResult {
+    func compare(_ other: UIAccessibilityCustomRotorItemResult?) -> Bool {
         guard let other else { return false }
-        
+
         // 'any NSObjectProtocol' cannot be used as a type conforming to protocol 'Equatable' because 'Equatable' has static requirements
         let target = targetElement as? NSObject
         let otherTarget = other.targetElement as? NSObject
@@ -947,13 +929,12 @@ extension UIAccessibilityCustomRotorItemResult {
     }
 }
 
-extension Array where Element : UIAccessibilityCustomRotorItemResult {
-    
+extension Array where Element: UIAccessibilityCustomRotorItemResult {
     func compareWith(_ other: [Element]) -> Bool {
         guard count == other.count else { return false }
-        return zip(self, other).allSatisfy({ $0.compare($1) })
+        return zip(self, other).allSatisfy { $0.compare($1) }
     }
-    
+
     func removingDuplicates() -> [Element] {
         reduce(into: []) { array, element in
             if !array.contains(where: { $0.compare(element) }) {
@@ -963,10 +944,9 @@ extension Array where Element : UIAccessibilityCustomRotorItemResult {
     }
 }
 
-
 extension Array where Element == Int {
     func isSequential() -> Bool {
         guard count > 1 else { return true }
-        return zip(self, self.dropFirst()).allSatisfy({ $1 == $0 + 1 })
+        return zip(self, dropFirst()).allSatisfy { $1 == $0 + 1 }
     }
 }

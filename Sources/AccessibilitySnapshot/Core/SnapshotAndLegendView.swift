@@ -17,10 +17,9 @@
 import UIKit
 
 public class SnapshotAndLegendView: UIView {
-
     // MARK: - Life Cycle
 
-    internal override init(frame: CGRect) {
+    override init(frame: CGRect) {
         super.init(frame: frame)
 
         snapshotView.clipsToBounds = true
@@ -34,14 +33,14 @@ public class SnapshotAndLegendView: UIView {
 
     // MARK: - Internal Properties
 
-    internal let snapshotView: UIImageView = .init()
+    let snapshotView: UIImageView = .init()
 
-    internal var legendViews: [UIView] {
+    var legendViews: [UIView] {
         // This is intended to be overridden and implemented by subclasses.
         return []
     }
 
-    internal var minimumLegendWidth: CGFloat {
+    var minimumLegendWidth: CGFloat {
         // This is intended to be overridden and implemented by subclasses.
         return 0
     }
@@ -54,7 +53,7 @@ public class SnapshotAndLegendView: UIView {
 
     // MARK: - UIView
 
-    public override func layoutSubviews() {
+    override public func layoutSubviews() {
         switch legendLocation(viewSize: snapshotView.bounds.size) {
         case let .bottom(width: availableLegendWidth):
             snapshotView.frame.origin.y = bounds.minY
@@ -102,7 +101,7 @@ public class SnapshotAndLegendView: UIView {
         }
     }
 
-    public override func sizeThatFits(_ size: CGSize) -> CGSize {
+    override public func sizeThatFits(_ size: CGSize) -> CGSize {
         guard !legendViews.isEmpty else {
             return snapshotView.bounds.size
         }
@@ -119,7 +118,7 @@ public class SnapshotAndLegendView: UIView {
 
             let legendHeight = legendViewSizes
                 .map { $0.height }
-                .reduce(-Metrics.legendVerticalSpacing, { $0 + $1 + Metrics.legendVerticalSpacing })
+                .reduce(-Metrics.legendVerticalSpacing) { $0 + $1 + Metrics.legendVerticalSpacing }
 
             let width = max(
                 snapshotView.frame.width,
@@ -168,7 +167,7 @@ public class SnapshotAndLegendView: UIView {
                 Metrics.legendInsets.right,
             ]
 
-            let maxLegendViewHeight = legendViewSizes.reduce(0, { max($0, $1.height) })
+            let maxLegendViewHeight = legendViewSizes.reduce(0) { max($0, $1.height) }
             let height = max(
                 snapshotView.bounds.height,
                 maxLegendViewHeight + Metrics.legendInsets.top + Metrics.legendInsets.bottom
@@ -203,29 +202,23 @@ public class SnapshotAndLegendView: UIView {
     // MARK: - Private Types
 
     private enum LegendLocation {
-
         case bottom(width: CGFloat)
 
         case right(height: CGFloat)
-
     }
 
     private enum Metrics {
-
         static let legendInsets: UIEdgeInsets = .init(top: 16, left: 16, bottom: 16, right: 16)
 
         static let legendHorizontalSpacing: CGFloat = 16
 
         static let legendVerticalSpacing: CGFloat = 16
-
     }
-
 }
 
 // MARK: -
 
 private extension CGFloat {
-
     func floorToPixel(in source: UIWindow?) -> CGFloat {
         let scale = source?.screen.scale ?? 1
         return floor(self * scale) / scale
@@ -235,5 +228,4 @@ private extension CGFloat {
         let scale = source?.screen.scale ?? 1
         return ceil(self * scale) / scale
     }
-
 }
