@@ -595,10 +595,15 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
     func testContainerTypeCodable() throws {
         let types: [UIAccessibilityContainerType] = [.none, .dataTable, .list, .landmark, .semanticGroup]
+        let expectedNames = ["none", "dataTable", "list", "landmark", "semanticGroup"]
 
-        for type in types {
+        for (type, expectedName) in zip(types, expectedNames) {
             let encoder = JSONEncoder()
             let data = try encoder.encode(type)
+
+            // Verify human-readable format
+            let jsonString = String(data: data, encoding: .utf8)!
+            XCTAssertEqual(jsonString, "\"\(expectedName)\"", "Container type should encode as readable string")
 
             let decoder = JSONDecoder()
             let decoded = try decoder.decode(UIAccessibilityContainerType.self, from: data)
@@ -613,10 +618,112 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let encoder = JSONEncoder()
         let data = try encoder.encode(traits)
 
+        // Verify human-readable format (array of trait names)
+        let jsonArray = try JSONSerialization.jsonObject(with: data) as! [String]
+        XCTAssertTrue(jsonArray.contains("button"), "Traits should include 'button'")
+        XCTAssertTrue(jsonArray.contains("selected"), "Traits should include 'selected'")
+        XCTAssertTrue(jsonArray.contains("header"), "Traits should include 'header'")
+        XCTAssertTrue(jsonArray.contains("link"), "Traits should include 'link'")
+
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(UIAccessibilityTraits.self, from: data)
 
         XCTAssertEqual(decoded, traits)
+    }
+
+    func testTraitsEmptyEncodesAsEmptyArray() throws {
+        let traits: UIAccessibilityTraits = []
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(traits)
+
+        let jsonString = String(data: data, encoding: .utf8)!
+        XCTAssertEqual(jsonString, "[]", "Empty traits should encode as empty array")
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(UIAccessibilityTraits.self, from: data)
+
+        XCTAssertEqual(decoded, traits)
+    }
+
+    func testShapePathEncodesAsPathElements() throws {
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: 0, y: 0))
+        path.addLine(to: CGPoint(x: 100, y: 0))
+        path.addLine(to: CGPoint(x: 100, y: 50))
+        path.close()
+
+        let shape = AccessibilityElement.Shape.path(path)
+
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+        let data = try encoder.encode(shape)
+
+        // Verify human-readable format (pathElements array)
+        let json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertEqual(json["type"] as? String, "path")
+        XCTAssertNotNil(json["pathElements"], "Path should encode as pathElements array")
+
+        let pathElements = json["pathElements"] as! [[String: Any]]
+        XCTAssertEqual(pathElements.count, 4) // move, line, line, close
+
+        XCTAssertEqual(pathElements[0]["type"] as? String, "move")
+        XCTAssertEqual(pathElements[1]["type"] as? String, "line")
+        XCTAssertEqual(pathElements[2]["type"] as? String, "line")
+        XCTAssertEqual(pathElements[3]["type"] as? String, "close")
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(AccessibilityElement.Shape.self, from: data)
+
+        if case .path(let decodedPath) = decoded {
+            XCTAssertEqual(decodedPath.bounds, path.bounds)
+        } else {
+            XCTFail("Expected path shape")
+        }
+    }
+
+    func testCustomActionWithImageCodable() throws {
+        // Create a simple 1x1 red image for testing
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10))
+        let testImage = renderer.image { context in
+            UIColor.red.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 10, height: 10))
+        }
+
+        let action = AccessibilityElement.CustomAction(name: "Delete", image: testImage)
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(action)
+
+        // Verify imageData is included
+        let json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertEqual(json["name"] as? String, "Delete")
+        XCTAssertNotNil(json["imageData"], "Image should be encoded as imageData")
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(AccessibilityElement.CustomAction.self, from: data)
+
+        XCTAssertEqual(decoded.name, "Delete")
+        XCTAssertNotNil(decoded.image, "Image should be decoded")
+        XCTAssertEqual(decoded.image?.size, testImage.size)
+    }
+
+    func testCustomActionWithoutImageCodable() throws {
+        let action = AccessibilityElement.CustomAction(name: "Edit", image: nil)
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(action)
+
+        // Verify imageData is not included when image is nil
+        let json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertEqual(json["name"] as? String, "Edit")
+        XCTAssertNil(json["imageData"], "imageData should not be present when image is nil")
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(AccessibilityElement.CustomAction.self, from: data)
+
+        XCTAssertEqual(decoded.name, "Edit")
+        XCTAssertNil(decoded.image)
     }
 }
 

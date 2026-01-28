@@ -113,21 +113,29 @@ public struct AccessibilityElement: Equatable, Codable {
             image = from.image
         }
 
-        // Custom Codable implementation that only encodes the name
-        // (UIImage is not Codable)
         private enum CodingKeys: String, CodingKey {
             case name
+            case imageData
         }
 
         public init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             name = try container.decode(String.self, forKey: .name)
-            image = nil
+
+            if let imageData = try container.decodeIfPresent(Data.self, forKey: .imageData) {
+                image = UIImage(data: imageData)
+            } else {
+                image = nil
+            }
         }
 
         public func encode(to encoder: Encoder) throws {
             var container = encoder.container(keyedBy: CodingKeys.self)
             try container.encode(name, forKey: .name)
+
+            if let image = image, let pngData = image.pngData() {
+                try container.encode(pngData, forKey: .imageData)
+            }
         }
     }
 
