@@ -22,7 +22,6 @@ import Paralayout
 @testable import AccessibilitySnapshotDemo
 
 final class HitTargetTests: SnapshotTestCase {
-
     func testButtonHitTarget() {
         let buttonTraitsViewController = ButtonAccessibilityTraitsViewController()
         buttonTraitsViewController.view.frame = UIScreen.main.bounds
@@ -38,7 +37,7 @@ final class HitTargetTests: SnapshotTestCase {
         do { try XCTSkipUnless(
             ProcessInfo().operatingSystemVersion.majorVersion >= 14,
             "This test only supports iOS 14 and later"
-        )} catch {
+        ) } catch {
             XCTFail(String(describing: error))
         }
 
@@ -69,14 +68,12 @@ final class HitTargetTests: SnapshotTestCase {
             }
         }
     }
-
 }
 
 // MARK: -
 
 @available(iOS 14, *)
 private final class TableViewController: UITableViewController {
-
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return 3
     }
@@ -92,5 +89,4 @@ private final class TableViewController: UITableViewController {
 
         return cell
     }
-
 }

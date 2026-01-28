@@ -14,12 +14,12 @@
 //  limitations under the License.
 //
 
-import SwiftUI
-import AccessibilitySnapshotParser
 import AccessibilitySnapshotCore
+import AccessibilitySnapshotParser
+import SwiftUI
 
-extension View {
-    public func accessibilityPreview(renderSize: CGSize? = nil) -> some View {
+public extension View {
+    func accessibilityPreview(renderSize: CGSize? = nil) -> some View {
         SwiftUIAccessibilitySnapshotView(content: { self }, renderSize: renderSize)
     }
 }
@@ -29,7 +29,6 @@ extension View {
 ///
 /// The overlays and legend will be added when `parseAccessibility()` is called.
 public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
-
     // MARK: - Properties
 
     private let content: Content
@@ -83,10 +82,9 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
                                         color: markerColors[index % markerColors.count],
                                         activationPointDisplayMode: activationPointDisplayMode
                                     )
-                                    .offset(x: -renderSize.width/2*(1 - scale))
-                                    .offset(y: -renderSize.height/2*(1 - scale))
+                                    .offset(x: -renderSize.width / 2 * (1 - scale))
+                                    .offset(y: -renderSize.height / 2 * (1 - scale))
                                     .scaleEffect(scale)
-
                                 }
                             }
                         }
@@ -202,13 +200,10 @@ private struct MarkerOverlayView: View {
 }
 
 private struct SwiftUILegendView: View {
-
     enum Metrics {
-
         static let minimumWidth: CGFloat = 240
 
         static let markerSize: CGFloat = 14
-
     }
 
     let marker: AccessibilityMarker
@@ -249,7 +244,7 @@ extension CGSize {
     }
 
     func scaledTo(_ size: CGSize) -> CGFloat {
-        min(self.width / size.width, self.height / size.height)
+        min(width / size.width, height / size.height)
     }
 }
 

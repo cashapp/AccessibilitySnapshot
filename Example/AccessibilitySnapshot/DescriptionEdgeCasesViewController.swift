@@ -35,7 +35,6 @@ import UIKit
 //  │ 05 │         │    X    │ Button            │ "Hint. Button."                                                              │
 //  └────┴─────────┴─────────┴───────────────────┴──────────────────────────────────────────────────────────────────────────────┘
 final class DescriptionEdgeCasesViewController: AccessibilityViewController {
-
     // MARK: - Private Properties
 
     private var views: [UIView] {
@@ -75,15 +74,12 @@ final class DescriptionEdgeCasesViewController: AccessibilityViewController {
         views[4].accessibilityHint = "Hint"
         views[4].accessibilityTraits = .button
     }
-
 }
 
 // MARK: -
 
 extension DescriptionEdgeCasesViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -99,7 +95,7 @@ extension DescriptionEdgeCasesViewController {
 
         // MARK: - Public Properties
 
-        let views = (0..<5).map { _ in UIView() }
+        let views = (0 ..< 5).map { _ in UIView() }
 
         // MARK: - UIView
 
@@ -111,14 +107,12 @@ extension DescriptionEdgeCasesViewController {
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
             for subview in views {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
             applyVerticalSubviewDistribution(distributionSpecifiers)
         }
-
     }
-
 }

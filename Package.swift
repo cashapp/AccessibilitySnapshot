@@ -74,7 +74,7 @@ let package = Package(
             dependencies: [
                 "AccessibilitySnapshotCore",
                 "AccessibilitySnapshotParser-ObjC",
-                "SnapshotTesting"
+                "SnapshotTesting",
             ],
             path: "Sources/AccessibilitySnapshot/SnapshotTesting"
         ),
@@ -83,7 +83,7 @@ let package = Package(
             dependencies: [
                 "AccessibilitySnapshotCore",
                 "AccessibilitySnapshotParser-ObjC",
-                "iOSSnapshotTestCase"
+                "iOSSnapshotTestCase",
             ],
             path: "Sources/AccessibilitySnapshot/iOSSnapshotTestCase/Swift"
         ),

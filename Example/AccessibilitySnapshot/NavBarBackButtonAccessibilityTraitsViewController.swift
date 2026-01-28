@@ -18,18 +18,18 @@ import Paralayout
 import UIKit
 
 final class NavBarBackButtonAccessibilityTraitsViewController: AccessibilityViewController {
-
     // MARK: - Public Properties
-    
+
     init(titles: [String?] = [nil, nil]) {
         self.titles = titles
         super.init(nibName: nil, bundle: nil)
     }
-    
+
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     var titles: [String?]
 
     // MARK: - Private Properties
@@ -48,31 +48,31 @@ final class NavBarBackButtonAccessibilityTraitsViewController: AccessibilityView
 // MARK: -
 
 extension NavBarBackButtonAccessibilityTraitsViewController {
-    
     final class Child: UIViewController {
-        
         init(_ title: String? = nil) {
             super.init(nibName: nil, bundle: nil)
             self.title = title
         }
-        
+
         required init?(coder: NSCoder) {
             super.init(coder: coder)
         }
+
         let label = UILabel()
-        
+
         override func viewDidLoad() {
             super.viewDidLoad()
             navigationItem.hidesBackButton = false
-            
+
             label.text = "Back Button Accessibility Traits - "
-            label.text?.append(hasTitle ? "With Titles" : "Without Titles" )
+            label.text?.append(hasTitle ? "With Titles" : "Without Titles")
             view.addSubview(label)
         }
+
         private var hasTitle: Bool {
-             self.title != nil
+            title != nil
         }
-        
+
         override func viewDidLayoutSubviews() {
             super.viewDidLayoutSubviews()
             label.sizeToFit()
@@ -84,9 +84,7 @@ extension NavBarBackButtonAccessibilityTraitsViewController {
 }
 
 extension NavBarBackButtonAccessibilityTraitsViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         init(titles: [String?]) {
@@ -102,14 +100,13 @@ extension NavBarBackButtonAccessibilityTraitsViewController {
         }
 
         // MARK: - Public Properties
+
         var titles: [String?]
-        
+
         let navController = UINavigationController()
         var navView: UIView {
             navController.view
         }
-
-        
 
         // MARK: - Private Properties
 
@@ -119,8 +116,5 @@ extension NavBarBackButtonAccessibilityTraitsViewController {
             super.layoutSubviews()
             navView.frame = bounds
         }
-        
-
     }
-
 }

@@ -18,7 +18,6 @@ import Paralayout
 import UIKit
 
 final class AccessibilityPathViewController: AccessibilityViewController {
-
     // MARK: - Private Properties
 
     private var views: [AccessibilityPathView] {
@@ -98,15 +97,12 @@ final class AccessibilityPathViewController: AccessibilityViewController {
             subview.frame.size = .init(width: 60, height: 40)
         }
     }
-
 }
 
 // MARK: -
 
 private extension AccessibilityPathViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         init(views: [AccessibilityPathView], frame: CGRect = .zero) {
@@ -131,24 +127,20 @@ private extension AccessibilityPathViewController {
         override func layoutSubviews() {
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
             for subview in views {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
             applyVerticalSubviewDistribution(distributionSpecifiers)
         }
-
     }
-
 }
 
 // MARK: -
 
 private extension AccessibilityPathViewController {
-
     final class AccessibilityPathView: UIView {
-
         // MARK: - Life Cycle
 
         init(label: String, relativePath: UIBezierPath) {
@@ -182,7 +174,5 @@ private extension AccessibilityPathViewController {
                 super.accessibilityPath = newValue
             }
         }
-
     }
-
 }

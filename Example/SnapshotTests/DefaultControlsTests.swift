@@ -18,7 +18,6 @@ import FBSnapshotTestCase_Accessibility
 import iOSSnapshotTestCase
 
 final class DefaultControlsTests: SnapshotTestCase {
-
     // MARK: - UIDatePicker
 
     // This test is disabled because the accessibility descriptions are not correct.
@@ -114,20 +113,18 @@ final class DefaultControlsTests: SnapshotTestCase {
         container.bounds.size = .init(width: 120, height: 44)
 
         // This is testing flaky behavior, so run the test multiple times to ensure it's consistent.
-        for _ in 0..<10 {
+        for _ in 0 ..< 10 {
             SnapshotVerifyAccessibility(container)
         }
 
         // Ensure the tint color is restored.
         XCTAssertEqual(textField.tintColor, .red)
     }
-
 }
 
 // MARK: -
 
 private final class ContainerView: UIView {
-
     // MARK: - Life Cycle
 
     init(control: UIControl) {
@@ -160,5 +157,4 @@ private final class ContainerView: UIView {
         let controlSize = control.sizeThatFits(size)
         return CGSize(width: size.width, height: controlSize.height + 20)
     }
-
 }

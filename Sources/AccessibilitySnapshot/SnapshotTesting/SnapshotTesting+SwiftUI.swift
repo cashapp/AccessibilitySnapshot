@@ -14,17 +14,16 @@
 //  limitations under the License.
 //
 
+import AccessibilitySnapshotCore
+import AccessibilitySnapshotParser_ObjC
 import SnapshotTesting
 import SwiftUI
 import UIKit
-import AccessibilitySnapshotCore
-import AccessibilitySnapshotParser_ObjC
 
-extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
-
+public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
-    public static var accessibilityImage: Snapshotting {
+    static var accessibilityImage: Snapshotting {
         return .accessibilityImage()
     }
 
@@ -44,7 +43,7 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays.
     /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
     /// Control).
-    public static func accessibilityImage(
+    static func accessibilityImage(
         size: CGSize? = nil,
         showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
@@ -70,12 +69,11 @@ extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     }
 
     /// Snapshots the view simulating the way it will appear with Smart Invert Colors enabled.
-    public static var imageWithSmartInvert: Snapshotting {
+    static var imageWithSmartInvert: Snapshotting {
         return Snapshotting<UIViewController, UIImage>
             .imageWithSmartInvert
             .pullback { (view: Value) in
-                return UIHostingController(rootView: view)
+                UIHostingController(rootView: view)
             }
     }
-
 }

@@ -18,11 +18,9 @@ import Paralayout
 import UIKit
 
 final class ElementSelectionViewController: AccessibilityViewController {
-
     // MARK: - Public Types
 
     enum ViewConfiguration {
-
         /// An accessible view.
         ///
         /// - `accessibilityElementsHidden`: Whether or not the child elements should be seen by VoiceOver.
@@ -40,7 +38,6 @@ final class ElementSelectionViewController: AccessibilityViewController {
 
         // A view with three accessible elements.
         case viewWithAccessibleSubviews(accessibilityElementsHidden: Bool, isHidden: Bool)
-
     }
 
     // MARK: - Life Cycle
@@ -97,13 +94,11 @@ final class ElementSelectionViewController: AccessibilityViewController {
     override func loadView() {
         view = View()
     }
-
 }
 
 // MARK: -
 
 extension ElementSelectionViewController {
-
     static func makeConfigurationSelectionViewController(
         presentingViewController: UIViewController
     ) -> UIViewController {
@@ -258,13 +253,11 @@ extension ElementSelectionViewController {
 
         return alertController
     }
-
 }
 
 // MARK: -
 
 extension Array where Element == ElementSelectionViewController.ViewConfiguration {
-
     static var twoAccessibilityElements: [Element] {
         return [
             .accessibilityElement(accessibilityElementsHidden: false, isHidden: false),
@@ -342,15 +335,12 @@ extension Array where Element == ElementSelectionViewController.ViewConfiguratio
             .viewWithAccessibleSubviews(accessibilityElementsHidden: false, isHidden: true),
         ]
     }
-
 }
 
 // MARK: -
 
 private extension ElementSelectionViewController {
-
     final class View: UIView {
-
         // MARK: - Public Properties
 
         var views: [UIView] = [] {
@@ -365,28 +355,25 @@ private extension ElementSelectionViewController {
         override func layoutSubviews() {
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
             for subview in views {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
             applyVerticalSubviewDistribution(distributionSpecifiers)
         }
-
     }
-
 }
 
 // MARK: -
 
 private final class AccessibilityContainerView: UIView {
-
     // MARK: - Life Cycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        accessibilityElements = (0..<3).map { index in
+        accessibilityElements = (0 ..< 3).map { index in
             let element = UIAccessibilityElement(accessibilityContainer: self)
 
             element.accessibilityLabel = "Element \(index)"
@@ -410,23 +397,21 @@ private final class AccessibilityContainerView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
 }
 
 // MARK: -
 
 private final class AccessibleGroupView: UIView {
-
     // MARK: - Life Cycle
 
     init() {
         super.init(frame: .zero)
 
-        (-1...1).forEach { index in
+        (-1 ... 1).forEach { index in
             let view = UIView()
 
             view.isAccessibilityElement = true
-            view.accessibilityLabel = "Element \(index+1)"
+            view.accessibilityLabel = "Element \(index + 1)"
             view.frame = CGRect(
                 x: index * 80 + 16,
                 y: 16,
@@ -446,5 +431,4 @@ private final class AccessibleGroupView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
 }

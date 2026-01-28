@@ -20,7 +20,6 @@ import iOSSnapshotTestCase
 @testable import AccessibilitySnapshotDemo
 
 final class ElementSelectionTests: SnapshotTestCase {
-
     func testTwoAccessibilityElements() {
         let elementSelectionViewController = ElementSelectionViewController(
             configurations: .twoAccessibilityElements
@@ -108,5 +107,4 @@ final class ElementSelectionTests: SnapshotTestCase {
         elementSelectionViewController.view.frame = UIScreen.main.bounds
         SnapshotVerifyAccessibility(elementSelectionViewController.view)
     }
-
 }

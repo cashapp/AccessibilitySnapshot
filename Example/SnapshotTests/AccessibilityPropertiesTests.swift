@@ -22,7 +22,6 @@ import Paralayout
 @testable import AccessibilitySnapshotDemo
 
 final class AccessibilitySnapshotTests: SnapshotTestCase {
-    
     func testBlockBasedAccessibility() {
         if #available(iOS 17.0, *) {
             let viewController = BlockBasedAccessibilityViewController()
@@ -48,16 +47,17 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         buttonTraitsViewController.view.frame = UIScreen.main.bounds
         SnapshotVerifyAccessibility(buttonTraitsViewController.view)
     }
-    
+
     func testNavBarBackButtonTraitsWithTitles() {
         let navBarBackButtonTraitsViewController = NavBarBackButtonAccessibilityTraitsViewController(titles: ["First", "Second"])
         navBarBackButtonTraitsViewController.view.frame = UIScreen.main.bounds
         SnapshotVerifyAccessibility(navBarBackButtonTraitsViewController.view)
     }
+
     func testNavBarBackButtonTraitsWithoutTitles() {
         let navBarBackButtonTraitsViewController = NavBarBackButtonAccessibilityTraitsViewController()
         navBarBackButtonTraitsViewController.view.frame = UIScreen.main.bounds
-        
+
         SnapshotVerifyAccessibility(navBarBackButtonTraitsViewController.view)
     }
 
@@ -90,32 +90,32 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         customActionsViewController.view.frame = UIScreen.main.bounds
         SnapshotVerifyAccessibility(customActionsViewController.view)
     }
-    
+
     func testCustomRotors_overriden() {
         let customRotorsViewController = AccessibilityCustomRotorsViewController()
         customRotorsViewController.view.frame = UIScreen.main.bounds
-        
+
         let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode, includesCustomRotors: .whenOverridden)
-        
+
         SnapshotVerifyAccessibility(customRotorsViewController.view, snapshotConfiguration: configuration)
     }
-    
+
     func testCustomRotors_always() {
         let customRotorsViewController = AccessibilityCustomRotorsViewController()
         customRotorsViewController.view.frame = UIScreen.main.bounds
-        
+
         let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode, includesCustomRotors: .always)
-        
+
         SnapshotVerifyAccessibility(customRotorsViewController.view, snapshotConfiguration: configuration)
     }
-    
+
     @available(iOS 14.0, *)
     func testCustomContent() throws {
         try XCTSkipUnless(
             ProcessInfo().operatingSystemVersion.majorVersion >= 14,
             "This test only supports iOS 14 and later"
         )
-        
+
         let customContentViewController = AccessibilityCustomContentViewController()
         customContentViewController.view.frame = UIScreen.main.bounds
         SnapshotVerifyAccessibility(customContentViewController.view)
@@ -247,7 +247,6 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
     // MARK: - Private Types
 
     private final class GradientBackgroundView: UIView {
-
         // MARK: - Life Cycle
 
         init(frame: CGRect, showSafeAreaInsets: Bool) {
@@ -305,7 +304,5 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
             safeAreaView.frame = insetBounds
             layoutMarginsView.frame = bounds.inset(by: layoutMargins)
         }
-
     }
-
 }

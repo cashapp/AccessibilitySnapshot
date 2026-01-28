@@ -1,0 +1,16 @@
+#!/bin/bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+# Verify mise is available
+if ! command -v mise >/dev/null 2>&1; then
+  echo "mise is required. Refer to Example/README.md for setup instructions." >&2
+  exit 1
+fi
+
+# Use mise exec to ensure we run the versions specified in .mise.toml,
+# regardless of what's installed globally via Homebrew or other means
+echo "Running SwiftFormat..."
+mise exec -- swiftformat .

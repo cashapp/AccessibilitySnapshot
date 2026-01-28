@@ -1,0 +1,5 @@
+#!/bin/bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+exec "$repo_root/Scripts/git-hooks/pre-commit"

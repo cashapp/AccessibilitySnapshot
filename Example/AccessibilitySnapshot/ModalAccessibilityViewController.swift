@@ -18,14 +18,13 @@ import Paralayout
 import UIKit
 
 final class ModalAccessibilityViewController: AccessibilityViewController {
-
     // MARK: - Life Cycle
 
     init(topLevelCount: Int, containerCount: Int, modalAccessibilityMode: ModalAccessibilityMode) {
         super.init(nibName: nil, bundle: nil)
 
-        rootView.modalViews = (0..<topLevelCount).map { ModalView(index: $0, accessibilityMode: modalAccessibilityMode) }
-        rootView.modalContainerViews = (0..<containerCount).map { _ in ModalContainerView() }
+        rootView.modalViews = (0 ..< topLevelCount).map { ModalView(index: $0, accessibilityMode: modalAccessibilityMode) }
+        rootView.modalContainerViews = (0 ..< containerCount).map { _ in ModalContainerView() }
     }
 
     @available(*, unavailable)
@@ -52,15 +51,12 @@ final class ModalAccessibilityViewController: AccessibilityViewController {
         case viewContainsAccessibleElement
         case viewIsInaccessible
     }
-
 }
 
 // MARK: -
 
 private extension ModalAccessibilityViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -85,7 +81,7 @@ private extension ModalAccessibilityViewController {
 
         // MARK: - Public Properties
 
-        let views: [UIView] = (0..<4).map { _ in UIView() }
+        let views: [UIView] = (0 ..< 4).map { _ in UIView() }
 
         var modalViews: [ModalView] = [] {
             didSet {
@@ -114,30 +110,26 @@ private extension ModalAccessibilityViewController {
             modalViews.forEach { modal in
                 modal.sizeToFit()
                 distributionItems.append(modal)
-                distributionItems.append((0.5).flexible)
+                distributionItems.append(0.5.flexible)
             }
 
             modalContainerViews.forEach { container in
                 container.sizeToFit()
                 distributionItems.append(container)
-                distributionItems.append((0.5).flexible)
+                distributionItems.append(0.5.flexible)
             }
 
             _ = distributionItems.dropLast()
             distributionItems.append(1.flexible)
             applyVerticalSubviewDistribution(distributionItems)
         }
-
     }
-
 }
 
 // MARK: -
 
 private extension ModalAccessibilityViewController {
-
     final class ModalView: UIView {
-
         // MARK: - Life Cycle
 
         init(index: Int, accessibilityMode: ModalAccessibilityMode) {
@@ -193,17 +185,13 @@ private extension ModalAccessibilityViewController {
             let labelSize = label.sizeThatFits(size)
             return CGSize(width: labelSize.width + 32, height: labelSize.width + 20)
         }
-
     }
-
 }
 
 // MARK: -
 
 private extension ModalAccessibilityViewController {
-
     final class ModalContainerView: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -219,7 +207,7 @@ private extension ModalAccessibilityViewController {
 
         // MARK: - Private Properties
 
-        private let modalViews: [ModalView] = (0..<2).map { index in
+        private let modalViews: [ModalView] = (0 ..< 2).map { index in
             ModalView(index: index, accessibilityMode: .viewContainsAccessibleElement)
         }
 
@@ -242,15 +230,12 @@ private extension ModalAccessibilityViewController {
             let modalSizeThatFits = modalViews[0].sizeThatFits(size)
             return CGSize(width: modalSizeThatFits.width + 20, height: modalSizeThatFits.height + 30)
         }
-
     }
-
 }
 
 // MARK: -
 
 extension ModalAccessibilityViewController {
-
     static func makeConfigurationSelectionViewController(
         presentingViewController: UIViewController
     ) -> UIViewController {
@@ -295,5 +280,4 @@ extension ModalAccessibilityViewController {
 
         return alertController
     }
-
 }

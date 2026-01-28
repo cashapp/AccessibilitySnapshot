@@ -18,7 +18,6 @@ import Paralayout
 import UIKit
 
 final class InvertColorsViewController: AccessibilityViewController {
-
     // MARK: - Private Properties
 
     private var notificationObserver: AnyObject?
@@ -70,15 +69,12 @@ final class InvertColorsViewController: AccessibilityViewController {
         rootView.statusLabel.text = UIAccessibility.isInvertColorsEnabled ? "Enabled" : "Disabled"
         rootView.setNeedsLayout()
     }
-
 }
 
 // MARK: -
 
 private extension InvertColorsViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -112,7 +108,7 @@ private extension InvertColorsViewController {
 
         // MARK: - Private Properties
 
-        private let nestedSubviews: [UIView] = (0..<5).map { _ in UIView() }
+        private let nestedSubviews: [UIView] = (0 ..< 5).map { _ in UIView() }
 
         let statusLabel: UILabel = .init()
 
@@ -127,7 +123,5 @@ private extension InvertColorsViewController {
             statusLabel.sizeToFit()
             statusLabel.capInsetsAlignmentProxy.align(withSuperview: .topCenter, inset: 20)
         }
-
     }
-
 }

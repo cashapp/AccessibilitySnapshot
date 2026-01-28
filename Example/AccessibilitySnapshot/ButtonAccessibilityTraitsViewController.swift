@@ -79,7 +79,6 @@ import UIKit
 //  │ 27 │(all traits)                           │ "Selected: 26. Dimmed. Heading. Link. Adjustable. Image. Search Field."      │
 //  └────┴───────────────────────────────────────┴──────────────────────────────────────────────────────────────────────────────┘
 final class ButtonAccessibilityTraitsViewController: AccessibilityViewController {
-
     // MARK: - Private Properties
 
     private var buttons: [UIButton] {
@@ -98,7 +97,7 @@ final class ButtonAccessibilityTraitsViewController: AccessibilityViewController
         let numberFormatter = NumberFormatter()
         numberFormatter.minimumIntegerDigits = 2
         for (index, button) in buttons.enumerated() {
-            button.setTitle(numberFormatter.string(from: NSNumber(value: (index + 1))), for: .normal)
+            button.setTitle(numberFormatter.string(from: NSNumber(value: index + 1)), for: .normal)
             button.setTitleColor(.black, for: .normal)
             button.isAccessibilityElement = true
             button.accessibilityIdentifier = "button-\(index + 1)"
@@ -131,7 +130,7 @@ final class ButtonAccessibilityTraitsViewController: AccessibilityViewController
 
         // Single traits.
         for (index, trait) in accessibilityTraits.enumerated() {
-            buttons[index+1].accessibilityTraits = trait
+            buttons[index + 1].accessibilityTraits = trait
         }
 
         // Button with button and link traits.
@@ -159,17 +158,14 @@ final class ButtonAccessibilityTraitsViewController: AccessibilityViewController
         buttons[25].accessibilityTraits = [.button, .keyboardKey]
 
         // Button with all accessibility traits.
-        buttons[26].accessibilityTraits = accessibilityTraits.reduce(.none, { $0.union($1) })
+        buttons[26].accessibilityTraits = accessibilityTraits.reduce(.none) { $0.union($1) }
     }
-
 }
 
 // MARK: -
 
 extension ButtonAccessibilityTraitsViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -185,7 +181,7 @@ extension ButtonAccessibilityTraitsViewController {
 
         // MARK: - Public Properties
 
-        let buttons = (0..<27).map { _ in UIButton() }
+        let buttons = (0 ..< 27).map { _ in UIButton() }
 
         // MARK: - UIView
 
@@ -199,8 +195,8 @@ extension ButtonAccessibilityTraitsViewController {
 
             let outerMargin = bounds.width / 5
 
-            var leftColSubviewDistribution: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-            for button in buttons[0..<buttonsPerColumn] {
+            var leftColSubviewDistribution: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
+            for button in buttons[0 ..< buttonsPerColumn] {
                 leftColSubviewDistribution.append(button)
                 leftColSubviewDistribution.append(1.flexible)
             }
@@ -209,19 +205,19 @@ extension ButtonAccessibilityTraitsViewController {
                 orthogonalAlignment: .leading(inset: outerMargin)
             )
 
-            var centerColSubviewDistribution: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-            for button in buttons[buttonsPerColumn..<(2 * buttonsPerColumn)] {
+            var centerColSubviewDistribution: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
+            for button in buttons[buttonsPerColumn ..< (2 * buttonsPerColumn)] {
                 centerColSubviewDistribution.append(button)
                 centerColSubviewDistribution.append(1.flexible)
             }
             applyVerticalSubviewDistribution(centerColSubviewDistribution)
 
-            var rightColSubviewDistribution: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-            for button in buttons[(2 * buttonsPerColumn)..<buttons.count] {
+            var rightColSubviewDistribution: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
+            for button in buttons[(2 * buttonsPerColumn) ..< buttons.count] {
                 rightColSubviewDistribution.append(button)
                 rightColSubviewDistribution.append(1.flexible)
             }
-            for _ in 0..<additionalButtonSpacers {
+            for _ in 0 ..< additionalButtonSpacers {
                 rightColSubviewDistribution.append(buttons[0].frame.height.fixed)
                 rightColSubviewDistribution.append(1.flexible)
             }
@@ -230,7 +226,5 @@ extension ButtonAccessibilityTraitsViewController {
                 orthogonalAlignment: .trailing(inset: outerMargin)
             )
         }
-
     }
-
 }

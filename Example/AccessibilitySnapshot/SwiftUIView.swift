@@ -16,7 +16,7 @@
 
 import SwiftUI
 
-fileprivate struct Circle: View {
+private struct Circle: View {
     var body: some View {
         Rectangle()
             .foregroundColor(Color(UIColor.lightGray))
@@ -34,49 +34,49 @@ struct SwiftUIView: View {
                     .accessibility(label: Text(""))
                     .accessibility(value: Text(""))
                     .accessibility(hint: Text(""))
-                
+
                 // View with label.
                 Circle()
                     .accessibility(label: Text("Label"))
                     .accessibility(value: Text(""))
                     .accessibility(hint: Text(""))
-                
+
                 // View with value.
                 Circle()
                     .accessibility(label: Text(""))
                     .accessibility(value: Text("Value"))
                     .accessibility(hint: Text(""))
-                
+
                 // View with hint.
                 Circle()
                     .accessibility(label: Text(""))
                     .accessibility(value: Text(""))
                     .accessibility(hint: Text("Hint"))
-                
+
                 // View with label and value.
                 Circle()
                     .accessibility(label: Text("Label"))
                     .accessibility(value: Text("Value"))
                     .accessibility(hint: Text(""))
-                
+
                 // View with label and hint.
                 Circle()
                     .accessibility(label: Text("Label"))
                     .accessibility(value: Text(""))
                     .accessibility(hint: Text("Hint"))
-                
+
                 // View with value and hint.
                 Circle()
                     .accessibility(label: Text(""))
                     .accessibility(value: Text("Value"))
                     .accessibility(hint: Text("Hint"))
-                
+
                 // View with label, value, and hint.
                 Circle()
                     .accessibility(label: Text("Label"))
                     .accessibility(value: Text("Value"))
                     .accessibility(hint: Text("Hint"))
-                
+
                 if #available(iOS 14.0, *) {
                     // View with label, value, hint, and Custom Actions.
                     Circle()
@@ -85,7 +85,7 @@ struct SwiftUIView: View {
                         .accessibility(hint: Text("Hint"))
                         .accessibilityAction(named: "Custom") {}
                 }
-                
+
                 if #available(iOS 15.0, *) {
                     // View with label, value, hint, and Custom Content.
                     Circle()
@@ -96,7 +96,7 @@ struct SwiftUIView: View {
                         .accessibilityCustomContent("Important Key", "Important Value", importance: .high)
                 }
             }
-            
+
             Spacer()
         }
     }

@@ -18,7 +18,6 @@ import CoreImage
 import UIKit
 
 public enum ImageRenderingError: Swift.Error {
-
     /// An error indicating that the `containedView` is too large too snapshot using the specified rendering
     /// parameters.
     ///
@@ -37,12 +36,10 @@ public enum ImageRenderingError: Swift.Error {
 
     /// An error indicating the `containedView` has an invalid size due to the `width` and/or `height` being zero.
     case containedViewHasZeroSize(viewSize: CGSize)
-
 }
 
 extension UIView {
-    
-    @available(*, deprecated, message:"Please use `renderToImage(configuration:)` instead.")
+    @available(*, deprecated, message: "Please use `renderToImage(configuration:)` instead.")
     public func renderToImage(
         monochrome: Bool,
         viewRenderingMode: ViewRenderingMode
@@ -54,7 +51,6 @@ extension UIView {
     public func renderToImage(
         configuration: AccessibilitySnapshotConfiguration.Rendering
     ) throws -> UIImage {
-        
         let renderer = UIGraphicsImageRenderer(bounds: bounds)
 
         // Hide the cursor of text inputs to prevent test flakes.
@@ -225,5 +221,4 @@ extension UIView {
         }
         subviews.forEach { $0.recursiveForEach(viewType: viewType, block) }
     }
-
 }

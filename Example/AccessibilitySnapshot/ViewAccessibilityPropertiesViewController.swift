@@ -44,10 +44,9 @@ import UIKit
 //  |    |         |         |         |         |         |  "Actions Available"             │
 //  └────┴─────────┴─────────┴─────────┴─────────┴─────────┴──────────────────────────────────┘
 final class ViewAccessibilityPropertiesViewController: AccessibilityViewController {
-
     // MARK: - Private Properties
 
-    private let views = (0..<9).map { _ in UIView() }
+    private let views = (0 ..< 9).map { _ in UIView() }
 
     // MARK: - UIViewController
 
@@ -110,23 +109,20 @@ final class ViewAccessibilityPropertiesViewController: AccessibilityViewControll
         views[8].accessibilityHint = "Hint"
         if #available(iOS 14.0, *) {
             views[8].accessibilityCustomActions = [
-                UIAccessibilityCustomAction(name: "Action without image", image: nil) { _ in return false },
-                UIAccessibilityCustomAction(name: "Action with checkmark.circle image", image: UIImage(systemName: "checkmark.circle")) { _ in return false },
-                UIAccessibilityCustomAction(name: "Action with checkmark.circle.fill image", image: UIImage(systemName: "checkmark.circle.fill")) { _ in return false },
-                UIAccessibilityCustomAction(name: "This is a really long action without an image. The name is quite long to ensure that it will span multiple lines.", image: nil) { _ in return false },
-                UIAccessibilityCustomAction(name: "こんにちは", image: nil) { _ in return false },
-                UIAccessibilityCustomAction(name: "నమస్కారం", image: nil) { _ in return false },
-                UIAccessibilityCustomAction(name: "مرحبًا", image: nil) { _ in return false },
+                UIAccessibilityCustomAction(name: "Action without image", image: nil) { _ in false },
+                UIAccessibilityCustomAction(name: "Action with checkmark.circle image", image: UIImage(systemName: "checkmark.circle")) { _ in false },
+                UIAccessibilityCustomAction(name: "Action with checkmark.circle.fill image", image: UIImage(systemName: "checkmark.circle.fill")) { _ in false },
+                UIAccessibilityCustomAction(name: "This is a really long action without an image. The name is quite long to ensure that it will span multiple lines.", image: nil) { _ in false },
+                UIAccessibilityCustomAction(name: "こんにちは", image: nil) { _ in false },
+                UIAccessibilityCustomAction(name: "నమస్కారం", image: nil) { _ in false },
+                UIAccessibilityCustomAction(name: "مرحبًا", image: nil) { _ in false },
             ]
         }
     }
-
 }
 
 extension ViewAccessibilityPropertiesViewController {
-
     final class View: UIView {
-
         // MARK: - UIView
 
         override func layoutSubviews() {
@@ -137,14 +133,12 @@ extension ViewAccessibilityPropertiesViewController {
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
             for subview in subviews {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
             applyVerticalSubviewDistribution(distributionSpecifiers)
         }
-
     }
-
 }

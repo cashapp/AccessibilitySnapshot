@@ -18,21 +18,17 @@ import Paralayout
 import UIKit
 
 final class DefaultControlsViewController: AccessibilityViewController {
-
     // MARK: - UIViewController
 
     override func loadView() {
         view = View()
     }
-
 }
 
 // MARK: -
 
 private extension DefaultControlsViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -91,14 +87,12 @@ private extension DefaultControlsViewController {
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
             for subview in controls {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
             applyVerticalSubviewDistribution(distributionSpecifiers)
         }
-
     }
-
 }

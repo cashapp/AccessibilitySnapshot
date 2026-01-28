@@ -8,7 +8,6 @@
 import AccessibilitySnapshotParser
 
 enum Strings {
-
     static func actionsAvailableText(for locale: String?) -> String {
         return "Actions Available".as_localized(
             key: "custom_actions.description",
@@ -25,7 +24,7 @@ enum Strings {
         )
     }
 
-	static func adjustableInputLabelText(for locale: String?) -> String {
+    static func adjustableInputLabelText(for locale: String?) -> String {
         return "Adjustable.".as_localized(
             key: "trait.adjustable.inputLabel",
             comment: "Description for the 'adjustable' input label in legend view",
@@ -40,7 +39,7 @@ enum Strings {
             locale: locale
         )
     }
-    
+
     static func noResultsText(for locale: String?) -> String {
         return "<no results>".as_localized(
             key: "custom_rotors.no_results",
@@ -48,11 +47,11 @@ enum Strings {
             locale: locale
         )
     }
-    
+
     static func moreResultsText(count: Int, for locale: String?) -> String {
         String(format: moreResultsFormatString(for: locale), String(count))
     }
-    
+
     private static func moreResultsFormatString(for locale: String?) -> String {
         return "+ %@ More Results...".as_localized(
             key: "custom_rotors.more_results.format",
@@ -60,11 +59,11 @@ enum Strings {
             locale: locale
         )
     }
-    
+
     static func maxLimitText(max: Int, for locale: String?) -> String {
         String(format: maxLimitText(for: locale), String(max))
     }
-    
+
     static func maxLimitText(for locale: String?) -> String {
         return "+ Many More (%@+) Results...".as_localized(
             key: "custom_rotors.max_limit",
@@ -75,11 +74,9 @@ enum Strings {
 }
 
 extension String {
-
     func as_localized(key: String, comment: String, locale: String?, file: StaticString = #file) -> String {
         let bundle = StringLocalization.preferredBundle(for: locale)
 
         return bundle.localizedString(forKey: key, value: self, table: nil)
     }
-
 }

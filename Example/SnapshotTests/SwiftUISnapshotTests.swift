@@ -20,7 +20,6 @@ import iOSSnapshotTestCase
 @testable import AccessibilitySnapshotDemo
 
 final class SwiftUISnapshotTests: SnapshotTestCase {
-
     func testSimpleView() {
         SnapshotVerifyAccessibility(SwiftUIView(), size: UIScreen.main.bounds.size)
     }
@@ -28,5 +27,4 @@ final class SwiftUISnapshotTests: SnapshotTestCase {
     func testSimpleViewAtSizeThatFits() {
         SnapshotVerifyAccessibility(SwiftUIView())
     }
-
 }

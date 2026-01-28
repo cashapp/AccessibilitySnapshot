@@ -19,7 +19,6 @@ import AccessibilitySnapshotParser_ObjC
 import iOSSnapshotTestCase
 
 extension FBSnapshotTestCase {
-
     @objc(snapshotVerifyAccessibility:identifier:perPixelTolerance:overallTolerance:)
     private func 🚫objc_snapshotVerifyAccessibility(
         _ view: UIView,
@@ -60,7 +59,7 @@ extension FBSnapshotTestCase {
     }
 
     @nonobjc
-    internal func snapshotVerifyAccessibility(
+    func snapshotVerifyAccessibility(
         _ view: UIView,
         identifier: String,
         activationPointDisplayMode: AccessibilityContentDisplayMode,
@@ -73,10 +72,10 @@ extension FBSnapshotTestCase {
             return ErrorMessageFactory.errorMessageForMissingHostApplication
         }
         let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode,
-                                                               colorRenderingMode: (useMonochromeSnapshot ? .monochrome : .fullColor),
+                                                               colorRenderingMode: useMonochromeSnapshot ? .monochrome : .fullColor,
                                                                activationPointDisplay: activationPointDisplayMode,
-                                                               includesInputLabels: (showUserInputLabels ? .whenOverridden : .never))
-        
+                                                               includesInputLabels: showUserInputLabels ? .whenOverridden : .never)
+
         let containerView = AccessibilitySnapshotView(
             containedView: view,
             snapshotConfiguration: configuration
@@ -173,7 +172,7 @@ extension FBSnapshotTestCase {
             let containerView = try HitTargetSnapshotView(
                 baseView: view,
                 useMonochromeSnapshot: useMonochromeSnapshot,
-                viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
+                viewRenderingMode: usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext,
                 colors: MarkerColors.defaultColors,
                 maxPermissibleMissedRegionWidth: maxPermissibleMissedRegionWidth,
                 maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight
@@ -195,5 +194,4 @@ extension FBSnapshotTestCase {
             return ErrorMessageFactory.errorMessageForAccessibilityParsingError(error)
         }
     }
-
 }

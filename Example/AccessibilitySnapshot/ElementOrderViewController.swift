@@ -18,7 +18,6 @@ import Paralayout
 import UIKit
 
 final class ElementOrderViewController: AccessibilityViewController {
-
     // MARK: - Public Types
 
     enum ViewConfiguration {
@@ -61,7 +60,6 @@ final class ElementOrderViewController: AccessibilityViewController {
                 view.isAccessibilityElement = isAccessibilityElement
                 view.shouldGroupAccessibilityChildren = groupChildren
                 view.frame.size = CGSize(width: 32, height: 32)
-
             }
 
             return (view, configuration)
@@ -84,15 +82,12 @@ final class ElementOrderViewController: AccessibilityViewController {
     override func loadView() {
         view = View()
     }
-
 }
 
 // MARK: -
 
 private extension ElementOrderViewController {
-
     final class View: UIView {
-
         // MARK: - Public Properties
 
         var views: [(UIView, ViewConfiguration)] = [] {
@@ -121,15 +116,12 @@ private extension ElementOrderViewController {
                 }
             }
         }
-
     }
-
 }
 
 // MARK: -
 
 extension ElementOrderViewController {
-
     static func makeConfigurationSelectionViewController(
         presentingViewController: UIViewController
     ) -> UIViewController {
@@ -172,13 +164,11 @@ extension ElementOrderViewController {
 
         return alertController
     }
-
 }
 
 // MARK: -
 
 extension Array where Element == ElementOrderViewController.ViewConfiguration {
-
     /// A set of 4 elements, scattered in each direction.
     ///
     /// The main intention of this element set is to differentiate between vertical and horizontal scanning.
@@ -260,13 +250,11 @@ extension Array where Element == ElementOrderViewController.ViewConfiguration {
             .init(horizontal: 0, vertical: -60),
         ], isAccessibilityElement: true, groupChildren: false),
     ]
-
 }
 
 // MARK: -
 
 private final class AccessibilityContainerView: UIView {
-
     // MARK: - Life Cycle
 
     init(elementOffsets: [UIOffset], containerIndex: Int) {
@@ -295,13 +283,11 @@ private final class AccessibilityContainerView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
 }
 
 // MARK: -
 
 private final class AccessibleGroupView: UIView {
-
     // MARK: - Life Cycle
 
     init(elementOffsets: [UIOffset], groupIndex: Int) {
@@ -331,5 +317,4 @@ private final class AccessibleGroupView: UIView {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
 }

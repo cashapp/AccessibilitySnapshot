@@ -18,20 +18,17 @@ import Paralayout
 import UIKit
 
 final class TextViewViewController: AccessibilityViewController {
-
     // MARK: - UIViewController
 
     override func loadView() {
-        self.view = View()
+        view = View()
     }
 }
 
 // MARK: -
 
 private extension TextViewViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -74,7 +71,7 @@ private extension TextViewViewController {
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
             for subview in textInputViews {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
@@ -83,7 +80,5 @@ private extension TextViewViewController {
 
             textViewFirstResponder.becomeFirstResponder()
         }
-
     }
-
 }

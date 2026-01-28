@@ -19,24 +19,20 @@ import SwiftUI
 import UIKit
 
 public struct AccessibilityMarker: Equatable {
-    
     /// Default number of rotor results to collect in each direction.
     public static let defaultRotorResultLimit: Int = 10
 
     // MARK: - Public Types
 
     public enum Shape: Equatable {
-
         /// Accessibility frame, in the coordinate space of the view being snapshotted.
         case frame(CGRect)
 
         /// Accessibility path, in the coordinate space of the view being snapshotted.
         case path(UIBezierPath)
-
     }
-    
+
     public struct CustomRotor: Equatable, CustomStringConvertible {
-        
         public struct ResultMarker: Equatable, CustomStringConvertible {
             public let elementDescription: String
             public let rangeDescription: String?
@@ -49,7 +45,7 @@ public struct AccessibilityMarker: Equatable {
                 return "\(elementDescription) \(rangeDescription)"
             }
         }
-        
+
         public var name: String
         public var resultMarkers: [AccessibilityMarker.CustomRotor.ResultMarker] = []
         public let limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit
@@ -65,7 +61,8 @@ public struct AccessibilityMarker: Equatable {
                 var shape: Shape? = AccessibilityHierarchyParser.accessibilityShape(for: element, in: root)
 
                 if let range = result.targetRange,
-                   let input = element as? UITextInput {
+                   let input = element as? UITextInput
+                {
                     if let path = input.accessibilityPath(for: range) {
                         let converted = root.convert(path, from: input as? UIView)
                         shape = .path(converted)
@@ -78,9 +75,9 @@ public struct AccessibilityMarker: Equatable {
                 return ResultMarker(elementDescription: description, rangeDescription: nil, shape: shape)
             }
         }
-        
+
         public var description: String {
-            return name + ": " + resultMarkers.map({ $0.description }).joined(separator: "\n")
+            return name + ": " + resultMarkers.map { $0.description }.joined(separator: "\n")
         }
     }
 
@@ -118,11 +115,11 @@ public struct AccessibilityMarker: Equatable {
     /// The description of the accessibility element that will be read by VoiceOver when the element is brought into
     /// focus.
     public var description: String
-    
+
     public var label: String?
-    
+
     public var value: String?
-    
+
     public var traits: UIAccessibilityTraits
 
     /// A unique identifier for the element, primarily used in UI tests for locating and interacting with elements.
@@ -131,7 +128,7 @@ public struct AccessibilityMarker: Equatable {
 
     /// A hint that will be read by VoiceOver if focus remains on the element after the `description` is read.
     public var hint: String?
-    
+
     /// The labels that will be used by Voice Control for user input.
     /// These labels are displayed based on the `AccessibilityContentDisplayMode` configuration:
     /// - `.always`: Always shows user input labels
@@ -160,43 +157,35 @@ public struct AccessibilityMarker: Equatable {
 
     /// Any custom rotors included by the element.
     public var customRotors: [CustomRotor]
-    
+
     /// The language code of the language used to localize strings in the description.
     public var accessibilityLanguage: String?
-    
-    /// whether the element performs an action based on user interaction.
-    public var respondsToUserInteraction : Bool
 
+    /// whether the element performs an action based on user interaction.
+    public var respondsToUserInteraction: Bool
 }
 
 // MARK: -
 
 public protocol UserInterfaceLayoutDirectionProviding {
-
     var userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection { get }
-
 }
+
 extension UIApplication: UserInterfaceLayoutDirectionProviding {}
 
-
 public protocol UserInterfaceIdiomProviding {
-
     var userInterfaceIdiom: UIUserInterfaceIdiom { get }
-    
 }
 
 extension UIDevice: UserInterfaceIdiomProviding {}
 
-
 // MARK: -
 
 public final class AccessibilityHierarchyParser {
-
     // MARK: - Public Types
 
     /// Represents a context in which elements are contained.
     public enum Context {
-
         /// Indicates the element is part of a series of elements.
         /// Reads as "`index` of `count`."
         ///
@@ -259,7 +248,6 @@ public final class AccessibilityHierarchyParser {
         ///
         /// If an element is the only element in the landmark container, it will only get a `landmarkStart` context.
         case landmarkEnd
-
     }
 
     // MARK: - Life Cycle
@@ -290,7 +278,7 @@ public final class AccessibilityHierarchyParser {
     ) -> [AccessibilityMarker] {
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
         let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
-        
+
         let accessibilityNodes = root.recursiveAccessibilityHierarchy()
 
         let uncontextualizedElements = sortedElements(
@@ -302,7 +290,7 @@ public final class AccessibilityHierarchyParser {
         )
 
         let accessibilityElements = uncontextualizedElements.map { element in
-            return ContextualElement(
+            ContextualElement(
                 object: element.object,
                 context: context(
                     for: element.object,
@@ -346,31 +334,25 @@ public final class AccessibilityHierarchyParser {
     /// Representation of an accessibility element, made up of the element `object` itself and the `context` in which it
     /// is contained.
     private struct ContextualElement {
-
         var object: NSObject
 
         var context: Context?
-
     }
 
     fileprivate enum ContextProvider {
-
         case superview(UIView)
 
         case accessibilityContainer(NSObject)
 
         case dataTable(UIAccessibilityContainerDataTable)
-
     }
 
     /// Representation of an accessibility element, made up of the element `object` itself and the `contextProvider`
     /// that will provide its context, if applicable.
     private struct Element {
-
         var object: NSObject
 
         var contextProvider: ContextProvider?
-
     }
 
     // MARK: - Private Methods
@@ -412,7 +394,7 @@ public final class AccessibilityHierarchyParser {
         @unknown default:
             fatalError("Unknown user interface layout direction: \(userInterfaceLayoutDirection)")
         }
-        
+
         // Derived via experimentation, these magic numbers are the cutoff for VoiceOver to consider
         // an element to be vertically "above" other views.
         let minimumVerticalSeparation = userInterfaceIdiom == .phone ? 8.0 : 13.0
@@ -571,15 +553,15 @@ public final class AccessibilityHierarchyParser {
                 // finding a cell with an earlier index. Specifically, this affects the case where a cell has a column
                 // of `NSNotFound`, but may also apply to other situations.
                 let isFirstInRow = column != NSNotFound
-                                && row != NSNotFound
-                                && !(0..<columnRange.location).contains {
-                                    dataTable.accessibilityDataTableCellElement(forRow: rowRange.location, column: $0) != nil
-                                }
+                    && row != NSNotFound
+                    && !(0 ..< columnRange.location).contains {
+                        dataTable.accessibilityDataTableCellElement(forRow: rowRange.location, column: $0) != nil
+                    }
 
                 let rowHeaders: [NSObject]
                 if isFirstInRow, let allHeaders = dataTable.accessibilityHeaderElements?(forRow: row) {
                     rowHeaders = allHeaders.filter { header in
-                        return true
+                        true
                             // The cell is not read as a header for itself.
                             && header !== cell
                             // The header is not read if it is not a cell in the table.
@@ -603,7 +585,7 @@ public final class AccessibilityHierarchyParser {
 
                         // The header is not read if it is immediately preceding the cell if the cell is the first in
                         // its row.
-                        if row != NSNotFound && headerRow == row - 1 && headerColumn == column && isFirstInRow {
+                        if row != NSNotFound, headerRow == row - 1, headerColumn == column, isFirstInRow {
                             return false
                         }
 
@@ -633,10 +615,9 @@ public final class AccessibilityHierarchyParser {
 
     /// Used for memoization of accessibility hierarchy parsing when determining element contexts.
     private var viewToElementsMap: [UIView: [NSObject]] = [:]
-
 }
 
-fileprivate extension AccessibilityHierarchyParser {
+private extension AccessibilityHierarchyParser {
     /// Returns a CGRect that can be used for sorting by position.
     static func accessibilitySortFrame(for node: AccessibilityNode, in root: UIView) -> CGRect {
         switch node {
@@ -689,7 +670,6 @@ fileprivate extension AccessibilityHierarchyParser {
 // MARK: -
 
 private enum AccessibilityNode {
-
     /// Represents a single accessibility element.
     case element(NSObject, contextProvider: AccessibilityHierarchyParser.ContextProvider?)
 
@@ -702,13 +682,11 @@ private enum AccessibilityNode {
     /// accessibility hierarchy. When `nil`, the group is ordered according to the first element in the group that would
     /// be selected.
     case group([AccessibilityNode], explicitlyOrdered: Bool, frameOverrideProvider: NSObject?)
-
 }
 
 // MARK: -
 
 private extension NSObject {
-
     /// Recursively parses the accessibility elements/containers on the screen.
     ///
     /// Note that the order the nodes are returned in does not reflect the order that VoiceOver will iterate through
@@ -745,7 +723,7 @@ private extension NSObject {
             recursiveAccessibilityHierarchy.append(.group(
                 accessibilityHierarchyOfElements,
                 explicitlyOrdered: true,
-                frameOverrideProvider: (overridesElementFrame(with: contextProvider) ? self : nil)
+                frameOverrideProvider: overridesElementFrame(with: contextProvider) ? self : nil
             ))
 
         } else if let `self` = self as? UIView {
@@ -826,13 +804,11 @@ private extension NSObject {
             return false
         }
     }
-
 }
 
 // MARK: -
 
 extension UIView {
-
     func convert(_ path: UIBezierPath, from source: UIView?) -> UIBezierPath {
         let offset = convert(CGPoint.zero, from: source)
         let transform = CGAffineTransform(translationX: offset.x, y: offset.y)
@@ -841,7 +817,6 @@ extension UIView {
         newPath.apply(transform)
         return newPath
     }
-
 }
 
 private extension UIView {
@@ -850,7 +825,7 @@ private extension UIView {
     func allUITabBarButtons() -> [UIView] {
         let tabBarButtonClasses: [AnyClass] = [
             NSClassFromString("UITabBarButton"),
-            NSClassFromString("_UITabButton")
+            NSClassFromString("_UITabButton"),
         ].compactMap { $0 }
 
         func collect(from view: UIView) -> [UIView] {
@@ -868,25 +843,24 @@ private extension UIView {
     }
 }
 
-fileprivate extension NSObject {
+private extension NSObject {
     var customContent: [AccessibilityMarker.CustomContent] {
         // Github runs tests on specific iOS versions against specific versions of Xcode in CI.
         // Forward deployment on old versions of Xcode require a compile time check which require differentiation by swift version rather than iOS SDK.
         // See https://swiftversion.net/ for mapping swift version to Xcode versions.
-        
+
         if #available(iOS 14.0, *) {
             if let provider = self as? AXCustomContentProvider {
-                
                 // Swift 5.9 ships with Xcode 15 and the iOS 17 SDK.
                 #if swift(>=5.9)
-                if #available(iOS 17.0, *) {
-                    if let customContentBlock = provider.accessibilityCustomContentBlock {
-                        if let content = customContentBlock?() {
-                            return content.map { .init(from: $0) }
+                    if #available(iOS 17.0, *) {
+                        if let customContentBlock = provider.accessibilityCustomContentBlock {
+                            if let content = customContentBlock?() {
+                                return content.map { .init(from: $0) }
+                            }
                         }
                     }
-                }
-                #endif //swift(>=5.9)
+                #endif // swift(>=5.9)
                 if let content = provider.accessibilityCustomContent {
                     return content.map { .init(from: $0) }
                 }
@@ -894,10 +868,11 @@ fileprivate extension NSObject {
         }
         return []
     }
-    
+
     func customRotors(in root: UIView, context: AccessibilityHierarchyParser.Context?, resultLimit: Int) -> [AccessibilityMarker.CustomRotor] {
         accessibilityCustomRotors?.compactMap {
-            .init(from: $0, parentElement: self, root: root, context: context, resultLimit: resultLimit) } ?? []
+            .init(from: $0, parentElement: self, root: root, context: context, resultLimit: resultLimit)
+        } ?? []
     }
 
     var identifier: String? {
@@ -959,36 +934,33 @@ private extension UIHostingController {
 // MARK: -
 
 private extension CGPoint {
-
     func approximatelyEquals(_ other: CGPoint, tolerance: CGFloat) -> Bool {
-        return abs(self.x - other.x) < tolerance && abs(self.y - other.y) < tolerance
+        return abs(x - other.x) < tolerance && abs(y - other.y) < tolerance
     }
 }
+
 private extension UITextRange {
-    
-    func formatted( in input: UITextInput?) -> String {
+    func formatted(in input: UITextInput?) -> String {
         guard let input else { return "\(self)" }
 
         let start = input.offset(from: input.beginningOfDocument, to: start)
         let end = input.offset(from: input.beginningOfDocument, to: end)
         return "[\(start)..<\(end)]"
     }
-    
 }
 
-internal extension UITextInput  {
-    
+extension UITextInput {
     func accessibilityPath(for range: UITextRange) -> UIBezierPath? {
-         return selectionRects(for: range).reduce(into: UIBezierPath()) { path, rect in
-             // selectionRects(for:) returns rects that contain no glyphs and are empty space used for text wrapping.
-             // We don't want to include these as they look like they are a separate unexpected element.
-             // Fortunately these extra rects can only occur in the middle of the range so we can safely accept many without question.
-             if !rect.containsEnd && !rect.containsStart && !rect.isVertical {
+        return selectionRects(for: range).reduce(into: UIBezierPath()) { path, rect in
+            // selectionRects(for:) returns rects that contain no glyphs and are empty space used for text wrapping.
+            // We don't want to include these as they look like they are a separate unexpected element.
+            // Fortunately these extra rects can only occur in the middle of the range so we can safely accept many without question.
+            if !rect.containsEnd, !rect.containsStart, !rect.isVertical {
                 // Check that this rect contains actual glyphs by comparing the closest glyph position to the leading and trailing edges of the rect.
-                 let leading = CGPoint(x: rect.writingDirection == .leftToRight ? rect.rect.minX : rect.rect.maxX, y: rect.rect.midY)
-                 let trailing = CGPoint(x: rect.writingDirection == .leftToRight ? rect.rect.maxX : rect.rect.minX, y: rect.rect.midY)
-                 guard closestPosition(to: leading, within: range) != closestPosition(to: trailing, within: range) else { return }
-             }
+                let leading = CGPoint(x: rect.writingDirection == .leftToRight ? rect.rect.minX : rect.rect.maxX, y: rect.rect.midY)
+                let trailing = CGPoint(x: rect.writingDirection == .leftToRight ? rect.rect.maxX : rect.rect.minX, y: rect.rect.midY)
+                guard closestPosition(to: leading, within: range) != closestPosition(to: trailing, within: range) else { return }
+            }
             path.append(UIBezierPath(roundedRect: rect.rect, cornerRadius: 8.0))
         }
     }

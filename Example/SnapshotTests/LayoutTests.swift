@@ -21,13 +21,12 @@ import UIKit
 @testable import AccessibilitySnapshot
 
 final class LayoutTests: SnapshotTestCase {
-
     // MARK: - Tests
 
     func testStandard() {
         let view = UIView(frame: .init(x: 0, y: 0, width: 200, height: 50))
 
-        for _ in 0..<5 {
+        for _ in 0 ..< 5 {
             addAccessibleView(to: view)
         }
 
@@ -54,7 +53,7 @@ final class LayoutTests: SnapshotTestCase {
     func testFullScreenWithFewMarkers() {
         let view = UIView(frame: UIScreen.main.bounds)
 
-        for _ in 0..<3 {
+        for _ in 0 ..< 3 {
             addAccessibleView(to: view)
         }
 
@@ -64,7 +63,7 @@ final class LayoutTests: SnapshotTestCase {
     func testFullScreenWithManyMarkers() {
         let view = UIView(frame: UIScreen.main.bounds)
 
-        for _ in 0..<24 {
+        for _ in 0 ..< 24 {
             addAccessibleView(to: view)
         }
 
@@ -74,7 +73,7 @@ final class LayoutTests: SnapshotTestCase {
     func testFullScreenWithManyManyMarkers() {
         let view = UIView(frame: UIScreen.main.bounds)
 
-        for _ in 0..<70 {
+        for _ in 0 ..< 70 {
             addAccessibleView(to: view)
         }
 
@@ -86,7 +85,7 @@ final class LayoutTests: SnapshotTestCase {
     func testWideViewWithFewMarkers() {
         let view = UIView(frame: .init(x: 0, y: 0, width: 1000, height: 50))
 
-        for _ in 0..<3 {
+        for _ in 0 ..< 3 {
             addAccessibleView(to: view)
         }
 
@@ -96,7 +95,7 @@ final class LayoutTests: SnapshotTestCase {
     func testWideViewWithManyMarkers() {
         let view = UIView(frame: .init(x: 0, y: 0, width: 1000, height: 50))
 
-        for _ in 0..<70 {
+        for _ in 0 ..< 70 {
             addAccessibleView(to: view)
         }
 
@@ -127,14 +126,11 @@ final class LayoutTests: SnapshotTestCase {
 
         view.addSubview(accessibleView)
     }
-
 }
 
 // MARK: -
 
 private enum Factory {
-
     static let longText = "This is long text that will cause the label to wrap to multiple lines given the default "
-                            + "width of the legend."
-
+        + "width of the legend."
 }

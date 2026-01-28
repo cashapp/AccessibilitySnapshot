@@ -19,7 +19,6 @@ import iOSSnapshotTestCase
 import UIKit
 
 final class HighlightTests: SnapshotTestCase {
-
     func testColors() {
         let view = AccessibleContainerView(count: 8, innerMargin: 10)
         view.sizeToFit()

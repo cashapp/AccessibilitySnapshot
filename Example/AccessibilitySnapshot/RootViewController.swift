@@ -18,7 +18,6 @@ import SwiftUI
 import UIKit
 
 final class RootViewController: UITableViewController {
-
     // MARK: - Private Properties
 
     private let accessibilityScreens: [(String, (UIViewController) -> UIViewController)]
@@ -27,57 +26,57 @@ final class RootViewController: UITableViewController {
 
     init() {
         var accessibilityScreens = [
-            ("View Accessibility Properties", { _ in return ViewAccessibilityPropertiesViewController() }),
-            ("Label Accessibility Properties", { _ in return LabelAccessibilityPropertiesViewController() }),
-            ("Nav Bar Back Button Accessibility Traits", { _ in return NavBarBackButtonAccessibilityTraitsViewController() }),
-            ("Button Accessibility Traits", { _ in return ButtonAccessibilityTraitsViewController() }),
-            ("Default UIKit Controls", { _ in return DefaultControlsViewController() }),
-            ("UISwitch Controls", { _ in return SwitchControlViewController() }),
-            ("Tab Bar", { _ in return TabBarViewController() }),
-            ("Description Edge Cases", { _ in return DescriptionEdgeCasesViewController() }),
+            ("View Accessibility Properties", { _ in ViewAccessibilityPropertiesViewController() }),
+            ("Label Accessibility Properties", { _ in LabelAccessibilityPropertiesViewController() }),
+            ("Nav Bar Back Button Accessibility Traits", { _ in NavBarBackButtonAccessibilityTraitsViewController() }),
+            ("Button Accessibility Traits", { _ in ButtonAccessibilityTraitsViewController() }),
+            ("Default UIKit Controls", { _ in DefaultControlsViewController() }),
+            ("UISwitch Controls", { _ in SwitchControlViewController() }),
+            ("Tab Bar", { _ in TabBarViewController() }),
+            ("Description Edge Cases", { _ in DescriptionEdgeCasesViewController() }),
             ("Element Selection", { presentingViewController in
-                return ElementSelectionViewController.makeConfigurationSelectionViewController(
+                ElementSelectionViewController.makeConfigurationSelectionViewController(
                     presentingViewController: presentingViewController
                 )
             }),
             ("Element Order", { presentingViewController in
-                return ElementOrderViewController.makeConfigurationSelectionViewController(
+                ElementOrderViewController.makeConfigurationSelectionViewController(
                     presentingViewController: presentingViewController
                 )
             }),
-            ("Element Frame Comparison", { _ in return ElementFrameComparisonController() }),
-            ("Element Order with Semantic Content", { _ in return UserIntefaceDirectionViewController() }),
+            ("Element Frame Comparison", { _ in ElementFrameComparisonController() }),
+            ("Element Order with Semantic Content", { _ in UserIntefaceDirectionViewController() }),
             ("Modal Accessibility Views", { presentingViewController in
-                return ModalAccessibilityViewController.makeConfigurationSelectionViewController(
+                ModalAccessibilityViewController.makeConfigurationSelectionViewController(
                     presentingViewController: presentingViewController
                 )
             }),
-            ("Accessibility Paths", { _ in return AccessibilityPathViewController() }),
-            ("Accessibility Activation Point", { _ in return ActivationPointViewController() }),
-            ("Accessibility Custom Actions", { _ in return AccessibilityCustomActionsViewController() }),
-            ("Accessibility Custom Rotors", { _ in return AccessibilityCustomRotorsViewController() }),
+            ("Accessibility Paths", { _ in AccessibilityPathViewController() }),
+            ("Accessibility Activation Point", { _ in ActivationPointViewController() }),
+            ("Accessibility Custom Actions", { _ in AccessibilityCustomActionsViewController() }),
+            ("Accessibility Custom Rotors", { _ in AccessibilityCustomRotorsViewController() }),
             ("Data Table", { presentingViewController in
-                return DataTableViewController.makeConfigurationSelectionViewController(
+                DataTableViewController.makeConfigurationSelectionViewController(
                     presentingViewController: presentingViewController
                 )
             }),
-            ("List Container", { _ in return ListContainerViewController() }),
-            ("Landmark Container", { _ in return LandmarkContainerViewController() }),
-            ("Invert Colors", { _ in return InvertColorsViewController() }),
-            ("User Input Labels", { _ in return UserInputLabelsViewController() }),
-            ("Text Field", { _ in return TextFieldViewController() }),
-            ("Text View", { _ in return TextViewViewController() }),
-            ("SwiftUI Text Entry", { _ in return UIHostingController(rootView: SwiftUITextEntry()) }),
+            ("List Container", { _ in ListContainerViewController() }),
+            ("Landmark Container", { _ in LandmarkContainerViewController() }),
+            ("Invert Colors", { _ in InvertColorsViewController() }),
+            ("User Input Labels", { _ in UserInputLabelsViewController() }),
+            ("Text Field", { _ in TextFieldViewController() }),
+            ("Text View", { _ in TextViewViewController() }),
+            ("SwiftUI Text Entry", { _ in UIHostingController(rootView: SwiftUITextEntry()) }),
         ]
-        
+
         if #available(iOS 14.0, *) {
-            accessibilityScreens.append( ("Accessibility Custom Content", { _ in return AccessibilityCustomContentViewController() }))
+            accessibilityScreens.append(("Accessibility Custom Content", { _ in AccessibilityCustomContentViewController() }))
         }
         if #available(iOS 17.0, *) {
-            accessibilityScreens.append( ("Block based accessors", { _ in return BlockBasedAccessibilityViewController() }))
+            accessibilityScreens.append(("Block based accessors", { _ in BlockBasedAccessibilityViewController() }))
         }
         self.accessibilityScreens = accessibilityScreens
-        
+
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -113,6 +112,6 @@ final class RootViewController: UITableViewController {
 
     @objc
     func dismiss(_ sender: UIViewController) {
-        self.dismiss(animated: true, completion: nil)
+        dismiss(animated: true, completion: nil)
     }
 }

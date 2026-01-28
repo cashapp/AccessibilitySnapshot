@@ -1,12 +1,10 @@
-import UIKit
 import AccessibilitySnapshotParser
+import UIKit
 
-internal extension AccessibilitySnapshotView {
-    
+extension AccessibilitySnapshotView {
     final class CustomActionsView: UIView {
-        
         // MARK: - Life Cycle
-        
+
         init(actionsAvailableText: String?, customActions: [AccessibilityMarker.CustomAction]) {
             actionLabels = customActions.map {
                 let iconView: UIView
@@ -24,79 +22,79 @@ internal extension AccessibilitySnapshotView {
                 actionDescriptionLabel.font = Metrics.font
                 actionDescriptionLabel.textColor = .black
                 actionDescriptionLabel.numberOfLines = 0
-                
+
                 return (iconView, actionDescriptionLabel)
             }
-            
+
             if let actionsAvailableText = actionsAvailableText {
                 let label = UILabel()
                 label.text = actionsAvailableText
                 label.font = Metrics.font
                 label.textColor = .black
-                self.actionsAvailableLabel = label
-                
+                actionsAvailableLabel = label
+
             } else {
-                self.actionsAvailableLabel = nil
+                actionsAvailableLabel = nil
             }
-            
+
             super.init(frame: .zero)
-            
+
             actionsAvailableLabel.map(addSubview)
-            
+
             actionLabels.forEach {
                 addSubview($0)
                 addSubview($1)
             }
         }
-        
+
         @available(*, unavailable)
         required init?(coder: NSCoder) {
             fatalError("init(coder:) has not been implemented")
         }
-        
+
         // MARK: - Private Properties
-        
+
         private let actionsAvailableLabel: UILabel?
-        
+
         private let actionLabels: [(UIView, UILabel)]
-        
+
         // MARK: - UIView
-        
+
         override func sizeThatFits(_ size: CGSize) -> CGSize {
             let actionsAvailableHeight = actionsAvailableLabel?.sizeThatFits(size).height ?? -Metrics.verticalSpacing
-            
+
             guard let (firstIconView, _) = actionLabels.first else {
                 return .init(width: max(size.width, 0), height: actionsAvailableHeight)
             }
-            
+
             let descriptionWidthToFit = [
                 Metrics.actionIconInset,
                 firstIconView.sizeThatFits(size).width,
                 Metrics.iconToDescriptionSpacing,
             ].reduce(size.width, -)
             let descriptionSizeToFit = CGSize(width: descriptionWidthToFit, height: .greatestFiniteMagnitude)
-            
+
             let height = actionLabels
                 .map { $1.sizeThatFits(descriptionSizeToFit).height }
                 .reduce(actionsAvailableHeight) {
                     $0 + Metrics.verticalSpacing + $1
                 }
-            
+
             return .init(width: size.width, height: height)
         }
-        
+
         override func layoutSubviews() {
             let firstPairYPosition: CGFloat
             if let actionsAvailableLabel = actionsAvailableLabel {
                 actionsAvailableLabel.bounds.size = actionsAvailableLabel.sizeThatFits(bounds.size)
                 actionsAvailableLabel.frame.origin = .zero
-                
+
                 firstPairYPosition = actionsAvailableLabel.frame.maxY + Metrics.verticalSpacing
-                
+
             } else {
                 firstPairYPosition = 0
             }
-            
+
             guard !actionLabels.isEmpty else {
                 return
             }
@@ -105,7 +103,7 @@ internal extension AccessibilitySnapshotView {
             let singleLineHeight = Metrics.font.lineHeight
 
             // First pass: calculate all icon sizes and find the maximum width
-            let iconSizes: [CGSize] = actionLabels.map { (iconView, _) in
+            let iconSizes: [CGSize] = actionLabels.map { iconView, _ in
                 let intrinsicSize = iconView.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
                 let iconWidth: CGFloat
                 if intrinsicSize.height > 0 {
@@ -115,7 +113,7 @@ internal extension AccessibilitySnapshotView {
                 }
                 return CGSize(width: iconWidth, height: singleLineHeight)
             }
-            
+
             let maxIconWidth = iconSizes.map(\.width).max() ?? singleLineHeight
 
             // Calculate description width based on max icon width
@@ -140,17 +138,15 @@ internal extension AccessibilitySnapshotView {
                 yPosition = descriptionLabel.frame.maxY + Metrics.verticalSpacing
             }
         }
-        
+
         // MARK: - Private Types
-        
+
         private enum Metrics {
-            
             static let verticalSpacing: CGFloat = 4
             static let actionIconInset: CGFloat = 4
             static let iconToDescriptionSpacing: CGFloat = 4
-            
+
             static let font: UIFont = .systemFont(ofSize: 12)
-            
         }
     }
 }

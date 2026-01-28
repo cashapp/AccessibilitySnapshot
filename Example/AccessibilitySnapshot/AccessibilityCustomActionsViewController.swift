@@ -18,7 +18,6 @@ import Paralayout
 import UIKit
 
 final class AccessibilityCustomActionsViewController: AccessibilityViewController {
-
     // MARK: - UIViewController
 
     override func loadView() {
@@ -31,15 +30,12 @@ final class AccessibilityCustomActionsViewController: AccessibilityViewControlle
             ]
         )
     }
-
 }
 
 // MARK: -
 
 private extension AccessibilityCustomActionsViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         init(views: [CustomActionView], frame: CGRect = .zero) {
@@ -66,24 +62,20 @@ private extension AccessibilityCustomActionsViewController {
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
             for subview in views {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
             applyVerticalSubviewDistribution(distributionSpecifiers)
         }
-
     }
-
 }
 
 // MARK: -
 
 private extension AccessibilityCustomActionsViewController {
-
     final class CustomActionView: UIView {
-
         // MARK: - Life Cycle
 
         init(includeLabel: Bool, includeHint: Bool) {
@@ -114,9 +106,9 @@ private extension AccessibilityCustomActionsViewController {
                     ),
                     UIAccessibilityCustomAction(
                         name: """
-                            Second Action with a Name that's Super Long and Will Definitely Cause Labels to Wrap when \
-                            It's Written Out
-                            """,
+                        Second Action with a Name that's Super Long and Will Definitely Cause Labels to Wrap when \
+                        It's Written Out
+                        """,
                         target: self,
                         selector: #selector(handleAction(_:))
                     ),
@@ -137,7 +129,5 @@ private extension AccessibilityCustomActionsViewController {
         @objc private func handleAction(_ action: UIAccessibilityCustomAction) -> Bool {
             return true
         }
-
     }
-
 }

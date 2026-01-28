@@ -18,7 +18,6 @@ import Paralayout
 import UIKit
 
 final class TabBarViewController: AccessibilityViewController {
-
     // MARK: - Private Properties
 
     private var rootView: View {
@@ -71,15 +70,12 @@ final class TabBarViewController: AccessibilityViewController {
 
         rootView.tabBarWithBadging.items = [emptyBadgedItem, numberBadgedItem, textBadgedItem, overriddenBadgedItem]
     }
-
 }
 
 // MARK: -
 
 extension TabBarViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -121,22 +117,19 @@ extension TabBarViewController {
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
             for subview in tabBarViews {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
             applyVerticalSubviewDistribution(distributionSpecifiers)
         }
-
     }
-
 }
 
 // MARK: -
 
 private final class TabBarTraitView: UIView {
-
     // MARK: - Private
 
     private enum Metrics {
@@ -185,7 +178,7 @@ private final class TabBarTraitView: UIView {
         allTheTraitsTab.accessibilityTraits.insert(.image)
         allTheTraitsTab.accessibilityTraits.insert(.searchField)
 
-        self.tabs = [standardTab, selectedTab, disabledTab, untitledTab, nestedTab, nestedContainerTab, nonAccessibileTab, allTheTraitsTab]
+        tabs = [standardTab, selectedTab, disabledTab, untitledTab, nestedTab, nestedContainerTab, nonAccessibileTab, allTheTraitsTab]
 
         super.init(frame: frame)
 
@@ -226,7 +219,6 @@ private final class TabBarTraitView: UIView {
     // MARK: - Private Types
 
     private final class MultiElementButton: UIButton {
-
         // MARK: - Life Cycle
 
         init(isContainer: Bool) {
@@ -278,15 +270,12 @@ private final class TabBarTraitView: UIView {
             middleLabel.sizeToFit()
             middleLabel.capInsetsAlignmentProxy.align(withSuperview: .center)
         }
-
     }
-
 }
 
 // MARK: -
 
 private final class TabBarTraitContainerView: UIView {
-
     // MARK: - Private
 
     private enum Metrics {
@@ -298,9 +287,9 @@ private final class TabBarTraitContainerView: UIView {
     override init(frame: CGRect) {
         // There is one more label than there are elements, to test that the tab count comes from the number of
         // elements, not the number of subviews.
-        self.itemLabels = (0..<5).map { index in
+        itemLabels = (0 ..< 5).map { index in
             let label = UILabel()
-            label.text = "\(["A","B","C","D","E","-"][index])"
+            label.text = "\(["A", "B", "C", "D", "E", "-"][index])"
             label.textAlignment = .center
             return label
         }
@@ -369,5 +358,4 @@ private final class TabBarTraitContainerView: UIView {
             super.accessibilityTraits = newValue
         }
     }
-
 }

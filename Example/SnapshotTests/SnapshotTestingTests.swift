@@ -22,7 +22,6 @@ import XCTest
 
 /// Tests covering the integration between the core components of AccessibilitySnapshot and SnapshotTesting.
 final class SnapshotTestingTests: XCTestCase {
-
     // MARK: - Tests
 
     func testSimpleSwiftUIConfiguration() throws {
@@ -189,5 +188,4 @@ final class SnapshotTestingTests: XCTestCase {
             .compactMap { $0 }
             .joined(separator: "-")
     }
-
 }

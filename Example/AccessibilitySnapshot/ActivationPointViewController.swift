@@ -18,19 +18,15 @@ import Paralayout
 import UIKit
 
 final class ActivationPointViewController: AccessibilityViewController {
-
     override func loadView() {
         view = View()
     }
-
 }
 
 // MARK: -
 
 private extension ActivationPointViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -81,17 +77,13 @@ private extension ActivationPointViewController {
                 ]
             )
         }
-
     }
-
 }
 
 // MARK: -
 
 private extension ActivationPointViewController {
-
     final class CustomActivationPointView: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -158,7 +150,5 @@ private extension ActivationPointViewController {
                 // No-op.
             }
         }
-
     }
-
 }

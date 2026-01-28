@@ -24,26 +24,26 @@
 import Foundation
 
 enum TaskError: Error {
-	case code(Int32)
+    case code(Int32)
 }
 
 func execute(commandPath: String, arguments: [String]) throws {
-	let task = Process()
-	task.launchPath = commandPath
-	task.arguments = arguments
+    let task = Process()
+    task.launchPath = commandPath
+    task.arguments = arguments
 
-	task.launch()
+    task.launch()
 
-	task.waitUntilExit()
+    task.waitUntilExit()
 
-	guard task.terminationStatus == 0 else {
-		throw TaskError.code(task.terminationStatus)
-	}
+    guard task.terminationStatus == 0 else {
+        throw TaskError.code(task.terminationStatus)
+    }
 }
 
 if CommandLine.arguments.count < 5 || CommandLine.arguments[1] == "--help" || CommandLine.arguments[1] == "-h" {
-	print("usage: CompareRenamedSnapshots SNAPSHOT_LIST_FILE OLD_REPO_PATH NEW_DEVICE_ID OLD_DEVICE_ID")
-	exit(0)
+    print("usage: CompareRenamedSnapshots SNAPSHOT_LIST_FILE OLD_REPO_PATH NEW_DEVICE_ID OLD_DEVICE_ID")
+    exit(0)
 }
 
 let snapshotListFilePath = CommandLine.arguments[1]
@@ -59,29 +59,29 @@ let newDeviceIdSnapshotTesting = newDeviceId.replacingOccurrences(of: ".", with:
 let oldDeviceIdSnapshotTesting = oldDeviceId.replacingOccurrences(of: ".", with: "-")
 
 func ksdiff(oldFilePath: String, newFilePath: String, index: Int) throws {
-	guard newFilePath.contains(newDeviceIdFBSnapshotTestCase) || newFilePath.contains(newDeviceIdSnapshotTesting) else {
-		print("Skipping \(newFilePath) since there is it is of an unknown version")
-		return
-	}
+    guard newFilePath.contains(newDeviceIdFBSnapshotTestCase) || newFilePath.contains(newDeviceIdSnapshotTesting) else {
+        print("Skipping \(newFilePath) since there is it is of an unknown version")
+        return
+    }
 
-	print("Showing diff for \(newFilePath) (\(index+1) of \(snapshotImageList.count))")
+    print("Showing diff for \(newFilePath) (\(index + 1) of \(snapshotImageList.count))")
 
-	try execute(
-		commandPath: "/usr/local/bin/ksdiff",
-		arguments: ["--wait", oldFilePath, newFilePath]
-	)
+    try execute(
+        commandPath: "/usr/local/bin/ksdiff",
+        arguments: ["--wait", oldFilePath, newFilePath]
+    )
 }
 
 for (index, newFilePath) in snapshotImageList.enumerated() {
-	let oldFilePathInRepo = String(
-		newFilePath
-			.replacingOccurrences(of: newDeviceIdFBSnapshotTestCase, with: oldDeviceIdFBSnapshotTestCase)
-			.replacingOccurrences(of: newDeviceIdSnapshotTesting, with: oldDeviceIdSnapshotTesting)
-	)
+    let oldFilePathInRepo = String(
+        newFilePath
+            .replacingOccurrences(of: newDeviceIdFBSnapshotTestCase, with: oldDeviceIdFBSnapshotTestCase)
+            .replacingOccurrences(of: newDeviceIdSnapshotTesting, with: oldDeviceIdSnapshotTesting)
+    )
 
-	do {
-		try ksdiff(oldFilePath: oldRepoPath + "/" + oldFilePathInRepo, newFilePath: String(newFilePath), index: index)
-	} catch {
-		print("Failed to diff \(newFilePath)")
-	}
+    do {
+        try ksdiff(oldFilePath: oldRepoPath + "/" + oldFilePathInRepo, newFilePath: String(newFilePath), index: index)
+    } catch {
+        print("Failed to diff \(newFilePath)")
+    }
 }

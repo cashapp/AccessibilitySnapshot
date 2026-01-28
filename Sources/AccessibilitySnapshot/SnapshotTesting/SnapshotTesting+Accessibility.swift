@@ -14,17 +14,16 @@
 //  limitations under the License.
 //
 
-import SnapshotTesting
-import UIKit
 import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser
 import AccessibilitySnapshotParser_ObjC
+import SnapshotTesting
+import UIKit
 
-extension Snapshotting where Value == UIView, Format == UIImage {
-
+public extension Snapshotting where Value == UIView, Format == UIImage {
     /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
-    public static var accessibilityImage: Snapshotting {
+    static var accessibilityImage: Snapshotting {
         return .accessibilityImage()
     }
 
@@ -43,7 +42,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
     /// Control).
     /// - parameter shouldRunInHostApplication: Controls whether a host application is required to run the test or not.
-    public static func accessibilityImage(
+    static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
@@ -58,7 +57,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         return Snapshotting<UIView, UIImage>
             .image(drawHierarchyInKeyWindow: drawHierarchyInKeyWindow)
             .pullback { view in
-                
+
                 let configuration = AccessibilitySnapshotConfiguration(
                     viewRenderingMode: drawHierarchyInKeyWindow ? .drawHierarchyInRect : .renderLayerInContext,
                     colorRenderingMode: useMonochromeSnapshot ? .monochrome : .fullColor,
@@ -66,9 +65,9 @@ extension Snapshotting where Value == UIView, Format == UIImage {
                     activationPointDisplay: activationPointDisplayMode,
                     includesInputLabels: showUserInputLabels ? .whenOverridden : .never
                 )
-               
+
                 let containerView = AccessibilitySnapshotView(containedView: view, snapshotConfiguration: configuration)
-                
+
                 let window = UIWindow(frame: UIScreen.main.bounds)
                 window.makeKeyAndVisible()
                 containerView.center = window.center
@@ -102,8 +101,8 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     }
 
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
-    public static var imageWithSmartInvert: Snapshotting {
-       func postNotification() {
+    static var imageWithSmartInvert: Snapshotting {
+        func postNotification() {
             NotificationCenter.default.post(
                 name: UIAccessibility.invertColorsStatusDidChangeNotification,
                 object: nil,
@@ -175,7 +174,7 @@ extension Snapshotting where Value == UIView, Format == UIImage {
     /// Value must be a positive integer.
     /// - parameter file: The file in which errors should be attributed.
     /// - parameter line: The line in which errors should be attributed.
-    public static func imageWithHitTargets(
+    static func imageWithHitTargets(
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         colors: [UIColor] = MarkerColors.defaultColors,
@@ -228,16 +227,14 @@ extension Snapshotting where Value == UIView, Format == UIImage {
         // correctly. The `UIApplication.shared` singleton is non-optional, but will be uninitialized when the tests are
         // running outside of a host application, so we can use this check to determine whether we have a test host.
         let hostApplication: UIApplication? = UIApplication.shared
-        return (hostApplication != nil)
+        return hostApplication != nil
     }
-
 }
 
-extension Snapshotting where Value == UIViewController, Format == UIImage {
-
+public extension Snapshotting where Value == UIViewController, Format == UIImage {
     /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
-    public static var accessibilityImage: Snapshotting {
+    static var accessibilityImage: Snapshotting {
         return .accessibilityImage()
     }
 
@@ -255,7 +252,7 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays.
     /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
     /// Control).
-    public static func accessibilityImage(
+    static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
@@ -278,7 +275,7 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     }
 
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
-    public static var imageWithSmartInvert: Snapshotting {
+    static var imageWithSmartInvert: Snapshotting {
         return Snapshotting<UIView, UIImage>.imageWithSmartInvert.pullback { viewController in
             viewController.view
         }
@@ -301,7 +298,7 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
     /// repeating through the array as necessary and avoiding adjacent regions using the same color when possible.
     /// - parameter file: The file in which errors should be attributed.
     /// - parameter line: The line in which errors should be attributed.
-    public static func imageWithHitTargets(
+    static func imageWithHitTargets(
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         colors: [UIColor] = MarkerColors.defaultColors,
@@ -320,5 +317,4 @@ extension Snapshotting where Value == UIViewController, Format == UIImage {
                 viewController.view
             }
     }
-
 }

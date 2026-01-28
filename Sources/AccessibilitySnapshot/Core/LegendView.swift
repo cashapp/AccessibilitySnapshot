@@ -1,13 +1,12 @@
-import UIKit
 import AccessibilitySnapshotParser
+import UIKit
 
-internal extension AccessibilitySnapshotView {
+extension AccessibilitySnapshotView {
     final class LegendView: UIView {
-
         // MARK: - Life Cycle
-        
+
         init(marker: AccessibilityMarker, color: UIColor, configuration: AccessibilitySnapshotConfiguration) {
-            self.hintLabel = marker.hint.map {
+            hintLabel = marker.hint.map {
                 let label = UILabel()
                 label.text = $0
                 label.font = Metrics.hintLabelFont
@@ -20,9 +19,9 @@ internal extension AccessibilitySnapshotView {
             // to show the "Actions Available" text, since this makes our layout simpler when we align to the marker.
             let showActionsAvailableInDescription = (marker.description.isEmpty && !marker.customActions.isEmpty)
 
-            self.customActionsView = {
+            customActionsView = {
                 guard !marker.customActions.isEmpty else { return nil }
-                
+
                 return .init(
                     actionsAvailableText: showActionsAvailableInDescription
                         ? nil
@@ -30,16 +29,16 @@ internal extension AccessibilitySnapshotView {
                     customActions: marker.customActions
                 )
             }()
-            
+
             // If our description and hint are both empty, and we don't have custom actions, but we do have custom content, we'll use the description label
             // to show the "Custom Content Available" text, since this makes our layout simpler when we align to the marker.
             let showCustomContentInDescription = (marker.description.isEmpty &&
-                                                  !showActionsAvailableInDescription &&
-                                                  !marker.customContent.isEmpty)
+                !showActionsAvailableInDescription &&
+                !marker.customContent.isEmpty)
 
-            self.customContentView = {
+            customContentView = {
                 guard !marker.customContent.isEmpty else { return nil }
-                
+
                 return .init(
                     customContentText: showCustomContentInDescription
                         ? nil
@@ -49,50 +48,48 @@ internal extension AccessibilitySnapshotView {
             }()
 
             let rotors = marker.displayRotors(configuration.rotors.displayMode)
-            self.customRotorsView = rotors.isEmpty ? nil : .init(
-                    rotors: rotors,
-                    locale: marker.accessibilityLanguage
-                )
-            
-            self.userInputLabelsView = {
-    
-               let userInputLabels: [String]? = {
-                   
-                   switch configuration.inputLabelDisplayMode {
-                   case .always:
-                       guard let labels = marker.userInputLabels, !labels.isEmpty else {
-                           /// If no labels are provided the accessibility label will be used, split on spaces.
-                           var labels = marker.label?.split(separator: " ").map(String.init) ?? []
-                           
-                           /// The button trait precedes the adjustable trait if both are present.
-                           if  marker.traits.contains(.button) {
-                               labels.append(Strings.buttonInputLabelText(for: marker.accessibilityLanguage))
-                           }
-                           if marker.traits.contains(.adjustable) {
-                               labels.append(Strings.adjustableInputLabelText(for: marker.accessibilityLanguage))
-                           }
-                           
-                           return labels
-                       }
-                       return marker.userInputLabels
-                       
-                   case .whenOverridden:
-                       guard
-                           marker.respondsToUserInteraction,
-                           let userInputLabels = marker.userInputLabels,
-                           !userInputLabels.isEmpty
-                       else {
-                           return nil
-                       }
-                       return userInputLabels
-                       
-                   case .never:
-                       return nil
-                   }
-               }()
+            customRotorsView = rotors.isEmpty ? nil : .init(
+                rotors: rotors,
+                locale: marker.accessibilityLanguage
+            )
+
+            userInputLabelsView = {
+                let userInputLabels: [String]? = {
+                    switch configuration.inputLabelDisplayMode {
+                    case .always:
+                        guard let labels = marker.userInputLabels, !labels.isEmpty else {
+                            /// If no labels are provided the accessibility label will be used, split on spaces.
+                            var labels = marker.label?.split(separator: " ").map(String.init) ?? []
+
+                            /// The button trait precedes the adjustable trait if both are present.
+                            if marker.traits.contains(.button) {
+                                labels.append(Strings.buttonInputLabelText(for: marker.accessibilityLanguage))
+                            }
+                            if marker.traits.contains(.adjustable) {
+                                labels.append(Strings.adjustableInputLabelText(for: marker.accessibilityLanguage))
+                            }
+
+                            return labels
+                        }
+                        return marker.userInputLabels
+
+                    case .whenOverridden:
+                        guard
+                            marker.respondsToUserInteraction,
+                            let userInputLabels = marker.userInputLabels,
+                            !userInputLabels.isEmpty
+                        else {
+                            return nil
+                        }
+                        return userInputLabels
+
+                    case .never:
+                        return nil
+                    }
+                }()
 
                 guard let userInputLabels else { return nil }
-                
+
                 return .init(titles: userInputLabels, color: color)
             }()
 
@@ -103,11 +100,11 @@ internal extension AccessibilitySnapshotView {
 
             descriptionLabel.text =
                 showCustomContentInDescription
-                ? Strings.moreContentAvailableText(for: marker.accessibilityLanguage)
-                : showActionsAvailableInDescription
-                ? Strings.actionsAvailableText(for: marker.accessibilityLanguage)
-                : marker.description
-            
+                    ? Strings.moreContentAvailableText(for: marker.accessibilityLanguage)
+                    : showActionsAvailableInDescription
+                    ? Strings.actionsAvailableText(for: marker.accessibilityLanguage)
+                    : marker.description
+
             descriptionLabel.font = Metrics.descriptionLabelFont
             descriptionLabel.textColor = .black
             descriptionLabel.numberOfLines = 0
@@ -159,11 +156,11 @@ internal extension AccessibilitySnapshotView {
             let hintLabelSize = hintLabel?.sizeThatFits(labelSizeToFit) ?? .zero
 
             let customActionsSize = customActionsView?.sizeThatFits(labelSizeToFit) ?? .zero
-            
+
             let customContentSize = customContentView?.sizeThatFits(labelSizeToFit) ?? .zero
-            
+
             let customRotorsSize = customRotorsView?.sizeThatFits(labelSizeToFit) ?? .zero
-            
+
             let userInputLabelsViewSize = userInputLabelsView?.sizeThatFits(labelSizeToFit) ?? .zero
 
             let widthComponents = [
@@ -182,11 +179,11 @@ internal extension AccessibilitySnapshotView {
             let heightComponents = [
                 markerSizeAboveDescriptionLabel,
                 descriptionLabelSize.height,
-                (hintLabelSize.height == 0 ? 0 : hintLabelSize.height + Metrics.interSectionSpacing),
-                (customActionsSize.height == 0 ? 0 : customActionsSize.height + Metrics.interSectionSpacing),
-                (customContentSize.height == 0 ? 0 : customContentSize.height + Metrics.interSectionSpacing),
-                (customRotorsSize.height == 0 ? 0 : customRotorsSize.height + Metrics.interSectionSpacing),
-                (userInputLabelsViewSize.height == 0 ? 0 : userInputLabelsViewSize.height + Metrics.interSectionSpacing)
+                hintLabelSize.height == 0 ? 0 : hintLabelSize.height + Metrics.interSectionSpacing,
+                customActionsSize.height == 0 ? 0 : customActionsSize.height + Metrics.interSectionSpacing,
+                customContentSize.height == 0 ? 0 : customContentSize.height + Metrics.interSectionSpacing,
+                customRotorsSize.height == 0 ? 0 : customRotorsSize.height + Metrics.interSectionSpacing,
+                userInputLabelsViewSize.height == 0 ? 0 : userInputLabelsViewSize.height + Metrics.interSectionSpacing,
             ]
 
             return CGSize(
@@ -236,7 +233,7 @@ internal extension AccessibilitySnapshotView {
                     y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
                 )
             }
-            
+
             if let customContentView {
                 let alignmentLabel = customActionsView ?? hintLabel ?? descriptionLabel
 
@@ -246,7 +243,7 @@ internal extension AccessibilitySnapshotView {
                     y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
                 )
             }
-            
+
             if let customRotorsView {
                 let alignmentLabel = customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
 
@@ -256,10 +253,10 @@ internal extension AccessibilitySnapshotView {
                     y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
                 )
             }
-            
-            if let userInputLabelsView  {
+
+            if let userInputLabelsView {
                 let alignmentControl = customRotorsView ?? customContentView ?? customActionsView ?? hintLabel ?? descriptionLabel
-                
+
                 userInputLabelsView.bounds.size = userInputLabelsView.sizeThatFits(labelSizeToFit)
                 userInputLabelsView.frame.origin = CGPoint(
                     x: alignmentControl.frame.minX,
@@ -270,8 +267,7 @@ internal extension AccessibilitySnapshotView {
 
         // MARK: - Private
 
-        internal enum Metrics {
-
+        enum Metrics {
             static let minimumWidth: CGFloat = 284
 
             static let markerSize: CGFloat = 14
@@ -280,14 +276,11 @@ internal extension AccessibilitySnapshotView {
 
             static let descriptionLabelFont = UIFont.systemFont(ofSize: 12)
             static let hintLabelFont = UIFont.italicSystemFont(ofSize: 12)
-
         }
-
-
     }
 }
 
-internal extension AccessibilityMarker {
+extension AccessibilityMarker {
     func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityMarker.CustomRotor] {
         switch mode {
         case .always:

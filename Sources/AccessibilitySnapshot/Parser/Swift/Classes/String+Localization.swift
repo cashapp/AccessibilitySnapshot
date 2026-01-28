@@ -17,36 +17,27 @@
 import Foundation
 
 extension String {
-
     func localized(key: String, comment: String, locale: String?, file: StaticString = #file) -> String {
         let bundle = StringLocalization.preferredBundle(for: locale)
 
         return bundle.localizedString(forKey: key, value: self, table: nil)
     }
-
 }
 
 // MARK: -
 
-extension Bundle {
-
-    public static var accessibilitySnapshotResources: Bundle = {
-        return Bundle.module
-    }()
-
+public extension Bundle {
+    static var accessibilitySnapshotResources: Bundle = .module
 }
 
 // MARK: -
 
 public enum StringLocalization {
-
     // MARK: - Private Static Properties
 
     private static var localeToBundleMap: [String: Bundle] = [:]
 
-    private static let resourceBundle: Bundle = {
-        return Bundle.module
-    }()
+    private static let resourceBundle: Bundle = .module
 
     // MARK: - Public Static Methods
 
@@ -78,5 +69,4 @@ public enum StringLocalization {
 
         return resourceBundle
     }
-
 }

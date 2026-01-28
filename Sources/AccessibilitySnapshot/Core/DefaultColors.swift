@@ -8,5 +8,5 @@
 import UIKit
 
 public enum MarkerColors {
-    public static let defaultColors: [UIColor] = [ .cyan, .magenta, .green, .blue, .yellow, .purple, .orange ]
+    public static let defaultColors: [UIColor] = [.cyan, .magenta, .green, .blue, .yellow, .purple, .orange]
 }

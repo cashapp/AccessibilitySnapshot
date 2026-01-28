@@ -14,12 +14,11 @@
 //  limitations under the License.
 //
 
-import SwiftUI
 import AccessibilitySnapshotCore
 import iOSSnapshotTestCase
+import SwiftUI
 
-extension FBSnapshotTestCase {
-
+public extension FBSnapshotTestCase {
     /// Snapshots the `view` with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
     ///
@@ -45,7 +44,7 @@ extension FBSnapshotTestCase {
     /// Control).
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
-    public func SnapshotVerifyAccessibility<View: SwiftUI.View>(
+    func SnapshotVerifyAccessibility<View: SwiftUI.View>(
         _ view: View,
         size: CGSize? = nil,
         identifier: String = "",
@@ -57,9 +56,6 @@ extension FBSnapshotTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        
-        
-        
         let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode,
                                                                colorRenderingMode: useMonochromeSnapshot ? .monochrome : .fullColor,
                                                                overlayColors: markerColors,
@@ -73,23 +69,23 @@ extension FBSnapshotTestCase {
                                     file: file,
                                     line: line)
     }
-    
-        public func SnapshotVerifyAccessibility<View: SwiftUI.View>(
-            _ view: View,
-            size: CGSize? = nil,
-            identifier: String = "",
-            snapshotConfiguration: AccessibilitySnapshotConfiguration,
-            suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
-            file: StaticString = #file,
-            line: UInt = #line
-        ) {
+
+    func SnapshotVerifyAccessibility<View: SwiftUI.View>(
+        _ view: View,
+        size: CGSize? = nil,
+        identifier: String = "",
+        snapshotConfiguration: AccessibilitySnapshotConfiguration,
+        suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
         let hostingController = UIHostingController(rootView: view)
         hostingController.view.bounds.size = size ?? hostingController.sizeThatFits(in: .zero)
 
         SnapshotVerifyAccessibility(
             hostingController.view,
             identifier: identifier,
-            snapshotConfiguration:snapshotConfiguration,
+            snapshotConfiguration: snapshotConfiguration,
             suffixes: suffixes,
             file: file,
             line: line
@@ -110,7 +106,7 @@ extension FBSnapshotTestCase {
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
-    public func SnapshotVerifyWithInvertedColors<View: SwiftUI.View>(
+    func SnapshotVerifyWithInvertedColors<View: SwiftUI.View>(
         _ view: View,
         size: CGSize? = nil,
         identifier: String = "",
@@ -129,5 +125,4 @@ extension FBSnapshotTestCase {
             line: line
         )
     }
-
 }

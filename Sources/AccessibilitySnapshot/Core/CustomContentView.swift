@@ -1,20 +1,17 @@
-import UIKit
 import AccessibilitySnapshotParser
+import UIKit
 
-internal extension AccessibilitySnapshotView {
-    
+extension AccessibilitySnapshotView {
     final class CustomContentView: UIView {
-        
         // MARK: - Life Cycle
-        
+
         init(customContentText: String?, customContent: [AccessibilityMarker.CustomContent]) {
-            
             contentLabels = customContent.map { content in
                 let iconLabel = UILabel()
                 iconLabel.text = "↓"
                 iconLabel.font = Metrics.font
                 iconLabel.numberOfLines = 0
-                
+
                 let customContentLabel = UILabel()
                 customContentLabel.font = content.isImportant ? Metrics.boldFont : Metrics.font
                 customContentLabel.numberOfLines = 0
@@ -22,7 +19,7 @@ internal extension AccessibilitySnapshotView {
                     guard !content.value.isEmpty else { return content.label }
                     return "\(content.label): \(content.value)"
                 }()
-                
+
                 return (iconLabel, customContentLabel)
             }
 
@@ -30,10 +27,10 @@ internal extension AccessibilitySnapshotView {
                 let label = UILabel()
                 label.text = customContentText
                 label.font = Metrics.font
-                self.customContentLabel = label
+                customContentLabel = label
 
             } else {
-                self.customContentLabel = nil
+                customContentLabel = nil
             }
 
             super.init(frame: .zero)
@@ -129,16 +126,14 @@ internal extension AccessibilitySnapshotView {
         }
 
         // MARK: - Private Types
-        
+
         private enum Metrics {
-            
             static let verticalSpacing: CGFloat = 4
             static let contentIconInset: CGFloat = 4
             static let iconToDescriptionSpacing: CGFloat = 4
-            
+
             static let font: UIFont = .systemFont(ofSize: 12)
             static let boldFont: UIFont = .boldSystemFont(ofSize: 12)
-            
         }
     }
 }

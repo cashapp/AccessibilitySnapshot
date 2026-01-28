@@ -4,18 +4,18 @@
 import PackageDescription
 
 #if TUIST
-import ProjectDescription
+    import ProjectDescription
 
-let iOSProducts = ["iOSSnapshotTestCase", "iOSSnapshotTestCaseCore", "Paralayout"]
+    let iOSProducts = ["iOSSnapshotTestCase", "iOSSnapshotTestCaseCore", "Paralayout"]
 
-let packageSettings = PackageSettings(
-    productDestinations: Dictionary(uniqueKeysWithValues: iOSProducts.map { ($0, Destinations.iOS) }),
-    targetSettings: [
-        "iOSSnapshotTestCase": [
-            "ENABLE_TESTING_SEARCH_PATHS": "YES"
-        ],
-    ]
-)
+    let packageSettings = PackageSettings(
+        productDestinations: Dictionary(uniqueKeysWithValues: iOSProducts.map { ($0, Destinations.iOS) }),
+        targetSettings: [
+            "iOSSnapshotTestCase": [
+                "ENABLE_TESTING_SEARCH_PATHS": "YES",
+            ],
+        ]
+    )
 #endif
 
 let package = Package(

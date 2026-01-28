@@ -17,7 +17,6 @@
 import UIKit
 
 public final class HitTargetSnapshotView: SnapshotAndLegendView {
-
     // MARK: - Life Cycle
 
     public init(
@@ -50,7 +49,7 @@ public final class HitTargetSnapshotView: SnapshotAndLegendView {
             baseView.removeFromSuperview()
         }
 
-        self._legendViews = orderedViewColorPairs.map { (color, hitView) in
+        _legendViews = orderedViewColorPairs.map { color, hitView in
             LegendView(markerColor: color, hitView: hitView)
         }
 
@@ -82,15 +81,12 @@ public final class HitTargetSnapshotView: SnapshotAndLegendView {
     // MARK: - Private Properties
 
     private let _legendViews: [LegendView]
-
 }
 
 // MARK: -
 
 private extension HitTargetSnapshotView {
-
     final class LegendView: UIView {
-
         // MARK: - Life Cycle
 
         init(markerColor: UIColor, hitView: UIView) {
@@ -159,15 +155,11 @@ private extension HitTargetSnapshotView {
         // MARK: - Private Types
 
         fileprivate enum Metrics {
-
             static let minimumWidth: CGFloat = 240
 
             static let markerSize: CGFloat = 14
 
             static let markerToLabelSpacing: CGFloat = 16
-
         }
-
     }
-
 }

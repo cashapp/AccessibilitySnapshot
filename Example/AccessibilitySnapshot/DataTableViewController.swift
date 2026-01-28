@@ -18,7 +18,6 @@ import Paralayout
 import UIKit
 
 final class DataTableViewController: AccessibilityViewController {
-
     // MARK: - Public Types
 
     enum Configuration {
@@ -51,30 +50,27 @@ final class DataTableViewController: AccessibilityViewController {
     override func loadView() {
         switch configuration {
         case .basic:
-            self.view = View()
+            view = View()
 
         case .withHeaders:
-            self.view = ViewWithHeaders(definesRows: true, definesColumns: true)
+            view = ViewWithHeaders(definesRows: true, definesColumns: true)
 
         case .undefinedRows:
-            self.view = ViewWithHeaders(definesRows: false, definesColumns: true)
+            view = ViewWithHeaders(definesRows: false, definesColumns: true)
 
         case .undefinedColumns:
-            self.view = ViewWithHeaders(definesRows: true, definesColumns: false)
+            view = ViewWithHeaders(definesRows: true, definesColumns: false)
 
         case .undefinedRowsAndColumns:
-            self.view = ViewWithHeaders(definesRows: false, definesColumns: false)
+            view = ViewWithHeaders(definesRows: false, definesColumns: false)
         }
     }
-
 }
 
 // MARK: -
 
 private extension DataTableViewController {
-
     class View: UIView, UIAccessibilityContainerDataTable {
-
         // MARK: - Life Cycle
 
         convenience init() {
@@ -101,7 +97,7 @@ private extension DataTableViewController {
         init(dataCells: [Cell]) {
             self.dataCells = dataCells
 
-            self.cellsByIndex = Dictionary(
+            cellsByIndex = Dictionary(
                 dataCells.map { (IndexPath(row: $0.row, section: $0.column), $0) },
                 uniquingKeysWith: { first, _ in first }
             )
@@ -194,23 +190,19 @@ private extension DataTableViewController {
         func accessibilityColumnCount() -> Int {
             return 4
         }
-
     }
-
 }
 
 // MARK: -
 
 private extension DataTableViewController {
-
     final class ViewWithHeaders: View {
-
         init(definesRows: Bool, definesColumns: Bool) {
             var dataCells: [Cell] = []
 
-            for row in 0..<6 {
-                for column in 0..<6 {
-                    let columnName = ["A","B","C","D","E","F"][column]
+            for row in 0 ..< 6 {
+                for column in 0 ..< 6 {
+                    let columnName = ["A", "B", "C", "D", "E", "F"][column]
                     dataCells.append(.init(
                         row: row,
                         column: column,
@@ -218,8 +210,8 @@ private extension DataTableViewController {
                         accessibilityColumn: definesColumns ? column : NSNotFound,
                         width: 1,
                         height: 1,
-                        label: "\(columnName)\(row+1)",
-                        value: "\(columnName)\(row+1) Value"
+                        label: "\(columnName)\(row + 1)",
+                        value: "\(columnName)\(row + 1) Value"
                     ))
                 }
             }
@@ -252,17 +244,13 @@ private extension DataTableViewController {
                 dataCells.first(where: { $0.column == column && $0.row == 2 }),
             ].compactMap { $0 }
         }
-
     }
-
 }
 
 // MARK: -
 
 private extension DataTableViewController {
-
     final class Cell: UIView, UIAccessibilityContainerDataTableCell {
-
         // MARK: - Life Cycle
 
         init(
@@ -320,15 +308,12 @@ private extension DataTableViewController {
         func accessibilityColumnRange() -> NSRange {
             return NSRange(location: accessibilityColumn, length: width)
         }
-
     }
-
 }
 
 // MARK: -
 
 extension DataTableViewController {
-
     static func makeConfigurationSelectionViewController(
         presentingViewController: UIViewController
     ) -> UIViewController {
@@ -361,5 +346,4 @@ extension DataTableViewController {
 
         return alertController
     }
-
 }

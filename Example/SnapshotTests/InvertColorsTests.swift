@@ -20,7 +20,6 @@ import iOSSnapshotTestCase
 @testable import AccessibilitySnapshotDemo
 
 final class InvertColorsTests: SnapshotTestCase {
-
     func testInvertColors() {
         let viewController = InvertColorsViewController()
         viewController.view.frame = UIScreen.main.bounds
@@ -39,5 +38,4 @@ final class InvertColorsTests: SnapshotTestCase {
 
         SnapshotVerifyWithInvertedColors(viewController.view, identifier: "someIdentifier")
     }
-
 }

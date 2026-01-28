@@ -14,13 +14,12 @@
 //  limitations under the License.
 //
 
-import XCTest
 import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser_ObjC
 import iOSSnapshotTestCase
+import XCTest
 
-extension FBSnapshotTestCase {
-
+public extension FBSnapshotTestCase {
     /// Snapshots the `view` with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
     ///
@@ -57,7 +56,7 @@ extension FBSnapshotTestCase {
     /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice Control).
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
-    public func SnapshotImpreciseVerifyAccessibility(
+    func SnapshotImpreciseVerifyAccessibility(
         _ view: UIView,
         identifier: String = "",
         showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
@@ -75,11 +74,11 @@ extension FBSnapshotTestCase {
             return
         }
         let configuration = AccessibilitySnapshotConfiguration(viewRenderingMode: viewRenderingMode,
-                                                               colorRenderingMode: (useMonochromeSnapshot ? .monochrome : .fullColor),
+                                                               colorRenderingMode: useMonochromeSnapshot ? .monochrome : .fullColor,
                                                                overlayColors: markerColors,
                                                                activationPointDisplay: activationPointDisplayMode,
                                                                includesInputLabels: showUserInputLabels ? .whenOverridden : .never)
-        
+
         let containerView = AccessibilitySnapshotView(containedView: view, snapshotConfiguration: configuration)
 
         let window = UIWindow(frame: UIScreen.main.bounds)
@@ -128,7 +127,7 @@ extension FBSnapshotTestCase {
     /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
-    public func SnapshotImpreciseVerifyWithInvertedColors(
+    func SnapshotImpreciseVerifyWithInvertedColors(
         _ view: UIView,
         identifier: String = "",
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
@@ -216,7 +215,7 @@ extension FBSnapshotTestCase {
     /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
-    public func SnapshotImpreciseVerifyWithHitTargets(
+    func SnapshotImpreciseVerifyWithHitTargets(
         _ view: UIView,
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
@@ -233,7 +232,7 @@ extension FBSnapshotTestCase {
             let containerView = try HitTargetSnapshotView(
                 baseView: view,
                 useMonochromeSnapshot: true,
-                viewRenderingMode: (usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext),
+                viewRenderingMode: usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext,
                 colors: colors,
                 maxPermissibleMissedRegionWidth: maxPermissibleMissedRegionWidth,
                 maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight
@@ -255,5 +254,4 @@ extension FBSnapshotTestCase {
             XCTFail(ErrorMessageFactory.errorMessageForAccessibilityParsingError(error), file: file, line: line)
         }
     }
-
 }

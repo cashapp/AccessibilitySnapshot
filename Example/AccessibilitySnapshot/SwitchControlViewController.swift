@@ -18,21 +18,17 @@ import Paralayout
 import UIKit
 
 final class SwitchControlViewController: AccessibilityViewController {
-
     // MARK: - UIViewController
 
     override func loadView() {
         view = View()
     }
-
 }
 
 // MARK: -
 
 private extension SwitchControlViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -91,7 +87,7 @@ private extension SwitchControlViewController {
 
             switchControls.forEach { addSubview($0) }
 
-            let switchTrait = UIAccessibilityTraits(rawValue: 0x0020000000000000)
+            let switchTrait = UIAccessibilityTraits(rawValue: 0x0020_0000_0000_0000)
 
             // Add a fake switch that has the switch button trait only, but is not a UISwitch.
             for fakeSwitchView in fakeSwitchViews {
@@ -130,10 +126,10 @@ private extension SwitchControlViewController {
 
         // MARK: - Private Properties
 
-        private let switchControls: [UISwitch] = (0..<9).map { _ in UISwitch() }
+        private let switchControls: [UISwitch] = (0 ..< 9).map { _ in UISwitch() }
 
         /// `UIView`s with the switch button trait that act like a switch, but aren't actually switches.
-        private let fakeSwitchViews: [UIView] = (0..<6).map { _ in UIView() }
+        private let fakeSwitchViews: [UIView] = (0 ..< 6).map { _ in UIView() }
 
         // MARK: - UIView
 
@@ -142,14 +138,12 @@ private extension SwitchControlViewController {
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
 
-            var distributionSpecifiers: [ViewDistributionSpecifying] = [ statusBarHeight.fixed, 1.flexible ]
-            for subview in (switchControls + fakeSwitchViews) {
+            var distributionSpecifiers: [ViewDistributionSpecifying] = [statusBarHeight.fixed, 1.flexible]
+            for subview in switchControls + fakeSwitchViews {
                 distributionSpecifiers.append(subview)
                 distributionSpecifiers.append(1.flexible)
             }
             applyVerticalSubviewDistribution(distributionSpecifiers)
         }
-
     }
-
 }

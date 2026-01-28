@@ -18,19 +18,15 @@ import Paralayout
 import UIKit
 
 final class UserInputLabelsViewController: AccessibilityViewController {
-
     override func loadView() {
         view = View()
     }
-
 }
 
 // MARK: -
 
 private extension UserInputLabelsViewController {
-
     final class View: UIView {
-
         // MARK: - Life Cycle
 
         override init(frame: CGRect) {
@@ -38,7 +34,7 @@ private extension UserInputLabelsViewController {
 
             noLabelsButton.setTitle("No labels", for: .normal)
             noLabelsButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
-            
+
             oneLabelButton.setTitle("One label", for: .normal)
             oneLabelButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
 
@@ -50,23 +46,23 @@ private extension UserInputLabelsViewController {
 
             nonInteractiveLabel.text = "Non-interactive"
             nonInteractiveLabel.accessibilityUserInputLabels = ["Non-interactive label"]
-            
+
             oneLabelButton.accessibilityUserInputLabels = ["One Input Label"]
-            
+
             longLabelButton.accessibilityUserInputLabels = [
-                "A Really Really Really Really Really Long Label"
+                "A Really Really Really Really Really Long Label",
             ]
-            
+
             let formatter = NumberFormatter()
             formatter.numberStyle = .spellOut
-            
-            manyLabelsButton.accessibilityUserInputLabels = [Int](1...20).map { formatter.string(for: $0)!.capitalized }
-            
+
+            manyLabelsButton.accessibilityUserInputLabels = [Int](1 ... 20).map { formatter.string(for: $0)!.capitalized }
+
             buttons.forEach {
                 $0.setTitleColor(.black, for: .normal)
                 addSubview($0)
             }
-            
+
             addSubview(nonInteractiveLabel)
         }
 
@@ -82,17 +78,17 @@ private extension UserInputLabelsViewController {
         private let manyLabelsButton: UIButton = .init()
         private let longLabelButton: UIButton = .init()
         private let nonInteractiveLabel: UILabel = .init()
-        
+
         @objc private func buttonTapped(sender: NSObject) {
             print("Button Tapped: \(String(describing: sender))")
         }
-        
+
         private var buttons: [UIButton] {
             return [
                 noLabelsButton,
                 oneLabelButton,
                 manyLabelsButton,
-                longLabelButton
+                longLabelButton,
             ]
         }
 
@@ -102,7 +98,7 @@ private extension UserInputLabelsViewController {
             buttons.forEach {
                 $0.sizeToFit(bounds.size)
             }
-            
+
             nonInteractiveLabel.sizeToFit(bounds.size)
 
             let statusBarHeight = window?.windowScene?.statusBarManager?.statusBarFrame.height ?? 0
@@ -124,7 +120,5 @@ private extension UserInputLabelsViewController {
                 ]
             )
         }
-
     }
-
 }
