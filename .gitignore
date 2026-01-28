@@ -33,3 +33,4 @@ generated/
 *.xcworkspace
 # Generated files (Info.plists, synthesized resource accessors)
 Derived/
+Example/Tuist/Dependencies/

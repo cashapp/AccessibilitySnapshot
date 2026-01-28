@@ -1,2 +1,6 @@
 [tools]
-tuist = "4.50.0"  # Compatible with macOS 14
+tuist = "4.50.0"
+swiftformat = "0.55.3"
+
+[hooks]
+postinstall = "tuist install --path Example"

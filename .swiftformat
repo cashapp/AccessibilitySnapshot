@@ -1,0 +1,4 @@
+--exclude .build,DerivedData,Example/.build,Example/DerivedData,Example/Tuist/Dependencies
+
+--disable preferForLoop
+--disable unusedArguments

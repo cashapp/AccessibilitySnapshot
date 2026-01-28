@@ -14,6 +14,18 @@ If you want to add a feature or report a bug, please file an [Issue](https://git
 
 Keep your Pull Requests small. Small PRs are easier to reason about, which makes them significantly more likely to get merged.
 
+Before you commit, install the required tools and git hooks:
+
+```bash
+# Install mise (if not already installed): https://mise.jdx.dev/getting-started.html
+mise install
+
+# Install git hooks
+./Scripts/install-git-hooks.sh
+```
+
+This installs SwiftFormat and Tuist at the versions specified in `.mise.toml`.
+
 All PRs that change functionality must include tests. Changes that affect the ouput of an accessibility snapshot test should include a snapshot test, either in the form of an added test for new functionality or updated reference snapshots for changed functionality. For non-visual changes that are not easily represented by a snapshot test, or changes that involve complex logic more easily represented by text, a unit test should be used.
 
 ### Backwards compatibility
