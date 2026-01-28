@@ -22,6 +22,12 @@ DerivedData
 # Bundler
 .bundle
 
+# Carthage
+Carthage/Build
+
+# CocoaPods
+Pods/
+
 # Swift Package Manager
 generated/
 .build/
@@ -33,3 +39,4 @@ generated/
 *.xcworkspace
 # Generated files (Info.plists, synthesized resource accessors)
 Derived/
+Example/Pods/

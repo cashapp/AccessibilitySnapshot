@@ -9,6 +9,7 @@ import AccessibilitySnapshotParser
 /// - `markerColors`: Colors for highlighted regions
 /// - `activationPointDisplayMode`: Controls activation point indicator display
 /// - `inputLabelDisplayMode`: Controls user input label display (for Voice Control)
+/// - `showContainers`: Controls container overlay display
 public struct AccessibilitySnapshotConfiguration {
 
     // MARK: - Nested Configuration Types
@@ -62,6 +63,9 @@ public struct AccessibilitySnapshotConfiguration {
     /// Controls when to show elements' accessibility user input labels (used by Voice Control). Defaults to `.whenOverridden`.
     public let inputLabelDisplayMode: AccessibilityContentDisplayMode
 
+    /// Whether to show container overlays (dashed borders around accessibility containers). Defaults to `false`.
+    public let showContainers: Bool
+
     // MARK: - Initialization
 
     /// Creates a new accessibility snapshot configuration.
@@ -74,6 +78,7 @@ public struct AccessibilitySnapshotConfiguration {
     ///   - includesInputLabels: When to show accessibility user input labels. Defaults to `.whenOverridden`.
     ///   - includesCustomRotors: When to show accessibility custom rotors and their contents. Defaults to `.whenOverridden`.
     ///   - rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to `10`.
+    ///   - showContainers: Whether to show container overlays. Defaults to `false`.
     public init(
         viewRenderingMode: ViewRenderingMode,
         colorRenderingMode: ColorRenderingMode = .monochrome,
@@ -81,13 +86,15 @@ public struct AccessibilitySnapshotConfiguration {
         activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden,
         includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden,
         includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden,
-        rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit
+        rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit,
+        showContainers: Bool = false
     ) {
         self.rendering = Rendering(renderMode: viewRenderingMode, colorMode: colorRenderingMode)
         self.rotors = Rotors(displayMode: includesCustomRotors, resultLimit: rotorResultLimit)
         self.markerColors = overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors
         self.activationPointDisplayMode = activationPointDisplay
         self.inputLabelDisplayMode = includesInputLabels
+        self.showContainers = showContainers
     }
 }
 
