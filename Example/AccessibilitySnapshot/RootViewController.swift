@@ -59,6 +59,12 @@ final class RootViewController: UITableViewController {
         if #available(iOS 17.0, *) {
             accessibilityScreens.append(("Block based accessors", { _ in BlockBasedAccessibilityViewController() }))
         }
+        accessibilityScreens.append(("Keyboard Shortcuts (With Categories)", { _ in KeyboardShortcutsViewController() }))
+        accessibilityScreens.append(("Keyboard Shortcuts (Without Categories)", { _ in KeyboardShortcutsWithoutCategoriesViewController() }))
+
+        if #available(iOS 14.0, *) {
+            accessibilityScreens.append(("Keyboard Shortcuts (SwiftUI)", { _ in UIHostingController(rootView: SwiftUIKeyboardShortcuts()) }))
+        }
         self.accessibilityScreens = accessibilityScreens
 
         super.init(nibName: nil, bundle: nil)
