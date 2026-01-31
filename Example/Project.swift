@@ -17,7 +17,6 @@ func makeLanguageScheme(language: String, languageCode: String) -> Scheme {
         testAction: .targets(
             [
                 .testableTarget(target: .target("SnapshotTests")),
-                .testableTarget(target: .target("UnitTests")),
             ],
             expandVariableFromTarget: .target("AccessibilitySnapshotDemo"),
             skippedTests: [
@@ -27,7 +26,6 @@ func makeLanguageScheme(language: String, languageCode: String) -> Scheme {
                 "AccessibilitySnapshotTests/testLargeViewThatRequiresTiling()",
                 "DefaultControlsTests/testDatePicker()",
                 "HitTargetTests/testPerformance()",
-                "TextAccessibilityTests",
             ]
         ),
         runAction: .runAction(
@@ -95,7 +93,7 @@ let project = Project(
             product: .framework,
             bundleId: "com.cashapp.AccessibilitySnapshotCore",
             deploymentTargets: deploymentTargets,
-            sources: ["../Sources/AccessibilitySnapshot/Core/*.swift"],
+            sources: ["../Sources/AccessibilitySnapshot/Core/**/*.swift"],
             dependencies: [
                 .target(name: "AccessibilitySnapshotParser"),
             ]
@@ -225,32 +223,6 @@ let project = Project(
             )
         ),
 
-        // MARK: - Unit Tests
-
-        .target(
-            name: "UnitTests",
-            destinations: .iOS,
-            product: .unitTests,
-            bundleId: "com.cashapp.UnitTests",
-            deploymentTargets: deploymentTargets,
-            infoPlist: .file(path: "UnitTests/Supporting Files/Info.plist"),
-            sources: ["UnitTests/**/*.{swift,m}"],
-            headers: .headers(
-                project: ["UnitTests/Supporting Files/*.h"]
-            ),
-            dependencies: [
-                .target(name: "AccessibilitySnapshotDemo"),
-                .target(name: "AccessibilitySnapshotCore"),
-                .target(name: "AccessibilitySnapshotParser"),
-                .target(name: "AccessibilitySnapshotParser_ObjC"),
-            ],
-            settings: .settings(
-                base: [
-                    "SWIFT_OBJC_BRIDGING_HEADER": "$(SRCROOT)/UnitTests/Supporting Files/UnitTests-Bridging-Header.h",
-                    "OTHER_LDFLAGS": "$(inherited) -ObjC",
-                ]
-            )
-        ),
     ],
     schemes: [
         ("English", "en"),

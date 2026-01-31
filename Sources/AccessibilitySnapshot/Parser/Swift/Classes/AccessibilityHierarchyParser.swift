@@ -147,6 +147,43 @@ public struct AccessibilityMarker: Equatable {
 
     /// whether the element performs an action based on user interaction.
     public var respondsToUserInteraction: Bool
+
+    // MARK: - Initializers
+
+    /// Creates an AccessibilityMarker with all properties.
+    public init(
+        description: String,
+        label: String? = nil,
+        value: String? = nil,
+        traits: UIAccessibilityTraits = [],
+        identifier: String? = nil,
+        hint: String? = nil,
+        userInputLabels: [String]? = nil,
+        shape: Shape,
+        activationPoint: CGPoint,
+        usesDefaultActivationPoint: Bool = true,
+        customActions: [CustomAction] = [],
+        customContent: [CustomContent] = [],
+        customRotors: [CustomRotor] = [],
+        accessibilityLanguage: String? = nil,
+        respondsToUserInteraction: Bool = false
+    ) {
+        self.description = description
+        self.label = label
+        self.value = value
+        self.traits = traits
+        self.identifier = identifier
+        self.hint = hint
+        self.userInputLabels = userInputLabels
+        self.shape = shape
+        self.activationPoint = activationPoint
+        self.usesDefaultActivationPoint = usesDefaultActivationPoint
+        self.customActions = customActions
+        self.customContent = customContent
+        self.customRotors = customRotors
+        self.accessibilityLanguage = accessibilityLanguage
+        self.respondsToUserInteraction = respondsToUserInteraction
+    }
 }
 
 // MARK: -
