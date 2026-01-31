@@ -66,7 +66,7 @@ let package = Package(
         ),
         .target(
             name: "AccessibilityPreviews_Experimental",
-            dependencies: ["AccessibilitySnapshotParser"],
+            dependencies: ["AccessibilitySnapshotCore", "AccessibilitySnapshotParser"],
             path: "Sources/AccessibilitySnapshot/AccessibilityPreviews"
         ),
         .target(
