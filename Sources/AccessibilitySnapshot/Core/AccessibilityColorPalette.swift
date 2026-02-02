@@ -97,7 +97,8 @@ public extension ColorPalette {
     init(legacyColors: [UIColor]) {
         guard let palette = Self(colors: legacyColors,
                                  fillOpacity: 0.3,
-                                 strokeOpacity: 0.3) else {
+                                 strokeOpacity: 0.3)
+        else {
             self = .legacy
             return
         }
@@ -107,7 +108,8 @@ public extension ColorPalette {
     init(modernColors: [UIColor]) {
         guard let palette = Self(colors: modernColors,
                                  fillOpacity: 0.25,
-                                 strokeOpacity: 0.8) else {
+                                 strokeOpacity: 0.8)
+        else {
             self = .modern
             return
         }
