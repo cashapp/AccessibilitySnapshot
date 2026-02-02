@@ -66,7 +66,7 @@ public final class AccessibilitySnapshotView: AccessibilitySnapshotBaseView {
 
     // MARK: - AccessibilitySnapshotBaseView Overrides
 
-    override public func cleanUpPreviousOverlays() {
+    override public func cleanup() {
         displayMarkers.forEach {
             $0.legendView.removeFromSuperview()
             $0.overlayView.removeFromSuperview()
@@ -75,7 +75,7 @@ public final class AccessibilitySnapshotView: AccessibilitySnapshotBaseView {
         displayMarkers = []
     }
 
-    override public func createOverlays(with data: ParsedAccessibilityData) {
+    override public func render(data: ParsedAccessibilityData) {
         var displayMarkers: [DisplayMarker] = []
         let palette = ColorPalette(legacyColors: snapshotConfiguration.markerColors)
 
