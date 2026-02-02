@@ -19,13 +19,7 @@ public struct ParsedAccessibilityData {
 
 /// Base class that handles the shared capture and parse logic for accessibility snapshots.
 ///
-/// Subclasses implement `createOverlays(with:)` to generate renderer-specific visuals (UIKit or SwiftUI).
-/// The `parseAccessibility()` method handles all the common orchestration:
-/// - Saving/restoring view controller state
-/// - Adding the contained view to the hierarchy
-/// - Rendering the view to an image
-/// - Parsing the accessibility hierarchy
-/// - Calling the subclass to create overlays
+/// Subclasses implement `render(data:)` to generate layout-engine-specific visuals.
 open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
     // MARK: - Public Properties
 
@@ -69,10 +63,8 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
     ///
     /// - Throws: Throws a `RenderError` when the view fails to render a snapshot of the `containedView`.
     public func parseAccessibility() throws {
-        // Clean up any previous overlays
-        cleanUpPreviousOverlays()
+        cleanup()
 
-        // Save view controller state
         let viewController = containedView.next as? UIViewController
         let originalParent = viewController?.parent
         let originalSuperviewAndIndex = containedView.superviewWithSubviewIndex()
@@ -92,12 +84,9 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
             }
         }
 
-        // Force a layout pass after the view is in the hierarchy so that the conversion to screen coordinates works
-        // correctly.
         containedView.setNeedsLayout()
         containedView.layoutIfNeeded()
 
-        // Render to image
         let image = try containedView.renderToImage(
             configuration: snapshotConfiguration.rendering
         )
@@ -105,42 +94,33 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
         snapshotView.image = image
         snapshotView.bounds.size = containedView.bounds.size
 
-        // Complete the layout pass after the view is restored to this container, in case it was modified during the
-        // rendering process (i.e. when the rendering is tiled and stitched).
         containedView.layoutIfNeeded()
 
-        // Parse accessibility hierarchy
         let parser = AccessibilityHierarchyParser()
         let markers = parser.parseAccessibilityElements(
             in: containedView,
             rotorResultLimit: snapshotConfiguration.rotors.resultLimit
         )
 
-        // Delegate overlay creation to subclass
         let parsedData = ParsedAccessibilityData(
             image: image,
             markers: markers,
             containedViewBounds: containedView.bounds.size
         )
 
-        createOverlays(with: parsedData)
+        render(data: parsedData)
     }
 
     // MARK: - Methods for Subclasses to Override
 
-    /// Override to clean up renderer-specific overlay views before parsing.
-    ///
-    /// Called at the beginning of `parseAccessibility()` to remove any previously created overlays.
-    open func cleanUpPreviousOverlays() {
-        // Default implementation does nothing.
-        // Subclasses should remove their overlay views here.
-    }
+    /// Cleans up any previously created overlay views.
+    open func cleanup() {}
 
-    /// Override to create renderer-specific overlay and legend views.
+    /// Renders the accessibility overlays and legend.
     ///
     /// - Parameter data: The parsed accessibility data including snapshot image and markers.
-    open func createOverlays(with data: ParsedAccessibilityData) {
-        fatalError("Subclasses must implement createOverlays(with:)")
+    open func render(data: ParsedAccessibilityData) {
+        fatalError("Subclasses must implement render(data:)")
     }
 }
 

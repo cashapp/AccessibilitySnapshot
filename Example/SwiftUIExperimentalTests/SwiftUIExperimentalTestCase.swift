@@ -5,13 +5,13 @@ import SwiftUI
 
 /// Base test case for SwiftUI Experimental tests.
 ///
-/// These tests require iOS 18.0+ and use the SwiftUI renderer to demonstrate
+/// These tests require iOS 18.0+ and use the SwiftUI layout engine to demonstrate
 /// accessibility snapshot testing with SwiftUI-rendered overlays.
 ///
 /// ## Usage
 ///
 /// Use the `snapshotVerifyAccessibility(_:identifier:file:line:)` helper method
-/// which automatically uses the correct size and renderer:
+/// which automatically uses the correct size and layout engine:
 ///
 /// ```swift
 /// func testMyView() {
@@ -25,7 +25,7 @@ import SwiftUI
 class SwiftUIExperimentalTestCase: FBSnapshotTestCase {
     // MARK: - Accessibility Snapshot Helper
 
-    /// Snapshots a SwiftUI view using the SwiftUI renderer at screen size.
+    /// Snapshots a SwiftUI view using the SwiftUI layout engine at screen size.
     ///
     /// - Parameters:
     ///   - view: The SwiftUI view to snapshot.
@@ -42,7 +42,7 @@ class SwiftUIExperimentalTestCase: FBSnapshotTestCase {
             view,
             size: UIScreen.main.bounds.size,
             identifier: identifier,
-            renderer: .swiftui,
+            layoutEngine: .swiftui,
             file: file,
             line: line
         )
