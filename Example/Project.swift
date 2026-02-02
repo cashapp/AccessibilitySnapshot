@@ -27,7 +27,6 @@ func makeLanguageScheme(language: String, languageCode: String) -> Scheme {
                 "AccessibilitySnapshotTests/testLargeViewThatRequiresTiling()",
                 "DefaultControlsTests/testDatePicker()",
                 "HitTargetTests/testPerformance()",
-                "TextAccessibilityTests",
             ]
         ),
         runAction: .runAction(
