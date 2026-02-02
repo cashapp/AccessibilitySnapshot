@@ -11,12 +11,39 @@
         }
       },
       {
-        "package": "SnapshotTesting",
+        "package": "swift-custom-dump",
+        "repositoryURL": "https://github.com/pointfreeco/swift-custom-dump",
+        "state": {
+          "branch": null,
+          "revision": "2a2a938798236b8fa0bc57c453ee9de9f9ec3ab0",
+          "version": "1.4.1"
+        }
+      },
+      {
+        "package": "swift-snapshot-testing",
         "repositoryURL": "https://github.com/pointfreeco/swift-snapshot-testing.git",
         "state": {
           "branch": null,
-          "revision": "c466812aa2e22898f27557e2e780d3aad7a27203",
-          "version": "1.8.2"
+          "revision": "bf8d8c27f0f0c6d5e77bff0db76ab68f2050d15d",
+          "version": "1.18.9"
+        }
+      },
+      {
+        "package": "swift-syntax",
+        "repositoryURL": "https://github.com/swiftlang/swift-syntax",
+        "state": {
+          "branch": null,
+          "revision": "4799286537280063c85a32f09884cfbca301b1a1",
+          "version": "602.0.0"
+        }
+      },
+      {
+        "package": "xctest-dynamic-overlay",
+        "repositoryURL": "https://github.com/pointfreeco/xctest-dynamic-overlay",
+        "state": {
+          "branch": null,
+          "revision": "34e463e98ab8541c604af706c99bed7160f5ec70",
+          "version": "1.8.1"
         }
       }
     ]

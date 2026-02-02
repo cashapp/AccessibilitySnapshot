@@ -9,10 +9,10 @@ on:
 jobs:
   spm:
     name: SPM Build
-    runs-on: macOS-14
+    runs-on: macOS-15
     strategy:
       matrix:
-        platform: ['iOS_17']
+        platform: ['iOS_18']
       fail-fast: false
     steps:
       - name: Checkout Repo
@@ -31,16 +31,36 @@ jobs:
       - name: Validate Localized Strings
         run: Scripts/ValidateLocalizedStrings.swift
 
+  swift-testing:
+    name: Swift Testing
+    runs-on: macOS-15
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - name: Install mise
+        uses: jdx/mise-action@v2
+        with:
+          experimental: true
+      - name: Prepare Simulator Runtimes
+        run: Scripts/github/prepare-simulators.sh iOS_18
+      - name: Tuist Install
+        run: tuist install --path Example
+      - name: Tuist Generate
+        run: tuist generate --path Example
+      - name: Run Swift Testing Tests
+        run: |
+          xcodebuild test \
+            -workspace Example/AccessibilitySnapshot.xcworkspace \
+            -scheme "AccessibilitySnapshotDemo (en)" \
+            -destination "platform=iOS Simulator,name=iPhone 16 Pro,OS=18.5" \
+            -only-testing:SnapshotTests/SwiftTestingSnapshotTests
+
   tuist-build:
     name: Tuist Build (${{ matrix.platform }})
     runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
         include:
-          - platform: iOS_17
-            runner: macOS-14
-            device: "iPhone 15 Pro"
-            os: "17.5"
           - platform: iOS_18
             runner: macOS-15
             device: "iPhone 16 Pro"

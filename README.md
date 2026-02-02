@@ -84,6 +84,30 @@ func testAccessibility() {
 }
 ```
 
+### Swift Testing
+
+AccessibilitySnapshot also supports Apple's Swift Testing framework (requires Xcode 16+):
+
+```swift
+import AccessibilitySnapshot
+import SnapshotTesting
+import Testing
+
+@MainActor
+@Suite
+struct MyAccessibilityTests {
+    @Test
+    func accessibilitySnapshot() {
+        let view = MyView()
+        // Configure the view...
+
+        assertSnapshot(of: view, as: .accessibilityImage)
+    }
+}
+```
+
+Note: Swift Testing tests that interact with UIKit must be marked with `@MainActor`.
+
 ### Getting Started with iOSSnapshotTestCase
 
 To run a snapshot test, simply call the `SnapshotVerifyAccessibility` method:
@@ -137,7 +161,7 @@ You can also run accessibility snapshot tests from Objective-C:
 
 ## Requirements
 
-* Xcode 13.2.1 or later
+* Xcode 16.0 or later
 * iOS 13.0 or later
 
 ## Contributing

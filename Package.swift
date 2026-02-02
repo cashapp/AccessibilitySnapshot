@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:6.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -38,14 +38,12 @@ let package = Package(
     ],
     dependencies: [
         .package(
-            name: "iOSSnapshotTestCase",
             url: "https://github.com/uber/ios-snapshot-test-case.git",
             .upToNextMajor(from: "8.0.0")
         ),
         .package(
-            name: "SnapshotTesting",
             url: "https://github.com/pointfreeco/swift-snapshot-testing.git",
-            .upToNextMajor(from: "1.8.0")
+            .upToNextMajor(from: "1.18.9")
         ),
     ],
     targets: [
@@ -74,7 +72,7 @@ let package = Package(
             dependencies: [
                 "AccessibilitySnapshotCore",
                 "AccessibilitySnapshotParser-ObjC",
-                "SnapshotTesting",
+                .product(name: "SnapshotTesting", package: "swift-snapshot-testing"),
             ],
             path: "Sources/AccessibilitySnapshot/SnapshotTesting"
         ),
@@ -83,14 +81,19 @@ let package = Package(
             dependencies: [
                 "AccessibilitySnapshotCore",
                 "AccessibilitySnapshotParser-ObjC",
-                "iOSSnapshotTestCase",
+                .product(name: "iOSSnapshotTestCase", package: "ios-snapshot-test-case"),
             ],
             path: "Sources/AccessibilitySnapshot/iOSSnapshotTestCase/Swift"
         ),
         .target(
             name: "FBSnapshotTestCase-Accessibility-ObjC",
-            dependencies: ["AccessibilitySnapshotCore", "iOSSnapshotTestCase", "FBSnapshotTestCase-Accessibility"],
+            dependencies: [
+                "AccessibilitySnapshotCore",
+                .product(name: "iOSSnapshotTestCase", package: "ios-snapshot-test-case"),
+                "FBSnapshotTestCase-Accessibility",
+            ],
             path: "Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC"
         ),
-    ]
+    ],
+    swiftLanguageModes: [.v5]
 )
