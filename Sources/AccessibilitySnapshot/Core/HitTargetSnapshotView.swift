@@ -7,7 +7,7 @@ public final class HitTargetSnapshotView: SnapshotAndLegendView {
         baseView: UIView,
         useMonochromeSnapshot: Bool,
         viewRenderingMode: ViewRenderingMode,
-        colors: [UIColor] = MarkerColors.defaultColors,
+        colors: [UIColor] = [],
         maxPermissibleMissedRegionWidth: CGFloat = 0,
         maxPermissibleMissedRegionHeight: CGFloat = 0
     ) throws {
@@ -54,11 +54,11 @@ public final class HitTargetSnapshotView: SnapshotAndLegendView {
 
     // MARK: - SnapshotAndLegendView
 
-    override var legendViews: [UIView] {
+    override public var legendViews: [UIView] {
         return _legendViews
     }
 
-    override var minimumLegendWidth: CGFloat {
+    override public var minimumLegendWidth: CGFloat {
         return LegendView.Metrics.minimumWidth
     }
 
@@ -106,15 +106,15 @@ private extension HitTargetSnapshotView {
         // MARK: - UIView
 
         override func layoutSubviews() {
-            markerView.frame = CGRect(x: 0, y: 0, width: Metrics.markerSize, height: Metrics.markerSize)
+            markerView.frame = CGRect(x: 0, y: 0, width: LegendLayoutMetrics.markerSize, height: LegendLayoutMetrics.markerSize)
 
             let descriptionLayoutBounds = bounds.inset(
-                by: .init(top: 0, left: Metrics.markerSize + Metrics.markerToLabelSpacing, bottom: 0, right: 0)
+                by: .init(top: 0, left: LegendLayoutMetrics.markerSize + LegendLayoutMetrics.markerToLabelSpacing, bottom: 0, right: 0)
             )
             let firstLineHeight = descriptionLabel
                 .textRect(forBounds: descriptionLayoutBounds, limitedToNumberOfLines: 1)
                 .height
-            let labelVerticalInset = (Metrics.markerSize - firstLineHeight) / 2
+            let labelVerticalInset = (LegendLayoutMetrics.markerSize - firstLineHeight) / 2
 
             descriptionLabel.bounds.size = descriptionLabel.sizeThatFits(descriptionLayoutBounds.size)
             descriptionLabel.frame.origin = .init(
@@ -125,25 +125,21 @@ private extension HitTargetSnapshotView {
 
         override func sizeThatFits(_ size: CGSize) -> CGSize {
             let descriptionLayoutBounds = CGRect(origin: .zero, size: size).inset(
-                by: .init(top: 0, left: Metrics.markerSize + Metrics.markerToLabelSpacing, bottom: 0, right: 0)
+                by: .init(top: 0, left: LegendLayoutMetrics.markerSize + LegendLayoutMetrics.markerToLabelSpacing, bottom: 0, right: 0)
             )
             let firstLineHeight = descriptionLabel
                 .textRect(forBounds: descriptionLayoutBounds, limitedToNumberOfLines: 1)
                 .height
-            let labelVerticalInset = (Metrics.markerSize - firstLineHeight) / 2
+            let labelVerticalInset = (LegendLayoutMetrics.markerSize - firstLineHeight) / 2
             let labelSize = descriptionLabel.sizeThatFits(descriptionLayoutBounds.size)
 
-            return CGSize(width: size.width, height: max(Metrics.markerSize, labelVerticalInset + labelSize.height))
+            return CGSize(width: size.width, height: max(LegendLayoutMetrics.markerSize, labelVerticalInset + labelSize.height))
         }
 
         // MARK: - Private Types
 
         fileprivate enum Metrics {
             static let minimumWidth: CGFloat = 240
-
-            static let markerSize: CGFloat = 14
-
-            static let markerToLabelSpacing: CGFloat = 16
         }
     }
 }

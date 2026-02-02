@@ -61,6 +61,9 @@ public struct AccessibilitySnapshotConfiguration {
     /// Controls when to show elements' accessibility user input labels (used by Voice Control). Defaults to `.whenOverridden`.
     public let inputLabelDisplayMode: AccessibilityContentDisplayMode
 
+    /// Whether to show unspoken accessibility traits (keyboardKey, playsSound, etc.) in the legend. Defaults to `true`.
+    public let showsUnspokenTraits: Bool
+
     // MARK: - Initialization
 
     /// Creates a new accessibility snapshot configuration.
@@ -73,20 +76,23 @@ public struct AccessibilitySnapshotConfiguration {
     ///   - includesInputLabels: When to show accessibility user input labels. Defaults to `.whenOverridden`.
     ///   - includesCustomRotors: When to show accessibility custom rotors and their contents. Defaults to `.whenOverridden`.
     ///   - rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to `10`.
+    ///   - showsUnspokenTraits: Whether to show unspoken traits in the legend. Defaults to `true`.
     public init(
         viewRenderingMode: ViewRenderingMode,
         colorRenderingMode: ColorRenderingMode = .monochrome,
-        overlayColors: [UIColor] = MarkerColors.defaultColors,
+        overlayColors: [UIColor] = [],
         activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden,
         includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden,
         includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden,
-        rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit
+        rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit,
+        showsUnspokenTraits: Bool = true
     ) {
         rendering = Rendering(renderMode: viewRenderingMode, colorMode: colorRenderingMode)
         rotors = Rotors(displayMode: includesCustomRotors, resultLimit: rotorResultLimit)
-        markerColors = overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors
+        markerColors = overlayColors
         activationPointDisplayMode = activationPointDisplay
         inputLabelDisplayMode = includesInputLabels
+        self.showsUnspokenTraits = showsUnspokenTraits
     }
 }
 
