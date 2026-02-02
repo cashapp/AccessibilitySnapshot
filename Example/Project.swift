@@ -95,7 +95,7 @@ let project = Project(
             product: .framework,
             bundleId: "com.cashapp.AccessibilitySnapshotCore",
             deploymentTargets: deploymentTargets,
-            sources: ["../Sources/AccessibilitySnapshot/Core/*.swift"],
+            sources: ["../Sources/AccessibilitySnapshot/Core/**/*.swift"],
             dependencies: [
                 .target(name: "AccessibilitySnapshotParser"),
             ]
@@ -130,6 +130,7 @@ let project = Project(
             dependencies: [
                 .target(name: "AccessibilitySnapshotCore"),
                 .target(name: "AccessibilitySnapshotParser_ObjC"),
+                .target(name: "SwiftUI_Experimental"),
                 .external(name: "iOSSnapshotTestCase"),
             ],
             settings: .settings(
@@ -162,6 +163,19 @@ let project = Project(
             )
         ),
 
+        .target(
+            name: "SwiftUI_Experimental",
+            destinations: .iOS,
+            product: .framework,
+            bundleId: "com.cashapp.SwiftUI-Experimental",
+            deploymentTargets: deploymentTargets,
+            sources: ["../Sources/AccessibilitySnapshot/SwiftUI_Experimental/*.swift"],
+            dependencies: [
+                .target(name: "AccessibilitySnapshotCore"),
+                .target(name: "AccessibilitySnapshotParser"),
+            ]
+        ),
+
         // MARK: - Demo App
 
         .target(
@@ -187,10 +201,37 @@ let project = Project(
             dependencies: [
                 .external(name: "Paralayout"),
                 .target(name: "AccessibilitySnapshotCore"),
+                .target(name: "SwiftUI_Experimental"),
             ],
             settings: .settings(
                 base: [
                     "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "TUIST_BUILD",
+                    "DEVELOPMENT_TEAM": SettingValue.string(Environment.developmentTeam.getString(default: "")),
+                ]
+            )
+        ),
+
+        // MARK: - SwiftUI Experimental Demo App
+
+        .target(
+            name: "SwiftUIExperimentalDemo",
+            destinations: .iOS,
+            product: .app,
+            bundleId: "com.cashapp.SwiftUIExperimentalDemo",
+            deploymentTargets: .iOS("18.0"),
+            infoPlist: .extendingDefault(with: [
+                "UILaunchStoryboardName": "LaunchScreen",
+                "UIApplicationSceneManifest": [
+                    "UIApplicationSupportsMultipleScenes": false,
+                    "UISceneConfigurations": [:],
+                ],
+            ]),
+            sources: ["SwiftUIExperimentalDemo/**/*.swift"],
+            dependencies: [
+                .target(name: "SwiftUI_Experimental"),
+            ],
+            settings: .settings(
+                base: [
                     "DEVELOPMENT_TEAM": SettingValue.string(Environment.developmentTeam.getString(default: "")),
                 ]
             )
@@ -225,6 +266,28 @@ let project = Project(
             )
         ),
 
+        // MARK: - SwiftUI Experimental Tests
+
+        .target(
+            name: "SwiftUIExperimentalTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.cashapp.SwiftUIExperimentalTests",
+            deploymentTargets: .iOS("18.0"),
+            sources: ["SwiftUIExperimentalTests/**/*.swift"],
+            dependencies: [
+                .target(name: "SwiftUIExperimentalDemo"),
+                .target(name: "FBSnapshotTestCase_Accessibility"),
+                .external(name: "iOSSnapshotTestCase"),
+                .xctest,
+            ],
+            settings: .settings(
+                base: [
+                    "ENABLE_TESTING_SEARCH_PATHS": "YES",
+                ]
+            )
+        ),
+
         // MARK: - Unit Tests
 
         .target(
@@ -251,10 +314,34 @@ let project = Project(
                 ]
             )
         ),
+
     ],
     schemes: [
         ("English", "en"),
         ("German", "de"),
         ("Russian", "ru"),
-    ].map { makeLanguageScheme(language: $0.0, languageCode: $0.1) }
+    ].map { makeLanguageScheme(language: $0.0, languageCode: $0.1) } + [
+        .scheme(
+            name: "SwiftUIExperimentalDemo",
+            shared: true,
+            buildAction: .buildAction(targets: [
+                .target("SwiftUIExperimentalDemo"),
+            ]),
+            testAction: .targets(
+                [
+                    .testableTarget(target: .target("SwiftUIExperimentalTests")),
+                ],
+                expandVariableFromTarget: .target("SwiftUIExperimentalDemo")
+            ),
+            runAction: .runAction(
+                configuration: .debug,
+                executable: .target("SwiftUIExperimentalDemo"),
+                arguments: .arguments(
+                    environmentVariables: [
+                        "FB_REFERENCE_IMAGE_DIR": .environmentVariable(value: "$(SOURCE_ROOT)/SwiftUIExperimentalTests/ReferenceImages/", isEnabled: true),
+                    ]
+                )
+            )
+        ),
+    ]
 )
