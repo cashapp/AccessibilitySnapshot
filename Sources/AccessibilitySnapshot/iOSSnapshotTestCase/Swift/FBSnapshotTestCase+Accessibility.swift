@@ -74,7 +74,7 @@ public extension FBSnapshotTestCase {
     /// - parameter view: The view that will be snapshotted.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple
     /// snapshot tests in a given test method. Defaults to no identifier.
-    /// - parameter renderer: The rendering engine to use.
+    /// - parameter layoutEngine: The layout engine to use.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
@@ -82,7 +82,7 @@ public extension FBSnapshotTestCase {
     func SnapshotVerifyAccessibility(
         _ view: UIView,
         identifier: String = "",
-        renderer: AccessibilityRenderer = .default,
+        layoutEngine: LayoutEngine = .default,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -90,7 +90,7 @@ public extension FBSnapshotTestCase {
         SnapshotVerifyAccessibility(
             view,
             identifier: identifier,
-            renderer: renderer,
+            layoutEngine: layoutEngine,
             snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode),
             suffixes: suffixes,
             file: file,
@@ -111,7 +111,7 @@ public extension FBSnapshotTestCase {
     /// - parameter view: The view that will be snapshotted.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple
     /// snapshot tests in a given test method. Defaults to no identifier.
-    /// - parameter renderer: The rendering engine to use.
+    /// - parameter layoutEngine: The layout engine to use.
     /// - parameter snapshotConfiguration: The configuration used for rendering and testing the snapshot.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
@@ -120,7 +120,7 @@ public extension FBSnapshotTestCase {
     func SnapshotVerifyAccessibility(
         _ view: UIView,
         identifier: String = "",
-        renderer: AccessibilityRenderer = .default,
+        layoutEngine: LayoutEngine = .default,
         snapshotConfiguration: AccessibilitySnapshotConfiguration,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
@@ -131,11 +131,10 @@ public extension FBSnapshotTestCase {
             return
         }
 
-        // Create the appropriate container view based on renderer
         let containerView: AccessibilitySnapshotBaseView
         let effectiveSuffixes: NSOrderedSet
 
-        switch renderer {
+        switch layoutEngine {
         case .uikit:
             containerView = AccessibilitySnapshotView(
                 containedView: view,
@@ -145,7 +144,7 @@ public extension FBSnapshotTestCase {
 
         case .swiftui:
             guard #available(iOS 18.0, *) else {
-                XCTFail("SwiftUI renderer requires iOS 18.0 or later", file: file, line: line)
+                XCTFail("SwiftUI layout engine requires iOS 18.0 or later", file: file, line: line)
                 return
             }
             containerView = SwiftUIAccessibilitySnapshotContainerView(
@@ -155,7 +154,6 @@ public extension FBSnapshotTestCase {
             effectiveSuffixes = suffixes
         }
 
-        // Identical flow for both renderers
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.makeKeyAndVisible()
         containerView.center = window.center
