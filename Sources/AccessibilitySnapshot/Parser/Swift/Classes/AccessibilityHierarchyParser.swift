@@ -767,13 +767,8 @@ public final class AccessibilityHierarchyParser {
 
 extension AccessibilityHierarchyParser {
     /// Returns the shape of the accessibility element in the root view's coordinate space.
-<<<<<<< HEAD
-    /// Voiceover prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
-    static func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityElement.Shape {
-=======
     /// VoiceOver prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
     static func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityMarker.Shape {
->>>>>>> 14eefc7 (Add SwiftUI_Experimental renderer module)
         if let accessibilityPath = element.accessibilityPath, preferPath {
             return .path(root.convert(accessibilityPath, from: nil))
 

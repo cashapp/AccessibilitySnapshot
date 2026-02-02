@@ -184,7 +184,7 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
     static func imageWithHitTargets(
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
-        colors: [UIColor] = MarkerColors.defaultColors,
+        colors: [UIColor] = [],
         maxPermissibleMissedRegionWidth: CGFloat = 0,
         maxPermissibleMissedRegionHeight: CGFloat = 0,
         precision: Float = 1,
@@ -337,7 +337,7 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
     static func imageWithHitTargets(
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
-        colors: [UIColor] = MarkerColors.defaultColors,
+        colors: [UIColor] = [],
         precision: Float = 1,
         perceptualPrecision: Float = 1,
         file: StaticString = #file,

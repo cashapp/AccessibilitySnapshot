@@ -1,6 +1,9 @@
 import AccessibilitySnapshotCore
+import AccessibilitySnapshotParser
 import AccessibilitySnapshotParser_ObjC
 import iOSSnapshotTestCase
+import SwiftUI
+import SwiftUI_Experimental
 import XCTest
 
 public extension FBSnapshotTestCase {
@@ -71,22 +74,30 @@ public extension FBSnapshotTestCase {
     /// - parameter view: The view that will be snapshotted.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple
     /// snapshot tests in a given test method. Defaults to no identifier.
+    /// - parameter renderer: The rendering engine to use.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerifyAccessibility(
-        // Convenience method that takes no required parameters.
-        // This will override the above function for the default case suppressing irrelevant deprecation warnings.
         _ view: UIView,
         identifier: String = "",
+        renderer: AccessibilityRenderer = .default,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         perPixelTolerance: CGFloat = 0,
         overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        SnapshotVerifyAccessibility(view, identifier: identifier, snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode), suffixes: suffixes, perPixelTolerance: perPixelTolerance, overallTolerance: overallTolerance, file: file, line: line)
+        SnapshotVerifyAccessibility(
+            view,
+            identifier: identifier,
+            renderer: renderer,
+            snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode),
+            suffixes: suffixes,
+            file: file,
+            line: line
+        )
     }
 
     /// Snapshots the `view` with colored overlays of each accessibility element it contains, as well as an
@@ -102,6 +113,7 @@ public extension FBSnapshotTestCase {
     /// - parameter view: The view that will be snapshotted.
     /// - parameter identifier: An optional identifier included in the snapshot name, for use when there are multiple
     /// snapshot tests in a given test method. Defaults to no identifier.
+    /// - parameter renderer: The rendering engine to use.
     /// - parameter snapshotConfiguration: The configuration used for rendering and testing the snapshot.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
@@ -116,6 +128,7 @@ public extension FBSnapshotTestCase {
     func SnapshotVerifyAccessibility(
         _ view: UIView,
         identifier: String = "",
+        renderer: AccessibilityRenderer = .default,
         snapshotConfiguration: AccessibilitySnapshotConfiguration,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         perPixelTolerance: CGFloat = 0,
@@ -128,11 +141,31 @@ public extension FBSnapshotTestCase {
             return
         }
 
-        let containerView = AccessibilitySnapshotView(
-            containedView: view,
-            snapshotConfiguration: snapshotConfiguration
-        )
+        // Create the appropriate container view based on renderer
+        let containerView: AccessibilitySnapshotBaseView
+        let effectiveSuffixes: NSOrderedSet
 
+        switch renderer {
+        case .uikit:
+            containerView = AccessibilitySnapshotView(
+                containedView: view,
+                snapshotConfiguration: snapshotConfiguration
+            )
+            effectiveSuffixes = suffixes
+
+        case .swiftui:
+            guard #available(iOS 18.0, *) else {
+                XCTFail("SwiftUI renderer requires iOS 18.0 or later", file: file, line: line)
+                return
+            }
+            containerView = SwiftUIAccessibilitySnapshotContainerView(
+                containedView: view,
+                snapshotConfiguration: snapshotConfiguration
+            )
+            effectiveSuffixes = suffixes
+        }
+
+        // Identical flow for both renderers
         let window = UIWindow(frame: UIScreen.main.bounds)
         window.makeKeyAndVisible()
         containerView.center = window.center
@@ -144,9 +177,10 @@ public extension FBSnapshotTestCase {
             XCTFail(ErrorMessageFactory.errorMessageForAccessibilityParsingError(error), file: file, line: line)
             return
         }
+
         containerView.sizeToFit()
 
-        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, perPixelTolerance: perPixelTolerance, overallTolerance: overallTolerance, file: file, line: line)
+        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: effectiveSuffixes, file: file, line: line)>>>>>>> 918e1c7 (Add renderer selection to test framework APIs)
     }
 
     /// Snapshots the `view` simulating the way it will appear with Smart Invert Colors enabled.
@@ -259,7 +293,7 @@ public extension FBSnapshotTestCase {
         _ view: UIView,
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
-        colors: [UIColor] = MarkerColors.defaultColors,
+        colors: [UIColor] = [],
         maxPermissibleMissedRegionWidth: CGFloat = 0,
         maxPermissibleMissedRegionHeight: CGFloat = 0,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
