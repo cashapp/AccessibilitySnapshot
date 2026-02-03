@@ -2,154 +2,7 @@ import Accessibility
 import SwiftUI
 import UIKit
 
-public struct AccessibilityMarker: Equatable {
-    /// Default number of rotor results to collect in each direction.
-    public static let defaultRotorResultLimit: Int = 10
-
-    // MARK: - Public Types
-
-    public enum Shape: Equatable {
-        /// Accessibility frame, in the coordinate space of the view being snapshotted.
-        case frame(CGRect)
-
-        /// Accessibility path, in the coordinate space of the view being snapshotted.
-        case path(UIBezierPath)
-    }
-
-    public struct CustomRotor: Equatable, CustomStringConvertible {
-        public struct ResultMarker: Equatable, CustomStringConvertible {
-            public let elementDescription: String
-            public let rangeDescription: String?
-            public let shape: Shape?
-
-            public var description: String {
-                guard let rangeDescription else {
-                    return elementDescription
-                }
-                return "\(elementDescription) \(rangeDescription)"
-            }
-        }
-
-        public var name: String
-        public var resultMarkers: [AccessibilityMarker.CustomRotor.ResultMarker] = []
-        public let limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit
-
-        init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int) {
-            guard from.isKnownRotorType else { return nil }
-            name = from.displayName(locale: parentElement.accessibilityLanguage)
-            let collected = from.collectAllResults(nextLimit: resultLimit, previousLimit: resultLimit)
-            limit = collected.limit
-            resultMarkers = collected.results.compactMap { result in
-                guard let element = result.targetElement as? NSObject else { return nil }
-                var description = element.accessibilityDescription(context: context).description
-                var shape: Shape? = AccessibilityHierarchyParser.accessibilityShape(for: element, in: root)
-
-                if let range = result.targetRange,
-                   let input = element as? UITextInput
-                {
-                    if let path = input.accessibilityPath(for: range) {
-                        let converted = root.convert(path, from: input as? UIView)
-                        shape = .path(converted)
-                    }
-                    if let substring = input.text(in: range) {
-                        description = substring
-                    }
-                    return ResultMarker(elementDescription: description, rangeDescription: range.formatted(in: input), shape: shape)
-                }
-                return ResultMarker(elementDescription: description, rangeDescription: nil, shape: shape)
-            }
-        }
-
-        public var description: String {
-            return name + ": " + resultMarkers.map { $0.description }.joined(separator: "\n")
-        }
-    }
-
-    public struct CustomContent: Codable, Equatable {
-        public var label: String
-        public var value: String
-        public var isImportant: Bool
-
-        @available(iOS 14.0, *)
-        init(from: AXCustomContent) {
-            label = from.label
-            value = from.value
-            isImportant = from.importance == .high
-        }
-    }
-
-    public struct CustomAction: Equatable {
-        public var name: String
-        public var image: UIImage?
-
-        init(name: String, image: UIImage?) {
-            self.name = name
-            self.image = image
-        }
-
-        @available(iOS 14.0, *)
-        init(from: UIAccessibilityCustomAction) {
-            name = from.name
-            image = from.image
-        }
-    }
-
-    // MARK: - Public Properties
-
-    /// The description of the accessibility element that will be read by VoiceOver when the element is brought into
-    /// focus.
-    public var description: String
-
-    public var label: String?
-
-    public var value: String?
-
-    public var traits: UIAccessibilityTraits
-
-    /// A unique identifier for the element, primarily used in UI tests for locating and interacting with elements.
-    /// This identifier is not visible to users.
-    public var identifier: String?
-
-    /// A hint that will be read by VoiceOver if focus remains on the element after the `description` is read.
-    public var hint: String?
-
-    /// The labels that will be used by Voice Control for user input.
-    /// These labels are displayed based on the `AccessibilityContentDisplayMode` configuration:
-    /// - `.always`: Always shows user input labels
-    /// - `.whenOverridden`: Shows labels only when they differ from default values (future enhancement)
-    /// - `.never`: Never shows user input labels
-    public var userInputLabels: [String]?
-
-    /// The shape that will be highlighted on screen while the element is in focus.
-    public var shape: Shape
-
-    /// The accessibility activation point, in the coordinate space of the view being snapshotted.
-    public var activationPoint: CGPoint
-
-    /// Whether or not the `activationPoint` is the default activation point for the object.
-    ///
-    /// For most elements, the default activation point is the midpoint of the element's accessibility frame. Certain
-    /// elements have distinct defaults - for example, a `UISlider` puts its activation point at the center of its thumb
-    /// by default.
-    public var usesDefaultActivationPoint: Bool
-
-    /// The names of the custom actions supported by the element.
-    public var customActions: [CustomAction]
-
-    /// Any custom content included by the element.
-    public var customContent: [CustomContent]
-
-    /// Any custom rotors included by the element.
-    public var customRotors: [CustomRotor]
-
-    /// The language code of the language used to localize strings in the description.
-    public var accessibilityLanguage: String?
-
-    /// whether the element performs an action based on user interaction.
-    public var respondsToUserInteraction: Bool
-}
-
-// MARK: -
+// MARK: - Providing Protocols
 
 public protocol UserInterfaceLayoutDirectionProviding {
     var userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection { get }
@@ -243,7 +96,7 @@ public final class AccessibilityHierarchyParser {
     /// Parses the accessibility hierarchy starting from the `root` view and returns markers for each element in the
     /// hierarchy, in the order VoiceOver will iterate through them when using flick navigation.
     ///
-    /// The returned `AccessibilityMarker` objects include user input labels that are displayed based on the
+    /// The returned `AccessibilityElement` objects include user input labels that are displayed based on the
     /// `AccessibilityContentDisplayMode` configuration set in the snapshot testing methods:
     /// - `.always`: Always includes user input labels in the markers, including default (derived) labels.
     /// - `.whenOverridden`: Includes labels only when they differ from default values.
@@ -254,15 +107,52 @@ public final class AccessibilityHierarchyParser {
     /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to 10.
     /// - parameter userInterfaceLayoutDirectionProvider: The provider of the device's user interface layout direction.
     /// In most cases, this should use the default value, `UIApplication.shared`.
+    @available(*, deprecated, message: "Use parseAccessibilityHierarchy(in:) and flattenToElements() instead")
     public func parseAccessibilityElements(
         in root: UIView,
-        rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit,
+        rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
         userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
-    ) -> [AccessibilityMarker] {
+    ) -> [AccessibilityElement] {
+        return parseAccessibilityHierarchy(
+            in: root,
+            rotorResultLimit: rotorResultLimit,
+            userInterfaceLayoutDirectionProvider: userInterfaceLayoutDirectionProvider,
+            userInterfaceIdiomProvider: userInterfaceIdiomProvider
+        ).flattenToElements()
+    }
+
+    /// Parses the accessibility hierarchy starting from the `root` view and returns a tree structure
+    /// with containers grouping their child elements.
+    ///
+    /// This method uses the same element parsing logic as `parseAccessibilityElements` but additionally
+    /// tracks containers (semanticGroup, list, landmark, dataTable, tabBar) and nests elements within them.
+    ///
+    /// Container inclusion rules based on VoiceOver behavior:
+    /// - `.semanticGroup` with label/value/identifier: INCLUDE (label is announced)
+    /// - `.list`, `.landmark`, `.dataTable`: INCLUDE (affects rotor navigation)
+    /// - Views with `.tabBar` trait: INCLUDE (affects tab navigation)
+    /// - `.semanticGroup` without properties: EXCLUDE (no announcement)
+    /// - `.none` containers: EXCLUDE (no special behavior)
+    ///
+    /// Each element node includes a `traversalIndex` indicating its position in VoiceOver's navigation order.
+    /// Use `flattenToElements()` on the result to get the same output as `parseAccessibilityElements`.
+    ///
+    /// - parameter root: The root view of the accessibility hierarchy
+    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to 10.
+    /// - parameter userInterfaceLayoutDirectionProvider: Provider of the device's UI layout direction
+    /// - parameter userInterfaceIdiomProvider: Provider of the device's interface idiom
+    /// - returns: Array of root-level hierarchy nodes with containers grouping their children
+    public func parseAccessibilityHierarchy(
+        in root: UIView,
+        rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
+        userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
+    ) -> [AccessibilityHierarchy] {
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
         let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
 
+        // Parse elements using the same logic as parseAccessibilityElements
         let accessibilityNodes = root.recursiveAccessibilityHierarchy()
 
         let uncontextualizedElements = sortedElements(
@@ -273,7 +163,7 @@ public final class AccessibilityHierarchyParser {
             userInterfaceIdiom: userInterfaceIdiom
         )
 
-        let accessibilityElements = uncontextualizedElements.map { element in
+        let contextualizedElements = uncontextualizedElements.map { element in
             ContextualElement(
                 object: element.object,
                 context: context(
@@ -285,32 +175,12 @@ public final class AccessibilityHierarchyParser {
             )
         }
 
-        return accessibilityElements.map { element in
-            let (description, hint) = element.object.accessibilityDescription(context: element.context)
-
-            let activationPoint = element.object.accessibilityActivationPoint
-
-            return AccessibilityMarker(
-                description: description,
-                label: element.object.accessibilityLabel,
-                value: element.object.accessibilityValue,
-                traits: element.object.accessibilityTraits,
-                identifier: element.object.identifier,
-                hint: hint,
-                userInputLabels: element.object.accessibilityUserInputLabels,
-                shape: Self.accessibilityShape(for: element.object, in: root),
-                activationPoint: root.convert(activationPoint, from: nil),
-                usesDefaultActivationPoint: activationPoint.approximatelyEquals(
-                    Self.defaultActivationPoint(for: element.object),
-                    tolerance: 1 / (root.window?.screen ?? UIScreen.main).scale
-                ),
-                customActions: element.object.accessibilityCustomActions?.map { AccessibilityMarker.CustomAction(name: $0.name, image: $0.image) } ?? [],
-                customContent: element.object.customContent,
-                customRotors: element.object.customRotors(in: root, context: element.context, resultLimit: rotorResultLimit),
-                accessibilityLanguage: element.object.accessibilityLanguage,
-                respondsToUserInteraction: element.object.accessibilityRespondsToUserInteraction
-            )
+        let elements: [AccessibilityElement] = contextualizedElements.map { element in
+            buildElement(from: element.object, context: element.context, in: root, rotorResultLimit: rotorResultLimit)
         }
+
+        // Map AccessibilityNode tree to AccessibilityHierarchy tree
+        return mapNodesToHierarchy(accessibilityNodes, sortedElements: uncontextualizedElements, elements: elements, in: root)
     }
 
     // MARK: - Private Types
@@ -331,15 +201,39 @@ public final class AccessibilityHierarchyParser {
         case dataTable(UIAccessibilityContainerDataTable)
     }
 
-    /// Representation of an accessibility element, made up of the element `object` itself and the `contextProvider`
-    /// that will provide its context, if applicable.
-    private struct Element {
-        var object: NSObject
-
-        var contextProvider: ContextProvider?
-    }
-
     // MARK: - Private Methods
+
+    /// Builds an AccessibilityElement from an NSObject and its context
+    private func buildElement(
+        from object: NSObject,
+        context: Context?,
+        in root: UIView,
+        rotorResultLimit: Int
+    ) -> AccessibilityElement {
+        let (description, hint) = object.accessibilityDescription(context: context)
+        let activationPoint = object.accessibilityActivationPoint
+
+        return AccessibilityElement(
+            description: description,
+            label: object.accessibilityLabel,
+            value: object.accessibilityValue,
+            traits: object.accessibilityTraits,
+            identifier: object.identifier,
+            hint: hint,
+            userInputLabels: object.accessibilityUserInputLabels,
+            shape: Self.accessibilityShape(for: object, in: root),
+            activationPoint: root.convert(activationPoint, from: nil),
+            usesDefaultActivationPoint: activationPoint.approximatelyEquals(
+                Self.defaultActivationPoint(for: object),
+                tolerance: 1 / (root.window?.screen ?? UIScreen.main).scale
+            ),
+            customActions: object.accessibilityCustomActions?.map { AccessibilityElement.CustomAction(name: $0.name, image: $0.image) } ?? [],
+            customContent: object.customContent,
+            customRotors: object.customRotors(in: root, context: context, resultLimit: rotorResultLimit),
+            accessibilityLanguage: object.accessibilityLanguage,
+            respondsToUserInteraction: object.accessibilityRespondsToUserInteraction
+        )
+    }
 
     /// Returns the elements in the provided `nodes` tree in the order in which VoiceOver will iterate through them.
     ///
@@ -355,7 +249,7 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection,
         userInterfaceIdiom: UIUserInterfaceIdiom = UIDevice.current.userInterfaceIdiom
-    ) -> [Element] {
+    ) -> [(object: NSObject, contextProvider: ContextProvider?)] {
         // VoiceOver flick navigation iterates through elements in a horizontal, then vertical order. The horizontal
         // ordering matches the application's user interface layout direction. The vertical ordering is always
         // top-to-bottom. There are a couple exceptions to the order of iteration:
@@ -397,14 +291,14 @@ public final class AccessibilityHierarchyParser {
             }
             .map { $0.0 }
 
-        var sortedElements: [Element] = []
+        var sortedElements: [(object: NSObject, contextProvider: ContextProvider?)] = []
 
         for node in sortedNodes {
             switch node {
             case let .element(element, contextProvider):
-                sortedElements.append(.init(object: element, contextProvider: contextProvider))
+                sortedElements.append((object: element, contextProvider: contextProvider))
 
-            case let .group(elements, explicitlyOrdered, _):
+            case let .group(elements, explicitlyOrdered, _, _):
                 sortedElements.append(
                     contentsOf: self.sortedElements(
                         for: elements,
@@ -599,29 +493,81 @@ public final class AccessibilityHierarchyParser {
 
     /// Used for memoization of accessibility hierarchy parsing when determining element contexts.
     private var viewToElementsMap: [UIView: [NSObject]] = [:]
+
+    // MARK: - Private Hierarchy Methods
+
+    /// Maps AccessibilityNode tree to AccessibilityHierarchy tree
+    private func mapNodesToHierarchy(
+        _ nodes: [AccessibilityNode],
+        sortedElements: [(object: NSObject, contextProvider: ContextProvider?)],
+        elements: [AccessibilityElement],
+        in root: UIView
+    ) -> [AccessibilityHierarchy] {
+        // Build lookup: object identity → traversal index
+        var indexLookup: [ObjectIdentifier: Int] = [:]
+        for (index, element) in sortedElements.enumerated() {
+            indexLookup[ObjectIdentifier(element.object)] = index
+        }
+
+        func mapNode(_ node: AccessibilityNode) -> [AccessibilityHierarchy] {
+            switch node {
+            case let .element(object, _):
+                guard let index = indexLookup[ObjectIdentifier(object)],
+                      index < elements.count else { return [] }
+                return [.element(elements[index], traversalIndex: index)]
+
+            case let .group(children, _, _, containerInfo):
+                let mappedChildren = children.flatMap { mapNode($0) }.sorted { lhs, rhs in
+                    lhs.sortIndex < rhs.sortIndex
+                }
+
+                if let info = containerInfo {
+                    let frame = root.convert(info.view.bounds, from: info.view)
+
+                    // Convert UIAccessibilityContainerType + associated data to our ContainerType
+                    let containerType: AccessibilityContainer.ContainerType
+                    if info.traits.contains(.tabBar) {
+                        containerType = .tabBar
+                    } else {
+                        switch info.type {
+                        case .semanticGroup:
+                            containerType = .semanticGroup(label: info.label, value: info.value, identifier: info.identifier)
+                        case .list:
+                            containerType = .list
+                        case .landmark:
+                            containerType = .landmark
+                        case .dataTable:
+                            containerType = .dataTable(rowCount: info.rowCount ?? 0, columnCount: info.columnCount ?? 0)
+                        case .none:
+                            // Should not reach here since containerInfo(for:) returns nil for .none
+                            containerType = .semanticGroup(label: info.label, value: info.value, identifier: info.identifier)
+                        @unknown default:
+                            containerType = .semanticGroup(label: info.label, value: info.value, identifier: info.identifier)
+                        }
+                    }
+
+                    let container = AccessibilityContainer(
+                        type: containerType,
+                        frame: frame
+                    )
+                    return [.container(container, children: mappedChildren)]
+                }
+
+                // Not a meaningful container - flatten children
+                return mappedChildren
+            }
+        }
+
+        return nodes.flatMap { mapNode($0) }
+    }
 }
 
-private extension AccessibilityHierarchyParser {
-    /// Returns a CGRect that can be used for sorting by position.
-    static func accessibilitySortFrame(for node: AccessibilityNode, in root: UIView) -> CGRect {
-        switch node {
-        case let .element(frameProvider, _),
-             let .group(_, _, frameProvider?):
-            switch accessibilityShape(for: frameProvider, in: root, preferPath: false) {
-            case let .frame(rect):
-                return rect
-            default:
-                return frameProvider.accessibilityFrame
-            }
+// MARK: - Internal Helpers
 
-        case let .group(elements, _, _):
-            return elements.reduce(CGRect.null) { $0.union(accessibilitySortFrame(for: $1, in: root)) }
-        }
-    }
-
+extension AccessibilityHierarchyParser {
     /// Returns the shape of the accessibility element in the root view's coordinate space.
     /// Voiceover prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
-    static func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityMarker.Shape {
+    static func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityElement.Shape {
         if let accessibilityPath = element.accessibilityPath, preferPath {
             return .path(root.convert(accessibilityPath, from: nil))
 
@@ -651,7 +597,40 @@ private extension AccessibilityHierarchyParser {
     }
 }
 
+// MARK: - Fileprivate Helpers
+
+private extension AccessibilityHierarchyParser {
+    /// Returns a CGRect that can be used for sorting by position.
+    static func accessibilitySortFrame(for node: AccessibilityNode, in root: UIView) -> CGRect {
+        switch node {
+        case let .element(frameProvider, _),
+             let .group(_, _, frameProvider?, _):
+            switch accessibilityShape(for: frameProvider, in: root, preferPath: false) {
+            case let .frame(rect):
+                return rect
+            default:
+                return frameProvider.accessibilityFrame
+            }
+
+        case let .group(elements, _, _, _):
+            return elements.reduce(CGRect.null) { $0.union(accessibilitySortFrame(for: $1, in: root)) }
+        }
+    }
+}
+
 // MARK: -
+
+/// Captures container information at node creation time, avoiding the need to re-derive it later.
+private struct ContainerInfo {
+    let view: UIView
+    let type: UIAccessibilityContainerType
+    let label: String?
+    let value: String?
+    let identifier: String?
+    let traits: UIAccessibilityTraits
+    let rowCount: Int?
+    let columnCount: Int?
+}
 
 private enum AccessibilityNode {
     /// Represents a single accessibility element.
@@ -665,7 +644,8 @@ private enum AccessibilityNode {
     /// - `frameOverrideProvider`: The object whose accessibility frame is used to determine the group's ordering in the
     /// accessibility hierarchy. When `nil`, the group is ordered according to the first element in the group that would
     /// be selected.
-    case group([AccessibilityNode], explicitlyOrdered: Bool, frameOverrideProvider: NSObject?)
+    /// - `container`: Container info if this group represents a meaningful accessibility container.
+    case group([AccessibilityNode], explicitlyOrdered: Bool, frameOverrideProvider: NSObject?, container: ContainerInfo?)
 }
 
 // MARK: -
@@ -704,10 +684,13 @@ private extension NSObject {
                     )
                 )
             }
+            // Capture container info - this path always creates a group, so just capture for metadata
+            let container = (self as? UIView).flatMap { containerInfo(for: $0) }
             recursiveAccessibilityHierarchy.append(.group(
                 accessibilityHierarchyOfElements,
                 explicitlyOrdered: true,
-                frameOverrideProvider: overridesElementFrame(with: contextProvider) ? self : nil
+                frameOverrideProvider: overridesElementFrame(with: contextProvider) ? self : nil,
+                container: container
             ))
 
         } else if let `self` = self as? UIView {
@@ -729,17 +712,56 @@ private extension NSObject {
                 )
             }
 
-            if shouldGroupAccessibilityChildren {
-                recursiveAccessibilityHierarchy.append(
-                    .group(accessibilityHierarchyOfSubviews, explicitlyOrdered: false, frameOverrideProvider: nil)
-                )
+            // Capture container info if this is a meaningful container
+            let container = containerInfo(for: self)
 
+            if shouldGroupAccessibilityChildren || container != nil {
+                recursiveAccessibilityHierarchy.append(
+                    .group(accessibilityHierarchyOfSubviews, explicitlyOrdered: false, frameOverrideProvider: nil, container: container)
+                )
             } else {
                 recursiveAccessibilityHierarchy.append(contentsOf: accessibilityHierarchyOfSubviews)
             }
         }
 
         return recursiveAccessibilityHierarchy
+    }
+
+    /// Creates ContainerInfo for a view if it represents a meaningful accessibility container.
+    /// Returns nil if the view is not a container worth visualizing.
+    private func containerInfo(for view: UIView) -> ContainerInfo? {
+        let containerType = view.accessibilityContainerType
+        let traits = view.accessibilityTraits
+        let label = view.accessibilityLabel
+        let value = view.accessibilityValue
+        let identifier = (view as UIAccessibilityIdentification).accessibilityIdentifier
+
+        // Extract data table dimensions if applicable
+        let (rowCount, columnCount): (Int?, Int?) = {
+            guard containerType == .dataTable,
+                  let dataTable = view as? UIAccessibilityContainerDataTable
+            else {
+                return (nil, nil)
+            }
+            return (dataTable.accessibilityRowCount(), dataTable.accessibilityColumnCount())
+        }()
+
+        // tabBar trait always creates container
+        if traits.contains(.tabBar) {
+            return ContainerInfo(view: view, type: containerType, label: label, value: value, identifier: identifier, traits: traits, rowCount: nil, columnCount: nil)
+        }
+
+        // list, landmark, dataTable always create container
+        if containerType == .list || containerType == .landmark || containerType == .dataTable {
+            return ContainerInfo(view: view, type: containerType, label: label, value: value, identifier: identifier, traits: traits, rowCount: rowCount, columnCount: columnCount)
+        }
+
+        // semanticGroup only if has label/value/identifier
+        if containerType == .semanticGroup, label != nil || value != nil || identifier != nil {
+            return ContainerInfo(view: view, type: containerType, label: label, value: value, identifier: identifier, traits: traits, rowCount: nil, columnCount: nil)
+        }
+
+        return nil
     }
 
     /// Whether or not the object provides context to elements beneath it in the hierarchy.
@@ -828,7 +850,7 @@ private extension UIView {
 }
 
 private extension NSObject {
-    var customContent: [AccessibilityMarker.CustomContent] {
+    var customContent: [AccessibilityElement.CustomContent] {
         // Github runs tests on specific iOS versions against specific versions of Xcode in CI.
         // Forward deployment on old versions of Xcode require a compile time check which require differentiation by swift version rather than iOS SDK.
         // See https://swiftversion.net/ for mapping swift version to Xcode versions.
@@ -859,7 +881,7 @@ private extension NSObject {
         return []
     }
 
-    func customRotors(in root: UIView, context: AccessibilityHierarchyParser.Context?, resultLimit: Int) -> [AccessibilityMarker.CustomRotor] {
+    func customRotors(in root: UIView, context: AccessibilityHierarchyParser.Context?, resultLimit: Int) -> [AccessibilityElement.CustomRotor] {
         accessibilityCustomRotors?.compactMap {
             .init(from: $0, parentElement: self, root: root, context: context, resultLimit: resultLimit)
         } ?? []
@@ -929,7 +951,7 @@ private extension CGPoint {
     }
 }
 
-private extension UITextRange {
+extension UITextRange {
     func formatted(in input: UITextInput?) -> String {
         guard let input else { return "\(self)" }
 
