@@ -47,6 +47,9 @@ enum DesignTokens {
 
         /// Font for legend element numbers.
         public static let legendNumber = Font.system(size: 8, weight: .semibold)
+
+        /// Font for badge numbers (overlay badges with background).
+        public static let badgeNumber = Font.system(size: 10, weight: .bold)
     }
 
     // MARK: - Element View
@@ -66,6 +69,19 @@ enum DesignTokens {
 
         /// Offset to center the badge number visually within the padding area.
         public static let badgeOffset: CGFloat = 6
+    }
+
+    // MARK: - Badge Placement
+
+    public enum Badge {
+        /// Size of the badge (width and height) for placement calculations.
+        public static let size: CGFloat = 16
+
+        /// Corner radius for the badge background.
+        public static let cornerRadius: CGFloat = 4
+
+        /// Minimum width/height for the badge.
+        public static let minSize: CGFloat = 16
     }
 
     // MARK: - Activation Point

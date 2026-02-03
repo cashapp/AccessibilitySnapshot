@@ -77,20 +77,28 @@ public struct ElementView: View {
 
     @ViewBuilder
     private func numberBadge(for shape: AccessibilityMarker.Shape) -> some View {
-        let bounds = shapeBounds(shape)
+        let center = badgeCenter(for: shape)
 
         Text(numberText)
-            .font(DesignTokens.Typography.overlayNumber)
-            .foregroundColor(strokeColor)
-            .position(x: bounds.minX + Tokens.badgePadding + Tokens.badgeOffset, y: bounds.minY + Tokens.badgePadding + Tokens.badgeOffset)
+            .font(DesignTokens.Typography.badgeNumber)
+            .tracking(-1)
+            .foregroundColor(.white)
+            .frame(minWidth: DesignTokens.Badge.minSize, minHeight: DesignTokens.Badge.minSize)
+            .background(
+                RoundedRectangle(cornerRadius: DesignTokens.Badge.cornerRadius)
+                    .fill(strokeColor)
+            )
+            .position(center)
     }
 
-    private func shapeBounds(_ shape: AccessibilityMarker.Shape) -> CGRect {
+    private func badgeCenter(for shape: AccessibilityMarker.Shape) -> CGPoint {
         switch shape {
         case let .frame(rect):
-            return rect
+            return BadgePlacement.badgeCenter(in: rect)
         case let .path(path):
-            return path.cgPath.boundingBox
+            // Use the bounding box corner - same as frames
+            // The complex path algorithm is reserved for truly irregular shapes
+            return BadgePlacement.badgeCenter(in: path.cgPath.boundingBox)
         }
     }
 
@@ -132,8 +140,23 @@ public struct ElementView: View {
         ElementView(
             index: 0,
             palette: .default,
-            mode: .overlay(shape: .frame(CGRect(x: 50, y: 50, width: 200, height: 60)))
+            mode: .overlay(shape: .frame(CGRect(x: 50, y: 30, width: 200, height: 50)))
+        )
+        ElementView(
+            index: 1,
+            palette: .default,
+            mode: .overlay(shape: .frame(CGRect(x: 50, y: 100, width: 200, height: 80)))
+        )
+        ElementView(
+            index: 2,
+            palette: .default,
+            mode: .overlay(shape: .frame(CGRect(x: 50, y: 200, width: 200, height: 50)))
+        )
+        ElementView(
+            index: 3,
+            palette: .default,
+            mode: .overlay(shape: .frame(CGRect(x: 50, y: 270, width: 200, height: 50)))
         )
     }
-    .frame(width: 300, height: 160)
+    .frame(width: 300, height: 350)
 }
