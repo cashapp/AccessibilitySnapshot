@@ -5,7 +5,6 @@ import UIKit
 /// Uses tiered checking for paths: corners first, then edge scanning, with early returns.
 @available(iOS 18.0, *)
 enum BadgePlacement {
-
     /// Corner positions for badge placement, in priority order.
     private enum Corner {
         case topLeading
@@ -27,13 +26,19 @@ enum BadgePlacement {
 
     /// Returns the badge center for a path-based shape.
     /// Uses tiered checking with early returns for performance.
-    /// Time complexity: O(1) best case, O(n*k) worst case where n=segments, k=sample count
+    /// Time complexity: O(1) for rectangles, O(n) best case, O(n*k) worst case
     static func badgeCenter(
         for path: CGPath,
         layoutDirection: UIUserInterfaceLayoutDirection = .leftToRight
     ) -> CGPoint {
-        let halfBadge = DesignTokens.Badge.size / 2
         let bounds = path.boundingBox
+
+        // Tier 0: Detect pure rectangles and use O(1) placement
+        if isRectangle(path) {
+            return badgeCenter(in: bounds, layoutDirection: layoutDirection)
+        }
+
+        let halfBadge = DesignTokens.Badge.size / 2
 
         // Tier 1: Check top-leading corner (most paths pass here)
         let topLeading = cornerPoint(in: bounds, corner: .topLeading, halfBadge: halfBadge, layoutDirection: layoutDirection)
@@ -54,6 +59,50 @@ enum BadgePlacement {
 
         // Tier 4: Fallback to bounding box top-leading (original behavior)
         return topLeading
+    }
+
+    /// Detects if a path is an axis-aligned rectangle matching its bounding box.
+    /// This allows us to skip containment checks and use O(1) placement.
+    static func isRectangle(_ path: CGPath) -> Bool {
+        let bounds = path.boundingBox
+        var vertices: [CGPoint] = []
+        var hasNonLineElements = false
+
+        path.applyWithBlock { element in
+            let type = element.pointee.type
+            let points = element.pointee.points
+
+            switch type {
+            case .moveToPoint, .addLineToPoint:
+                vertices.append(points[0])
+            case .closeSubpath:
+                break
+            default:
+                hasNonLineElements = true
+            }
+        }
+
+        // Must have exactly 4 vertices and only line elements
+        guard vertices.count == 4, !hasNonLineElements else { return false }
+
+        // All vertices must be at bounding box corners
+        let corners: Set<CGPoint> = [
+            CGPoint(x: bounds.minX, y: bounds.minY),
+            CGPoint(x: bounds.maxX, y: bounds.minY),
+            CGPoint(x: bounds.maxX, y: bounds.maxY),
+            CGPoint(x: bounds.minX, y: bounds.maxY),
+        ]
+
+        for vertex in vertices {
+            let matchesCorner = corners.contains { corner in
+                abs(vertex.x - corner.x) < 0.001 && abs(vertex.y - corner.y) < 0.001
+            }
+            if !matchesCorner {
+                return false
+            }
+        }
+
+        return true
     }
 
     // MARK: - Private Helpers

@@ -59,14 +59,26 @@ public struct ElementView: View {
         }
     }
 
-    @ViewBuilder
-    private func shapeView(shape: AccessibilityMarker.Shape) -> some View {
+    /// Returns the effective bounds for frame-like shapes (frames and rectangle paths).
+    /// Returns nil for complex paths that need path-specific rendering.
+    private func frameBounds(for shape: AccessibilityMarker.Shape) -> CGRect? {
         switch shape {
         case let .frame(rect):
-            // Frame-based elements use rounded rectangle with 2pt outset
-            roundedRectOverlay(rect: rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset))
+            return rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
         case let .path(path):
-            // Path-based elements render the actual path shape
+            let cgPath = path.cgPath
+            if BadgePlacement.isRectangle(cgPath) {
+                return cgPath.boundingBox.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
+            }
+            return nil
+        }
+    }
+
+    @ViewBuilder
+    private func shapeView(shape: AccessibilityMarker.Shape) -> some View {
+        if let bounds = frameBounds(for: shape) {
+            roundedRectOverlay(rect: bounds)
+        } else if case let .path(path) = shape {
             pathOverlay(path: path.cgPath)
         }
     }
@@ -99,15 +111,13 @@ public struct ElementView: View {
     }
 
     private func badgeCenter(for shape: AccessibilityMarker.Shape) -> CGPoint {
-        switch shape {
-        case let .frame(rect):
-            // Frame shapes: O(1) bounding box placement
-            let bounds = rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
+        if let bounds = frameBounds(for: shape) {
             return BadgePlacement.badgeCenter(in: bounds)
-        case let .path(path):
-            // Path shapes: Tiered placement with early returns
+        } else if case let .path(path) = shape {
             return BadgePlacement.badgeCenter(for: path.cgPath)
         }
+        // Fallback (shouldn't reach here)
+        return .zero
     }
 
     @ViewBuilder
