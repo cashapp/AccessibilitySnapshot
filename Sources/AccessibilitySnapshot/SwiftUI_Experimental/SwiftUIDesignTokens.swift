@@ -58,6 +58,9 @@ enum DesignTokens {
         /// Stroke width for element outlines.
         public static let strokeWidth: CGFloat = 1
 
+        /// Outset applied to overlay elements (expands beyond element bounds like VoiceOver).
+        public static let overlayOutset: CGFloat = 2
+
         /// Corner radius for overlay elements.
         public static let overlayCornerRadius: CGFloat = 8
 

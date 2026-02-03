@@ -5,7 +5,6 @@ import UIKit
 /// Handles both rectangular frames and arbitrary CGPath shapes with intelligent positioning.
 @available(iOS 18.0, *)
 enum BadgePlacement {
-
     /// Returns the best center point for a badge inside an accessibility path.
     /// For arbitrary paths, finds a position near the top-leading corner where the badge fits.
     /// - Parameters:
@@ -148,7 +147,7 @@ private func fastCornerRay(
     var hi: CGFloat = radius * 2
     let maxT = hypot(bounds.width, bounds.height)
 
-    for _ in 0..<3 {
+    for _ in 0 ..< 3 {
         if hi > maxT { return nil }
         if circleFits(path: path, center: point(hi), radius: radius) {
             break
@@ -160,7 +159,7 @@ private func fastCornerRay(
     if hi > maxT { return nil }
 
     // Binary search back toward corner for optimal position
-    for _ in 0..<6 {
+    for _ in 0 ..< 6 {
         let mid = (lo + hi) * 0.5
         if circleFits(path: path, center: point(mid), radius: radius) {
             hi = mid
@@ -199,8 +198,8 @@ private func robustCornerWedge(
     }
 
     let grid = 4
-    for iy in 0..<grid {
-        for ix in 0..<grid {
+    for iy in 0 ..< grid {
+        for ix in 0 ..< grid {
             let x = region.minX + CGFloat(ix) / CGFloat(grid - 1) * region.width
             let y = region.minY + CGFloat(iy) / CGFloat(grid - 1) * region.height
             let p = CGPoint(x: x, y: y)
@@ -224,9 +223,10 @@ private func circleFits(
 
     // Quick bounds rejection
     if center.x - radius < bounds.minX ||
-       center.x + radius > bounds.maxX ||
-       center.y - radius < bounds.minY ||
-       center.y + radius > bounds.maxY {
+        center.x + radius > bounds.maxX ||
+        center.y - radius < bounds.minY ||
+        center.y + radius > bounds.maxY
+    {
         return false
     }
 
@@ -236,7 +236,7 @@ private func circleFits(
     }
 
     // Sample 6 points on the circle (every 60°)
-    for i in 0..<6 {
+    for i in 0 ..< 6 {
         let angle = CGFloat(i) * (.pi / 3)
         let point = CGPoint(
             x: center.x + radius * cos(angle),
