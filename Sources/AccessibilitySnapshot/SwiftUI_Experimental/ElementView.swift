@@ -99,15 +99,15 @@ public struct ElementView: View {
     }
 
     private func badgeCenter(for shape: AccessibilityMarker.Shape) -> CGPoint {
-        // Always use bounding box for consistent, predictable badge placement
-        let bounds: CGRect
         switch shape {
         case let .frame(rect):
-            bounds = rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
+            // Frame shapes: O(1) bounding box placement
+            let bounds = rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
+            return BadgePlacement.badgeCenter(in: bounds)
         case let .path(path):
-            bounds = path.cgPath.boundingBox
+            // Path shapes: Tiered placement with early returns
+            return BadgePlacement.badgeCenter(for: path.cgPath)
         }
-        return BadgePlacement.badgeCenter(in: bounds)
     }
 
     @ViewBuilder
@@ -201,4 +201,3 @@ private struct CGPathShape: Shape {
     }
     .frame(width: 300, height: 350)
 }
-

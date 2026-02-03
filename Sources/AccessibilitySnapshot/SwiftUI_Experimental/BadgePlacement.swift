@@ -2,22 +2,114 @@ import CoreGraphics
 import UIKit
 
 /// Calculates badge placement positions for accessibility element overlays.
-/// Uses bounding box positioning for consistent, predictable results.
+/// Uses tiered checking for paths: corners first, then edge scanning, with early returns.
 @available(iOS 18.0, *)
 enum BadgePlacement {
-    /// Returns the badge center for a rectangular bounds.
+
+    /// Corner positions for badge placement, in priority order.
+    private enum Corner {
+        case topLeading
+        case topTrailing
+        case bottomLeading
+        case bottomTrailing
+    }
+
+    /// Returns the badge center for a rectangular bounds (frame-based shapes).
     /// Badge is positioned at the top-leading corner, fully inside the bounds.
+    /// Time complexity: O(1)
     static func badgeCenter(
         in rect: CGRect,
         layoutDirection: UIUserInterfaceLayoutDirection = .leftToRight
     ) -> CGPoint {
         let halfBadge = DesignTokens.Badge.size / 2
+        return cornerPoint(in: rect, corner: .topLeading, halfBadge: halfBadge, layoutDirection: layoutDirection)
+    }
 
-        switch layoutDirection {
-        case .rightToLeft:
-            return CGPoint(x: rect.maxX - halfBadge, y: rect.minY + halfBadge)
-        default:
-            return CGPoint(x: rect.minX + halfBadge, y: rect.minY + halfBadge)
+    /// Returns the badge center for a path-based shape.
+    /// Uses tiered checking with early returns for performance.
+    /// Time complexity: O(1) best case, O(n*k) worst case where n=segments, k=sample count
+    static func badgeCenter(
+        for path: CGPath,
+        layoutDirection: UIUserInterfaceLayoutDirection = .leftToRight
+    ) -> CGPoint {
+        let halfBadge = DesignTokens.Badge.size / 2
+        let bounds = path.boundingBox
+
+        // Tier 1: Check top-leading corner (most paths pass here)
+        let topLeading = cornerPoint(in: bounds, corner: .topLeading, halfBadge: halfBadge, layoutDirection: layoutDirection)
+        if path.contains(topLeading) {
+            return topLeading
         }
+
+        // Tier 2: Check top-trailing corner
+        let topTrailing = cornerPoint(in: bounds, corner: .topTrailing, halfBadge: halfBadge, layoutDirection: layoutDirection)
+        if path.contains(topTrailing) {
+            return topTrailing
+        }
+
+        // Tier 3: Scan top edge to find first interior point
+        if let edgePoint = scanTopEdge(of: path, bounds: bounds, halfBadge: halfBadge, layoutDirection: layoutDirection) {
+            return edgePoint
+        }
+
+        // Tier 4: Fallback to bounding box top-leading (original behavior)
+        return topLeading
+    }
+
+    // MARK: - Private Helpers
+
+    /// Returns the badge center point for a specific corner of the bounds.
+    private static func cornerPoint(
+        in rect: CGRect,
+        corner: Corner,
+        halfBadge: CGFloat,
+        layoutDirection: UIUserInterfaceLayoutDirection
+    ) -> CGPoint {
+        let isRTL = layoutDirection == .rightToLeft
+
+        switch corner {
+        case .topLeading:
+            let x = isRTL ? rect.maxX - halfBadge : rect.minX + halfBadge
+            return CGPoint(x: x, y: rect.minY + halfBadge)
+        case .topTrailing:
+            let x = isRTL ? rect.minX + halfBadge : rect.maxX - halfBadge
+            return CGPoint(x: x, y: rect.minY + halfBadge)
+        case .bottomLeading:
+            let x = isRTL ? rect.maxX - halfBadge : rect.minX + halfBadge
+            return CGPoint(x: x, y: rect.maxY - halfBadge)
+        case .bottomTrailing:
+            let x = isRTL ? rect.minX + halfBadge : rect.maxX - halfBadge
+            return CGPoint(x: x, y: rect.maxY - halfBadge)
+        }
+    }
+
+    /// Scans the top edge of the bounding box to find the first point inside the path.
+    /// Uses sparse sampling for performance (5 sample points).
+    /// Returns nil if no interior point found on top edge.
+    private static func scanTopEdge(
+        of path: CGPath,
+        bounds: CGRect,
+        halfBadge: CGFloat,
+        layoutDirection: UIUserInterfaceLayoutDirection
+    ) -> CGPoint? {
+        let sampleCount = 5
+        let y = bounds.minY + halfBadge
+        let startX = bounds.minX + halfBadge
+        let endX = bounds.maxX - halfBadge
+        let step = (endX - startX) / CGFloat(sampleCount - 1)
+
+        // For RTL, scan from right to left
+        let isRTL = layoutDirection == .rightToLeft
+
+        for i in 0 ..< sampleCount {
+            let sampleIndex = isRTL ? (sampleCount - 1 - i) : i
+            let x = startX + (step * CGFloat(sampleIndex))
+            let point = CGPoint(x: x, y: y)
+            if path.contains(point) {
+                return point
+            }
+        }
+
+        return nil
     }
 }
