@@ -329,6 +329,7 @@ class PathShapeUIView: UIView {
         isAccessibilityElement = true
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -351,7 +352,7 @@ class PathShapeUIView: UIView {
             screenPath.apply(CGAffineTransform(translationX: screenOrigin.x, y: screenOrigin.y))
             return screenPath
         }
-        set { }
+        set {}
     }
 
     override var intrinsicContentSize: CGSize {
