@@ -15,15 +15,21 @@ struct PathShapesDemo: View {
                             DiamondShapeView()
                         }
 
-                        // Row 2: Complex shapes
+                        // Row 2: L shapes in all orientations
                         HStack(spacing: 48) {
-                            LShapeView()
-                            LShapeFlippedView()
+                            LShapeBottomRight()
+                            LShapeBottomLeft()
+                            LShapeTopLeft()
+                            LShapeTopRight()
+                        }
+
+                        // Row 3: Complex shapes
+                        HStack(spacing: 48) {
                             StarShapeView()
                             CrescentShapeView()
                         }
 
-                        // Row 3: Extreme cases
+                        // Row 4: Extreme cases
                         HStack(spacing: 48) {
                             ThinRectView()
                             TriangleShapeView()
@@ -84,11 +90,11 @@ struct DiamondShapeView: UIViewRepresentable {
     func updateUIView(_ uiView: PathShapeUIView, context: Context) {}
 }
 
-struct LShapeView: UIViewRepresentable {
+// L shape with corner at bottom-right (└)
+struct LShapeBottomRight: UIViewRepresentable {
     func makeUIView(context: Context) -> PathShapeUIView {
         let view = PathShapeUIView(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
         let path = UIBezierPath()
-        // L-shape: vertical bar on left with horizontal extension at bottom-right
         path.move(to: CGPoint(x: 0, y: 0))
         path.addLine(to: CGPoint(x: 20, y: 0))
         path.addLine(to: CGPoint(x: 20, y: 40))
@@ -98,18 +104,39 @@ struct LShapeView: UIViewRepresentable {
         path.close()
         view.shapePath = path
         view.shapeColor = .systemOrange
-        view.accessibilityLabel = "L Shape"
+        view.accessibilityLabel = "L Bottom Right"
         return view
     }
 
     func updateUIView(_ uiView: PathShapeUIView, context: Context) {}
 }
 
-struct LShapeFlippedView: UIViewRepresentable {
+// L shape with corner at bottom-left (┘)
+struct LShapeBottomLeft: UIViewRepresentable {
     func makeUIView(context: Context) -> PathShapeUIView {
         let view = PathShapeUIView(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
         let path = UIBezierPath()
-        // L-shape rotated 270°: horizontal bar on top, vertical drop on bottom-left
+        path.move(to: CGPoint(x: 40, y: 0))
+        path.addLine(to: CGPoint(x: 60, y: 0))
+        path.addLine(to: CGPoint(x: 60, y: 60))
+        path.addLine(to: CGPoint(x: 0, y: 60))
+        path.addLine(to: CGPoint(x: 0, y: 40))
+        path.addLine(to: CGPoint(x: 40, y: 40))
+        path.close()
+        view.shapePath = path
+        view.shapeColor = .systemBrown
+        view.accessibilityLabel = "L Bottom Left"
+        return view
+    }
+
+    func updateUIView(_ uiView: PathShapeUIView, context: Context) {}
+}
+
+// L shape with corner at top-left (┐)
+struct LShapeTopLeft: UIViewRepresentable {
+    func makeUIView(context: Context) -> PathShapeUIView {
+        let view = PathShapeUIView(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+        let path = UIBezierPath()
         path.move(to: CGPoint(x: 0, y: 0))
         path.addLine(to: CGPoint(x: 60, y: 0))
         path.addLine(to: CGPoint(x: 60, y: 20))
@@ -118,8 +145,29 @@ struct LShapeFlippedView: UIViewRepresentable {
         path.addLine(to: CGPoint(x: 0, y: 60))
         path.close()
         view.shapePath = path
-        view.shapeColor = .systemBrown
-        view.accessibilityLabel = "L Shape Rotated"
+        view.shapeColor = .systemMint
+        view.accessibilityLabel = "L Top Left"
+        return view
+    }
+
+    func updateUIView(_ uiView: PathShapeUIView, context: Context) {}
+}
+
+// L shape with corner at top-right (┌)
+struct LShapeTopRight: UIViewRepresentable {
+    func makeUIView(context: Context) -> PathShapeUIView {
+        let view = PathShapeUIView(frame: CGRect(x: 0, y: 0, width: 60, height: 60))
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: 0, y: 0))
+        path.addLine(to: CGPoint(x: 60, y: 0))
+        path.addLine(to: CGPoint(x: 60, y: 60))
+        path.addLine(to: CGPoint(x: 40, y: 60))
+        path.addLine(to: CGPoint(x: 40, y: 20))
+        path.addLine(to: CGPoint(x: 0, y: 20))
+        path.close()
+        view.shapePath = path
+        view.shapeColor = .systemCyan
+        view.accessibilityLabel = "L Top Right"
         return view
     }
 
