@@ -63,45 +63,55 @@ public struct ElementView: View {
     private func shapeView(shape: AccessibilityMarker.Shape) -> some View {
         switch shape {
         case let .frame(rect):
-            // Expand rect by 2pt on all edges (like VoiceOver highlight)
-            let expanded = rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
-            ZStack {
-                RoundedRectangle(cornerRadius: Tokens.overlayCornerRadius)
-                    .fill(fillColor)
-                RoundedRectangle(cornerRadius: Tokens.overlayCornerRadius)
-                    .stroke(strokeColor, lineWidth: Tokens.strokeWidth)
-            }
-            .frame(width: expanded.width, height: expanded.height)
-            .position(x: expanded.midX, y: expanded.midY)
-
+            // Frame-based elements use rounded rectangle with 2pt outset
+            roundedRectOverlay(rect: rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset))
         case let .path(path):
-            if path.cgPath.isRectangular {
-                // Rectangular paths get rounded corners like frames
-                // Expand rect by 2pt on all edges (like VoiceOver highlight)
-                let rect = path.cgPath.boundingBox
-                let expanded = rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
-                ZStack {
-                    RoundedRectangle(cornerRadius: Tokens.overlayCornerRadius)
-                        .fill(fillColor)
-                    RoundedRectangle(cornerRadius: Tokens.overlayCornerRadius)
-                        .stroke(strokeColor, lineWidth: Tokens.strokeWidth)
-                }
-                .frame(width: expanded.width, height: expanded.height)
-                .position(x: expanded.midX, y: expanded.midY)
-            } else {
-                // Non-rectangular paths render as-is
-                Path(path.cgPath)
-                    .fill(fillColor)
-                Path(path.cgPath)
-                    .stroke(strokeColor, lineWidth: Tokens.strokeWidth)
-            }
+            // Path-based elements render the actual path shape
+            pathOverlay(path: path.cgPath)
         }
+    }
+
+    /// Renders a path-based overlay following the actual accessibility path.
+    @ViewBuilder
+    private func pathOverlay(path: CGPath) -> some View {
+        let bounds = path.boundingBox
+        CGPathShape(path: path)
+            .fill(fillColor)
+            .overlay(
+                CGPathShape(path: path)
+                    .stroke(strokeColor, lineWidth: Tokens.strokeWidth)
+            )
+            .frame(width: bounds.width, height: bounds.height)
+            .position(x: bounds.midX, y: bounds.midY)
+    }
+
+    /// Renders a rounded rectangle overlay at the given rect.
+    @ViewBuilder
+    private func roundedRectOverlay(rect: CGRect) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: Tokens.overlayCornerRadius)
+                .fill(fillColor)
+            RoundedRectangle(cornerRadius: Tokens.overlayCornerRadius)
+                .stroke(strokeColor, lineWidth: Tokens.strokeWidth)
+        }
+        .frame(width: rect.width, height: rect.height)
+        .position(x: rect.midX, y: rect.midY)
+    }
+
+    private func badgeCenter(for shape: AccessibilityMarker.Shape) -> CGPoint {
+        // Always use bounding box for consistent, predictable badge placement
+        let bounds: CGRect
+        switch shape {
+        case let .frame(rect):
+            bounds = rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
+        case let .path(path):
+            bounds = path.cgPath.boundingBox
+        }
+        return BadgePlacement.badgeCenter(in: bounds)
     }
 
     @ViewBuilder
     private func numberBadge(for shape: AccessibilityMarker.Shape) -> some View {
-        let center = badgeCenter(for: shape)
-
         Text(numberText)
             .font(DesignTokens.Typography.badgeNumber)
             .tracking(-1)
@@ -111,21 +121,7 @@ public struct ElementView: View {
                 RoundedRectangle(cornerRadius: DesignTokens.Badge.cornerRadius)
                     .fill(badgeColor)
             )
-            .position(center)
-    }
-
-    private func badgeCenter(for shape: AccessibilityMarker.Shape) -> CGPoint {
-        switch shape {
-        case let .frame(rect):
-            // Use the expanded frame (matches the visible overlay)
-            let expanded = rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
-            return BadgePlacement.badgeCenter(in: expanded)
-        case let .path(path):
-            // Use the expanded bounding box (matches the visible overlay)
-            let rect = path.cgPath.boundingBox
-            let expanded = rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
-            return BadgePlacement.badgeCenter(in: expanded)
-        }
+            .position(badgeCenter(for: shape))
     }
 
     // MARK: - Legend Mode
@@ -144,6 +140,25 @@ public struct ElementView: View {
                 .foregroundColor(strokeColor)
         }
         .frame(width: LegendLayoutMetrics.markerSize, height: LegendLayoutMetrics.markerSize)
+    }
+}
+
+// MARK: - CGPath Shape Wrapper
+
+/// A SwiftUI Shape that wraps a CGPath for rendering.
+@available(iOS 18.0, *)
+private struct CGPathShape: Shape {
+    let path: CGPath
+
+    func path(in rect: CGRect) -> Path {
+        // The path is already in the correct coordinate space
+        // We just need to translate it so it's positioned relative to rect.origin
+        let bounds = path.boundingBox
+        var transform = CGAffineTransform(translationX: -bounds.minX, y: -bounds.minY)
+        if let transformed = path.copy(using: &transform) {
+            return Path(transformed)
+        }
+        return Path(path)
     }
 }
 
@@ -187,55 +202,3 @@ public struct ElementView: View {
     .frame(width: 300, height: 350)
 }
 
-// MARK: - CGPath Rectangle Detection
-
-extension CGPath {
-    /// Returns true if this path is a rectangle (4 corners with 90° angles).
-    var isRectangular: Bool {
-        var points: [CGPoint] = []
-        var hasCurves = false
-
-        applyWithBlock { element in
-            switch element.pointee.type {
-            case .moveToPoint:
-                points.append(element.pointee.points[0])
-            case .addLineToPoint:
-                points.append(element.pointee.points[0])
-            case .closeSubpath:
-                break
-            case .addQuadCurveToPoint, .addCurveToPoint:
-                hasCurves = true
-            @unknown default:
-                break
-            }
-        }
-
-        // Must have no curves and exactly 4 or 5 points (4 corners, possibly repeated start)
-        guard !hasCurves, points.count >= 4, points.count <= 5 else {
-            return false
-        }
-
-        // Take first 4 points
-        let corners = Array(points.prefix(4))
-
-        // Check all angles are 90°
-        for i in 0 ..< 4 {
-            let p0 = corners[i]
-            let p1 = corners[(i + 1) % 4]
-            let p2 = corners[(i + 2) % 4]
-
-            // Vector from p1 to p0
-            let v1 = CGVector(dx: p0.x - p1.x, dy: p0.y - p1.y)
-            // Vector from p1 to p2
-            let v2 = CGVector(dx: p2.x - p1.x, dy: p2.y - p1.y)
-
-            // Dot product should be ~0 for perpendicular vectors
-            let dot = v1.dx * v2.dx + v1.dy * v2.dy
-            if abs(dot) > 0.01 {
-                return false
-            }
-        }
-
-        return true
-    }
-}

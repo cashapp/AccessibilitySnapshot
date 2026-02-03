@@ -40,6 +40,9 @@ struct DemoListView: View {
                 NavigationLink("Containers") {
                     ContainersDemo()
                 }
+                NavigationLink("Path Shapes") {
+                    PathShapesDemo()
+                }
             }
         }
         .navigationTitle("SwiftUI Experimental")

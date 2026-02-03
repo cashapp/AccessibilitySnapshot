@@ -29,4 +29,8 @@ final class SwiftUIRendererTests: SwiftUIExperimentalTestCase {
     func testContainersDemo() {
         snapshotVerifyAccessibility(ContainersDemo())
     }
+
+    func testPathShapesDemo() {
+        snapshotVerifyAccessibility(PathShapesDemo())
+    }
 }

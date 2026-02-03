@@ -87,6 +87,6 @@ class SwiftUIExperimentalTestCase: FBSnapshotTestCase {
         }
 
         fileNameOptions = [.OS, .screenSize, .screenScale]
-        recordMode = false
+        recordMode = true
     }
 }
