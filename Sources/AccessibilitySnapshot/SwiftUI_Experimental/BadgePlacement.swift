@@ -61,12 +61,16 @@ enum BadgePlacement {
         return topLeading
     }
 
-    /// Detects if a path is an axis-aligned rectangle matching its bounding box.
+    /// Maximum corner radius to treat a rounded rect as a simple rectangle.
+    private static let maxCornerRadius: CGFloat = 8.0
+
+    /// Detects if a path is a rectangle or rounded rectangle with small corners.
     /// This allows us to skip containment checks and use O(1) placement.
     static func isRectangle(_ path: CGPath) -> Bool {
         let bounds = path.boundingBox
-        var vertices: [CGPoint] = []
-        var hasNonLineElements = false
+        var linePoints: [CGPoint] = []
+        var curveCount = 0
+        var maxCurveDeviation: CGFloat = 0
 
         path.applyWithBlock { element in
             let type = element.pointee.type
@@ -74,18 +78,58 @@ enum BadgePlacement {
 
             switch type {
             case .moveToPoint, .addLineToPoint:
-                vertices.append(points[0])
+                linePoints.append(points[0])
+
+            case .addQuadCurveToPoint:
+                // Quad curve: points[0] = control, points[1] = end
+                curveCount += 1
+                // Measure how far control point deviates (approximates corner radius)
+                let control = points[0]
+                let end = points[1]
+                let deviation = max(
+                    abs(control.x - end.x),
+                    abs(control.y - end.y)
+                )
+                maxCurveDeviation = max(maxCurveDeviation, deviation)
+
+            case .addCurveToPoint:
+                // Cubic curve: points[0..1] = controls, points[2] = end
+                curveCount += 1
+                let control1 = points[0]
+                let control2 = points[1]
+                let end = points[2]
+                let deviation = max(
+                    abs(control1.x - end.x),
+                    abs(control1.y - end.y),
+                    abs(control2.x - end.x),
+                    abs(control2.y - end.y)
+                )
+                maxCurveDeviation = max(maxCurveDeviation, deviation)
+
             case .closeSubpath:
                 break
-            default:
-                hasNonLineElements = true
+
+            @unknown default:
+                break
             }
         }
 
-        // Must have exactly 4 vertices and only line elements
-        guard vertices.count == 4, !hasNonLineElements else { return false }
+        // Pure rectangle: 4 vertices, no curves
+        if curveCount == 0 && linePoints.count == 4 {
+            return allPointsAtCorners(linePoints, bounds: bounds)
+        }
 
-        // All vertices must be at bounding box corners
+        // Rounded rectangle: has curves but corners are small (< 8pt)
+        if curveCount > 0 && maxCurveDeviation <= maxCornerRadius {
+            // Verify points are near bounding box edges
+            return allPointsNearEdges(linePoints, bounds: bounds, tolerance: maxCornerRadius)
+        }
+
+        return false
+    }
+
+    /// Checks if all points are at the bounding box corners.
+    private static func allPointsAtCorners(_ points: [CGPoint], bounds: CGRect) -> Bool {
         let corners: Set<CGPoint> = [
             CGPoint(x: bounds.minX, y: bounds.minY),
             CGPoint(x: bounds.maxX, y: bounds.minY),
@@ -93,15 +137,33 @@ enum BadgePlacement {
             CGPoint(x: bounds.minX, y: bounds.maxY),
         ]
 
-        for vertex in vertices {
+        for point in points {
             let matchesCorner = corners.contains { corner in
-                abs(vertex.x - corner.x) < 0.001 && abs(vertex.y - corner.y) < 0.001
+                abs(point.x - corner.x) < 0.001 && abs(point.y - corner.y) < 0.001
             }
             if !matchesCorner {
                 return false
             }
         }
+        return true
+    }
 
+    /// Checks if all points are near the bounding box edges (within tolerance).
+    private static func allPointsNearEdges(_ points: [CGPoint], bounds: CGRect, tolerance: CGFloat) -> Bool {
+        for point in points {
+            let nearLeft = abs(point.x - bounds.minX) <= tolerance
+            let nearRight = abs(point.x - bounds.maxX) <= tolerance
+            let nearTop = abs(point.y - bounds.minY) <= tolerance
+            let nearBottom = abs(point.y - bounds.maxY) <= tolerance
+
+            // Point should be near at least one edge on each axis
+            let nearVerticalEdge = nearLeft || nearRight
+            let nearHorizontalEdge = nearTop || nearBottom
+
+            if !nearVerticalEdge && !nearHorizontalEdge {
+                return false
+            }
+        }
         return true
     }
 
