@@ -1,16 +1,57 @@
 #!/bin/bash
 set -euo pipefail
 
-repo_root="$(git rev-parse --show-toplevel)"
-cd "$repo_root"
+cd "$(git rev-parse --show-toplevel)"
 
-# Verify mise is available
 if ! command -v mise >/dev/null 2>&1; then
   echo "mise is required. Refer to Example/README.md for setup instructions." >&2
   exit 1
 fi
 
-# Use mise exec to ensure we run the versions specified in .mise.toml,
-# regardless of what's installed globally via Homebrew or other means
-echo "Running SwiftFormat..."
-mise exec -- swiftformat .
+staged_swift_files=$(git diff --cached --name-only --diff-filter=d | grep '\.swift$' || true)
+
+if [ -z "$staged_swift_files" ]; then
+  exit 0
+fi
+
+echo "Checking SwiftFormat..."
+if mise exec -- swiftformat --lint $staged_swift_files 2>/dev/null; then
+  exit 0
+fi
+
+echo ""
+echo "SwiftFormat found formatting issues."
+
+format_files() {
+  echo "Formatting..."
+  mise exec -- swiftformat $staged_swift_files
+}
+
+if [ ! -e /dev/tty ]; then
+  echo "Run 'swiftformat .' to fix, then commit again."
+  exit 1
+fi
+
+echo ""
+echo "  [f] Fix and commit"
+echo "  [r] Review - fix only, abort to review"
+echo "  [a] Abort"
+echo ""
+read -r -p "Choice [f/r/a]: " choice < /dev/tty
+
+case "$choice" in
+  f|F)
+    format_files
+    git add $staged_swift_files
+    echo "Proceeding with commit."
+    ;;
+  r|R)
+    format_files
+    echo "Fixed but not staged. Run 'git diff' to review, then 'git add -u' and commit."
+    exit 1
+    ;;
+  *)
+    echo "Aborted."
+    exit 1
+    ;;
+esac
