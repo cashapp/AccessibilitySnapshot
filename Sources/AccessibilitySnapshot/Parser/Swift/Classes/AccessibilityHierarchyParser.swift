@@ -849,6 +849,12 @@ private extension NSObject {
                     return content.map { .init(from: $0) }
                 }
             }
+
+            // SwiftUI creates internal accessibility proxy nodes that don't explicitly conform to AXCustomContentProvider
+            // but do expose accessibilityCustomContent via KVC
+            if let content = value(forKey: "accessibilityCustomContent") as? [AXCustomContent] {
+                return content.map { .init(from: $0) }
+            }
         }
         return []
     }
