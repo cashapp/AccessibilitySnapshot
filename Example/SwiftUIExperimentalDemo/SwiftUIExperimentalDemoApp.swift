@@ -28,17 +28,8 @@ struct DemoListView: View {
                 NavigationLink("Custom Rotors") {
                     CustomRotorsDemo()
                 }
-                NavigationLink("Input Labels") {
-                    InputLabelsDemo()
-                }
-                NavigationLink("Activation Point") {
-                    ActivationPointDemo()
-                }
-                NavigationLink("Sort Priority") {
-                    SortPriorityDemo()
-                }
-                NavigationLink("Containers") {
-                    ContainersDemo()
+                NavigationLink("Custom Content") {
+                    CustomContentDemo()
                 }
             }
         }
