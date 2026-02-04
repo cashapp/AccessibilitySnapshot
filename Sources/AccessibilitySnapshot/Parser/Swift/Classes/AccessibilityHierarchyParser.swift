@@ -889,6 +889,7 @@ private extension NSObject {
         // See https://swiftversion.net/ for mapping swift version to Xcode versions.
 
         if #available(iOS 14.0, *) {
+            // Try AXCustomContentProvider first (UIKit views)
             if let provider = self as? AXCustomContentProvider {
                 // Swift 5.9 ships with Xcode 15 and the iOS 17 SDK.
                 #if swift(>=5.9)
@@ -903,6 +904,13 @@ private extension NSObject {
                 if let content = provider.accessibilityCustomContent {
                     return content.map { .init(from: $0) }
                 }
+            }
+
+            // Fallback for SwiftUI accessibility nodes
+            // SwiftUI creates internal accessibility proxy objects that don't conform to AXCustomContentProvider
+            // but do expose accessibilityCustomContent via KVC
+            if let content = value(forKey: "accessibilityCustomContent") as? [AXCustomContent] {
+                return content.map { .init(from: $0) }
             }
         }
         return []
