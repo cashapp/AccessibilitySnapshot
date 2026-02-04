@@ -6,7 +6,7 @@ import UIKit
 // MARK: -
 
 /// A container view that uses SwiftUI to render accessibility overlays and legend.
-@available(iOS 16.0, *)
+@available(iOS 18.0, *)
 public final class SwiftUIAccessibilitySnapshotContainerView: AccessibilitySnapshotBaseView {
     // MARK: - Private Properties
 

@@ -143,8 +143,8 @@ public extension FBSnapshotTestCase {
             effectiveSuffixes = suffixes
 
         case .swiftui:
-            guard #available(iOS 16.0, *) else {
-                XCTFail("SwiftUI layout engine requires iOS 16.0 or later", file: file, line: line)
+            guard #available(iOS 18.0, *) else {
+                XCTFail("SwiftUI layout engine requires iOS 18.0 or later", file: file, line: line)
                 return
             }
             containerView = SwiftUIAccessibilitySnapshotContainerView(

@@ -5,7 +5,7 @@ import SwiftUI
 // Note: The `.accessibilityPreview()` View extension is provided by the AccessibilityPreviews module.
 
 /// A SwiftUI container view that displays a snapshot with accessibility overlays and legend.
-@available(iOS 16.0, *)
+@available(iOS 18.0, *)
 public struct AccessibilitySnapshotView<Content: View>: View {
     private let content: Content
     private let configuration: AccessibilitySnapshotConfiguration
@@ -73,10 +73,10 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             ForEach(markers.indices, id: \.self) { index in
                 let marker = markers[index]
 
-                ElementView(
+                ElementOverlay(
                     index: index,
-                    palette: palette,
-                    mode: .overlay(shape: marker.shape)
+                    shape: marker.shape,
+                    palette: palette
                 )
 
                 if shouldShowActivationPoint(for: marker) {
@@ -137,12 +137,12 @@ public struct AccessibilitySnapshotView<Content: View>: View {
 }
 
 /// Backwards compatibility alias.
-@available(iOS 16.0, *)
+@available(iOS 18.0, *)
 public typealias SwiftUIAccessibilitySnapshotView<Content: View> = AccessibilitySnapshotView<Content>
 
 // MARK: - UIView Wrapper
 
-@available(iOS 16.0, *)
+@available(iOS 18.0, *)
 public extension AccessibilitySnapshotView where Content == UIViewWrapper {
     /// Creates a snapshot view wrapping a UIView.
     init(
@@ -162,7 +162,7 @@ public extension AccessibilitySnapshotView where Content == UIViewWrapper {
 
 /// A SwiftUI view that displays a pre-rendered snapshot with accessibility overlays and legend.
 /// This is used when the UIView has already been snapshotted and parsed.
-@available(iOS 16.0, *)
+@available(iOS 18.0, *)
 public struct PreParsedAccessibilitySnapshotView: View {
     private let snapshotImage: UIImage
     private let markers: [AccessibilityMarker]
@@ -264,10 +264,10 @@ public struct PreParsedAccessibilitySnapshotView: View {
 
             ForEach(markers.indices, id: \.self) { index in
                 let marker = markers[index]
-                ElementView(
+                ElementOverlay(
                     index: index,
-                    palette: palette,
-                    mode: .overlay(shape: marker.shape)
+                    shape: marker.shape,
+                    palette: palette
                 )
 
                 if shouldShowActivationPoint(for: marker) {

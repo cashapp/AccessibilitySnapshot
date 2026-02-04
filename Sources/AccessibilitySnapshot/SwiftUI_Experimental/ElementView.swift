@@ -2,138 +2,177 @@ import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser
 import SwiftUI
 
-/// Renders an accessibility element's visual representation.
-/// Works at both overlay scale (large, on snapshot) and legend scale (small marker).
-@available(iOS 16.0, *)
-public struct ElementView: View {
-    public enum DisplayMode {
-        case overlay(shape: AccessibilityMarker.Shape)
-        case legend
-    }
+// MARK: - Number Badge
 
+/// A numbered badge for accessibility element markers.
+/// Used in both overlay (positioned on snapshot) and legend (standalone marker).
+@available(iOS 18.0, *)
+public struct NumberBadge: View {
     public let index: Int
     public let palette: ColorPalette
-    public let mode: DisplayMode
 
-    public init(index: Int, palette: ColorPalette, mode: DisplayMode) {
+    public init(index: Int, palette: ColorPalette) {
         self.index = index
         self.palette = palette
-        self.mode = mode
+    }
+
+    public var body: some View {
+        Text("\(index + 1)")
+            .font(DesignTokens.Typography.badgeNumber)
+            .tracking(-1)
+            .foregroundColor(.white)
+            .frame(minWidth: DesignTokens.Badge.minSize, minHeight: DesignTokens.Badge.minSize)
+            .background(
+                RoundedRectangle(cornerRadius: DesignTokens.Badge.cornerRadius)
+                    .fill(palette.color(at: index))
+            )
+    }
+}
+
+// MARK: - Element Overlay
+
+/// Renders an accessibility element overlay on the snapshot.
+/// Combines the shape highlight with a positioned number badge.
+@available(iOS 18.0, *)
+public struct ElementOverlay: View {
+    public let index: Int
+    public let shape: AccessibilityMarker.Shape
+    public let palette: ColorPalette
+
+    public init(index: Int, shape: AccessibilityMarker.Shape, palette: ColorPalette) {
+        self.index = index
+        self.shape = shape
+        self.palette = palette
     }
 
     private typealias Tokens = DesignTokens.Element
 
-    private var numberText: String {
-        "\(index + 1)"
-    }
-
-    private var fillColor: Color {
-        palette.fillColor(at: index)
-    }
-
-    private var strokeColor: Color {
-        palette.strokeColor(at: index)
-    }
+    private var fillColor: Color { palette.fillColor(at: index) }
+    private var strokeColor: Color { palette.strokeColor(at: index) }
 
     public var body: some View {
-        switch mode {
-        case let .overlay(shape):
-            overlayElement(shape: shape)
-        case .legend:
-            legendElement
-        }
-    }
-
-    // MARK: - Overlay Mode
-
-    @ViewBuilder
-    private func overlayElement(shape: AccessibilityMarker.Shape) -> some View {
         ZStack(alignment: .topLeading) {
-            shapeView(shape: shape)
-            numberBadge(for: shape)
+            shapeView
+            NumberBadge(index: index, palette: palette)
+                .position(badgeCenter)
         }
     }
 
+    // MARK: - Shape Rendering
+
     @ViewBuilder
-    private func shapeView(shape: AccessibilityMarker.Shape) -> some View {
+    private var shapeView: some View {
+        if let bounds = frameBounds {
+            roundedRectOverlay(rect: bounds)
+        } else if case let .path(path) = shape {
+            pathOverlay(path: path.cgPath)
+        }
+    }
+
+    /// Returns bounds for frame-like shapes (frames and rectangle paths).
+    private var frameBounds: CGRect? {
         switch shape {
         case let .frame(rect):
-            ZStack {
-                RoundedRectangle(cornerRadius: Tokens.overlayCornerRadius)
-                    .fill(fillColor)
-                RoundedRectangle(cornerRadius: Tokens.overlayCornerRadius)
-                    .stroke(strokeColor, lineWidth: Tokens.strokeWidth)
-            }
-            .frame(width: rect.width, height: rect.height)
-            .position(x: rect.midX, y: rect.midY)
-
+            return rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
         case let .path(path):
-            Path(path.cgPath)
+            let cgPath = path.cgPath
+            if BadgePlacement.isRectangle(cgPath) {
+                return cgPath.boundingBox.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
+            }
+            return nil
+        }
+    }
+
+    @ViewBuilder
+    private func roundedRectOverlay(rect: CGRect) -> some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: Tokens.overlayCornerRadius)
                 .fill(fillColor)
-            Path(path.cgPath)
+            RoundedRectangle(cornerRadius: Tokens.overlayCornerRadius)
                 .stroke(strokeColor, lineWidth: Tokens.strokeWidth)
         }
+        .frame(width: rect.width, height: rect.height)
+        .position(x: rect.midX, y: rect.midY)
     }
 
     @ViewBuilder
-    private func numberBadge(for shape: AccessibilityMarker.Shape) -> some View {
-        let bounds = shapeBounds(shape)
-
-        Text(numberText)
-            .font(DesignTokens.Typography.overlayNumber)
-            .foregroundColor(strokeColor)
-            .position(x: bounds.minX + Tokens.badgePadding + Tokens.badgeOffset, y: bounds.minY + Tokens.badgePadding + Tokens.badgeOffset)
+    private func pathOverlay(path: CGPath) -> some View {
+        let bounds = path.boundingBox
+        CGPathShape(path: path)
+            .fill(fillColor)
+            .overlay(
+                CGPathShape(path: path)
+                    .stroke(strokeColor, lineWidth: Tokens.strokeWidth)
+            )
+            .frame(width: bounds.width, height: bounds.height)
+            .position(x: bounds.midX, y: bounds.midY)
     }
 
-    private func shapeBounds(_ shape: AccessibilityMarker.Shape) -> CGRect {
-        switch shape {
-        case let .frame(rect):
-            return rect
-        case let .path(path):
-            return path.cgPath.boundingBox
+    // MARK: - Badge Placement
+
+    private var badgeCenter: CGPoint {
+        if let bounds = frameBounds {
+            return BadgePlacement.badgeCenter(in: bounds)
+        } else if case let .path(path) = shape {
+            return BadgePlacement.badgeCenter(for: path.cgPath)
         }
-    }
-
-    // MARK: - Legend Mode
-
-    private var legendElement: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: Tokens.legendCornerRadius)
-                .fill(fillColor)
-                .overlay(
-                    RoundedRectangle(cornerRadius: Tokens.legendCornerRadius)
-                        .stroke(strokeColor, lineWidth: Tokens.strokeWidth)
-                )
-
-            Text(numberText)
-                .font(DesignTokens.Typography.legendNumber)
-                .foregroundColor(strokeColor)
-        }
-        .frame(width: LegendLayoutMetrics.markerSize, height: LegendLayoutMetrics.markerSize)
+        return .zero
     }
 }
 
-// MARK: - Preview
+// MARK: - CGPath Shape Wrapper
 
-@available(iOS 17.0, *)
-#Preview("Legend Mode") {
+/// A SwiftUI Shape that wraps a CGPath for rendering.
+@available(iOS 18.0, *)
+private struct CGPathShape: Shape {
+    let path: CGPath
+
+    func path(in rect: CGRect) -> Path {
+        let bounds = path.boundingBox
+        var transform = CGAffineTransform(translationX: -bounds.minX, y: -bounds.minY)
+        if let transformed = path.copy(using: &transform) {
+            return Path(transformed)
+        }
+        return Path(path)
+    }
+}
+
+// MARK: - Previews
+
+@available(iOS 18.0, *)
+#Preview("Number Badges") {
     HStack(spacing: 8) {
         ForEach(0 ..< 8, id: \.self) { index in
-            ElementView(index: index, palette: .default, mode: .legend)
+            NumberBadge(index: index, palette: .default)
         }
     }
     .padding()
 }
 
-@available(iOS 17.0, *)
-#Preview("Overlay Mode") {
+@available(iOS 18.0, *)
+#Preview("Element Overlays") {
     ZStack {
         Color.gray.opacity(0.2)
-        ElementView(
+        ElementOverlay(
             index: 0,
-            palette: .default,
-            mode: .overlay(shape: .frame(CGRect(x: 50, y: 50, width: 200, height: 60)))
+            shape: .frame(CGRect(x: 50, y: 30, width: 200, height: 50)),
+            palette: .default
+        )
+        ElementOverlay(
+            index: 1,
+            shape: .frame(CGRect(x: 50, y: 100, width: 200, height: 80)),
+            palette: .default
+        )
+        ElementOverlay(
+            index: 2,
+            shape: .frame(CGRect(x: 50, y: 200, width: 200, height: 50)),
+            palette: .default
+        )
+        ElementOverlay(
+            index: 3,
+            shape: .frame(CGRect(x: 50, y: 270, width: 200, height: 50)),
+            palette: .default
         )
     }
-    .frame(width: 300, height: 160)
+    .frame(width: 300, height: 350)
 }

@@ -22,4 +22,8 @@ final class SwiftUIRendererTests: SnapshotTestCase {
     func testCustomContentDemo() {
         snapshotVerifyAccessibility(CustomContentDemo())
     }
+
+    func testPathShapesDemo() {
+        snapshotVerifyAccessibility(PathShapesDemo())
+    }
 }

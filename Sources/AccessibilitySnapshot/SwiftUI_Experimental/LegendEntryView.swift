@@ -3,7 +3,7 @@ import AccessibilitySnapshotParser
 import SwiftUI
 
 /// A complete legend entry for one accessibility element.
-@available(iOS 16.0, *)
+@available(iOS 18.0, *)
 struct LegendEntryView: View {
     let index: Int
     let marker: AccessibilityMarker
@@ -13,11 +13,7 @@ struct LegendEntryView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: LegendLayoutMetrics.markerToLabelSpacing) {
-            ElementView(
-                index: index,
-                palette: palette,
-                mode: .legend
-            )
+            NumberBadge(index: index, palette: palette)
 
             VStack(alignment: .leading, spacing: LegendLayoutMetrics.interItemSpacing) {
                 DescriptionView(text: marker.description)
