@@ -3,7 +3,7 @@ import AccessibilitySnapshotParser
 import SwiftUI
 
 /// Displays an element's custom content.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 struct CustomContentView: View {
     let content: [AccessibilityMarker.CustomContent]
     let locale: String?
@@ -33,7 +33,7 @@ struct CustomContentView: View {
 
 // MARK: - Preview
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview("Single Content") {
     CustomContentView(
         content: [
@@ -44,7 +44,7 @@ struct CustomContentView: View {
     .padding()
 }
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview("Multiple Content Items") {
     CustomContentView(
         content: [
@@ -57,7 +57,7 @@ struct CustomContentView: View {
     .padding()
 }
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview("Label Only") {
     CustomContentView(
         content: [

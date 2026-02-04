@@ -1,7 +1,12 @@
+import AccessibilitySnapshotCore
+import FBSnapshotTestCase_Accessibility
+import iOSSnapshotTestCase
 @testable import SwiftUIExperimentalDemo
 
-@available(iOS 18.0, *)
-final class SwiftUIRendererTests: SwiftUIExperimentalTestCase {
+@available(iOS 16.0, *)
+final class SwiftUIRendererTests: SnapshotTestCase {
+    override var layoutEngine: LayoutEngine { .swiftui }
+
     func testBasicAccessibilityDemo() {
         snapshotVerifyAccessibility(BasicAccessibilityDemo())
     }

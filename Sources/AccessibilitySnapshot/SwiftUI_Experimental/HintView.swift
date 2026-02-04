@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Displays an accessibility element's hint.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 struct HintView: View {
     let text: String
 
@@ -15,7 +15,7 @@ struct HintView: View {
 
 // MARK: - Preview
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview {
     VStack(alignment: .leading, spacing: 8) {
         HintView(text: "Double tap to activate")

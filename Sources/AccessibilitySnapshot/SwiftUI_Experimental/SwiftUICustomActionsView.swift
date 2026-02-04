@@ -3,7 +3,7 @@ import AccessibilitySnapshotParser
 import SwiftUI
 
 /// Displays an element's custom actions.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 struct CustomActionsView: View {
     let actions: [AccessibilityMarker.CustomAction]
     let locale: String?
@@ -30,7 +30,7 @@ struct CustomActionsView: View {
 
 // MARK: - Preview
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview("Single Action") {
     CustomActionsView(
         actions: [
@@ -41,7 +41,7 @@ struct CustomActionsView: View {
     .padding()
 }
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview("Multiple Actions") {
     CustomActionsView(
         actions: [

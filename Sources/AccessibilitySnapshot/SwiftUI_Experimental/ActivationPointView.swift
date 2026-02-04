@@ -2,7 +2,7 @@ import AccessibilitySnapshotParser
 import SwiftUI
 
 /// Displays an activation point crosshairs indicator.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 public struct ActivationPointView: View {
     public let position: CGPoint
     public let color: Color
@@ -23,7 +23,7 @@ public struct ActivationPointView: View {
 
 // MARK: - Preview
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview {
     ZStack {
         Color.gray.opacity(0.2)

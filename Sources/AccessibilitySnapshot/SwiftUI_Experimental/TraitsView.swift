@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 /// Displays trait icons as pills matching the UserInputLabelsView style.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 struct TraitsView: View {
     let traits: UIAccessibilityTraits
 
@@ -24,7 +24,7 @@ struct TraitsView: View {
 }
 
 /// A single pill containing a trait icon and name.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 private struct TraitPillView: View {
     let trait: UnspokenTrait
 
@@ -47,7 +47,7 @@ private struct TraitPillView: View {
 
 /// Represents accessibility traits that are visually indicated in the legend.
 /// These are traits that VoiceOver doesn't verbally announce.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 enum UnspokenTrait: CaseIterable {
     case keyboardKey
     case allowsDirectInteraction
@@ -87,7 +87,7 @@ enum UnspokenTrait: CaseIterable {
     }
 
     /// The corresponding UIAccessibilityTraits value.
-    var uiTrait: UIAccessibilityTraits {
+    var uiTrait: UIAccessibilityTraits? {
         switch self {
         case .keyboardKey: return .keyboardKey
         case .allowsDirectInteraction: return .allowsDirectInteraction
@@ -96,32 +96,39 @@ enum UnspokenTrait: CaseIterable {
         case .playsSound: return .playsSound
         case .startsMediaSession: return .startsMediaSession
         case .summaryElement: return .summaryElement
-        case .supportsZoom: return .supportsZoom
+        case .supportsZoom:
+            if #available(iOS 17.0, *) {
+                return .supportsZoom
+            }
+            return nil
         }
     }
 
     /// Extracts displayable traits from a UIAccessibilityTraits value.
     static func from(_ traits: UIAccessibilityTraits) -> [UnspokenTrait] {
-        allCases.filter { traits.contains($0.uiTrait) }
+        allCases.filter { trait in
+            guard let uiTrait = trait.uiTrait else { return false }
+            return traits.contains(uiTrait)
+        }
     }
 }
 
 // MARK: - Preview
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview("Single Trait") {
     TraitsView(traits: .playsSound)
         .padding()
 }
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview("Multiple Traits") {
     TraitsView(traits: [.playsSound, .startsMediaSession, .causesPageTurn])
         .padding()
         .frame(width: 200)
 }
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview("All Unspoken Traits") {
     TraitsView(traits: [
         .keyboardKey,

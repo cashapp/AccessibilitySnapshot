@@ -1,6 +1,32 @@
+import AccessibilitySnapshotCore
+import FBSnapshotTestCase_Accessibility
 import iOSSnapshotTestCase
+import SwiftUI
 
 class SnapshotTestCase: FBSnapshotTestCase {
+    // MARK: - Layout Engine Configuration
+
+    var layoutEngine: LayoutEngine { .default }
+
+    // MARK: - SwiftUI Accessibility Snapshot Helper
+
+    @available(iOS 16.0, *)
+    func snapshotVerifyAccessibility<V: View>(
+        _ view: V,
+        identifier: String = "",
+        file: StaticString = #file,
+        line: UInt = #line
+    ) {
+        SnapshotVerifyAccessibility(
+            view,
+            size: UIScreen.main.bounds.size,
+            identifier: identifier,
+            layoutEngine: layoutEngine,
+            file: file,
+            line: line
+        )
+    }
+
     // MARK: - Private Types
 
     private struct TestDeviceConfig {

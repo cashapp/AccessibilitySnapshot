@@ -273,9 +273,10 @@ let project = Project(
             product: .unitTests,
             bundleId: "com.cashapp.SwiftUIExperimentalTests",
             deploymentTargets: .iOS("18.0"),
-            sources: ["SwiftUIExperimentalTests/**/*.swift"],
+            sources: ["SwiftUIExperimentalTests/**/*.swift", "SnapshotTests/SnapshotTestCase.swift"],
             dependencies: [
                 .target(name: "SwiftUIExperimentalDemo"),
+                .target(name: "AccessibilitySnapshotCore"),
                 .target(name: "FBSnapshotTestCase_Accessibility"),
                 .external(name: "iOSSnapshotTestCase"),
                 .xctest,

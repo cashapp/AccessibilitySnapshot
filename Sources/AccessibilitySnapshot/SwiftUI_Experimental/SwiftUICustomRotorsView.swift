@@ -4,7 +4,7 @@ import SwiftUI
 import UIKit
 
 /// Displays an element's custom rotors.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 struct CustomRotorsView: View {
     let rotors: [AccessibilityMarker.CustomRotor]
     let locale: String?
@@ -51,7 +51,7 @@ struct CustomRotorsView: View {
 
 // MARK: - Preview
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview("Single Rotor") {
     CustomRotorsView(
         rotors: [
@@ -69,7 +69,7 @@ struct CustomRotorsView: View {
     .padding()
 }
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview("Multiple Rotors") {
     CustomRotorsView(
         rotors: [
@@ -93,7 +93,7 @@ struct CustomRotorsView: View {
     .padding()
 }
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview("Empty Rotor") {
     CustomRotorsView(
         rotors: [
