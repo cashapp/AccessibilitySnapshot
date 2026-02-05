@@ -58,7 +58,7 @@ class AccessibilitySnapshotPreviewsTestCase: FBSnapshotTestCase {
 
     private static let testedDevices = [
         TestDeviceConfig(systemVersion: "18.5", screenSize: CGSize(width: 402, height: 874), screenScale: 3),
-        TestDeviceConfig(systemVersion: "26.2", screenSize: CGSize(width: 402, height: 874), screenScale: 3),
+        TestDeviceConfig(systemVersion: "26.2", screenSize: CGSize(width: 440, height: 956), screenScale: 3),
     ]
 
     override func setUp() {
