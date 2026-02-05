@@ -2,7 +2,7 @@ import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser
 import AccessibilitySnapshotParser_ObjC
 import SnapshotTesting
-import SwiftUI_Experimental
+import AccessibilitySnapshotPreviews
 import UIKit
 
 public extension Snapshotting where Value == UIView, Format == UIImage {

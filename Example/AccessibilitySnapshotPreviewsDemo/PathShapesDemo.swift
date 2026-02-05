@@ -1,5 +1,5 @@
 import SwiftUI
-import SwiftUI_Experimental
+import AccessibilitySnapshotPreviews
 import UIKit
 
 struct PathShapesDemo: View {

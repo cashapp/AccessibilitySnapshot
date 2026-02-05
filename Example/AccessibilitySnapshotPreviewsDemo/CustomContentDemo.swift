@@ -1,5 +1,5 @@
 import SwiftUI
-import SwiftUI_Experimental
+import AccessibilitySnapshotPreviews
 
 struct CustomContentDemo: View {
     var body: some View {

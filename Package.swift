@@ -32,8 +32,8 @@ let package = Package(
             targets: ["AccessibilitySnapshotParser"]
         ),
         .library(
-            name: "SwiftUI_Experimental",
-            targets: ["SwiftUI_Experimental"]
+            name: "AccessibilitySnapshotPreviews",
+            targets: ["AccessibilitySnapshotPreviews"]
         ),
     ],
     dependencies: [
@@ -66,16 +66,16 @@ let package = Package(
             resources: [.process("Assets")]
         ),
         .target(
-            name: "SwiftUI_Experimental",
+            name: "AccessibilitySnapshotPreviews",
             dependencies: ["AccessibilitySnapshotCore", "AccessibilitySnapshotParser"],
-            path: "Sources/AccessibilitySnapshot/SwiftUI_Experimental"
+            path: "Sources/AccessibilitySnapshot/AccessibilitySnapshotPreviews"
         ),
         .target(
             name: "AccessibilitySnapshot",
             dependencies: [
                 "AccessibilitySnapshotCore",
                 "AccessibilitySnapshotParser-ObjC",
-                "SwiftUI_Experimental",
+                "AccessibilitySnapshotPreviews",
                 "SnapshotTesting",
             ],
             path: "Sources/AccessibilitySnapshot/SnapshotTesting"
@@ -85,7 +85,7 @@ let package = Package(
             dependencies: [
                 "AccessibilitySnapshotCore",
                 "AccessibilitySnapshotParser-ObjC",
-                "SwiftUI_Experimental",
+                "AccessibilitySnapshotPreviews",
                 "iOSSnapshotTestCase",
             ],
             path: "Sources/AccessibilitySnapshot/iOSSnapshotTestCase/Swift"
