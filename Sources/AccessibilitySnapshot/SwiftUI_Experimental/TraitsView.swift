@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 /// Displays trait icons as pills matching the UserInputLabelsView style.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 struct TraitsView: View {
     let traits: UIAccessibilityTraits
 
@@ -24,7 +24,7 @@ struct TraitsView: View {
 }
 
 /// A single pill containing a trait icon and name.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 private struct TraitPillView: View {
     let trait: UnspokenTrait
 
@@ -47,8 +47,8 @@ private struct TraitPillView: View {
 
 /// Represents accessibility traits that are visually indicated in the legend.
 /// These are traits that VoiceOver doesn't verbally announce.
-@available(iOS 18.0, *)
-enum UnspokenTrait: CaseIterable {
+@available(iOS 16.0, *)
+enum UnspokenTrait: Hashable {
     case keyboardKey
     case allowsDirectInteraction
     case updatesFrequently
@@ -56,7 +56,24 @@ enum UnspokenTrait: CaseIterable {
     case playsSound
     case startsMediaSession
     case summaryElement
-    case supportsZoom
+    case supportsZoom  // iOS 17+ only
+
+    /// All cases available on the current iOS version.
+    static var availableCases: [UnspokenTrait] {
+        var cases: [UnspokenTrait] = [
+            .keyboardKey,
+            .allowsDirectInteraction,
+            .updatesFrequently,
+            .causesPageTurn,
+            .playsSound,
+            .startsMediaSession,
+            .summaryElement,
+        ]
+        if #available(iOS 17.0, *) {
+            cases.append(.supportsZoom)
+        }
+        return cases
+    }
 
     /// The SF Symbol name for this trait.
     var iconName: String {
@@ -86,8 +103,8 @@ enum UnspokenTrait: CaseIterable {
         }
     }
 
-    /// The corresponding UIAccessibilityTraits value.
-    var uiTrait: UIAccessibilityTraits {
+    /// The corresponding UIAccessibilityTraits value, if available on this iOS version.
+    var uiTrait: UIAccessibilityTraits? {
         switch self {
         case .keyboardKey: return .keyboardKey
         case .allowsDirectInteraction: return .allowsDirectInteraction
@@ -96,32 +113,39 @@ enum UnspokenTrait: CaseIterable {
         case .playsSound: return .playsSound
         case .startsMediaSession: return .startsMediaSession
         case .summaryElement: return .summaryElement
-        case .supportsZoom: return .supportsZoom
+        case .supportsZoom:
+            if #available(iOS 17.0, *) {
+                return .supportsZoom
+            }
+            return nil
         }
     }
 
     /// Extracts displayable traits from a UIAccessibilityTraits value.
     static func from(_ traits: UIAccessibilityTraits) -> [UnspokenTrait] {
-        allCases.filter { traits.contains($0.uiTrait) }
+        availableCases.filter { unspokenTrait in
+            guard let uiTrait = unspokenTrait.uiTrait else { return false }
+            return traits.contains(uiTrait)
+        }
     }
 }
 
 // MARK: - Preview
 
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 #Preview("Single Trait") {
     TraitsView(traits: .playsSound)
         .padding()
 }
 
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 #Preview("Multiple Traits") {
     TraitsView(traits: [.playsSound, .startsMediaSession, .causesPageTurn])
         .padding()
         .frame(width: 200)
 }
 
-@available(iOS 18.0, *)
+@available(iOS 17.0, *)
 #Preview("All Unspoken Traits") {
     TraitsView(traits: [
         .keyboardKey,

@@ -3,7 +3,7 @@ import AccessibilitySnapshotParser
 import SwiftUI
 
 /// Displays the complete legend with all accessibility elements.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 public struct LegendView: View {
     public let markers: [AccessibilityMarker]
     public let palette: ColorPalette

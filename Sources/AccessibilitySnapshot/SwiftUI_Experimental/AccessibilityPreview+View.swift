@@ -2,7 +2,7 @@ import AccessibilitySnapshotCore
 import SwiftUI
 
 /// Adds accessibility preview functionality for Xcode Previews.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 public extension View {
     /// Wraps the view in an accessibility preview with scrollable legend for Xcode Previews.
     ///

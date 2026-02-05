@@ -6,7 +6,7 @@ import UIKit
 // MARK: -
 
 /// A container view that uses SwiftUI to render accessibility overlays and legend.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 public final class SwiftUIAccessibilitySnapshotContainerView: AccessibilitySnapshotBaseView {
     // MARK: - Private Properties
 
@@ -42,7 +42,9 @@ public final class SwiftUIAccessibilitySnapshotContainerView: AccessibilitySnaps
         )
 
         let hosting = UIHostingController(rootView: AnyView(swiftUIView))
-        hosting.safeAreaRegions = []
+        if #available(iOS 16.4, *) {
+            hosting.safeAreaRegions = []
+        }
         hosting.view.backgroundColor = UIColor(white: 0.9, alpha: 1.0)
 
         let targetSize = CGSize(

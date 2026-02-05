@@ -131,7 +131,6 @@ struct CustomRotorsDemo: View {
 }
 
 #Preview {
-    NavigationStack {
-        CustomRotorsDemo()
-    }
+    CustomRotorsDemo()
+        .accessibilityPreview()
 }

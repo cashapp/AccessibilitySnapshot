@@ -3,7 +3,7 @@ import AccessibilitySnapshotParser
 import SwiftUI
 
 /// A complete legend entry for one accessibility element.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 struct LegendEntryView: View {
     let index: Int
     let marker: AccessibilityMarker

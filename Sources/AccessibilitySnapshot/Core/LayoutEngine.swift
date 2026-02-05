@@ -9,5 +9,6 @@ public enum LayoutEngine {
     case swiftui
 
     /// The default layout engine used when none is specified.
-    public static let `default`: LayoutEngine = .uikit
+    /// This can be changed globally to affect all tests.
+    public static var `default`: LayoutEngine = .uikit
 }

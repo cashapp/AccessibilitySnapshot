@@ -2,7 +2,7 @@ import SwiftUI
 
 /// A layout that arranges pill-shaped views in horizontal lines, wrapping to new lines as needed.
 /// Used for traits badges and input labels in the accessibility legend.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 public struct PillFlowLayout: Layout {
     let horizontalSpacing: CGFloat
     let verticalSpacing: CGFloat
