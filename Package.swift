@@ -74,6 +74,7 @@ let package = Package(
             dependencies: [
                 "AccessibilitySnapshotCore",
                 "AccessibilitySnapshotParser-ObjC",
+                "SwiftUI_Experimental",
                 "SnapshotTesting",
             ],
             path: "Sources/AccessibilitySnapshot/SnapshotTesting"

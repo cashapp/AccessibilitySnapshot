@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Displays user input labels (Voice Control) as pills.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 struct UserInputLabelsView: View {
     let labels: [String]
 
@@ -17,7 +17,7 @@ struct UserInputLabelsView: View {
 }
 
 /// A single pill-shaped label.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 private struct PillView: View {
     let title: String
 
@@ -36,20 +36,20 @@ private struct PillView: View {
 
 // MARK: - Preview
 
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 #Preview("Single Label") {
     UserInputLabelsView(labels: ["Submit"])
         .padding()
 }
 
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 #Preview("Multiple Labels") {
     UserInputLabelsView(labels: ["Submit", "Cancel", "Save Draft"])
         .padding()
         .frame(width: 200)
 }
 
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 #Preview("Wrapping Labels") {
     UserInputLabelsView(labels: ["Tap here", "Press button", "Click me", "Submit form", "Cancel"])
         .padding()

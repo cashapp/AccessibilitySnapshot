@@ -55,7 +55,6 @@ struct CustomActionsDemo: View {
 }
 
 #Preview {
-    NavigationStack {
-        CustomActionsDemo()
-    }
+    CustomActionsDemo()
+        .accessibilityPreview()
 }

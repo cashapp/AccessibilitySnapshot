@@ -14,19 +14,7 @@ final class SwiftUIRendererTests: SwiftUIExperimentalTestCase {
         snapshotVerifyAccessibility(CustomRotorsDemo())
     }
 
-    func testInputLabelsDemo() {
-        snapshotVerifyAccessibility(InputLabelsDemo())
-    }
-
-    func testActivationPointDemo() {
-        snapshotVerifyAccessibility(ActivationPointDemo())
-    }
-
-    func testSortPriorityDemo() {
-        snapshotVerifyAccessibility(SortPriorityDemo())
-    }
-
-    func testContainersDemo() {
-        snapshotVerifyAccessibility(ContainersDemo())
+    func testCustomContentDemo() {
+        snapshotVerifyAccessibility(CustomContentDemo())
     }
 }

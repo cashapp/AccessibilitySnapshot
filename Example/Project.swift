@@ -110,6 +110,7 @@ let project = Project(
             dependencies: [
                 .target(name: "AccessibilitySnapshotCore"),
                 .target(name: "AccessibilitySnapshotParser_ObjC"),
+                .target(name: "SwiftUI_Experimental"),
                 .external(name: "SnapshotTesting"),
             ],
             settings: .settings(
