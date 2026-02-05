@@ -22,6 +22,12 @@ public struct AccessibilityMarker: Equatable {
             public let rangeDescription: String?
             public let shape: Shape?
 
+            public init(elementDescription: String, rangeDescription: String? = nil, shape: Shape? = nil) {
+                self.elementDescription = elementDescription
+                self.rangeDescription = rangeDescription
+                self.shape = shape
+            }
+
             public var description: String {
                 guard let rangeDescription else {
                     return elementDescription
@@ -33,6 +39,12 @@ public struct AccessibilityMarker: Equatable {
         public var name: String
         public var resultMarkers: [AccessibilityMarker.CustomRotor.ResultMarker] = []
         public let limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit
+
+        public init(name: String, resultMarkers: [ResultMarker] = [], limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit = .none) {
+            self.name = name
+            self.resultMarkers = resultMarkers
+            self.limit = limit
+        }
 
         init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int) {
             guard from.isKnownRotorType else { return nil }
@@ -70,6 +82,12 @@ public struct AccessibilityMarker: Equatable {
         public var value: String
         public var isImportant: Bool
 
+        public init(label: String, value: String, isImportant: Bool = false) {
+            self.label = label
+            self.value = value
+            self.isImportant = isImportant
+        }
+
         @available(iOS 14.0, *)
         init(from: AXCustomContent) {
             label = from.label
@@ -82,7 +100,7 @@ public struct AccessibilityMarker: Equatable {
         public var name: String
         public var image: UIImage?
 
-        init(name: String, image: UIImage?) {
+        public init(name: String, image: UIImage? = nil) {
             self.name = name
             self.image = image
         }
@@ -147,6 +165,43 @@ public struct AccessibilityMarker: Equatable {
 
     /// whether the element performs an action based on user interaction.
     public var respondsToUserInteraction: Bool
+
+    // MARK: - Initializers
+
+    /// Creates an AccessibilityMarker with all properties.
+    public init(
+        description: String,
+        label: String? = nil,
+        value: String? = nil,
+        traits: UIAccessibilityTraits = [],
+        identifier: String? = nil,
+        hint: String? = nil,
+        userInputLabels: [String]? = nil,
+        shape: Shape,
+        activationPoint: CGPoint,
+        usesDefaultActivationPoint: Bool = true,
+        customActions: [CustomAction] = [],
+        customContent: [CustomContent] = [],
+        customRotors: [CustomRotor] = [],
+        accessibilityLanguage: String? = nil,
+        respondsToUserInteraction: Bool = false
+    ) {
+        self.description = description
+        self.label = label
+        self.value = value
+        self.traits = traits
+        self.identifier = identifier
+        self.hint = hint
+        self.userInputLabels = userInputLabels
+        self.shape = shape
+        self.activationPoint = activationPoint
+        self.usesDefaultActivationPoint = usesDefaultActivationPoint
+        self.customActions = customActions
+        self.customContent = customContent
+        self.customRotors = customRotors
+        self.accessibilityLanguage = accessibilityLanguage
+        self.respondsToUserInteraction = respondsToUserInteraction
+    }
 }
 
 // MARK: -
@@ -620,7 +675,7 @@ private extension AccessibilityHierarchyParser {
     }
 
     /// Returns the shape of the accessibility element in the root view's coordinate space.
-    /// Voiceover prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
+    /// VoiceOver prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
     static func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityMarker.Shape {
         if let accessibilityPath = element.accessibilityPath, preferPath {
             return .path(root.convert(accessibilityPath, from: nil))
