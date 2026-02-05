@@ -1,6 +1,6 @@
 @testable import SwiftUIExperimentalDemo
 
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 final class SwiftUIRendererTests: SwiftUIExperimentalTestCase {
     func testBasicAccessibilityDemo() {
         snapshotVerifyAccessibility(BasicAccessibilityDemo())
@@ -16,5 +16,9 @@ final class SwiftUIRendererTests: SwiftUIExperimentalTestCase {
 
     func testCustomContentDemo() {
         snapshotVerifyAccessibility(CustomContentDemo())
+    }
+
+    func testPathShapesDemo() {
+        snapshotVerifyAccessibility(PathShapesDemo())
     }
 }

@@ -13,11 +13,7 @@ struct LegendEntryView: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: LegendLayoutMetrics.markerToLabelSpacing) {
-            ElementView(
-                index: index,
-                palette: palette,
-                mode: .legend
-            )
+            NumberBadge(index: index, palette: palette)
 
             VStack(alignment: .leading, spacing: LegendLayoutMetrics.interItemSpacing) {
                 DescriptionView(text: marker.description)
