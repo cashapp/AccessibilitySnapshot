@@ -87,7 +87,7 @@ public struct ColorPalette {
             UIColor(hex: 0x8A3800),
         ],
         fillOpacity: 0.25,
-        strokeOpacity: 0.8
+        strokeOpacity: 1.0
     )
 
     public static let `default` = modern

@@ -73,10 +73,10 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             ForEach(markers.indices, id: \.self) { index in
                 let marker = markers[index]
 
-                ElementView(
+                ElementOverlay(
                     index: index,
-                    palette: palette,
-                    mode: .overlay(shape: marker.shape)
+                    shape: marker.shape,
+                    palette: palette
                 )
 
                 if shouldShowActivationPoint(for: marker) {
@@ -264,10 +264,10 @@ public struct PreParsedAccessibilitySnapshotView: View {
 
             ForEach(markers.indices, id: \.self) { index in
                 let marker = markers[index]
-                ElementView(
+                ElementOverlay(
                     index: index,
-                    palette: palette,
-                    mode: .overlay(shape: marker.shape)
+                    shape: marker.shape,
+                    palette: palette
                 )
 
                 if shouldShowActivationPoint(for: marker) {
