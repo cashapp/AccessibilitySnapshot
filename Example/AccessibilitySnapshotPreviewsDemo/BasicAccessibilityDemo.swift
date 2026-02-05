@@ -1,5 +1,5 @@
 import SwiftUI
-import SwiftUI_Experimental
+import AccessibilitySnapshotPreviews
 
 struct BasicAccessibilityDemo: View {
     var body: some View {

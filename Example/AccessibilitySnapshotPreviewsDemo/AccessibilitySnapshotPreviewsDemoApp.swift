@@ -1,8 +1,8 @@
 import SwiftUI
-import SwiftUI_Experimental
+import AccessibilitySnapshotPreviews
 
 @main
-struct SwiftUIExperimentalDemoApp: App {
+struct AccessibilitySnapshotPreviewsDemoApp: App {
     var body: some Scene {
         WindowGroup {
             NavigationStack {
@@ -36,7 +36,7 @@ struct DemoListView: View {
                 }
             }
         }
-        .navigationTitle("SwiftUI Experimental")
+        .navigationTitle("Accessibility Previews")
     }
 }
 
