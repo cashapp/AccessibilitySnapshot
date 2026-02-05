@@ -11,10 +11,12 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
     static func keyboardAccessibilityImage(
         useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false,
         drawHierarchyInKeyWindow: Bool = false
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>.image(
@@ -24,6 +26,7 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
                 for: view,
                 menu: nil,
                 useMonochromeSnapshot: useMonochromeSnapshot,
+                showFocusOverlays: showFocusOverlays,
                 renderingMode: drawHierarchyInKeyWindow ? .drawHierarchyInRect : .renderLayerInContext
             )
         }
@@ -37,11 +40,13 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the `view` should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
     static func keyboardAccessibilityImage(
         menu: UIMenu,
         useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false,
         drawHierarchyInKeyWindow: Bool = false
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>.image(
@@ -51,6 +56,7 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
                 for: view,
                 menu: menu,
                 useMonochromeSnapshot: useMonochromeSnapshot,
+                showFocusOverlays: showFocusOverlays,
                 renderingMode: drawHierarchyInKeyWindow ? .drawHierarchyInRect : .renderLayerInContext
             )
         }
@@ -65,14 +71,17 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the view should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
     static func keyboardAccessibilityImage(
         useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false,
         drawHierarchyInKeyWindow: Bool = false
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>.keyboardAccessibilityImage(
             useMonochromeSnapshot: useMonochromeSnapshot,
+            showFocusOverlays: showFocusOverlays,
             drawHierarchyInKeyWindow: drawHierarchyInKeyWindow
         ).pullback { viewController in
             viewController.view
@@ -87,16 +96,19 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the view should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
     static func keyboardAccessibilityImage(
         menu: UIMenu,
         useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false,
         drawHierarchyInKeyWindow: Bool = false
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>.keyboardAccessibilityImage(
             menu: menu,
             useMonochromeSnapshot: useMonochromeSnapshot,
+            showFocusOverlays: showFocusOverlays,
             drawHierarchyInKeyWindow: drawHierarchyInKeyWindow
         ).pullback { viewController in
             viewController.view
@@ -112,11 +124,13 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the view should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     static func keyboardAccessibilityImage(
-        useMonochromeSnapshot: Bool = true
+        useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false
     ) -> Snapshotting {
         return Snapshotting<UIImage, UIImage>.image.pullback { (view: Value) in
-            makeSwiftUISnapshot(view: view, menu: nil, useMonochromeSnapshot: useMonochromeSnapshot)
+            makeSwiftUISnapshot(view: view, menu: nil, useMonochromeSnapshot: useMonochromeSnapshot, showFocusOverlays: showFocusOverlays)
         }
     }
 
@@ -128,12 +142,14 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the view should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     static func keyboardAccessibilityImage(
         menu: UIMenu,
-        useMonochromeSnapshot: Bool = true
+        useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false
     ) -> Snapshotting {
         return Snapshotting<UIImage, UIImage>.image.pullback { (view: Value) in
-            makeSwiftUISnapshot(view: view, menu: menu, useMonochromeSnapshot: useMonochromeSnapshot)
+            makeSwiftUISnapshot(view: view, menu: menu, useMonochromeSnapshot: useMonochromeSnapshot, showFocusOverlays: showFocusOverlays)
         }
     }
 }
@@ -141,7 +157,8 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
 private func makeSwiftUISnapshot<V: SwiftUI.View>(
     view: V,
     menu: UIMenu?,
-    useMonochromeSnapshot: Bool
+    useMonochromeSnapshot: Bool,
+    showFocusOverlays: Bool
 ) -> UIImage {
     let hostingController = UIHostingController(rootView: view)
     let hostingView = hostingController.view!
@@ -159,6 +176,7 @@ private func makeSwiftUISnapshot<V: SwiftUI.View>(
         for: hostingView,
         menu: menu,
         useMonochromeSnapshot: useMonochromeSnapshot,
+        showFocusOverlays: showFocusOverlays,
         renderingMode: .drawHierarchyInRect
     )
 
@@ -169,12 +187,14 @@ private func makeSnapshotContainer(
     for view: UIView,
     menu: UIMenu?,
     useMonochromeSnapshot: Bool,
+    showFocusOverlays: Bool,
     renderingMode: KeyboardAccessibilitySnapshotView.ViewRenderingMode
 ) -> KeyboardAccessibilitySnapshotView {
     let containerView = KeyboardAccessibilitySnapshotView(
         containedView: view,
         viewRenderingMode: renderingMode,
-        useMonochromeSnapshot: useMonochromeSnapshot
+        useMonochromeSnapshot: useMonochromeSnapshot,
+        showFocusOverlays: showFocusOverlays
     )
 
     do {
