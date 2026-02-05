@@ -110,7 +110,7 @@ let project = Project(
             dependencies: [
                 .target(name: "AccessibilitySnapshotCore"),
                 .target(name: "AccessibilitySnapshotParser_ObjC"),
-                .target(name: "SwiftUI_Experimental"),
+                .target(name: "AccessibilitySnapshotPreviews"),
                 .external(name: "SnapshotTesting"),
             ],
             settings: .settings(
@@ -130,7 +130,7 @@ let project = Project(
             dependencies: [
                 .target(name: "AccessibilitySnapshotCore"),
                 .target(name: "AccessibilitySnapshotParser_ObjC"),
-                .target(name: "SwiftUI_Experimental"),
+                .target(name: "AccessibilitySnapshotPreviews"),
                 .external(name: "iOSSnapshotTestCase"),
             ],
             settings: .settings(
@@ -164,12 +164,12 @@ let project = Project(
         ),
 
         .target(
-            name: "SwiftUI_Experimental",
+            name: "AccessibilitySnapshotPreviews",
             destinations: .iOS,
             product: .framework,
-            bundleId: "com.cashapp.SwiftUI-Experimental",
+            bundleId: "com.cashapp.AccessibilitySnapshotPreviews",
             deploymentTargets: deploymentTargets,
-            sources: ["../Sources/AccessibilitySnapshot/SwiftUI_Experimental/*.swift"],
+            sources: ["../Sources/AccessibilitySnapshot/AccessibilitySnapshotPreviews/*.swift"],
             dependencies: [
                 .target(name: "AccessibilitySnapshotCore"),
                 .target(name: "AccessibilitySnapshotParser"),
@@ -201,7 +201,7 @@ let project = Project(
             dependencies: [
                 .external(name: "Paralayout"),
                 .target(name: "AccessibilitySnapshotCore"),
-                .target(name: "SwiftUI_Experimental"),
+                .target(name: "AccessibilitySnapshotPreviews"),
             ],
             settings: .settings(
                 base: [
@@ -211,13 +211,13 @@ let project = Project(
             )
         ),
 
-        // MARK: - SwiftUI Experimental Demo App
+        // MARK: - AccessibilitySnapshotPreviews Demo App
 
         .target(
-            name: "SwiftUIExperimentalDemo",
+            name: "AccessibilitySnapshotPreviewsDemo",
             destinations: .iOS,
             product: .app,
-            bundleId: "com.cashapp.SwiftUIExperimentalDemo",
+            bundleId: "com.cashapp.AccessibilitySnapshotPreviewsDemo",
             deploymentTargets: .iOS("18.0"),
             infoPlist: .extendingDefault(with: [
                 "UILaunchStoryboardName": "LaunchScreen",
@@ -226,9 +226,9 @@ let project = Project(
                     "UISceneConfigurations": [:],
                 ],
             ]),
-            sources: ["SwiftUIExperimentalDemo/**/*.swift"],
+            sources: ["AccessibilitySnapshotPreviewsDemo/**/*.swift"],
             dependencies: [
-                .target(name: "SwiftUI_Experimental"),
+                .target(name: "AccessibilitySnapshotPreviews"),
             ],
             settings: .settings(
                 base: [
@@ -266,17 +266,17 @@ let project = Project(
             )
         ),
 
-        // MARK: - SwiftUI Experimental Tests
+        // MARK: - AccessibilitySnapshotPreviews Tests
 
         .target(
-            name: "SwiftUIExperimentalTests",
+            name: "AccessibilitySnapshotPreviewsTests",
             destinations: .iOS,
             product: .unitTests,
-            bundleId: "com.cashapp.SwiftUIExperimentalTests",
+            bundleId: "com.cashapp.AccessibilitySnapshotPreviewsTests",
             deploymentTargets: .iOS("18.0"),
-            sources: ["SwiftUIExperimentalTests/**/*.swift"],
+            sources: ["AccessibilitySnapshotPreviewsTests/**/*.swift"],
             dependencies: [
-                .target(name: "SwiftUIExperimentalDemo"),
+                .target(name: "AccessibilitySnapshotPreviewsDemo"),
                 .target(name: "FBSnapshotTestCase_Accessibility"),
                 .external(name: "iOSSnapshotTestCase"),
                 .xctest,
@@ -322,23 +322,23 @@ let project = Project(
         ("Russian", "ru"),
     ].map { makeLanguageScheme(language: $0.0, languageCode: $0.1) } + [
         .scheme(
-            name: "SwiftUIExperimentalDemo",
+            name: "AccessibilitySnapshotPreviewsDemo",
             shared: true,
             buildAction: .buildAction(targets: [
-                .target("SwiftUIExperimentalDemo"),
+                .target("AccessibilitySnapshotPreviewsDemo"),
             ]),
             testAction: .targets(
                 [
-                    .testableTarget(target: .target("SwiftUIExperimentalTests")),
+                    .testableTarget(target: .target("AccessibilitySnapshotPreviewsTests")),
                 ],
-                expandVariableFromTarget: .target("SwiftUIExperimentalDemo")
+                expandVariableFromTarget: .target("AccessibilitySnapshotPreviewsDemo")
             ),
             runAction: .runAction(
                 configuration: .debug,
-                executable: .target("SwiftUIExperimentalDemo"),
+                executable: .target("AccessibilitySnapshotPreviewsDemo"),
                 arguments: .arguments(
                     environmentVariables: [
-                        "FB_REFERENCE_IMAGE_DIR": .environmentVariable(value: "$(SOURCE_ROOT)/SwiftUIExperimentalTests/ReferenceImages/", isEnabled: true),
+                        "FB_REFERENCE_IMAGE_DIR": .environmentVariable(value: "$(SOURCE_ROOT)/AccessibilitySnapshotPreviewsTests/ReferenceImages/", isEnabled: true),
                     ]
                 )
             )

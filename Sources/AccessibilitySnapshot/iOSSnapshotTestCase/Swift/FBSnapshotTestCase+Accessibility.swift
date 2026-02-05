@@ -3,7 +3,7 @@ import AccessibilitySnapshotParser
 import AccessibilitySnapshotParser_ObjC
 import iOSSnapshotTestCase
 import SwiftUI
-import SwiftUI_Experimental
+import AccessibilitySnapshotPreviews
 import XCTest
 
 public extension FBSnapshotTestCase {

@@ -1,7 +1,7 @@
-@testable import SwiftUIExperimentalDemo
+@testable import AccessibilitySnapshotPreviewsDemo
 
 @available(iOS 16.0, *)
-final class SwiftUIRendererTests: SwiftUIExperimentalTestCase {
+final class SwiftUIRendererTests: AccessibilitySnapshotPreviewsTestCase {
     func testBasicAccessibilityDemo() {
         snapshotVerifyAccessibility(BasicAccessibilityDemo())
     }

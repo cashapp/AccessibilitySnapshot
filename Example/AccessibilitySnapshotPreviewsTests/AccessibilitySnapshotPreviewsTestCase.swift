@@ -3,7 +3,7 @@ import iOSSnapshotTestCase
 
 import SwiftUI
 
-/// Base test case for SwiftUI Experimental tests.
+/// Base test case for AccessibilitySnapshotPreviews tests.
 ///
 /// These tests require iOS 16.0+ and use the SwiftUI layout engine to demonstrate
 /// accessibility snapshot testing with SwiftUI-rendered overlays.
@@ -22,7 +22,7 @@ import SwiftUI
 /// This helper ensures SwiftUI views are rendered at screen size, which is
 /// required for views with flexible layouts (e.g., `ScrollView`, `List`).
 @available(iOS 16.0, *)
-class SwiftUIExperimentalTestCase: FBSnapshotTestCase {
+class AccessibilitySnapshotPreviewsTestCase: FBSnapshotTestCase {
     // MARK: - Accessibility Snapshot Helper
 
     /// Snapshots a SwiftUI view using the SwiftUI layout engine at screen size.
