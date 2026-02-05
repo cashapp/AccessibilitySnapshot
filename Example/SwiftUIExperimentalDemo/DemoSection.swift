@@ -6,13 +6,13 @@ struct DemoSection<Content: View>: View {
     @ViewBuilder let content: Content
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
                 Text(title)
-                    .font(.title3)
+                    .font(.subheadline)
                     .fontWeight(.semibold)
                 Text(description)
-                    .font(.caption)
+                    .font(.caption2)
                     .foregroundStyle(.secondary)
             }
             .accessibilityElement(children: .combine)

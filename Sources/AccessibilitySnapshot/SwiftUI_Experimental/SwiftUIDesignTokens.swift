@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Consolidated design tokens for SwiftUI accessibility snapshot rendering.
 /// These values ensure consistent visual styling across all SwiftUI views.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 enum DesignTokens {
     // MARK: - Colors
 

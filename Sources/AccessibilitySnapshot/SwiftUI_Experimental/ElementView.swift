@@ -4,7 +4,7 @@ import SwiftUI
 
 /// Renders an accessibility element's visual representation.
 /// Works at both overlay scale (large, on snapshot) and legend scale (small marker).
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 public struct ElementView: View {
     public enum DisplayMode {
         case overlay(shape: AccessibilityMarker.Shape)
@@ -115,7 +115,7 @@ public struct ElementView: View {
 
 // MARK: - Preview
 
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 #Preview("Legend Mode") {
     HStack(spacing: 8) {
         ForEach(0 ..< 8, id: \.self) { index in
@@ -125,7 +125,7 @@ public struct ElementView: View {
     .padding()
 }
 
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 #Preview("Overlay Mode") {
     ZStack {
         Color.gray.opacity(0.2)

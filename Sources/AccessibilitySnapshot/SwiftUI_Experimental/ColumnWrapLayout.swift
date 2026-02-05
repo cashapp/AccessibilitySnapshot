@@ -3,7 +3,7 @@ import SwiftUI
 
 /// A layout that arranges items in columns, wrapping to a new column when items exceed the available height.
 /// This matches the behavior of UIKit's SnapshotAndLegendView column wrapping.
-@available(iOS 18.0, *)
+@available(iOS 16.0, *)
 struct ColumnWrapLayout: Layout {
     let availableHeight: CGFloat
     let columnWidth: CGFloat
