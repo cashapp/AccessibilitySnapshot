@@ -445,7 +445,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             customContent: [],
             customRotors: [],
             accessibilityLanguage: "en-US",
-            respondsToUserInteraction: true
+            respondsToUserInteraction: true,
+            containerContext: nil
         )
 
         let encoder = JSONEncoder()
@@ -501,7 +502,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             customContent: [],
             customRotors: [],
             accessibilityLanguage: nil,
-            respondsToUserInteraction: false
+            respondsToUserInteraction: false,
+            containerContext: nil
         )
 
         let element2 = AccessibilityElement(
@@ -519,7 +521,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             customContent: [],
             customRotors: [],
             accessibilityLanguage: nil,
-            respondsToUserInteraction: false
+            respondsToUserInteraction: false,
+            containerContext: nil
         )
 
         let container = AccessibilityContainer(
@@ -817,6 +820,177 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let decoded = try decoder.decode(AccessibilityContainer.self, from: data)
 
         XCTAssertEqual(decoded.type, .landmark)
+    }
+
+    // MARK: - High-Importance Custom Content Tests
+
+    func testHighImportanceCustomContentIncludedInDescription() {
+        let element = AccessibilityElement(
+            description: "Photo, 42",
+            label: "Photo",
+            value: nil,
+            traits: .image,
+            identifier: nil,
+            hint: nil,
+            userInputLabels: nil,
+            shape: .frame(.zero),
+            activationPoint: .zero,
+            usesDefaultActivationPoint: true,
+            customActions: [],
+            customContent: [
+                .init(label: "Likes", value: "42", isImportant: true),
+                .init(label: "Comments", value: "5", isImportant: false),
+            ],
+            customRotors: [],
+            accessibilityLanguage: nil,
+            respondsToUserInteraction: false,
+            containerContext: nil
+        )
+
+        // High-importance content value should be in description (comma-separated)
+        XCTAssertTrue(element.description.contains(", 42"))
+
+        // Default-importance content should NOT be in description
+        XCTAssertFalse(element.description.contains("5"))
+    }
+
+    func testHighImportanceContentAppearsBeforeTraits() {
+        let element = AccessibilityElement(
+            description: "Bailey: beagle, three years. Image.",
+            label: "Bailey",
+            value: "beagle",
+            traits: .image,
+            identifier: nil,
+            hint: nil,
+            userInputLabels: nil,
+            shape: .frame(.zero),
+            activationPoint: .zero,
+            usesDefaultActivationPoint: true,
+            customActions: [],
+            customContent: [
+                .init(label: "Age", value: "three years", isImportant: true),
+            ],
+            customRotors: [],
+            accessibilityLanguage: nil,
+            respondsToUserInteraction: false,
+            containerContext: nil
+        )
+
+        // Per WWDC21: "Bailey, beagle, three years. Image."
+        let desc = element.description
+        let customContentIndex = desc.range(of: "three years")!.lowerBound
+        let traitIndex = desc.range(of: "Image")!.lowerBound
+        XCTAssertTrue(customContentIndex < traitIndex)
+    }
+
+    func testMultipleHighImportanceContentItems() {
+        let element = AccessibilityElement(
+            description: "Tweet, 100, 25",
+            label: "Tweet",
+            value: nil,
+            traits: [],
+            identifier: nil,
+            hint: nil,
+            userInputLabels: nil,
+            shape: .frame(.zero),
+            activationPoint: .zero,
+            usesDefaultActivationPoint: true,
+            customActions: [],
+            customContent: [
+                .init(label: "Likes", value: "100", isImportant: true),
+                .init(label: "Retweets", value: "25", isImportant: true),
+            ],
+            customRotors: [],
+            accessibilityLanguage: nil,
+            respondsToUserInteraction: false,
+            containerContext: nil
+        )
+
+        // Both values should appear
+        XCTAssertTrue(element.description.contains("100"))
+        XCTAssertTrue(element.description.contains("25"))
+    }
+
+    func testHighImportanceContentWithEmptyValue() {
+        let element = AccessibilityElement(
+            description: "Status, Verified",
+            label: "Status",
+            value: nil,
+            traits: [],
+            identifier: nil,
+            hint: nil,
+            userInputLabels: nil,
+            shape: .frame(.zero),
+            activationPoint: .zero,
+            usesDefaultActivationPoint: true,
+            customActions: [],
+            customContent: [
+                .init(label: "Verified", value: "", isImportant: true),
+            ],
+            customRotors: [],
+            accessibilityLanguage: nil,
+            respondsToUserInteraction: false,
+            containerContext: nil
+        )
+
+        // Should include label when value is empty
+        XCTAssertTrue(element.description.contains("Verified"))
+    }
+
+    func testCustomContentCodable() throws {
+        let content = AccessibilityElement.CustomContent(
+            label: "Rating",
+            value: "5 stars",
+            isImportant: true
+        )
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(content)
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(AccessibilityElement.CustomContent.self, from: data)
+
+        XCTAssertEqual(decoded.label, "Rating")
+        XCTAssertEqual(decoded.value, "5 stars")
+        XCTAssertEqual(decoded.isImportant, true)
+    }
+
+    func testElementWithCustomContentCodable() throws {
+        let element = AccessibilityElement(
+            description: "Photo, 42",
+            label: "Photo",
+            value: nil,
+            traits: .image,
+            identifier: nil,
+            hint: nil,
+            userInputLabels: nil,
+            shape: .frame(.zero),
+            activationPoint: .zero,
+            usesDefaultActivationPoint: true,
+            customActions: [],
+            customContent: [
+                .init(label: "Likes", value: "42", isImportant: true),
+                .init(label: "Comments", value: "5", isImportant: false),
+            ],
+            customRotors: [],
+            accessibilityLanguage: nil,
+            respondsToUserInteraction: false,
+            containerContext: nil
+        )
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(element)
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(AccessibilityElement.self, from: data)
+
+        XCTAssertEqual(decoded.customContent.count, 2)
+        XCTAssertEqual(decoded.customContent[0].label, "Likes")
+        XCTAssertEqual(decoded.customContent[0].value, "42")
+        XCTAssertEqual(decoded.customContent[0].isImportant, true)
+        XCTAssertEqual(decoded.customContent[1].label, "Comments")
+        XCTAssertEqual(decoded.customContent[1].value, "5")
+        XCTAssertEqual(decoded.customContent[1].isImportant, false)
     }
 }
 
