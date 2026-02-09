@@ -9,18 +9,18 @@ public extension View {
     /// - Parameters:
     ///   - configuration: The configuration for snapshot rendering. Defaults to monochrome.
     ///   - palette: The color palette for accessibility markers. Defaults to the standard palette.
-    ///   - renderSize: The size to render the view. Defaults to screen size.
+    ///   - size: The size to render the view. Defaults to screen size.
     func accessibilityPreview(
         configuration: AccessibilitySnapshotConfiguration = .init(viewRenderingMode: .drawHierarchyInRect),
         palette: AccessibilityColorPalette = .default,
-        renderSize: CGSize? = nil
+        size: CGSize? = nil
     ) -> some View {
         ScrollView {
             SwiftUIAccessibilitySnapshotView(
                 content: { self },
                 configuration: configuration,
                 palette: palette,
-                renderSize: renderSize
+                renderSize: size
             )
         }
         .background(Color(UIColor.systemGray6))
