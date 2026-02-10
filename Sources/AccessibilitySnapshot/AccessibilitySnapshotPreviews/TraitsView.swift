@@ -33,6 +33,7 @@ private struct TraitPillView: View {
     var body: some View {
         HStack(spacing: Tokens.iconTextSpacing) {
             Image(systemName: trait.iconName)
+                .foregroundStyle(DesignTokens.Colors.pillText, DesignTokens.Colors.pillText)
             Text(trait.displayName)
         }
         .font(DesignTokens.Typography.traitPill)
@@ -56,7 +57,7 @@ enum UnspokenTrait: Hashable {
     case playsSound
     case startsMediaSession
     case summaryElement
-    case supportsZoom  // iOS 17+ only
+    case supportsZoom // iOS 17+ only
 
     /// All cases available on the current iOS version.
     static var availableCases: [UnspokenTrait] {
@@ -79,12 +80,12 @@ enum UnspokenTrait: Hashable {
     var iconName: String {
         switch self {
         case .keyboardKey: return "keyboard"
-        case .allowsDirectInteraction: return "hand.point.up.fill"
-        case .updatesFrequently: return "arrow.clockwise"
+        case .allowsDirectInteraction: return "hand.rays"
+        case .updatesFrequently: return "arrow.trianglehead.2.counterclockwise.rotate.90"
         case .causesPageTurn: return "doc.text"
-        case .playsSound: return "speaker.wave.2.fill"
-        case .startsMediaSession: return "play.fill"
-        case .summaryElement: return "light.max"
+        case .playsSound: return "speaker.wave.2"
+        case .startsMediaSession: return "play"
+        case .summaryElement: return "text.line.magnify"
         case .supportsZoom: return "plus.magnifyingglass"
         }
     }
@@ -98,7 +99,7 @@ enum UnspokenTrait: Hashable {
         case .causesPageTurn: return "Page Turn"
         case .playsSound: return "Plays Sound"
         case .startsMediaSession: return "Starts Media"
-        case .summaryElement: return "Summary"
+        case .summaryElement: return "Summary Element"
         case .supportsZoom: return "Supports Zoom"
         }
     }

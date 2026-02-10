@@ -1,6 +1,6 @@
+import AccessibilitySnapshotPreviews
 import SwiftUI
 
-@available(iOS 16.0, *)
 struct UnspokenTraitsDemoView: View {
     var body: some View {
         VStack {
@@ -11,26 +11,31 @@ struct UnspokenTraitsDemoView: View {
             traitRow("playsSound", trait: .playsSound)
             traitRow("startsMediaSession", trait: .startsMediaSession)
             traitRow("isSummaryElement", trait: .isSummaryElement)
+            if #available(iOS 17.0, *) {
+                label("supportsZoom")
+                    .accessibilityZoomAction { _ in }
+            }
         }
-        .frame(width: 280, height: 380)
+        .frame(width: 280, height: 420)
     }
 
     private func traitRow(_ name: String, trait: AccessibilityTraits) -> some View {
-        Text(".\(name)")
+        label(name)
+            .accessibilityAddTraits(trait)
+    }
+
+    private func label(_ string: String) -> some View {
+        Text(".\(string)")
             .font(.system(size: 14, design: .monospaced))
             .frame(height: 36)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 12)
             .background(Color(UIColor.lightGray))
             .cornerRadius(8)
-            .accessibilityAddTraits(trait)
     }
 }
 
-@available(iOS 16.0, *)
-struct UnspokenTraitsDemoView_Previews: PreviewProvider {
-    static var previews: some View {
-        UnspokenTraitsDemoView()
-            .previewLayout(.sizeThatFits)
-    }
+#Preview {
+    UnspokenTraitsDemoView()
+        .accessibilityPreview()
 }

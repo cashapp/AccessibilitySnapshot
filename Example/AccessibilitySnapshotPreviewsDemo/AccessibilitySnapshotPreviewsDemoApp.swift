@@ -1,5 +1,5 @@
-import SwiftUI
 import AccessibilitySnapshotPreviews
+import SwiftUI
 
 @main
 struct AccessibilitySnapshotPreviewsDemoApp: App {
@@ -33,6 +33,9 @@ struct DemoListView: View {
                 }
                 NavigationLink("Path Shapes") {
                     PathShapesDemo()
+                }
+                NavigationLink("Unspoken Traits") {
+                    UnspokenTraitsDemoView()
                 }
             }
         }
