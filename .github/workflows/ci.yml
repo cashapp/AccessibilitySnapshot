@@ -74,21 +74,18 @@ jobs:
       - name: Tuist Test - AccessibilitySnapshotPreviews
         if: matrix.platform != 'iOS_17'
         run: xcodebuild test -workspace Example/AccessibilitySnapshot.xcworkspace -scheme AccessibilitySnapshotPreviewsDemo -destination 'platform=iOS Simulator,name=${{ matrix.device }},OS=${{ matrix.os }}' -resultBundlePath TestResults-SwiftUI-${{ matrix.os }}.xcresult
+      - name: Zip Test Results
+        if: failure()
+        run: zip -r TestResults-${{ matrix.platform }}.zip TestResults-*.xcresult
       - name: Upload Results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
         if: failure()
         with:
-          name: Test Results-(${{ matrix.platform }}).xcresult
-          path: TestResults-${{ matrix.os }}.xcresult
+          name: Test Results-(${{ matrix.platform }})
+          path: TestResults-${{ matrix.platform }}.zip
       - name: Upload Reference Images
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
         if: failure()
         with:
           name: Reference Images-(${{ matrix.platform }})
           path: Example/SnapshotTests/ReferenceImages
-      - name: Upload SwiftUI Test Results
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
-        if: failure() && matrix.platform != 'iOS_17'
-        with:
-          name: SwiftUI Test Results-(${{ matrix.platform }}).xcresult
-          path: TestResults-SwiftUI-${{ matrix.os }}.xcresult
