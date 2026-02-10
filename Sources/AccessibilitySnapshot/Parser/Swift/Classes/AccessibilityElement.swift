@@ -287,10 +287,24 @@ public struct AccessibilityElement: Equatable, Codable {
 public extension AccessibilityElement {
     /// Computes the VoiceOver description using the element's stored properties and container context.
     ///
-    /// This is useful when you need to regenerate the description, such as when
-    /// testing different verbosity settings.
+    /// This uses the default verbose verbosity setting.
     var voiceOverDescription: (description: String, hint: String?) {
-        // Uses the protocol's default implementation from AccessibilityDescribable
-        buildAccessibilityDescription(context: containerContext)
+        voiceOverDescription(verbosity: .verbose)
+    }
+
+    /// Computes the VoiceOver description with the specified verbosity configuration.
+    ///
+    /// - Parameter verbosity: Controls what information is included in the description.
+    /// - Returns: A tuple containing the description and optional hint.
+    ///
+    /// Example:
+    /// ```swift
+    /// let minimal = element.voiceOverDescription(verbosity: .minimal)  // Just label
+    /// let verbose = element.voiceOverDescription(verbosity: .verbose)  // Everything
+    /// ```
+    func voiceOverDescription(
+        verbosity: VerbosityConfiguration
+    ) -> (description: String, hint: String?) {
+        buildAccessibilityDescription(context: containerContext, verbosity: verbosity)
     }
 }

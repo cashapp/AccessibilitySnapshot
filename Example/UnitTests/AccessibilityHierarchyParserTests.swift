@@ -1093,6 +1093,165 @@ private final class NestedContainersTestView: UIView {
     }
 }
 
+// MARK: - Verbosity Tests
+
+final class VerbosityTests: XCTestCase {
+    func testMinimalVerbosityOmitsTraits() {
+        let element = makeElement(label: "Submit", traits: .button, hint: "Double tap to activate")
+
+        let result = element.voiceOverDescription(verbosity: .minimal)
+        XCTAssertEqual(result.description, "Submit")
+        XCTAssertNil(result.hint)
+    }
+
+    func testMinimalVerbosityOmitsHints() {
+        let element = makeElement(label: "Volume", value: "50%", traits: .adjustable)
+
+        let result = element.voiceOverDescription(verbosity: .minimal)
+        XCTAssertEqual(result.description, "Volume")
+        XCTAssertNil(result.hint)
+    }
+
+    func testMinimalVerbosityOmitsContainerContext() {
+        let element = makeElement(label: "Home", context: .series(index: 1, count: 4))
+
+        let result = element.voiceOverDescription(verbosity: .minimal)
+        XCTAssertEqual(result.description, "Home")
+    }
+
+    func testMinimalVerbosityOmitsValue() {
+        let element = makeElement(label: "Volume", value: "50%")
+
+        let result = element.voiceOverDescription(verbosity: .minimal)
+        XCTAssertEqual(result.description, "Volume")
+    }
+
+    func testMinimalVerbosityOmitsCustomContent() {
+        let element = makeElement(
+            label: "Photo",
+            traits: .image,
+            customContent: [.init(label: "Likes", value: "42", isImportant: true)]
+        )
+
+        let result = element.voiceOverDescription(verbosity: .minimal)
+        XCTAssertEqual(result.description, "Photo")
+        XCTAssertFalse(result.description.contains("42"))
+    }
+
+    func testMinimalVerbosityOmitsTableContext() {
+        let element = makeElement(
+            label: "A1",
+            context: .dataTableCell(
+                row: 0, column: 0,
+                rowSpan: 1, columnSpan: 1,
+                isFirstInRow: true,
+                rowHeaders: [], columnHeaders: []
+            )
+        )
+
+        let result = element.voiceOverDescription(verbosity: .minimal)
+        XCTAssertEqual(result.description, "A1")
+        XCTAssertFalse(result.description.contains("Row"))
+        XCTAssertFalse(result.description.contains("Column"))
+    }
+
+    func testVerboseVerbosityIncludesAllComponents() {
+        let element = makeElement(label: "Submit", traits: .button, hint: "Double tap to activate")
+
+        let result = element.voiceOverDescription(verbosity: .verbose)
+        XCTAssertTrue(result.description.contains("Submit"))
+        XCTAssertTrue(result.description.contains("Button"))
+        XCTAssertEqual(result.hint, "Double tap to activate")
+    }
+
+    func testCustomVerbosityWithHintsDisabled() {
+        var config = VerbosityConfiguration.verbose
+        config.includesHints = false
+
+        let element = makeElement(label: "Submit", traits: .button, hint: "Double tap to activate")
+
+        let result = element.voiceOverDescription(verbosity: config)
+        XCTAssertTrue(result.description.contains("Button"))
+        XCTAssertNil(result.hint)
+    }
+
+    func testCustomVerbosityWithTraitsDisabled() {
+        var config = VerbosityConfiguration.verbose
+        config.includesTraits = false
+
+        let element = makeElement(label: "Submit", traits: .button, hint: "Double tap to activate")
+
+        let result = element.voiceOverDescription(verbosity: config)
+        XCTAssertFalse(result.description.contains("Button"))
+        XCTAssertEqual(result.description, "Submit")
+        XCTAssertEqual(result.hint, "Double tap to activate")
+    }
+
+    func testTraitPositionBefore() {
+        var config = VerbosityConfiguration.verbose
+        config.traitPosition = .before
+
+        let element = makeElement(label: "Submit", traits: .button)
+
+        let result = element.voiceOverDescription(verbosity: config)
+        XCTAssertTrue(result.description.hasPrefix("Button."))
+        XCTAssertTrue(result.description.contains("Submit"))
+    }
+
+    func testTraitPositionAfter() {
+        var config = VerbosityConfiguration.verbose
+        config.traitPosition = .after
+
+        let element = makeElement(label: "Submit", traits: .button)
+
+        let result = element.voiceOverDescription(verbosity: config)
+        XCTAssertTrue(result.description.hasPrefix("Submit"))
+        XCTAssertTrue(result.description.hasSuffix("Button."))
+    }
+
+    func testTraitPositionNone() {
+        var config = VerbosityConfiguration.verbose
+        config.includesTraits = true
+        config.traitPosition = .none
+
+        let element = makeElement(label: "Submit", traits: .button)
+
+        let result = element.voiceOverDescription(verbosity: config)
+        XCTAssertEqual(result.description, "Submit")
+        XCTAssertFalse(result.description.contains("Button"))
+    }
+
+    // MARK: - Helpers
+
+    private func makeElement(
+        label: String,
+        value: String? = nil,
+        traits: UIAccessibilityTraits = [],
+        hint: String? = nil,
+        customContent: [AccessibilityElement.CustomContent] = [],
+        context: AccessibilityElement.ContainerContext? = nil
+    ) -> AccessibilityElement {
+        AccessibilityElement(
+            description: "",
+            label: label,
+            value: value,
+            traits: traits,
+            identifier: nil,
+            hint: hint,
+            userInputLabels: nil,
+            shape: .frame(.zero),
+            activationPoint: .zero,
+            usesDefaultActivationPoint: true,
+            customActions: [],
+            customContent: customContent,
+            customRotors: [],
+            accessibilityLanguage: nil,
+            respondsToUserInteraction: false,
+            containerContext: context
+        )
+    }
+}
+
 // MARK: - Data Table Test Views
 
 private struct CellIndex: Hashable {

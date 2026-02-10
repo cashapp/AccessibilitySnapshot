@@ -111,10 +111,13 @@ protocol AccessibilityDescribable {
 extension AccessibilityDescribable {
     /// Generates the description and hint that VoiceOver would read for this element.
     ///
-    /// - Parameter context: The context provided by the element's container, if any.
+    /// - Parameters:
+    ///   - context: The context provided by the element's container, if any.
+    ///   - verbosity: Controls what information is included in the description. Defaults to `.verbose`.
     /// - Returns: A tuple containing the description and optional hint.
     func buildAccessibilityDescription(
-        context: AccessibilityElement.ContainerContext?
+        context: AccessibilityElement.ContainerContext?,
+        verbosity: VerbosityConfiguration = .verbose
     ) -> (description: String, hint: String?) {
         let strings = Strings(locale: accessibilityLanguage)
 
@@ -131,7 +134,7 @@ extension AccessibilityDescribable {
         }
 
         let descriptionContainsContext: Bool
-        if let context = context {
+        if verbosity.includesTableContext, let context = context {
             switch context {
             case let .dataTableCell(row: row, column: column, rowSpan: rowSpan, columnSpan: columnSpan, isFirstInRow: isFirstInRow, rowHeaders: rowHeaders, columnHeaders: columnHeaders):
                 // Headers are pre-formatted strings, just join them
@@ -163,7 +166,10 @@ extension AccessibilityDescribable {
             descriptionContainsContext = false
         }
 
-        if let accessibilityValue = accessibilityValue?.nonEmpty(), !hidesAccessibilityValue(for: context) {
+        if verbosity.includesValue,
+           let accessibilityValue = accessibilityValue?.nonEmpty(),
+           !hidesAccessibilityValue(for: context)
+        {
             if let existingDescription = accessibilityDescription.nonEmpty() {
                 if descriptionContainsContext {
                     accessibilityDescription += " \(accessibilityValue)"
@@ -177,13 +183,15 @@ extension AccessibilityDescribable {
 
         // Append high-importance custom content (after value, before traits)
         // Per WWDC21: "Bailey, beagle, three years" - custom content follows value
-        for content in describableCustomContent where content.isImportant {
-            let contentDescription = content.value.isEmpty ? content.label : content.value
+        if verbosity.includesCustomContent {
+            for content in describableCustomContent where content.isImportant {
+                let contentDescription = content.value.isEmpty ? content.label : content.value
 
-            if let existingDescription = accessibilityDescription.nonEmpty() {
-                accessibilityDescription = "\(existingDescription), \(contentDescription)"
-            } else {
-                accessibilityDescription = contentDescription
+                if let existingDescription = accessibilityDescription.nonEmpty() {
+                    accessibilityDescription = "\(existingDescription), \(contentDescription)"
+                } else {
+                    accessibilityDescription = contentDescription
+                }
             }
         }
 
@@ -197,81 +205,86 @@ extension AccessibilityDescribable {
 
         var traitSpecifiers: [String] = []
 
-        if accessibilityTraits.contains(.notEnabled) {
-            traitSpecifiers.append(strings.notEnabledTraitName)
-        }
+        // Only collect traits if verbosity includes them
+        let shouldIncludeTraits = verbosity.includesTraits && verbosity.traitPosition != .none
 
-        let hidesButtonTraitInContext = context?.hidesButtonTrait ?? false
-        let hidesButtonTraitFromTraits = [UIAccessibilityTraits.keyboardKey, .switchButton, .tabBarItem, .backButton].contains(where: { accessibilityTraits.contains($0) })
-        if accessibilityTraits.contains(.button) && !hidesButtonTraitFromTraits && !hidesButtonTraitInContext {
-            traitSpecifiers.append(strings.buttonTraitName)
-        }
-
-        if accessibilityTraits.contains(.backButton) {
-            traitSpecifiers.append(strings.backButtonTraitName)
-        }
-
-        if accessibilityTraits.contains(.switchButton) {
-            if accessibilityTraits.contains(.button) {
-                // An element can have the private switch button trait without being a UISwitch (for example, by passing
-                // through the traits of a contained switch). In this case, VoiceOver will still read the "Switch
-                // Button." trait, but only if the element's traits also include the `.button` trait.
-                traitSpecifiers.append(strings.switchButtonTraitName)
+        if shouldIncludeTraits {
+            if accessibilityTraits.contains(.notEnabled) {
+                traitSpecifiers.append(strings.notEnabledTraitName)
             }
 
-            switch accessibilityValue {
-            case "1":
-                traitSpecifiers.append(strings.switchButtonOnStateName)
-            case "0":
-                traitSpecifiers.append(strings.switchButtonOffStateName)
-            case "2":
-                traitSpecifiers.append(strings.switchButtonMixedStateName)
-            default:
-                // Prior to iOS 17 the then private trait would suppress any other accessibility values.
-                // Once the trait became public in 17 values other than the above are announced with the trait specifiers.
-                if #available(iOS 17.0, *), let accessibilityValue {
-                    traitSpecifiers.append(accessibilityValue)
+            let hidesButtonTraitInContext = context?.hidesButtonTrait ?? false
+            let hidesButtonTraitFromTraits = [UIAccessibilityTraits.keyboardKey, .switchButton, .tabBarItem, .backButton].contains(where: { accessibilityTraits.contains($0) })
+            if accessibilityTraits.contains(.button) && !hidesButtonTraitFromTraits && !hidesButtonTraitInContext {
+                traitSpecifiers.append(strings.buttonTraitName)
+            }
+
+            if accessibilityTraits.contains(.backButton) {
+                traitSpecifiers.append(strings.backButtonTraitName)
+            }
+
+            if accessibilityTraits.contains(.switchButton) {
+                if accessibilityTraits.contains(.button) {
+                    // An element can have the private switch button trait without being a UISwitch (for example, by passing
+                    // through the traits of a contained switch). In this case, VoiceOver will still read the "Switch
+                    // Button." trait, but only if the element's traits also include the `.button` trait.
+                    traitSpecifiers.append(strings.switchButtonTraitName)
+                }
+
+                switch accessibilityValue {
+                case "1":
+                    traitSpecifiers.append(strings.switchButtonOnStateName)
+                case "0":
+                    traitSpecifiers.append(strings.switchButtonOffStateName)
+                case "2":
+                    traitSpecifiers.append(strings.switchButtonMixedStateName)
+                default:
+                    // Prior to iOS 17 the then private trait would suppress any other accessibility values.
+                    // Once the trait became public in 17 values other than the above are announced with the trait specifiers.
+                    if #available(iOS 17.0, *), let accessibilityValue {
+                        traitSpecifiers.append(accessibilityValue)
+                    }
                 }
             }
-        }
 
-        let showsTabTraitInContext = context?.showsTabTrait ?? false
-        if accessibilityTraits.contains(.tabBarItem) || showsTabTraitInContext {
-            traitSpecifiers.append(strings.tabTraitName)
-        }
-
-        if accessibilityTraits.contains(.textEntry) {
-            if accessibilityTraits.contains(.scrollable) {
-                // This is a UITextView/TextEditor
-            } else {
-                // This is a UITextField/TextField
+            let showsTabTraitInContext = context?.showsTabTrait ?? false
+            if accessibilityTraits.contains(.tabBarItem) || showsTabTraitInContext {
+                traitSpecifiers.append(strings.tabTraitName)
             }
 
-            traitSpecifiers.append(strings.textEntryTraitName)
+            if accessibilityTraits.contains(.textEntry) {
+                if accessibilityTraits.contains(.scrollable) {
+                    // This is a UITextView/TextEditor
+                } else {
+                    // This is a UITextField/TextField
+                }
 
-            if accessibilityTraits.contains(.isEditing) {
-                traitSpecifiers.append(strings.isEditingTraitName)
+                traitSpecifiers.append(strings.textEntryTraitName)
+
+                if accessibilityTraits.contains(.isEditing) {
+                    traitSpecifiers.append(strings.isEditingTraitName)
+                }
             }
-        }
 
-        if accessibilityTraits.contains(.header) {
-            traitSpecifiers.append(strings.headerTraitName)
-        }
+            if accessibilityTraits.contains(.header) {
+                traitSpecifiers.append(strings.headerTraitName)
+            }
 
-        if accessibilityTraits.contains(.link) {
-            traitSpecifiers.append(strings.linkTraitName)
-        }
+            if accessibilityTraits.contains(.link) {
+                traitSpecifiers.append(strings.linkTraitName)
+            }
 
-        if accessibilityTraits.contains(.adjustable) {
-            traitSpecifiers.append(strings.adjustableTraitName)
-        }
+            if accessibilityTraits.contains(.adjustable) {
+                traitSpecifiers.append(strings.adjustableTraitName)
+            }
 
-        if accessibilityTraits.contains(.image) {
-            traitSpecifiers.append(strings.imageTraitName)
-        }
+            if accessibilityTraits.contains(.image) {
+                traitSpecifiers.append(strings.imageTraitName)
+            }
 
-        if accessibilityTraits.contains(.searchField) {
-            traitSpecifiers.append(strings.searchFieldTraitName)
+            if accessibilityTraits.contains(.searchField) {
+                traitSpecifiers.append(strings.searchFieldTraitName)
+            }
         }
 
         // If the description is empty, use the hint as the description.
@@ -280,17 +293,35 @@ extension AccessibilityDescribable {
             hintDescription = nil
         }
 
-        // Add trait specifiers to description.
+        // Add trait specifiers to description based on position preference.
         if !traitSpecifiers.isEmpty {
-            if let existingDescription = accessibilityDescription.nonEmpty() {
-                let trailingPeriod = existingDescription.hasSuffix(".") ? "" : "."
-                accessibilityDescription = "\(existingDescription)\(trailingPeriod) \(traitSpecifiers.joined(separator: " "))"
-            } else {
-                accessibilityDescription = traitSpecifiers.joined(separator: " ")
+            let traits = traitSpecifiers.joined(separator: " ")
+
+            switch verbosity.traitPosition {
+            case .before:
+                // "Button. Submit"
+                if let existingDescription = accessibilityDescription.nonEmpty() {
+                    accessibilityDescription = "\(traits) \(existingDescription)"
+                } else {
+                    accessibilityDescription = traits
+                }
+
+            case .after:
+                // "Submit. Button." (default VoiceOver behavior)
+                if let existingDescription = accessibilityDescription.nonEmpty() {
+                    let trailingPeriod = existingDescription.hasSuffix(".") ? "" : "."
+                    accessibilityDescription = "\(existingDescription)\(trailingPeriod) \(traits)"
+                } else {
+                    accessibilityDescription = traits
+                }
+
+            case .none:
+                // Traits already not collected, but handle edge case
+                break
             }
         }
 
-        if let context = context {
+        if verbosity.includesContainerContext, let context = context {
             switch context {
             case let .series(index: index, count: count),
                  let .tabBarItem(index: index, count: count),
@@ -338,36 +369,42 @@ extension AccessibilityDescribable {
             }
         }
 
-        if accessibilityTraits.contains(.switchButton) && !accessibilityTraits.contains(.notEnabled) {
-            if let existingHintDescription = hintDescription?.nonEmpty()?.strippingTrailingPeriod() {
-                hintDescription = String(format: strings.switchButtonTraitHintFormat, existingHintDescription)
-            } else {
-                hintDescription = strings.switchButtonTraitHint
-            }
-        }
-
-        if accessibilityTraits.contains(.textEntry) && !accessibilityTraits.contains(.notEnabled) {
-            if accessibilityTraits.contains(.isEditing) {
-                hintDescription = strings.textEntryIsEditingTraitHint
-            } else {
-                if accessibilityTraits.contains(.scrollable) {
-                    // This is a UITextView/TextEditor
-                    hintDescription = strings.scrollableTextEntryTraitHint
+        // Only include hints if verbosity allows
+        if verbosity.includesHints {
+            if accessibilityTraits.contains(.switchButton) && !accessibilityTraits.contains(.notEnabled) {
+                if let existingHintDescription = hintDescription?.nonEmpty()?.strippingTrailingPeriod() {
+                    hintDescription = String(format: strings.switchButtonTraitHintFormat, existingHintDescription)
                 } else {
-                    // This is a UITextField/TextField
-                    hintDescription = strings.textEntryTraitHint
+                    hintDescription = strings.switchButtonTraitHint
                 }
             }
-        }
 
-        let hasHintOnly = (accessibilityHint?.nonEmpty() != nil) && (accessibilityLabel?.nonEmpty() == nil) && (accessibilityValue?.nonEmpty() == nil)
-        let hidesAdjustableHint = accessibilityTraits.contains(.notEnabled) || accessibilityTraits.contains(.switchButton) || hasHintOnly
-        if accessibilityTraits.contains(.adjustable), !hidesAdjustableHint {
-            if let existingHintDescription = hintDescription?.nonEmpty()?.strippingTrailingPeriod() {
-                hintDescription = String(format: strings.adjustableTraitHintFormat, existingHintDescription)
-            } else {
-                hintDescription = strings.adjustableTraitHint
+            if accessibilityTraits.contains(.textEntry) && !accessibilityTraits.contains(.notEnabled) {
+                if accessibilityTraits.contains(.isEditing) {
+                    hintDescription = strings.textEntryIsEditingTraitHint
+                } else {
+                    if accessibilityTraits.contains(.scrollable) {
+                        // This is a UITextView/TextEditor
+                        hintDescription = strings.scrollableTextEntryTraitHint
+                    } else {
+                        // This is a UITextField/TextField
+                        hintDescription = strings.textEntryTraitHint
+                    }
+                }
             }
+
+            let hasHintOnly = (accessibilityHint?.nonEmpty() != nil) && (accessibilityLabel?.nonEmpty() == nil) && (accessibilityValue?.nonEmpty() == nil)
+            let hidesAdjustableHint = accessibilityTraits.contains(.notEnabled) || accessibilityTraits.contains(.switchButton) || hasHintOnly
+            if accessibilityTraits.contains(.adjustable), !hidesAdjustableHint {
+                if let existingHintDescription = hintDescription?.nonEmpty()?.strippingTrailingPeriod() {
+                    hintDescription = String(format: strings.adjustableTraitHintFormat, existingHintDescription)
+                } else {
+                    hintDescription = strings.adjustableTraitHint
+                }
+            }
+        } else {
+            // Clear hints when verbosity excludes them
+            hintDescription = nil
         }
 
         return (accessibilityDescription, hintDescription)

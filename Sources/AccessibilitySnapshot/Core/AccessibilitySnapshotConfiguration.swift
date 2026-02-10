@@ -61,6 +61,10 @@ public struct AccessibilitySnapshotConfiguration {
     /// Controls when to show elements' accessibility user input labels (used by Voice Control). Defaults to `.whenOverridden`.
     public let inputLabelDisplayMode: AccessibilityContentDisplayMode
 
+    /// Controls what information is included in accessibility descriptions.
+    /// Defaults to `.verbose` which matches default VoiceOver behavior.
+    public let verbosity: VerbosityConfiguration
+
     // MARK: - Initialization
 
     /// Creates a new accessibility snapshot configuration.
@@ -73,6 +77,7 @@ public struct AccessibilitySnapshotConfiguration {
     ///   - includesInputLabels: When to show accessibility user input labels. Defaults to `.whenOverridden`.
     ///   - includesCustomRotors: When to show accessibility custom rotors and their contents. Defaults to `.whenOverridden`.
     ///   - rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to `10`.
+    ///   - verbosity: Controls what information is included in accessibility descriptions. Defaults to `.verbose`.
     public init(
         viewRenderingMode: ViewRenderingMode,
         colorRenderingMode: ColorRenderingMode = .monochrome,
@@ -80,13 +85,15 @@ public struct AccessibilitySnapshotConfiguration {
         activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden,
         includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden,
         includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden,
-        rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit
+        rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit,
+        verbosity: VerbosityConfiguration = .verbose
     ) {
         rendering = Rendering(renderMode: viewRenderingMode, colorMode: colorRenderingMode)
         rotors = Rotors(displayMode: includesCustomRotors, resultLimit: rotorResultLimit)
         markerColors = overlayColors.isEmpty ? MarkerColors.defaultColors : overlayColors
         activationPointDisplayMode = activationPointDisplay
         inputLabelDisplayMode = includesInputLabels
+        self.verbosity = verbosity
     }
 }
 

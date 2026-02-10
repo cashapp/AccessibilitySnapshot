@@ -44,13 +44,15 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
-        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current,
+        verbosity: VerbosityConfiguration = .verbose
     ) -> [AccessibilityElement] {
         return parseAccessibilityHierarchy(
             in: root,
             rotorResultLimit: rotorResultLimit,
             userInterfaceLayoutDirectionProvider: userInterfaceLayoutDirectionProvider,
-            userInterfaceIdiomProvider: userInterfaceIdiomProvider
+            userInterfaceIdiomProvider: userInterfaceIdiomProvider,
+            verbosity: verbosity
         ).flattenToElements()
     }
 
@@ -79,7 +81,8 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
-        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current,
+        verbosity: VerbosityConfiguration = .verbose
     ) -> [AccessibilityHierarchy] {
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
         let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
@@ -108,7 +111,7 @@ public final class AccessibilityHierarchyParser {
         }
 
         let elements: [AccessibilityElement] = contextualizedElements.map { element in
-            buildElement(from: element.object, context: element.context, in: root, rotorResultLimit: rotorResultLimit)
+            buildElement(from: element.object, context: element.context, in: root, rotorResultLimit: rotorResultLimit, verbosity: verbosity)
         }
 
         // Map AccessibilityNode tree to AccessibilityHierarchy tree
@@ -140,9 +143,10 @@ public final class AccessibilityHierarchyParser {
         from object: NSObject,
         context: AccessibilityElement.ContainerContext?,
         in root: UIView,
-        rotorResultLimit: Int
+        rotorResultLimit: Int,
+        verbosity: VerbosityConfiguration = .verbose
     ) -> AccessibilityElement {
-        let (description, hint) = object.buildAccessibilityDescription(context: context)
+        let (description, hint) = object.buildAccessibilityDescription(context: context, verbosity: verbosity)
         let activationPoint = object.accessibilityActivationPoint
 
         return AccessibilityElement(
