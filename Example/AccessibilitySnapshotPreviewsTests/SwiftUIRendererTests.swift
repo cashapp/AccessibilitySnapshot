@@ -21,4 +21,8 @@ final class SwiftUIRendererTests: AccessibilitySnapshotPreviewsTestCase {
     func testPathShapesDemo() {
         snapshotVerifyAccessibility(PathShapesDemo())
     }
+
+    func testUnspokenTraitsDemo() {
+        snapshotVerifyAccessibility(UnspokenTraitsDemoView())
+    }
 }
