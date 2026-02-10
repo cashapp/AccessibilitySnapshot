@@ -19,74 +19,6 @@ extension UIDevice: UserInterfaceIdiomProviding {}
 // MARK: -
 
 public final class AccessibilityHierarchyParser {
-    // MARK: - Public Types
-
-    /// Represents a context in which elements are contained.
-    public enum Context {
-        /// Indicates the element is part of a series of elements.
-        /// Reads as "`index` of `count`."
-        ///
-        /// - `index`: The index of the item in the series.
-        /// - `count`: The total number of items in the series.
-        case series(index: Int, count: Int)
-
-        /// Indicates the element is part of a series of tab bar items.
-        /// Reads as "Tab. `index` of `count`."
-        ///
-        /// This is used for the items of a `UITabBar`. There is a similar context for tab bar items in a container with
-        /// the `.tabBar` trait which behaves slightly differently. See `Context.tab`.
-        ///
-        /// - `index`: The index of this tab in the tab bar.
-        /// - `count`: The total number of tabs in the tab bar.
-        /// - `item`: The `UITabBarItem` representing this tab.
-        case tabBarItem(index: Int, count: Int, item: UITabBarItem)
-
-        /// Indicates the element is part of a series of tab bar items.
-        /// Reads as "Tab. `index` of `count`."
-        ///
-        /// This is used for tab bars that use the `.tabBar` trait, not `UITabBar`s, which use a different mechanism for
-        /// distinguishing their tabs. See `Context.tabBarItem`.
-        ///
-        /// - `index`: The index of this tab in the tab bar.
-        /// - `count`: The total number of tabs in the tab bar.
-        case tab(index: Int, count: Int)
-
-        /// Indicates the element is a cell in a data table.
-        ///
-        /// - `row`: The row of the cell in the table.
-        /// - `column`: The column of the cell in the table.
-        /// - `width`: The number of columns the cell spans.
-        /// - `height`: The number of rows the cell spans.
-        /// - `isFirstInRow`: Whether or not the cell is the first in its row that VoiceOver will read.
-        /// - `rowHeaders`: The cells for which row header data will be read for this cell.
-        /// - `columnHeaders`: The cells for which column header data will be read for this cell.
-        case dataTableCell(
-            row: Int,
-            column: Int,
-            width: Int,
-            height: Int,
-            isFirstInRow: Bool,
-            rowHeaders: [NSObject],
-            columnHeaders: [NSObject]
-        )
-
-        /// Indicates the element is the first element in a list.
-        case listStart
-
-        /// Indicates the element is the last element in a list.
-        ///
-        /// If an element is the only element in the list, it will only get a `listStart` context.
-        case listEnd
-
-        /// Indicates the element is the first element in a landmark container.
-        case landmarkStart
-
-        /// Indicates the element is the last element in a landmark container.
-        ///
-        /// If an element is the only element in the landmark container, it will only get a `landmarkStart` context.
-        case landmarkEnd
-    }
-
     // MARK: - Life Cycle
 
     public init() {}
@@ -112,13 +44,15 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
-        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current,
+        verbosity: VerbosityConfiguration = .verbose
     ) -> [AccessibilityElement] {
         return parseAccessibilityHierarchy(
             in: root,
             rotorResultLimit: rotorResultLimit,
             userInterfaceLayoutDirectionProvider: userInterfaceLayoutDirectionProvider,
-            userInterfaceIdiomProvider: userInterfaceIdiomProvider
+            userInterfaceIdiomProvider: userInterfaceIdiomProvider,
+            verbosity: verbosity
         ).flattenToElements()
     }
 
@@ -147,7 +81,8 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
-        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current,
+        verbosity: VerbosityConfiguration = .verbose
     ) -> [AccessibilityHierarchy] {
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
         let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
@@ -176,7 +111,7 @@ public final class AccessibilityHierarchyParser {
         }
 
         let elements: [AccessibilityElement] = contextualizedElements.map { element in
-            buildElement(from: element.object, context: element.context, in: root, rotorResultLimit: rotorResultLimit)
+            buildElement(from: element.object, context: element.context, in: root, rotorResultLimit: rotorResultLimit, verbosity: verbosity)
         }
 
         // Map AccessibilityNode tree to AccessibilityHierarchy tree
@@ -190,7 +125,7 @@ public final class AccessibilityHierarchyParser {
     private struct ContextualElement {
         var object: NSObject
 
-        var context: Context?
+        var context: AccessibilityElement.ContainerContext?
     }
 
     fileprivate enum ContextProvider {
@@ -206,11 +141,12 @@ public final class AccessibilityHierarchyParser {
     /// Builds an AccessibilityElement from an NSObject and its context
     private func buildElement(
         from object: NSObject,
-        context: Context?,
+        context: AccessibilityElement.ContainerContext?,
         in root: UIView,
-        rotorResultLimit: Int
+        rotorResultLimit: Int,
+        verbosity: VerbosityConfiguration = .verbose
     ) -> AccessibilityElement {
-        let (description, hint) = object.accessibilityDescription(context: context)
+        let (description, hint) = object.buildAccessibilityDescription(context: context, verbosity: verbosity)
         let activationPoint = object.accessibilityActivationPoint
 
         return AccessibilityElement(
@@ -229,9 +165,10 @@ public final class AccessibilityHierarchyParser {
             ),
             customActions: object.accessibilityCustomActions?.map { AccessibilityElement.CustomAction(name: $0.name, image: $0.image) } ?? [],
             customContent: object.customContent,
-            customRotors: object.customRotors(in: root, context: context, resultLimit: rotorResultLimit),
+            customRotors: object.customRotors(in: root, resultLimit: rotorResultLimit),
             accessibilityLanguage: object.accessibilityLanguage,
-            respondsToUserInteraction: object.accessibilityRespondsToUserInteraction
+            respondsToUserInteraction: object.accessibilityRespondsToUserInteraction,
+            containerContext: context
         )
     }
 
@@ -320,7 +257,7 @@ public final class AccessibilityHierarchyParser {
         from contextProvider: ContextProvider?,
         userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection,
         userInterfaceIdiom: UIUserInterfaceIdiom
-    ) -> Context? {
+    ) -> AccessibilityElement.ContainerContext? {
         guard let contextProvider = contextProvider else {
             return nil
         }
@@ -351,8 +288,7 @@ public final class AccessibilityHierarchyParser {
 
                 return .tabBarItem(
                     index: tabIndex + 1,
-                    count: tabBarItems.count,
-                    item: tabBarItems[tabIndex]
+                    count: tabBarItems.count
                 )
             }
 
@@ -436,9 +372,9 @@ public final class AccessibilityHierarchyParser {
                         dataTable.accessibilityDataTableCellElement(forRow: rowRange.location, column: $0) != nil
                     }
 
-                let rowHeaders: [NSObject]
+                let rowHeaderObjects: [NSObject]
                 if isFirstInRow, let allHeaders = dataTable.accessibilityHeaderElements?(forRow: row) {
-                    rowHeaders = allHeaders.filter { header in
+                    rowHeaderObjects = allHeaders.filter { header in
                         true
                             // The cell is not read as a header for itself.
                             && header !== cell
@@ -447,12 +383,12 @@ public final class AccessibilityHierarchyParser {
                     } as! [NSObject]
 
                 } else {
-                    rowHeaders = []
+                    rowHeaderObjects = []
                 }
 
-                let columnHeaders: [NSObject]
+                let columnHeaderObjects: [NSObject]
                 if let allHeaders = dataTable.accessibilityHeaderElements?(forColumn: column) {
-                    columnHeaders = allHeaders.filter { header in
+                    columnHeaderObjects = allHeaders.filter { header in
                         let headerRow = header.accessibilityRowRange().location
                         let headerColumn = header.accessibilityColumnRange().location
 
@@ -471,17 +407,31 @@ public final class AccessibilityHierarchyParser {
                     } as! [NSObject]
 
                 } else {
-                    columnHeaders = []
+                    columnHeaderObjects = []
+                }
+
+                // Pre-format header strings
+                func formatHeader(_ header: NSObject) -> String {
+                    switch (header.accessibilityLabel?.nonEmpty(), header.accessibilityValue?.nonEmpty()) {
+                    case (nil, nil):
+                        return ""
+                    case let (.some(label), nil):
+                        return "\(label). "
+                    case let (nil, .some(value)):
+                        return "\(value). "
+                    case let (.some(label), .some(value)):
+                        return "\(label): \(value). "
+                    }
                 }
 
                 return .dataTableCell(
                     row: row,
                     column: column,
-                    width: columnRange.length,
-                    height: rowRange.length,
+                    rowSpan: rowRange.length,
+                    columnSpan: columnRange.length,
                     isFirstInRow: isFirstInRow,
-                    rowHeaders: rowHeaders,
-                    columnHeaders: columnHeaders
+                    rowHeaders: rowHeaderObjects.map(formatHeader),
+                    columnHeaders: columnHeaderObjects.map(formatHeader)
                 )
             }
         }
@@ -881,9 +831,9 @@ private extension NSObject {
         return []
     }
 
-    func customRotors(in root: UIView, context: AccessibilityHierarchyParser.Context?, resultLimit: Int) -> [AccessibilityElement.CustomRotor] {
+    func customRotors(in root: UIView, resultLimit: Int) -> [AccessibilityElement.CustomRotor] {
         accessibilityCustomRotors?.compactMap {
-            .init(from: $0, parentElement: self, root: root, context: context, resultLimit: resultLimit)
+            .init(from: $0, parentElement: self, root: root, resultLimit: resultLimit)
         } ?? []
     }
 

@@ -32,7 +32,8 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = [],
         showUserInputLabels: Bool = true,
-        shouldRunInHostApplication: Bool = true
+        shouldRunInHostApplication: Bool = true,
+        verbosity: VerbosityConfiguration = .verbose
     ) -> Snapshotting {
         guard !shouldRunInHostApplication || isRunningInHostApplication else {
             fatalError("Accessibility snapshot tests cannot be run in a test target without a host application")
@@ -47,7 +48,8 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
                     colorRenderingMode: useMonochromeSnapshot ? .monochrome : .fullColor,
                     overlayColors: markerColors,
                     activationPointDisplay: activationPointDisplayMode,
-                    includesInputLabels: showUserInputLabels ? .whenOverridden : .never
+                    includesInputLabels: showUserInputLabels ? .whenOverridden : .never,
+                    verbosity: verbosity
                 )
 
                 let containerView = AccessibilitySnapshotView(containedView: view, snapshotConfiguration: configuration)
@@ -242,7 +244,8 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = [],
         showUserInputLabels: Bool = true,
-        shouldRunInHostApplication: Bool = true
+        shouldRunInHostApplication: Bool = true,
+        verbosity: VerbosityConfiguration = .verbose
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>
             .accessibilityImage(
@@ -251,7 +254,8 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
                 drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
                 markerColors: markerColors,
                 showUserInputLabels: showUserInputLabels,
-                shouldRunInHostApplication: shouldRunInHostApplication
+                shouldRunInHostApplication: shouldRunInHostApplication,
+                verbosity: verbosity
             )
             .pullback { viewController in
                 viewController.view

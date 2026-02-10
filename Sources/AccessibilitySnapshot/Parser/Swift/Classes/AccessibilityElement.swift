@@ -9,6 +9,61 @@ public struct AccessibilityElement: Equatable, Codable {
 
     // MARK: - Public Types
 
+    /// Represents the container context in which an accessibility element is contained.
+    ///
+    /// This enum captures all the information VoiceOver needs to announce container-specific
+    /// context, such as position in a series, table cell location, or list boundaries.
+    ///
+    /// `ContainerContext` is designed to be:
+    /// - **Codable**: Can be serialized to JSON for storage/transmission
+    /// - **Equatable**: Can be compared for equality
+    /// - **Reference-free**: Contains only primitive data, no object references
+    public enum ContainerContext: Equatable, Codable {
+        /// Element is part of a series. Reads as "`index` of `count`."
+        case series(index: Int, count: Int)
+
+        /// Element is a tab bar item. Reads as "Tab. `index` of `count`."
+        ///
+        /// Used for items in a `UITabBar`.
+        case tabBarItem(index: Int, count: Int)
+
+        /// Element is in a tab bar container. Reads as "Tab. `index` of `count`."
+        ///
+        /// Used for containers with the `.tabBar` accessibility trait.
+        case tab(index: Int, count: Int)
+
+        /// Element is a cell in a data table.
+        ///
+        /// - `row`: Row index (0-based), or `NSNotFound` if not applicable
+        /// - `column`: Column index (0-based), or `NSNotFound` if not applicable
+        /// - `rowSpan`: Number of rows the cell spans
+        /// - `columnSpan`: Number of columns the cell spans
+        /// - `isFirstInRow`: Whether this is the first cell VoiceOver reads in its row
+        /// - `rowHeaders`: Pre-formatted header strings for the row
+        /// - `columnHeaders`: Pre-formatted header strings for the column
+        case dataTableCell(
+            row: Int,
+            column: Int,
+            rowSpan: Int,
+            columnSpan: Int,
+            isFirstInRow: Bool,
+            rowHeaders: [String],
+            columnHeaders: [String]
+        )
+
+        /// Element is the first element in a list.
+        case listStart
+
+        /// Element is the last element in a list.
+        case listEnd
+
+        /// Element is the first element in a landmark container.
+        case landmarkStart
+
+        /// Element is the last element in a landmark container.
+        case landmarkEnd
+    }
+
     public enum Shape: Equatable {
         /// Accessibility frame, in the coordinate space of the view being snapshotted.
         case frame(CGRect)
@@ -35,14 +90,16 @@ public struct AccessibilityElement: Equatable, Codable {
         public var resultMarkers: [AccessibilityElement.CustomRotor.ResultMarker] = []
         public let limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit
 
-        init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int) {
+        init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, resultLimit: Int) {
             guard from.isKnownRotorType else { return nil }
             name = from.displayName(locale: parentElement.accessibilityLanguage)
             let collected = from.collectAllResults(nextLimit: resultLimit, previousLimit: resultLimit)
             limit = collected.limit
             resultMarkers = collected.results.compactMap { result in
                 guard let element = result.targetElement as? NSObject else { return nil }
-                var description = element.accessibilityDescription(context: context).description
+                // Rotor results can point to any element in the hierarchy, so we don't know
+                // their actual container context. Pass nil to avoid using the wrong context.
+                var description = element.buildAccessibilityDescription(context: nil).description
                 var shape: Shape? = AccessibilityHierarchyParser.accessibilityShape(for: element, in: root)
 
                 if let range = result.targetRange,
@@ -70,6 +127,12 @@ public struct AccessibilityElement: Equatable, Codable {
         public var label: String
         public var value: String
         public var isImportant: Bool
+
+        public init(label: String, value: String, isImportant: Bool) {
+            self.label = label
+            self.value = value
+            self.isImportant = isImportant
+        }
 
         @available(iOS 14.0, *)
         init(from: AXCustomContent) {
@@ -177,6 +240,9 @@ public struct AccessibilityElement: Equatable, Codable {
     /// Whether the element performs an action based on user interaction.
     public let respondsToUserInteraction: Bool
 
+    /// The container context in which this element was parsed.
+    public let containerContext: ContainerContext?
+
     // MARK: - Initialization
 
     init(
@@ -194,7 +260,8 @@ public struct AccessibilityElement: Equatable, Codable {
         customContent: [CustomContent],
         customRotors: [CustomRotor],
         accessibilityLanguage: String?,
-        respondsToUserInteraction: Bool
+        respondsToUserInteraction: Bool,
+        containerContext: ContainerContext?
     ) {
         self.description = description
         self.label = label
@@ -211,5 +278,33 @@ public struct AccessibilityElement: Equatable, Codable {
         self.customRotors = customRotors
         self.accessibilityLanguage = accessibilityLanguage
         self.respondsToUserInteraction = respondsToUserInteraction
+        self.containerContext = containerContext
+    }
+}
+
+// MARK: - Computed Description
+
+public extension AccessibilityElement {
+    /// Computes the VoiceOver description using the element's stored properties and container context.
+    ///
+    /// This uses the default verbose verbosity setting.
+    var voiceOverDescription: (description: String, hint: String?) {
+        voiceOverDescription(verbosity: .verbose)
+    }
+
+    /// Computes the VoiceOver description with the specified verbosity configuration.
+    ///
+    /// - Parameter verbosity: Controls what information is included in the description.
+    /// - Returns: A tuple containing the description and optional hint.
+    ///
+    /// Example:
+    /// ```swift
+    /// let minimal = element.voiceOverDescription(verbosity: .minimal)  // Just label
+    /// let verbose = element.voiceOverDescription(verbosity: .verbose)  // Everything
+    /// ```
+    func voiceOverDescription(
+        verbosity: VerbosityConfiguration
+    ) -> (description: String, hint: String?) {
+        buildAccessibilityDescription(context: containerContext, verbosity: verbosity)
     }
 }
