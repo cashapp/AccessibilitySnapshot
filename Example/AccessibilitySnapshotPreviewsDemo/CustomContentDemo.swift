@@ -1,5 +1,5 @@
-import SwiftUI
 import AccessibilitySnapshotPreviews
+import SwiftUI
 
 struct CustomContentDemo: View {
     var body: some View {
@@ -40,28 +40,22 @@ struct CustomContentDemo: View {
         reviews: Int,
         sku: String
     ) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(name)
+                .font(.subheadline)
+                .fontWeight(.medium)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(name)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                
-                HStack {
-                    Text(price)
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                    
-                    Spacer()
-                    
-                    HStack(spacing: 2) {
-                        Image(systemName: "star.fill")
-                            .font(.caption2)
-                            .foregroundStyle(.yellow)
-                        Text(String(format: "%.1f", rating))
-                            .font(.caption2)
-                    }
-                }
+            HStack {
+                Text(price)
+                    .font(.caption)
+                    .fontWeight(.semibold)
+
+                Spacer()
+
+                Text("★ \(String(format: "%.1f", rating))")
+                    .font(.caption2)
             }
+        }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(name), \(price)")
         .accessibilityCustomContent("Rating", "\(String(format: "%.1f", rating)) stars from \(reviews) reviews")
