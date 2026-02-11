@@ -88,6 +88,7 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             }
         }
         .frame(width: renderSize.width, height: renderSize.height)
+        .clipped()
     }
 
     @ViewBuilder
