@@ -8,10 +8,7 @@ import UIKit
 ///
 /// The overlays and legend will be added when `parseAccessibility()` is called. In order for the coordinates to be
 /// calculated properly, the view must already be in the view hierarchy.
-public final class AccessibilitySnapshotView: SnapshotAndLegendView {
-    /// The configuration struct for snapshot rendering.
-    public let snapshotConfiguration: AccessibilitySnapshotConfiguration
-
+public final class AccessibilitySnapshotView: AccessibilitySnapshotBaseView {
     // MARK: - Life Cycle
 
     /// Initializes a new snapshot container view.
@@ -29,7 +26,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     public convenience init(
         containedView: UIView,
         viewRenderingMode: ViewRenderingMode,
-        markerColors: [UIColor] = MarkerColors.defaultColors,
+        markerColors: [UIColor] = [],
         activationPointDisplayMode: AccessibilityContentDisplayMode,
         showUserInputLabels: Bool
     ) {
@@ -46,96 +43,48 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
     /// - parameter containedView: The view that should be snapshotted, and for which the accessibility markers should
     /// be generated.
     /// - parameter snapshotConfiguration: The configuration for the visual effects and markers applied to the snapshots.
-    public init(
+    override public init(
         containedView: UIView,
         snapshotConfiguration: AccessibilitySnapshotConfiguration
     ) {
-        self.containedView = containedView
-        self.snapshotConfiguration = snapshotConfiguration
-
-        super.init(frame: containedView.bounds)
-
-        backgroundColor = .init(white: 0.9, alpha: 1.0)
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        super.init(containedView: containedView, snapshotConfiguration: snapshotConfiguration)
     }
 
     // MARK: - SnapshotAndLegendView
 
-    override var legendViews: [UIView] {
+    override public var legendViews: [UIView] {
         return displayMarkers.map { $0.legendView }
     }
 
-    override var minimumLegendWidth: CGFloat {
+    override public var minimumLegendWidth: CGFloat {
         return LegendView.Metrics.minimumWidth
     }
 
     // MARK: - Private Properties
 
-    private let containedView: UIView
-
     private var displayMarkers: [DisplayMarker] = []
 
-    // MARK: - Public Methods
+    // MARK: - AccessibilitySnapshotBaseView Overrides
 
-    /// Parse the `containedView`'s accessibility and add appropriate visual elements to represent it.
-    ///
-    /// This must be called _after_ the view is in the view hierarchy.
-    ///
-    /// - Throws: Throws a `RenderError` when the view fails to render a snapshot of the `containedView`.
-    public func parseAccessibility() throws {
-        // Clean up any previous markers.
-        self.displayMarkers.forEach {
+    override public func cleanup() {
+        displayMarkers.forEach {
             $0.legendView.removeFromSuperview()
             $0.overlayView.removeFromSuperview()
             $0.activationPointView?.removeFromSuperview()
         }
+        displayMarkers = []
+    }
 
-        let viewController = containedView.next as? UIViewController
-        let originalParent = viewController?.parent
-        let originalSuperviewAndIndex = containedView.superviewWithSubviewIndex()
-
-        viewController?.removeFromParent()
-        addSubview(containedView)
-
-        defer {
-            containedView.removeFromSuperview()
-
-            if let (originalSuperview, originalSubviewIndex) = originalSuperviewAndIndex {
-                originalSuperview.insertSubview(containedView, at: originalSubviewIndex)
-            }
-
-            if let viewController = viewController, let originalParent = originalParent {
-                originalParent.addChild(viewController)
-            }
-        }
-
-        // Force a layout pass after the view is in the hierarchy so that the conversion to screen coordinates works
-        // correctly.
-        containedView.setNeedsLayout()
-        containedView.layoutIfNeeded()
-
-        snapshotView.image = try containedView.renderToImage(
-            configuration: snapshotConfiguration.rendering
-        )
-
-        snapshotView.bounds.size = containedView.bounds.size
-
-        // Complete the layout pass after the view is restored to this container, in case it was modified during the
-        // rendering process (i.e. when the rendering is tiled and stitched).
-        containedView.layoutIfNeeded()
-
-        let parser = AccessibilityHierarchyParser()
-        let markers = parser.parseAccessibilityElements(in: containedView, rotorResultLimit: snapshotConfiguration.rotors.resultLimit)
-
+    override public func render(data: ParsedAccessibilityData) {
         var displayMarkers: [DisplayMarker] = []
-        for (index, marker) in markers.enumerated() {
-            let color = snapshotConfiguration.markerColors[index % snapshotConfiguration.markerColors.count]
+        let palette = ColorPalette(legacyColors: snapshotConfiguration.markerColors)
 
-            let legendView = LegendView(marker: marker, color: color, configuration: snapshotConfiguration)
+        for (index, marker) in data.markers.enumerated() {
+            let baseColor: UIColor = palette.color(at: index)
+            let fillColor: UIColor = palette.fillColor(at: index)
+            let strokeColor: UIColor = palette.strokeColor(at: index)
+
+            let legendView = LegendView(marker: marker, fillColor: fillColor, configuration: snapshotConfiguration)
             addSubview(legendView)
 
             let rotorResultsShapes = marker.displayRotors(snapshotConfiguration.rotors.displayMode).flatMap(\.resultMarkers).compactMap(\.shape)
@@ -144,7 +93,8 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
                 frame: snapshotView.bounds,
                 elementShape: marker.shape,
                 includedShapes: rotorResultsShapes,
-                color: color
+                fillColor: fillColor,
+                strokeColor: strokeColor
             )
 
             snapshotView.addSubview(overlayView)
@@ -172,7 +122,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
                 )
                 activationPointView.bounds.size = .init(width: 16, height: 16)
                 activationPointView.center = marker.activationPoint
-                activationPointView.tintColor = color
+                activationPointView.tintColor = baseColor
                 snapshotView.addSubview(activationPointView)
                 displayMarker.activationPointView = activationPointView
 
@@ -195,21 +145,5 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         var overlayView: UIView
 
         var activationPointView: UIView?
-    }
-}
-
-// MARK: -
-
-private extension UIView {
-    func superviewWithSubviewIndex() -> (UIView, Int)? {
-        guard let superview = superview else {
-            return nil
-        }
-
-        guard let index = superview.subviews.firstIndex(of: self) else {
-            fatalError("Internal inconsistency error: view has a superview, but is not a subview of the superview")
-        }
-
-        return (superview, index)
     }
 }

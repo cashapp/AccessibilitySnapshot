@@ -5,7 +5,7 @@ extension AccessibilitySnapshotView {
     final class LegendView: UIView {
         // MARK: - Life Cycle
 
-        init(marker: AccessibilityMarker, color: UIColor, configuration: AccessibilitySnapshotConfiguration) {
+        init(marker: AccessibilityMarker, fillColor: UIColor, configuration: AccessibilitySnapshotConfiguration) {
             hintLabel = marker.hint.map {
                 let label = UILabel()
                 label.text = $0
@@ -90,12 +90,12 @@ extension AccessibilitySnapshotView {
 
                 guard let userInputLabels else { return nil }
 
-                return .init(titles: userInputLabels, color: color)
+                return .init(titles: userInputLabels, color: fillColor)
             }()
 
             super.init(frame: .zero)
 
-            markerView.backgroundColor = color.withAlphaComponent(0.3)
+            markerView.backgroundColor = fillColor
             addSubview(markerView)
 
             descriptionLabel.text =
@@ -179,11 +179,11 @@ extension AccessibilitySnapshotView {
             let heightComponents = [
                 markerSizeAboveDescriptionLabel,
                 descriptionLabelSize.height,
-                hintLabelSize.height == 0 ? 0 : hintLabelSize.height + Metrics.interSectionSpacing,
-                customActionsSize.height == 0 ? 0 : customActionsSize.height + Metrics.interSectionSpacing,
-                customContentSize.height == 0 ? 0 : customContentSize.height + Metrics.interSectionSpacing,
-                customRotorsSize.height == 0 ? 0 : customRotorsSize.height + Metrics.interSectionSpacing,
-                userInputLabelsViewSize.height == 0 ? 0 : userInputLabelsViewSize.height + Metrics.interSectionSpacing,
+                hintLabelSize.height == 0 ? 0 : hintLabelSize.height + Metrics.interItemSpacing,
+                customActionsSize.height == 0 ? 0 : customActionsSize.height + Metrics.interItemSpacing,
+                customContentSize.height == 0 ? 0 : customContentSize.height + Metrics.interItemSpacing,
+                customRotorsSize.height == 0 ? 0 : customRotorsSize.height + Metrics.interItemSpacing,
+                userInputLabelsViewSize.height == 0 ? 0 : userInputLabelsViewSize.height + Metrics.interItemSpacing,
             ]
 
             return CGSize(
@@ -220,7 +220,7 @@ extension AccessibilitySnapshotView {
                 hintLabel.bounds.size = hintLabel.sizeThatFits(labelSizeToFit)
                 hintLabel.frame.origin = .init(
                     x: descriptionLabel.frame.minX,
-                    y: descriptionLabel.frame.maxY + Metrics.interSectionSpacing
+                    y: descriptionLabel.frame.maxY + Metrics.interItemSpacing
                 )
             }
 
@@ -230,7 +230,7 @@ extension AccessibilitySnapshotView {
                 customActionsView.bounds.size = customActionsView.sizeThatFits(labelSizeToFit)
                 customActionsView.frame.origin = .init(
                     x: alignmentLabel.frame.minX,
-                    y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
+                    y: alignmentLabel.frame.maxY + Metrics.interItemSpacing
                 )
             }
 
@@ -240,7 +240,7 @@ extension AccessibilitySnapshotView {
                 customContentView.bounds.size = customContentView.sizeThatFits(labelSizeToFit)
                 customContentView.frame.origin = .init(
                     x: alignmentLabel.frame.minX,
-                    y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
+                    y: alignmentLabel.frame.maxY + Metrics.interItemSpacing
                 )
             }
 
@@ -250,7 +250,7 @@ extension AccessibilitySnapshotView {
                 customRotorsView.bounds.size = customRotorsView.sizeThatFits(labelSizeToFit)
                 customRotorsView.frame.origin = .init(
                     x: alignmentLabel.frame.minX,
-                    y: alignmentLabel.frame.maxY + Metrics.interSectionSpacing
+                    y: alignmentLabel.frame.maxY + Metrics.interItemSpacing
                 )
             }
 
@@ -260,7 +260,7 @@ extension AccessibilitySnapshotView {
                 userInputLabelsView.bounds.size = userInputLabelsView.sizeThatFits(labelSizeToFit)
                 userInputLabelsView.frame.origin = CGPoint(
                     x: alignmentControl.frame.minX,
-                    y: alignmentControl.frame.maxY + Metrics.interSectionSpacing
+                    y: alignmentControl.frame.maxY + Metrics.interItemSpacing
                 )
             }
         }
@@ -268,14 +268,14 @@ extension AccessibilitySnapshotView {
         // MARK: - Private
 
         enum Metrics {
-            static let minimumWidth: CGFloat = 284
+            static var minimumWidth: CGFloat { LegendLayoutMetrics.minimumLegendWidth }
 
-            static let markerSize: CGFloat = 14
-            static let markerToLabelSpacing: CGFloat = 16
-            static let interSectionSpacing: CGFloat = 4
+            static var markerSize: CGFloat { LegendLayoutMetrics.markerSize }
+            static var markerToLabelSpacing: CGFloat { LegendLayoutMetrics.markerToLabelSpacing }
+            static var interItemSpacing: CGFloat { LegendLayoutMetrics.interItemSpacing }
 
-            static let descriptionLabelFont = UIFont.systemFont(ofSize: 12)
-            static let hintLabelFont = UIFont.italicSystemFont(ofSize: 12)
+            static let descriptionLabelFont = UIFont.systemFont(ofSize: LegendLayoutMetrics.descriptionFontSize)
+            static let hintLabelFont = UIFont.italicSystemFont(ofSize: LegendLayoutMetrics.hintFontSize)
         }
     }
 }
