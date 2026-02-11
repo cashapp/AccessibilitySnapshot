@@ -1,5 +1,5 @@
-import SwiftUI
 import AccessibilitySnapshotPreviews
+import SwiftUI
 import UIKit
 
 struct PathShapesDemo: View {
@@ -327,6 +327,8 @@ class PathShapeUIView: UIView {
         super.init(frame: frame)
         backgroundColor = .clear
         isAccessibilityElement = true
+        accessibilityActivationPoint = .zero
+        accessibilityFrame = .zero
     }
 
     @available(*, unavailable)
