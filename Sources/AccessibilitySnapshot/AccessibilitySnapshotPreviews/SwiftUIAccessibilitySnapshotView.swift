@@ -279,6 +279,7 @@ public struct PreParsedAccessibilitySnapshotView: View {
             }
         }
         .frame(width: renderSize.width, height: renderSize.height)
+        .clipped()
     }
 
     private func shouldShowActivationPoint(for marker: AccessibilityMarker) -> Bool {
