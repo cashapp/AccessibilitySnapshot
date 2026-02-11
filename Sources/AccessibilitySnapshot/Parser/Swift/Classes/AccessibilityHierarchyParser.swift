@@ -300,9 +300,10 @@ public final class AccessibilityHierarchyParser {
                 userInputLabels: element.object.accessibilityUserInputLabels,
                 shape: Self.accessibilityShape(for: element.object, in: root),
                 activationPoint: root.convert(activationPoint, from: nil),
-                usesDefaultActivationPoint: activationPoint.approximatelyEquals(
-                    Self.defaultActivationPoint(for: element.object),
-                    tolerance: 1 / (root.window?.screen ?? UIScreen.main).scale
+                usesDefaultActivationPoint: Self.usesDefaultActivationPoint(
+                    element: element.object,
+                    activationPoint: activationPoint,
+                    screenScale: (root.window?.screen ?? UIScreen.main).scale
                 ),
                 customActions: element.object.accessibilityCustomActions?.map { AccessibilityMarker.CustomAction(name: $0.name, image: $0.image) } ?? [],
                 customContent: element.object.customContent,
@@ -633,6 +634,43 @@ private extension AccessibilityHierarchyParser {
         }
     }
 
+    /// Determines whether an element is using its default activation point.
+    ///
+    /// When both the activation point and frame are zero, the element hasn't set a custom activation
+    /// point — it's just reporting the default for a zero frame. This can happen with SwiftUI elements
+    /// whose `accessibilityFrame` is `.zero`.
+    static func usesDefaultActivationPoint(
+        element: NSObject,
+        activationPoint: CGPoint,
+        screenScale: CGFloat
+    ) -> Bool {
+        if activationPoint == .zero && element.accessibilityFrame == .zero {
+            return true
+        }
+
+        return activationPoint.approximatelyEquals(
+            defaultActivationPoint(for: element),
+            tolerance: 1 / screenScale
+        )
+    }
+
+    /// Returns the effective screen-coordinate frame for an accessibility element.
+    ///
+    /// Some SwiftUI elements provide an `accessibilityPath` but report a zero `accessibilityFrame`.
+    /// In those cases, the path bounds (which are already in screen coordinates) are used instead.
+    static func effectiveAccessibilityFrame(for element: NSObject) -> CGRect {
+        let frame = element.accessibilityFrame
+        if !frame.isEmpty {
+            return frame
+        }
+
+        if let path = element.accessibilityPath {
+            return path.bounds
+        }
+
+        return frame
+    }
+
     /// Returns the default value for an element's `accessibilityActivationPoint`.
     static func defaultActivationPoint(for element: NSObject) -> CGPoint {
         if let element = element as? UISlider {
@@ -646,8 +684,8 @@ private extension AccessibilityHierarchyParser {
 
         // By default, an element's activation point is the center of its accessibility frame, regardless of whether it
         // uses an accessibility path or frame as its shape.
-        let accessibilityFrame = element.accessibilityFrame
-        return CGPoint(x: accessibilityFrame.midX, y: accessibilityFrame.midY)
+        let frame = effectiveAccessibilityFrame(for: element)
+        return CGPoint(x: frame.midX, y: frame.midY)
     }
 }
 
