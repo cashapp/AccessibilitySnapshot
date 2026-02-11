@@ -114,6 +114,106 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         // Now pad elements are sorted vertically and then left to right
         XCTAssertEqual(padAgain, ["C", "D", "B", "A"])
     }
+
+    // MARK: - Activation Point Default Detection
+
+    func testZeroFrameAndZeroActivationPointIsDefault() {
+        let container = UIView(frame: .init(x: 0, y: 0, width: 400, height: 400))
+
+        let element = ActivationPointTestView(frame: .init(x: 10, y: 10, width: 100, height: 50))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "Zero"
+        element.overriddenFrame = .zero
+        element.overriddenActivationPoint = .zero
+        container.addSubview(element)
+
+        let markers = parseMarkers(in: container)
+        XCTAssertEqual(markers.count, 1)
+        XCTAssertTrue(markers[0].usesDefaultActivationPoint)
+    }
+
+    func testZeroFrameWithPathAndValidActivationPointIsDefault() {
+        let container = UIView(frame: .init(x: 0, y: 0, width: 400, height: 400))
+
+        let pathBounds = CGRect(x: 16, y: 16, width: 370, height: 48)
+        let element = ActivationPointTestView(frame: .init(x: 10, y: 10, width: 370, height: 48))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "PathElement"
+        element.overriddenFrame = .zero
+        element.overriddenPath = UIBezierPath(rect: pathBounds)
+        element.overriddenActivationPoint = CGPoint(x: pathBounds.midX, y: pathBounds.midY)
+        container.addSubview(element)
+
+        let markers = parseMarkers(in: container)
+        XCTAssertEqual(markers.count, 1)
+        XCTAssertTrue(markers[0].usesDefaultActivationPoint)
+    }
+
+    func testNormalFrameWithCenterActivationPointIsDefault() {
+        let container = UIView(frame: .init(x: 0, y: 0, width: 400, height: 400))
+
+        let frame = CGRect(x: 50, y: 50, width: 200, height: 60)
+        let element = ActivationPointTestView(frame: frame)
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "Centered"
+        element.overriddenFrame = frame
+        element.overriddenActivationPoint = CGPoint(x: frame.midX, y: frame.midY)
+        container.addSubview(element)
+
+        let markers = parseMarkers(in: container)
+        XCTAssertEqual(markers.count, 1)
+        XCTAssertTrue(markers[0].usesDefaultActivationPoint)
+    }
+
+    func testNormalFrameWithCustomActivationPointIsNotDefault() {
+        let container = UIView(frame: .init(x: 0, y: 0, width: 400, height: 400))
+
+        let frame = CGRect(x: 50, y: 50, width: 200, height: 60)
+        let element = ActivationPointTestView(frame: frame)
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "Custom"
+        element.overriddenFrame = frame
+        element.overriddenActivationPoint = CGPoint(x: frame.maxX - 10, y: frame.midY)
+        container.addSubview(element)
+
+        let markers = parseMarkers(in: container)
+        XCTAssertEqual(markers.count, 1)
+        XCTAssertFalse(markers[0].usesDefaultActivationPoint)
+    }
+
+    // MARK: - Private Helpers
+
+    private func parseMarkers(in view: UIView) -> [AccessibilityMarker] {
+        let parser = AccessibilityHierarchyParser()
+        return parser.parseAccessibilityElements(
+            in: view,
+            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight),
+            userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
+        )
+    }
+}
+
+// MARK: -
+
+private final class ActivationPointTestView: UIView {
+    var overriddenFrame: CGRect?
+    var overriddenActivationPoint: CGPoint?
+    var overriddenPath: UIBezierPath?
+
+    override var accessibilityFrame: CGRect {
+        get { overriddenFrame ?? super.accessibilityFrame }
+        set { overriddenFrame = newValue }
+    }
+
+    override var accessibilityActivationPoint: CGPoint {
+        get { overriddenActivationPoint ?? super.accessibilityActivationPoint }
+        set { overriddenActivationPoint = newValue }
+    }
+
+    override var accessibilityPath: UIBezierPath? {
+        get { overriddenPath ?? super.accessibilityPath }
+        set { overriddenPath = newValue }
+    }
 }
 
 // MARK: -
