@@ -23,6 +23,14 @@ public final class KeyboardAccessibilitySnapshotView: UIView {
         static let legendBackgroundColor = UIColor(white: 0.9, alpha: 1.0)
         static let dividerWidth: CGFloat = 1
         static let dividerColor = UIColor(white: 0.8, alpha: 1.0)
+        
+        // Colors for keyboard navigation (Tab key) focusable elements
+        static let keyboardFocusOverlayColor = UIColor(red: 17/255, green: 146/255, blue: 232/255, alpha: 64/255) // #1192E840
+        static let keyboardFocusOrderColor = UIColor(red: 17/255, green: 146/255, blue: 232/255, alpha: 1.0) // #1192E8
+        
+        // Colors for Full Keyboard Access only elements
+        static let fkaOnlyOverlayColor = UIColor(red: 250/255, green: 77/255, blue: 86/255, alpha: 0.25) // rgba(250, 77, 86, 0.25)
+        static let fkaOnlyOrderColor = UIColor(red: 250/255, green: 77/255, blue: 86/255, alpha: 1.0) // #FA4D56
     }
 
     // MARK: - Private Properties
@@ -30,11 +38,14 @@ public final class KeyboardAccessibilitySnapshotView: UIView {
     private let containedView: UIView
     private let viewRenderingMode: ViewRenderingMode
     private let useMonochromeSnapshot: Bool
+    private let showFocusOverlays: Bool
 
     private let snapshotImageView: UIImageView = .init()
+    private let snapshotContainerView: UIView = .init()
     private let legendContainerView: UIView = .init()
     private let dividerView: UIView = .init()
     private var legendItemViews: [UIView] = []
+    private var focusOverlayViews: [UIView] = []
 
     // MARK: - Life Cycle
 
@@ -45,14 +56,18 @@ public final class KeyboardAccessibilitySnapshotView: UIView {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the view should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements (elements that can receive
+    /// focus via hardware keyboard navigation). Defaults to `false`.
     public init(
         containedView: UIView,
         viewRenderingMode: ViewRenderingMode,
-        useMonochromeSnapshot: Bool = true
+        useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false
     ) {
         self.containedView = containedView
         self.viewRenderingMode = viewRenderingMode
         self.useMonochromeSnapshot = useMonochromeSnapshot
+        self.showFocusOverlays = showFocusOverlays
 
         super.init(frame: .zero)
 
@@ -62,7 +77,8 @@ public final class KeyboardAccessibilitySnapshotView: UIView {
     private func commonInit() {
         backgroundColor = .white
 
-        addSubview(snapshotImageView)
+        snapshotContainerView.addSubview(snapshotImageView)
+        addSubview(snapshotContainerView)
 
         dividerView.backgroundColor = Metrics.dividerColor
         addSubview(dividerView)
@@ -86,6 +102,7 @@ public final class KeyboardAccessibilitySnapshotView: UIView {
         try renderContainedView()
         let shortcuts = KeyboardShortcutParser.parseKeyCommands(from: containedView)
         updateLegendViews(with: shortcuts)
+        updateFocusOverlays()
     }
 
     /// Parses keyboard shortcuts from a UIMenu and updates the legend.
@@ -98,6 +115,7 @@ public final class KeyboardAccessibilitySnapshotView: UIView {
         try renderContainedView()
         let shortcuts = KeyboardShortcutParser.parseKeyCommands(from: menu)
         updateLegendViews(with: shortcuts)
+        updateFocusOverlays()
     }
 
     // MARK: - Private Methods
@@ -111,6 +129,36 @@ public final class KeyboardAccessibilitySnapshotView: UIView {
         let image = try containedView.renderToImage(configuration: configuration)
         snapshotImageView.image = image
         snapshotImageView.bounds.size = containedView.bounds.size
+    }
+
+    private func updateFocusOverlays() {
+        focusOverlayViews.forEach { $0.removeFromSuperview() }
+        focusOverlayViews = []
+
+        guard showFocusOverlays else { return }
+
+        let focusableElements = FocusHierarchyParser.parseFocusableElements(in: containedView)
+
+        for (index, element) in focusableElements.enumerated() {
+            // Choose colors based on focus type
+            let (overlayColor, orderColor): (UIColor, UIColor) = {
+                switch element.focusType {
+                case .keyboardNavigation:
+                    return (Metrics.keyboardFocusOverlayColor, Metrics.keyboardFocusOrderColor)
+                case .fullKeyboardAccessOnly:
+                    return (Metrics.fkaOnlyOverlayColor, Metrics.fkaOnlyOrderColor)
+                }
+            }()
+            
+            let overlayView = FocusOverlayView(
+                frame: element.frame,
+                overlayColor: overlayColor,
+                focusOrder: index + 1,
+                orderColor: orderColor
+            )
+            snapshotContainerView.addSubview(overlayView)
+            focusOverlayViews.append(overlayView)
+        }
     }
 
     private func updateLegendViews(with shortcuts: [KeyboardShortcut]) {
@@ -158,11 +206,16 @@ public final class KeyboardAccessibilitySnapshotView: UIView {
 
         guard snapshotImageView.image != nil else { return }
 
+        let snapshotSize = snapshotImageView.bounds.size
+
         // Layout horizontally: snapshot | divider | legend
         var layoutRect = bounds
-        snapshotImageView.frame = layoutRect.slice(snapshotImageView.bounds.width, from: .minXEdge)
+        snapshotContainerView.frame = layoutRect.slice(snapshotSize.width, from: .minXEdge)
         dividerView.frame = layoutRect.slice(Metrics.dividerWidth, from: .minXEdge)
         legendContainerView.frame = layoutRect
+
+        // Layout snapshot image view within container
+        snapshotImageView.frame = CGRect(origin: .zero, size: snapshotSize)
 
         // Layout legend items vertically with padding
         var contentRect = legendContainerView.bounds.insetBy(
@@ -244,5 +297,40 @@ private extension CGRect {
     /// Removes an amount from an edge without returning the removed portion.
     mutating func trim(_ amount: CGFloat, from edge: CGRectEdge) {
         self = divided(atDistance: amount, from: edge).remainder
+    }
+}
+
+// MARK: - FocusOverlayView
+
+/// A simple overlay view that renders a semi-transparent rectangle to highlight focusable elements,
+/// with a focus order number displayed in the top-left corner.
+private final class FocusOverlayView: UIView {
+    private enum Metrics {
+        static let labelPadding: CGFloat = 4
+        static let fontSize: CGFloat = 14
+    }
+
+    init(frame: CGRect, overlayColor: UIColor, focusOrder: Int, orderColor: UIColor) {
+        super.init(frame: frame)
+
+        // Add semi-transparent overlay
+        let overlayLayer = CAShapeLayer()
+        overlayLayer.path = UIBezierPath(rect: bounds).cgPath
+        overlayLayer.fillColor = overlayColor.cgColor
+        layer.addSublayer(overlayLayer)
+
+        // Add focus order number
+        let orderLabel = UILabel()
+        orderLabel.text = "\(focusOrder)"
+        orderLabel.textColor = orderColor
+        orderLabel.font = .systemFont(ofSize: Metrics.fontSize, weight: .bold)
+        orderLabel.sizeToFit()
+        orderLabel.frame.origin = CGPoint(x: Metrics.labelPadding, y: Metrics.labelPadding)
+        addSubview(orderLabel)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
 }

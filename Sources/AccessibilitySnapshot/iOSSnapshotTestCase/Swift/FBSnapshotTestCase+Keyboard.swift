@@ -13,6 +13,7 @@ public extension FBSnapshotTestCase {
     /// - parameter view: The view to snapshot.
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
@@ -20,6 +21,7 @@ public extension FBSnapshotTestCase {
         _ view: UIView,
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -29,6 +31,7 @@ public extension FBSnapshotTestCase {
             menu: nil,
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
+            showFocusOverlays: showFocusOverlays,
             suffixes: suffixes,
             file: file,
             line: line
@@ -43,6 +46,7 @@ public extension FBSnapshotTestCase {
     /// - parameter menu: The UIMenu containing keyboard shortcuts organized by category.
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
@@ -51,6 +55,7 @@ public extension FBSnapshotTestCase {
         menu: UIMenu,
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -60,6 +65,7 @@ public extension FBSnapshotTestCase {
             menu: menu,
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
+            showFocusOverlays: showFocusOverlays,
             suffixes: suffixes,
             file: file,
             line: line
@@ -75,6 +81,7 @@ public extension FBSnapshotTestCase {
     /// - parameter viewController: The view controller whose view to snapshot.
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
@@ -82,6 +89,7 @@ public extension FBSnapshotTestCase {
         _ viewController: UIViewController,
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -90,6 +98,7 @@ public extension FBSnapshotTestCase {
             viewController.view,
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
+            showFocusOverlays: showFocusOverlays,
             suffixes: suffixes,
             file: file,
             line: line
@@ -104,6 +113,7 @@ public extension FBSnapshotTestCase {
     /// - parameter menu: The UIMenu containing keyboard shortcuts organized by category.
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
@@ -112,6 +122,7 @@ public extension FBSnapshotTestCase {
         menu: UIMenu,
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -121,6 +132,7 @@ public extension FBSnapshotTestCase {
             menu: menu,
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
+            showFocusOverlays: showFocusOverlays,
             suffixes: suffixes,
             file: file,
             line: line
@@ -135,6 +147,7 @@ public extension FBSnapshotTestCase {
     /// - parameter menuKeyPath: A key path to the UIMenu property on the view controller.
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
@@ -143,6 +156,7 @@ public extension FBSnapshotTestCase {
         menuKeyPath: KeyPath<ViewController, UIMenu>,
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -152,6 +166,7 @@ public extension FBSnapshotTestCase {
             menu: viewController[keyPath: menuKeyPath],
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
+            showFocusOverlays: showFocusOverlays,
             suffixes: suffixes,
             file: file,
             line: line
@@ -167,6 +182,7 @@ public extension FBSnapshotTestCase {
     /// - parameter view: The SwiftUI view to snapshot.
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
@@ -174,6 +190,7 @@ public extension FBSnapshotTestCase {
         _ view: Content,
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -183,6 +200,7 @@ public extension FBSnapshotTestCase {
             menu: nil,
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
+            showFocusOverlays: showFocusOverlays,
             suffixes: suffixes,
             file: file,
             line: line
@@ -197,6 +215,7 @@ public extension FBSnapshotTestCase {
     /// - parameter menu: The UIMenu containing keyboard shortcuts organized by category.
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
+    /// - parameter showFocusOverlays: Whether to show overlays on focusable elements. Defaults to `false`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
@@ -205,6 +224,7 @@ public extension FBSnapshotTestCase {
         menu: UIMenu,
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
+        showFocusOverlays: Bool = false,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
         file: StaticString = #file,
         line: UInt = #line
@@ -214,6 +234,7 @@ public extension FBSnapshotTestCase {
             menu: menu,
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
+            showFocusOverlays: showFocusOverlays,
             suffixes: suffixes,
             file: file,
             line: line
@@ -227,6 +248,7 @@ public extension FBSnapshotTestCase {
         menu: UIMenu?,
         identifier: String,
         useMonochromeSnapshot: Bool,
+        showFocusOverlays: Bool,
         suffixes: NSOrderedSet,
         file: StaticString,
         line: UInt
@@ -237,7 +259,8 @@ public extension FBSnapshotTestCase {
         let containerView = KeyboardAccessibilitySnapshotView(
             containedView: view,
             viewRenderingMode: keyboardViewRenderingMode,
-            useMonochromeSnapshot: useMonochromeSnapshot
+            useMonochromeSnapshot: useMonochromeSnapshot,
+            showFocusOverlays: showFocusOverlays
         )
 
         let window = UIWindow(frame: UIScreen.main.bounds)
@@ -260,6 +283,7 @@ public extension FBSnapshotTestCase {
         menu: UIMenu?,
         identifier: String,
         useMonochromeSnapshot: Bool,
+        showFocusOverlays: Bool,
         suffixes: NSOrderedSet,
         file: StaticString,
         line: UInt
@@ -271,7 +295,8 @@ public extension FBSnapshotTestCase {
         let containerView = KeyboardAccessibilitySnapshotView(
             containedView: hostingView,
             viewRenderingMode: .drawHierarchyInRect,
-            useMonochromeSnapshot: useMonochromeSnapshot
+            useMonochromeSnapshot: useMonochromeSnapshot,
+            showFocusOverlays: showFocusOverlays
         )
 
         let window = UIWindow(frame: UIScreen.main.bounds)
