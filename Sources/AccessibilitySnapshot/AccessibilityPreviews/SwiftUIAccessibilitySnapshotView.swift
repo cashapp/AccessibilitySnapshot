@@ -128,7 +128,7 @@ public struct SwiftUIAccessibilitySnapshotView<Content: View>: View {
             viewRenderingMode: .drawHierarchyInRect
         )
         let parser = AccessibilityHierarchyParser()
-        let markers = parser.parseAccessibilityElements(in: hostingController.view)
+        let markers = parser.parseAccessibilityHierarchy(in: hostingController.view).flattenToElements()
 
         displayMarkers = markers.map { marker in
             DisplayMarker(marker: marker)
