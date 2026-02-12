@@ -95,6 +95,9 @@ let project = Project(
             bundleId: "com.cashapp.AccessibilitySnapshotCore",
             deploymentTargets: deploymentTargets,
             sources: ["../Sources/AccessibilitySnapshot/Core/*.swift"],
+            resources: [
+                "../Sources/AccessibilitySnapshot/Core/Assets/**/*",
+            ],
             dependencies: [
                 .target(name: "AccessibilitySnapshotParser"),
             ]
