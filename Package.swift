@@ -62,11 +62,12 @@ let package = Package(
         .target(
             name: "AccessibilitySnapshotCore",
             dependencies: ["AccessibilitySnapshotParser"],
-            path: "Sources/AccessibilitySnapshot/Core"
+            path: "Sources/AccessibilitySnapshot/Core",
+            resources: [.process("Assets")]
         ),
         .target(
             name: "AccessibilityPreviews_Experimental",
-            dependencies: ["AccessibilitySnapshotParser"],
+            dependencies: ["AccessibilitySnapshotParser", "AccessibilitySnapshotCore"],
             path: "Sources/AccessibilitySnapshot/AccessibilityPreviews"
         ),
         .target(
