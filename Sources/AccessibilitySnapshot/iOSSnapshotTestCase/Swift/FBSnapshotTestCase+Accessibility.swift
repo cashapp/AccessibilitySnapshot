@@ -81,10 +81,12 @@ public extension FBSnapshotTestCase {
         _ view: UIView,
         identifier: String = "",
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        SnapshotVerifyAccessibility(view, identifier: identifier, snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode), suffixes: suffixes, file: file, line: line)
+        SnapshotVerifyAccessibility(view, identifier: identifier, snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode), suffixes: suffixes, perPixelTolerance: perPixelTolerance, overallTolerance: overallTolerance, file: file, line: line)
     }
 
     /// Snapshots the `view` with colored overlays of each accessibility element it contains, as well as an
@@ -103,6 +105,12 @@ public extension FBSnapshotTestCase {
     /// - parameter snapshotConfiguration: The configuration used for rendering and testing the snapshot.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerifyAccessibility(
@@ -110,6 +118,8 @@ public extension FBSnapshotTestCase {
         identifier: String = "",
         snapshotConfiguration: AccessibilitySnapshotConfiguration,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -136,7 +146,7 @@ public extension FBSnapshotTestCase {
         }
         containerView.sizeToFit()
 
-        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, perPixelTolerance: perPixelTolerance, overallTolerance: overallTolerance, file: file, line: line)
     }
 
     /// Snapshots the `view` simulating the way it will appear with Smart Invert Colors enabled.
@@ -149,12 +159,20 @@ public extension FBSnapshotTestCase {
     /// snapshot tests in a given test method. Defaults to no identifier.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerifyWithInvertedColors(
         _ view: UIView,
         identifier: String = "",
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -184,7 +202,7 @@ public extension FBSnapshotTestCase {
         }
 
         let imageView = UIImageView(image: image)
-        FBSnapshotVerifyView(imageView, identifier: identifier, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(imageView, identifier: identifier, suffixes: suffixes, perPixelTolerance: perPixelTolerance, overallTolerance: overallTolerance, file: file, line: line)
 
         statusUtility.unmockStatuses()
         postNotification()
@@ -229,6 +247,12 @@ public extension FBSnapshotTestCase {
     /// Value must be a positive integer.
     /// - parameter suffixes: NSOrderedSet object containing strings that are appended to the reference images
     /// directory. Defaults to `FBSnapshotTestCaseDefaultSuffixes()`.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerifyWithHitTargets(
@@ -239,22 +263,36 @@ public extension FBSnapshotTestCase {
         maxPermissibleMissedRegionWidth: CGFloat = 0,
         maxPermissibleMissedRegionHeight: CGFloat = 0,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        SnapshotImpreciseVerifyWithHitTargets(
-            view,
-            identifier: identifier,
-            useMonochromeSnapshot: useMonochromeSnapshot,
-            colors: colors,
-            maxPermissibleMissedRegionWidth: maxPermissibleMissedRegionWidth,
-            maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight,
-            suffixes: suffixes,
-            perPixelTolerance: 0,
-            overallTolerance: 0,
-            file: file,
-            line: line
-        )
+        do {
+            let containerView = try HitTargetSnapshotView(
+                baseView: view,
+                useMonochromeSnapshot: useMonochromeSnapshot,
+                viewRenderingMode: usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext,
+                colors: colors,
+                maxPermissibleMissedRegionWidth: maxPermissibleMissedRegionWidth,
+                maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight
+            )
+
+            containerView.sizeToFit()
+
+            FBSnapshotVerifyView(
+                containerView,
+                identifier: identifier,
+                suffixes: suffixes,
+                perPixelTolerance: perPixelTolerance,
+                overallTolerance: overallTolerance,
+                file: file,
+                line: line
+            )
+
+        } catch {
+            XCTFail(ErrorMessageFactory.errorMessageForAccessibilityParsingError(error), file: file, line: line)
+        }
     }
 
     // MARK: - Internal Properties

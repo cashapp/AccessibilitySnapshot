@@ -36,6 +36,8 @@ public extension FBSnapshotTestCase {
         useMonochromeSnapshot: Bool = true,
         markerColors: [UIColor] = [],
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         showUserInputLabels: Bool = true,
         file: StaticString = #file,
         line: UInt = #line
@@ -50,6 +52,8 @@ public extension FBSnapshotTestCase {
                                     identifier: identifier,
                                     snapshotConfiguration: configuration,
                                     suffixes: suffixes,
+                                    perPixelTolerance: perPixelTolerance,
+                                    overallTolerance: overallTolerance,
                                     file: file,
                                     line: line)
     }
@@ -60,6 +64,8 @@ public extension FBSnapshotTestCase {
         identifier: String = "",
         snapshotConfiguration: AccessibilitySnapshotConfiguration,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -71,6 +77,8 @@ public extension FBSnapshotTestCase {
             identifier: identifier,
             snapshotConfiguration: snapshotConfiguration,
             suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             file: file,
             line: line
         )
@@ -95,6 +103,8 @@ public extension FBSnapshotTestCase {
         size: CGSize? = nil,
         identifier: String = "",
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -105,6 +115,8 @@ public extension FBSnapshotTestCase {
             hostingController.view,
             identifier: identifier,
             suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             file: file,
             line: line
         )

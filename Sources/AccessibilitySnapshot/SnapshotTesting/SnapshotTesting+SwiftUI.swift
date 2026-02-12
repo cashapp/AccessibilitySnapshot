@@ -27,6 +27,10 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays.
     /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
     /// Control).
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
     static func accessibilityImage(
         size: CGSize? = nil,
         showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
@@ -34,7 +38,9 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = [],
         showUserInputLabels: Bool = true,
-        shouldRunInHostApplication: Bool = true
+        shouldRunInHostApplication: Bool = true,
+        precision: Float = 1,
+        perceptualPrecision: Float = 1
     ) -> Snapshotting {
         return Snapshotting<UIViewController, UIImage>
             .accessibilityImage(
@@ -43,7 +49,9 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
                 drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
                 markerColors: markerColors,
                 showUserInputLabels: showUserInputLabels,
-                shouldRunInHostApplication: shouldRunInHostApplication
+                shouldRunInHostApplication: shouldRunInHostApplication,
+                precision: precision,
+                perceptualPrecision: perceptualPrecision
             )
             .pullback { (view: Value) in
                 let hostingController = UIHostingController(rootView: view)
@@ -54,8 +62,21 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
 
     /// Snapshots the view simulating the way it will appear with Smart Invert Colors enabled.
     static var imageWithSmartInvert: Snapshotting {
+        return .imageWithSmartInvert()
+    }
+
+    /// Snapshots the view simulating the way it will appear with Smart Invert Colors enabled.
+    ///
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
+    static func imageWithSmartInvert(
+        precision: Float = 1,
+        perceptualPrecision: Float = 1
+    ) -> Snapshotting {
         return Snapshotting<UIViewController, UIImage>
-            .imageWithSmartInvert
+            .imageWithSmartInvert(precision: precision, perceptualPrecision: perceptualPrecision)
             .pullback { (view: Value) in
                 UIHostingController(rootView: view)
             }
