@@ -129,7 +129,7 @@ public final class AccessibilitySnapshotView: SnapshotAndLegendView {
         containedView.layoutIfNeeded()
 
         let parser = AccessibilityHierarchyParser()
-        let markers = parser.parseAccessibilityElements(in: containedView, rotorResultLimit: snapshotConfiguration.rotors.resultLimit)
+        let markers = parser.parseAccessibilityHierarchy(in: containedView, rotorResultLimit: snapshotConfiguration.rotors.resultLimit).flattenToElements()
 
         var displayMarkers: [DisplayMarker] = []
         for (index, marker) in markers.enumerated() {
