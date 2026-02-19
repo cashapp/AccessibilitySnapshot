@@ -26,20 +26,26 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
     /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
     /// Control).
     /// - parameter shouldRunInHostApplication: Controls whether a host application is required to run the test or not.
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
     static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = [],
         showUserInputLabels: Bool = true,
-        shouldRunInHostApplication: Bool = true
+        shouldRunInHostApplication: Bool = true,
+        precision: Float = 1,
+        perceptualPrecision: Float = 1
     ) -> Snapshotting {
         guard !shouldRunInHostApplication || isRunningInHostApplication else {
             fatalError("Accessibility snapshot tests cannot be run in a test target without a host application")
         }
 
         return Snapshotting<UIView, UIImage>
-            .image(drawHierarchyInKeyWindow: drawHierarchyInKeyWindow)
+            .image(drawHierarchyInKeyWindow: drawHierarchyInKeyWindow, precision: precision, perceptualPrecision: perceptualPrecision)
             .pullback { view in
 
                 let configuration = AccessibilitySnapshotConfiguration(
@@ -86,6 +92,19 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
 
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
     static var imageWithSmartInvert: Snapshotting {
+        return .imageWithSmartInvert()
+    }
+
+    /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
+    ///
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
+    static func imageWithSmartInvert(
+        precision: Float = 1,
+        perceptualPrecision: Float = 1
+    ) -> Snapshotting {
         func postNotification() {
             NotificationCenter.default.post(
                 name: UIAccessibility.invertColorsStatusDidChangeNotification,
@@ -94,7 +113,7 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
             )
         }
 
-        return Snapshotting<UIImage, UIImage>.image.pullback { view in
+        return Snapshotting<UIImage, UIImage>.image(precision: precision, perceptualPrecision: perceptualPrecision).pullback { view in
             let requiresWindow = (view.window == nil && !(view is UIWindow))
 
             if requiresWindow {
@@ -158,17 +177,23 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
     /// Value must be a positive integer.
     /// - parameter file: The file in which errors should be attributed.
     /// - parameter line: The line in which errors should be attributed.
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
     static func imageWithHitTargets(
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         colors: [UIColor] = MarkerColors.defaultColors,
         maxPermissibleMissedRegionWidth: CGFloat = 0,
         maxPermissibleMissedRegionHeight: CGFloat = 0,
+        precision: Float = 1,
+        perceptualPrecision: Float = 1,
         file: StaticString = #file,
         line: UInt = #line
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>
-            .image(drawHierarchyInKeyWindow: drawHierarchyInKeyWindow)
+            .image(drawHierarchyInKeyWindow: drawHierarchyInKeyWindow, precision: precision, perceptualPrecision: perceptualPrecision)
             .pullback { view in
                 do {
                     return try HitTargetSnapshotView(
@@ -236,13 +261,19 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
     /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays.
     /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
     /// Control).
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
     static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         markerColors: [UIColor] = [],
         showUserInputLabels: Bool = true,
-        shouldRunInHostApplication: Bool = true
+        shouldRunInHostApplication: Bool = true,
+        precision: Float = 1,
+        perceptualPrecision: Float = 1
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>
             .accessibilityImage(
@@ -251,7 +282,9 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
                 drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
                 markerColors: markerColors,
                 showUserInputLabels: showUserInputLabels,
-                shouldRunInHostApplication: shouldRunInHostApplication
+                shouldRunInHostApplication: shouldRunInHostApplication,
+                precision: precision,
+                perceptualPrecision: perceptualPrecision
             )
             .pullback { viewController in
                 viewController.view
@@ -260,9 +293,24 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
 
     /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
     static var imageWithSmartInvert: Snapshotting {
-        return Snapshotting<UIView, UIImage>.imageWithSmartInvert.pullback { viewController in
-            viewController.view
-        }
+        return .imageWithSmartInvert()
+    }
+
+    /// Snapshots the current view simulating the way it will appear with Smart Invert Colors enabled.
+    ///
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
+    static func imageWithSmartInvert(
+        precision: Float = 1,
+        perceptualPrecision: Float = 1
+    ) -> Snapshotting {
+        return Snapshotting<UIView, UIImage>
+            .imageWithSmartInvert(precision: precision, perceptualPrecision: perceptualPrecision)
+            .pullback { viewController in
+                viewController.view
+            }
     }
 
     /// Snapshots the view controller with hit target regions highlighted.
@@ -282,10 +330,16 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
     /// repeating through the array as necessary and avoiding adjacent regions using the same color when possible.
     /// - parameter file: The file in which errors should be attributed.
     /// - parameter line: The line in which errors should be attributed.
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
     static func imageWithHitTargets(
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
         colors: [UIColor] = MarkerColors.defaultColors,
+        precision: Float = 1,
+        perceptualPrecision: Float = 1,
         file: StaticString = #file,
         line: UInt = #line
     ) -> Snapshotting {
@@ -294,6 +348,8 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
                 useMonochromeSnapshot: useMonochromeSnapshot,
                 drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
                 colors: colors,
+                precision: precision,
+                perceptualPrecision: perceptualPrecision,
                 file: file,
                 line: line
             )

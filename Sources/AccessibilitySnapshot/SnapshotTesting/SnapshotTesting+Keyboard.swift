@@ -13,12 +13,20 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
     /// read certain views. Defaults to `true`.
     /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
     static func keyboardAccessibilityImage(
         useMonochromeSnapshot: Bool = true,
-        drawHierarchyInKeyWindow: Bool = false
+        drawHierarchyInKeyWindow: Bool = false,
+        precision: Float = 1,
+        perceptualPrecision: Float = 1
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>.image(
-            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow
+            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+            precision: precision,
+            perceptualPrecision: perceptualPrecision
         ).pullback { view in
             makeSnapshotContainer(
                 for: view,
@@ -39,13 +47,21 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
     /// read certain views. Defaults to `true`.
     /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
     static func keyboardAccessibilityImage(
         menu: UIMenu,
         useMonochromeSnapshot: Bool = true,
-        drawHierarchyInKeyWindow: Bool = false
+        drawHierarchyInKeyWindow: Bool = false,
+        precision: Float = 1,
+        perceptualPrecision: Float = 1
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>.image(
-            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow
+            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+            precision: precision,
+            perceptualPrecision: perceptualPrecision
         ).pullback { view in
             makeSnapshotContainer(
                 for: view,
@@ -69,11 +85,15 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
     static func keyboardAccessibilityImage(
         useMonochromeSnapshot: Bool = true,
-        drawHierarchyInKeyWindow: Bool = false
+        drawHierarchyInKeyWindow: Bool = false,
+        precision: Float = 1,
+        perceptualPrecision: Float = 1
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>.keyboardAccessibilityImage(
             useMonochromeSnapshot: useMonochromeSnapshot,
-            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow
+            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+            precision: precision,
+            perceptualPrecision: perceptualPrecision
         ).pullback { viewController in
             viewController.view
         }
@@ -89,15 +109,23 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
     /// read certain views. Defaults to `true`.
     /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
     /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
     static func keyboardAccessibilityImage(
         menu: UIMenu,
         useMonochromeSnapshot: Bool = true,
-        drawHierarchyInKeyWindow: Bool = false
+        drawHierarchyInKeyWindow: Bool = false,
+        precision: Float = 1,
+        perceptualPrecision: Float = 1
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>.keyboardAccessibilityImage(
             menu: menu,
             useMonochromeSnapshot: useMonochromeSnapshot,
-            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow
+            drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+            precision: precision,
+            perceptualPrecision: perceptualPrecision
         ).pullback { viewController in
             viewController.view
         }
@@ -112,10 +140,16 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the view should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
     static func keyboardAccessibilityImage(
-        useMonochromeSnapshot: Bool = true
+        useMonochromeSnapshot: Bool = true,
+        precision: Float = 1,
+        perceptualPrecision: Float = 1
     ) -> Snapshotting {
-        return Snapshotting<UIImage, UIImage>.image.pullback { (view: Value) in
+        return Snapshotting<UIImage, UIImage>.image(precision: precision, perceptualPrecision: perceptualPrecision).pullback { (view: Value) in
             makeSwiftUISnapshot(view: view, menu: nil, useMonochromeSnapshot: useMonochromeSnapshot)
         }
     }
@@ -128,11 +162,17 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the view should be monochrome. Using a
     /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
     /// read certain views. Defaults to `true`.
+    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+    /// while a value of `0.95` means that 95% of pixels must match.
+    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
     static func keyboardAccessibilityImage(
         menu: UIMenu,
-        useMonochromeSnapshot: Bool = true
+        useMonochromeSnapshot: Bool = true,
+        precision: Float = 1,
+        perceptualPrecision: Float = 1
     ) -> Snapshotting {
-        return Snapshotting<UIImage, UIImage>.image.pullback { (view: Value) in
+        return Snapshotting<UIImage, UIImage>.image(precision: precision, perceptualPrecision: perceptualPrecision).pullback { (view: Value) in
             makeSwiftUISnapshot(view: view, menu: menu, useMonochromeSnapshot: useMonochromeSnapshot)
         }
     }
