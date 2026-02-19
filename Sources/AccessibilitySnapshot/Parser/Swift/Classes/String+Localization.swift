@@ -10,12 +10,6 @@ extension String {
 
 // MARK: -
 
-public extension Bundle {
-    static var accessibilitySnapshotResources: Bundle = .module
-}
-
-// MARK: -
-
 public enum StringLocalization {
     // MARK: - Private Static Properties
 
