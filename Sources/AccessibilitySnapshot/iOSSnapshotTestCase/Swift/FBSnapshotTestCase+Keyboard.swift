@@ -14,6 +14,12 @@ public extension FBSnapshotTestCase {
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerifyKeyboardAccessibility(
@@ -21,6 +27,8 @@ public extension FBSnapshotTestCase {
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -30,6 +38,8 @@ public extension FBSnapshotTestCase {
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
             suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             file: file,
             line: line
         )
@@ -44,6 +54,12 @@ public extension FBSnapshotTestCase {
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerifyKeyboardAccessibility(
@@ -52,6 +68,8 @@ public extension FBSnapshotTestCase {
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -61,6 +79,8 @@ public extension FBSnapshotTestCase {
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
             suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             file: file,
             line: line
         )
@@ -76,6 +96,12 @@ public extension FBSnapshotTestCase {
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerifyKeyboardAccessibility(
@@ -83,6 +109,8 @@ public extension FBSnapshotTestCase {
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -91,6 +119,8 @@ public extension FBSnapshotTestCase {
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
             suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             file: file,
             line: line
         )
@@ -105,6 +135,12 @@ public extension FBSnapshotTestCase {
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerifyKeyboardAccessibility(
@@ -113,6 +149,8 @@ public extension FBSnapshotTestCase {
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -122,6 +160,8 @@ public extension FBSnapshotTestCase {
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
             suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             file: file,
             line: line
         )
@@ -136,6 +176,12 @@ public extension FBSnapshotTestCase {
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerifyKeyboardAccessibility<ViewController: UIViewController>(
@@ -144,6 +190,8 @@ public extension FBSnapshotTestCase {
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -153,6 +201,8 @@ public extension FBSnapshotTestCase {
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
             suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             file: file,
             line: line
         )
@@ -168,6 +218,12 @@ public extension FBSnapshotTestCase {
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerifyKeyboardAccessibility<Content: View>(
@@ -175,6 +231,8 @@ public extension FBSnapshotTestCase {
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -184,6 +242,8 @@ public extension FBSnapshotTestCase {
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
             suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             file: file,
             line: line
         )
@@ -198,6 +258,12 @@ public extension FBSnapshotTestCase {
     /// - parameter identifier: An optional identifier included in the snapshot name.
     /// - parameter useMonochromeSnapshot: Whether or not the snapshot should be monochrome. Defaults to `true`.
     /// - parameter suffixes: NSOrderedSet of strings appended to the reference images directory.
+    /// - parameter perPixelTolerance: The amount the RGBA components of a pixel can differ for the pixel to still be
+    /// considered "unchanged". Value must be in the range `[0,1]`, where `0` means no difference allowed and `1` means
+    /// any two colors are considered identical.
+    /// - parameter overallTolerance: The portion of pixels that are allowed to have changed (as defined by the
+    /// per-pixel tolerance) for the image to still considered "unchanged" overall. Value must be in the range `[0,1]`,
+    /// where `0` means no pixels may change and `1` means all pixels may change.
     /// - parameter file: The file in which the test result should be attributed.
     /// - parameter line: The line in which the test result should be attributed.
     func SnapshotVerifyKeyboardAccessibility<Content: View>(
@@ -206,6 +272,8 @@ public extension FBSnapshotTestCase {
         identifier: String = "",
         useMonochromeSnapshot: Bool = true,
         suffixes: NSOrderedSet = FBSnapshotTestCaseDefaultSuffixes(),
+        perPixelTolerance: CGFloat = 0,
+        overallTolerance: CGFloat = 0,
         file: StaticString = #file,
         line: UInt = #line
     ) {
@@ -215,6 +283,8 @@ public extension FBSnapshotTestCase {
             identifier: identifier,
             useMonochromeSnapshot: useMonochromeSnapshot,
             suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             file: file,
             line: line
         )
@@ -228,6 +298,8 @@ public extension FBSnapshotTestCase {
         identifier: String,
         useMonochromeSnapshot: Bool,
         suffixes: NSOrderedSet,
+        perPixelTolerance: CGFloat,
+        overallTolerance: CGFloat,
         file: StaticString,
         line: UInt
     ) {
@@ -250,6 +322,8 @@ public extension FBSnapshotTestCase {
             menu: menu,
             identifier: identifier,
             suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             file: file,
             line: line
         )
@@ -261,6 +335,8 @@ public extension FBSnapshotTestCase {
         identifier: String,
         useMonochromeSnapshot: Bool,
         suffixes: NSOrderedSet,
+        perPixelTolerance: CGFloat,
+        overallTolerance: CGFloat,
         file: StaticString,
         line: UInt
     ) {
@@ -288,6 +364,8 @@ public extension FBSnapshotTestCase {
             menu: menu,
             identifier: identifier,
             suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             file: file,
             line: line
         )
@@ -298,6 +376,8 @@ public extension FBSnapshotTestCase {
         menu: UIMenu?,
         identifier: String,
         suffixes: NSOrderedSet,
+        perPixelTolerance: CGFloat,
+        overallTolerance: CGFloat,
         file: StaticString,
         line: UInt
     ) {
@@ -313,6 +393,6 @@ public extension FBSnapshotTestCase {
         }
 
         containerView.sizeToFit()
-        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, file: file, line: line)
+        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: suffixes, perPixelTolerance: perPixelTolerance, overallTolerance: overallTolerance, file: file, line: line)
     }
 }
