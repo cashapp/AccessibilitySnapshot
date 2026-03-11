@@ -38,11 +38,11 @@ public enum HitTargetSnapshotUtility {
         for view: UIView,
         useMonochromeSnapshot: Bool,
         viewRenderingMode: ViewRenderingMode,
-        colors: [UIColor] = MarkerColors.defaultColors,
+        colors: [UIColor] = [],
         maxPermissibleMissedRegionWidth: CGFloat = 0,
         maxPermissibleMissedRegionHeight: CGFloat = 0
     ) throws -> (snapshot: UIImage, orderedViewColorPairs: [(UIColor, UIView)]) {
-        let colors = colors.map { $0.withAlphaComponent(0.2) }
+        let colors = (colors.isEmpty ? MarkerColors.defaultColors : colors).map { $0.withAlphaComponent(0.2) }
 
         let bounds = view.bounds
         let renderer = UIGraphicsImageRenderer(bounds: bounds)
