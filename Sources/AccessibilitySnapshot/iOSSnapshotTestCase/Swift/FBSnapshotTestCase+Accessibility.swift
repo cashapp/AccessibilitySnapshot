@@ -178,7 +178,7 @@ public extension FBSnapshotTestCase {
 
         containerView.sizeToFit()
 
-        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: effectiveSuffixes, file: file, line: line)>>>>>>> 918e1c7 (Add renderer selection to test framework APIs)
+        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: effectiveSuffixes, file: file, line: line)
     }
 
     /// Snapshots the `view` simulating the way it will appear with Smart Invert Colors enabled.
