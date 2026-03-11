@@ -157,6 +157,7 @@ extension FBSnapshotTestCase {
                 baseView: view,
                 useMonochromeSnapshot: useMonochromeSnapshot,
                 viewRenderingMode: usesDrawViewHierarchyInRect ? .drawHierarchyInRect : .renderLayerInContext,
+                colors: MarkerColors.defaultColors,
                 maxPermissibleMissedRegionWidth: maxPermissibleMissedRegionWidth,
                 maxPermissibleMissedRegionHeight: maxPermissibleMissedRegionHeight
             )
