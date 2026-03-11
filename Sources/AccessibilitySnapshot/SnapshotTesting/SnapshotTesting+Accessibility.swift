@@ -2,7 +2,6 @@ import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser
 import AccessibilitySnapshotParser_ObjC
 import SnapshotTesting
-import AccessibilitySnapshotPreviews
 import UIKit
 
 public extension Snapshotting where Value == UIView, Format == UIImage {
@@ -31,8 +30,6 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
     /// while a value of `0.95` means that 95% of pixels must match.
     /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
     /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
-    /// - parameter layoutEngine: The layout engine to use for rendering the accessibility overlays and legend.
-    /// Defaults to `LayoutEngine.default`.
     static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
@@ -41,8 +38,7 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
         showUserInputLabels: Bool = true,
         shouldRunInHostApplication: Bool = true,
         precision: Float = 1,
-        perceptualPrecision: Float = 1,
-        layoutEngine: LayoutEngine = .default
+        perceptualPrecision: Float = 1
     ) -> Snapshotting {
         guard !shouldRunInHostApplication || isRunningInHostApplication else {
             fatalError("Accessibility snapshot tests cannot be run in a test target without a host application")
@@ -60,24 +56,7 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
                     includesInputLabels: showUserInputLabels ? .whenOverridden : .never
                 )
 
-                let containerView: AccessibilitySnapshotBaseView
-
-                switch layoutEngine {
-                case .uikit:
-                    containerView = AccessibilitySnapshotView(
-                        containedView: view,
-                        snapshotConfiguration: configuration
-                    )
-
-                case .swiftui:
-                    guard #available(iOS 16.0, *) else {
-                        fatalError("SwiftUI layout engine requires iOS 16.0 or later")
-                    }
-                    containerView = SwiftUIAccessibilitySnapshotContainerView(
-                        containedView: view,
-                        snapshotConfiguration: configuration
-                    )
-                }
+                let containerView = AccessibilitySnapshotView(containedView: view, snapshotConfiguration: configuration)
 
                 let window = UIWindow(frame: UIScreen.main.bounds)
                 window.makeKeyAndVisible()
@@ -205,7 +184,7 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
     static func imageWithHitTargets(
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
-        colors: [UIColor] = [],
+        colors: [UIColor] = MarkerColors.defaultColors,
         maxPermissibleMissedRegionWidth: CGFloat = 0,
         maxPermissibleMissedRegionHeight: CGFloat = 0,
         precision: Float = 1,
@@ -286,8 +265,6 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
     /// while a value of `0.95` means that 95% of pixels must match.
     /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
     /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
-    /// - parameter layoutEngine: The layout engine to use for rendering the accessibility overlays and legend.
-    /// Defaults to `LayoutEngine.default`.
     static func accessibilityImage(
         showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
         useMonochromeSnapshot: Bool = true,
@@ -296,8 +273,7 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
         showUserInputLabels: Bool = true,
         shouldRunInHostApplication: Bool = true,
         precision: Float = 1,
-        perceptualPrecision: Float = 1,
-        layoutEngine: LayoutEngine = .default
+        perceptualPrecision: Float = 1
     ) -> Snapshotting {
         return Snapshotting<UIView, UIImage>
             .accessibilityImage(
@@ -308,8 +284,7 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
                 showUserInputLabels: showUserInputLabels,
                 shouldRunInHostApplication: shouldRunInHostApplication,
                 precision: precision,
-                perceptualPrecision: perceptualPrecision,
-                layoutEngine: layoutEngine
+                perceptualPrecision: perceptualPrecision
             )
             .pullback { viewController in
                 viewController.view
@@ -362,7 +337,7 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
     static func imageWithHitTargets(
         useMonochromeSnapshot: Bool = true,
         drawHierarchyInKeyWindow: Bool = false,
-        colors: [UIColor] = [],
+        colors: [UIColor] = MarkerColors.defaultColors,
         precision: Float = 1,
         perceptualPrecision: Float = 1,
         file: StaticString = #file,
