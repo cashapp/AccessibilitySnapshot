@@ -214,6 +214,32 @@ let project = Project(
             )
         ),
 
+        // MARK: - AccessibilitySnapshotPreviews Demo App
+
+        .target(
+            name: "AccessibilitySnapshotPreviewsDemo",
+            destinations: .iOS,
+            product: .app,
+            bundleId: "com.cashapp.AccessibilitySnapshotPreviewsDemo",
+            deploymentTargets: .iOS("18.0"),
+            infoPlist: .extendingDefault(with: [
+                "UILaunchStoryboardName": "LaunchScreen",
+                "UIApplicationSceneManifest": [
+                    "UIApplicationSupportsMultipleScenes": false,
+                    "UISceneConfigurations": [:],
+                ],
+            ]),
+            sources: ["AccessibilitySnapshotPreviewsDemo/**/*.swift"],
+            dependencies: [
+                .target(name: "AccessibilitySnapshotPreviews"),
+            ],
+            settings: .settings(
+                base: [
+                    "DEVELOPMENT_TEAM": SettingValue.string(Environment.developmentTeam.getString(default: "")),
+                ]
+            )
+        ),
+
         // MARK: - Snapshot Tests
 
         .target(
@@ -239,6 +265,28 @@ let project = Project(
                     "SWIFT_OBJC_BRIDGING_HEADER": "$(SRCROOT)/SnapshotTests/Supporting Files/SnapshotTests-Bridging-Header.h",
                     "ENABLE_TESTING_SEARCH_PATHS": "YES",
                     "OTHER_LDFLAGS": "$(inherited) -ObjC",
+                ]
+            )
+        ),
+
+        // MARK: - AccessibilitySnapshotPreviews Tests
+
+        .target(
+            name: "AccessibilitySnapshotPreviewsTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.cashapp.AccessibilitySnapshotPreviewsTests",
+            deploymentTargets: .iOS("18.0"),
+            sources: ["AccessibilitySnapshotPreviewsTests/**/*.swift"],
+            dependencies: [
+                .target(name: "AccessibilitySnapshotPreviewsDemo"),
+                .target(name: "FBSnapshotTestCase_Accessibility"),
+                .external(name: "iOSSnapshotTestCase"),
+                .xctest,
+            ],
+            settings: .settings(
+                base: [
+                    "ENABLE_TESTING_SEARCH_PATHS": "YES",
                 ]
             )
         ),
@@ -275,5 +323,28 @@ let project = Project(
         ("English", "en"),
         ("German", "de"),
         ("Russian", "ru"),
-    ].map { makeLanguageScheme(language: $0.0, languageCode: $0.1) }
+    ].map { makeLanguageScheme(language: $0.0, languageCode: $0.1) } + [
+        .scheme(
+            name: "AccessibilitySnapshotPreviewsDemo",
+            shared: true,
+            buildAction: .buildAction(targets: [
+                .target("AccessibilitySnapshotPreviewsDemo"),
+            ]),
+            testAction: .targets(
+                [
+                    .testableTarget(target: .target("AccessibilitySnapshotPreviewsTests")),
+                ],
+                expandVariableFromTarget: .target("AccessibilitySnapshotPreviewsDemo")
+            ),
+            runAction: .runAction(
+                configuration: .debug,
+                executable: .target("AccessibilitySnapshotPreviewsDemo"),
+                arguments: .arguments(
+                    environmentVariables: [
+                        "FB_REFERENCE_IMAGE_DIR": .environmentVariable(value: "$(SOURCE_ROOT)/AccessibilitySnapshotPreviewsTests/ReferenceImages/", isEnabled: true),
+                    ]
+                )
+            )
+        ),
+    ]
 )
