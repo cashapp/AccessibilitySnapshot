@@ -7,8 +7,8 @@
 
 import AccessibilitySnapshotParser
 
-enum Strings {
-    static func actionsAvailableText(for locale: String?) -> String {
+public enum Strings {
+    public static func actionsAvailableText(for locale: String?) -> String {
         return "Actions Available".as_localized(
             key: "custom_actions.description",
             comment: "Description for an accessibility element indicating that it has custom actions available",
@@ -16,7 +16,7 @@ enum Strings {
         )
     }
 
-    static func moreContentAvailableText(for locale: String?) -> String {
+    public static func moreContentAvailableText(for locale: String?) -> String {
         return "More Content Available".as_localized(
             key: "custom_content.description",
             comment: "Description for an accessibility element indicating that it has additional custom content available",
@@ -24,7 +24,7 @@ enum Strings {
         )
     }
 
-    static func adjustableInputLabelText(for locale: String?) -> String {
+    public static func adjustableInputLabelText(for locale: String?) -> String {
         return "Adjustable.".as_localized(
             key: "trait.adjustable.inputLabel",
             comment: "Description for the 'adjustable' input label in legend view",
@@ -32,7 +32,7 @@ enum Strings {
         )
     }
 
-    static func buttonInputLabelText(for locale: String?) -> String {
+    public static func buttonInputLabelText(for locale: String?) -> String {
         return "Button.".as_localized(
             key: "trait.button.inputLabel",
             comment: "Description for the 'button' input label in legend view",
@@ -40,7 +40,7 @@ enum Strings {
         )
     }
 
-    static func noResultsText(for locale: String?) -> String {
+    public static func noResultsText(for locale: String?) -> String {
         return "<no results>".as_localized(
             key: "custom_rotors.no_results",
             comment: "Description for an accessibility rotor indicating that it has no results available",
@@ -48,7 +48,7 @@ enum Strings {
         )
     }
 
-    static func moreResultsText(count: Int, for locale: String?) -> String {
+    public static func moreResultsText(count: Int, for locale: String?) -> String {
         String(format: moreResultsFormatString(for: locale), String(count))
     }
 
@@ -60,7 +60,7 @@ enum Strings {
         )
     }
 
-    static func maxLimitText(max: Int, for locale: String?) -> String {
+    public static func maxLimitText(max: Int, for locale: String?) -> String {
         String(format: maxLimitText(for: locale), String(max))
     }
 

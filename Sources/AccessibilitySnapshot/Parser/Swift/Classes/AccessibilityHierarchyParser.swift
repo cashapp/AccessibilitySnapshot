@@ -2,8 +2,6 @@ import Accessibility
 import SwiftUI
 import UIKit
 
-// MARK: - Providing Protocols
-
 public protocol UserInterfaceLayoutDirectionProviding {
     var userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection { get }
 }
@@ -567,8 +565,8 @@ public final class AccessibilityHierarchyParser {
 
 extension AccessibilityHierarchyParser {
     /// Returns the shape of the accessibility element in the root view's coordinate space.
-    /// Voiceover prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
-    static func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityElement.Shape {
+    /// VoiceOver prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
+    static func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityMarker.Shape {
         if let accessibilityPath = element.accessibilityPath, preferPath {
             return .path(root.convert(accessibilityPath, from: nil))
 
