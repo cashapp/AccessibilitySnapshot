@@ -94,7 +94,7 @@ let project = Project(
             product: .framework,
             bundleId: "com.cashapp.AccessibilitySnapshotCore",
             deploymentTargets: deploymentTargets,
-            sources: ["../Sources/AccessibilitySnapshot/Core/*.swift"],
+            sources: ["../Sources/AccessibilitySnapshot/Core/**/*.swift"],
             resources: [
                 "../Sources/AccessibilitySnapshot/Core/Assets/**/*",
             ],
@@ -113,6 +113,7 @@ let project = Project(
             dependencies: [
                 .target(name: "AccessibilitySnapshotCore"),
                 .target(name: "AccessibilitySnapshotParser_ObjC"),
+                .target(name: "AccessibilitySnapshotPreviews"),
                 .external(name: "SnapshotTesting"),
             ],
             settings: .settings(
@@ -132,6 +133,7 @@ let project = Project(
             dependencies: [
                 .target(name: "AccessibilitySnapshotCore"),
                 .target(name: "AccessibilitySnapshotParser_ObjC"),
+                .target(name: "AccessibilitySnapshotPreviews"),
                 .external(name: "iOSSnapshotTestCase"),
             ],
             settings: .settings(
@@ -164,6 +166,19 @@ let project = Project(
             )
         ),
 
+        .target(
+            name: "AccessibilitySnapshotPreviews",
+            destinations: .iOS,
+            product: .framework,
+            bundleId: "com.cashapp.AccessibilitySnapshotPreviews",
+            deploymentTargets: deploymentTargets,
+            sources: ["../Sources/AccessibilitySnapshot/AccessibilitySnapshotPreviews/*.swift"],
+            dependencies: [
+                .target(name: "AccessibilitySnapshotCore"),
+                .target(name: "AccessibilitySnapshotParser"),
+            ]
+        ),
+
         // MARK: - Demo App
 
         .target(
@@ -189,6 +204,7 @@ let project = Project(
             dependencies: [
                 .external(name: "Paralayout"),
                 .target(name: "AccessibilitySnapshotCore"),
+                .target(name: "AccessibilitySnapshotPreviews"),
             ],
             settings: .settings(
                 base: [
@@ -253,6 +269,7 @@ let project = Project(
                 ]
             )
         ),
+
     ],
     schemes: [
         ("English", "en"),
