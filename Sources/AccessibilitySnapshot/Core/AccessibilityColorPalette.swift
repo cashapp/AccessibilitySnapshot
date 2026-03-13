@@ -93,30 +93,6 @@ public struct ColorPalette {
     public static let `default` = modern
 }
 
-public extension ColorPalette {
-    init(legacyColors: [UIColor]) {
-        guard let palette = Self(colors: legacyColors,
-                                 fillOpacity: 0.3,
-                                 strokeOpacity: 0.3)
-        else {
-            self = .legacy
-            return
-        }
-        self = palette
-    }
-
-    init(modernColors: [UIColor]) {
-        guard let palette = Self(colors: modernColors,
-                                 fillOpacity: 0.25,
-                                 strokeOpacity: 0.8)
-        else {
-            self = .modern
-            return
-        }
-        self = palette
-    }
-}
-
 public typealias AccessibilityColorPalette = ColorPalette
 
 // MARK: - Legacy Support
