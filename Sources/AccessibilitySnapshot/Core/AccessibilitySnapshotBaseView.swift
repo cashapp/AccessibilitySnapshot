@@ -97,10 +97,10 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
         containedView.layoutIfNeeded()
 
         let parser = AccessibilityHierarchyParser()
-        let markers = parser.parseAccessibilityElements(
+        let markers = parser.parseAccessibilityHierarchy(
             in: containedView,
             rotorResultLimit: snapshotConfiguration.rotors.resultLimit
-        )
+        ).flattenToElements()
 
         let parsedData = ParsedAccessibilityData(
             image: image,
