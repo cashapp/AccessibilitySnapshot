@@ -23,6 +23,12 @@ public struct AccessibilityElement: Equatable, Codable {
             public let rangeDescription: String?
             public let shape: Shape?
 
+            public init(elementDescription: String, rangeDescription: String? = nil, shape: Shape? = nil) {
+                self.elementDescription = elementDescription
+                self.rangeDescription = rangeDescription
+                self.shape = shape
+            }
+
             public var description: String {
                 guard let rangeDescription else {
                     return elementDescription
@@ -34,6 +40,12 @@ public struct AccessibilityElement: Equatable, Codable {
         public var name: String
         public var resultMarkers: [AccessibilityElement.CustomRotor.ResultMarker] = []
         public let limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit
+
+        public init(name: String, resultMarkers: [ResultMarker] = [], limit: UIAccessibilityCustomRotor.CollectedRotorResults.Limit = .none) {
+            self.name = name
+            self.resultMarkers = resultMarkers
+            self.limit = limit
+        }
 
         init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int) {
             guard from.isKnownRotorType else { return nil }
@@ -71,6 +83,12 @@ public struct AccessibilityElement: Equatable, Codable {
         public var value: String
         public var isImportant: Bool
 
+        public init(label: String, value: String, isImportant: Bool = false) {
+            self.label = label
+            self.value = value
+            self.isImportant = isImportant
+        }
+
         @available(iOS 14.0, *)
         init(from: AXCustomContent) {
             label = from.label
@@ -83,7 +101,7 @@ public struct AccessibilityElement: Equatable, Codable {
         public var name: String
         public var image: UIImage?
 
-        init(name: String, image: UIImage?) {
+        public init(name: String, image: UIImage? = nil) {
             self.name = name
             self.image = image
         }
