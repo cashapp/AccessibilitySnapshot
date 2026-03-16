@@ -13,9 +13,9 @@ private extension UIColor {
 }
 
 public struct ColorPalette {
-    private let colors: [UIColor]
-    public let fillOpacity: CGFloat
-    public let strokeOpacity: CGFloat
+    public var colors: [UIColor]
+    public var fillOpacity: CGFloat
+    public var strokeOpacity: CGFloat
 
     public init?(
         colors: [UIColor],
