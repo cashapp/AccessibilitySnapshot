@@ -78,7 +78,9 @@ public final class AccessibilitySnapshotView: AccessibilitySnapshotBaseView {
     override public func render(data: ParsedAccessibilityData) {
         var displayMarkers: [DisplayMarker] = []
         var palette = ColorPalette.legacy
-        palette.colors = snapshotConfiguration.markerColors
+        if !snapshotConfiguration.markerColors.isEmpty {
+            palette.colors = snapshotConfiguration.markerColors
+        }
 
         for (index, marker) in data.markers.enumerated() {
             let baseColor: UIColor = palette.color(at: index)
