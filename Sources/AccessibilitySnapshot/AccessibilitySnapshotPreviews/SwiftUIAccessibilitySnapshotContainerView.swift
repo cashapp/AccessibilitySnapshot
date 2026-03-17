@@ -31,7 +31,10 @@ public final class SwiftUIAccessibilitySnapshotContainerView: AccessibilitySnaps
     }
 
     override public func render(data: ParsedAccessibilityData) {
-        let palette = ColorPalette(modernColors: snapshotConfiguration.markerColors)
+        var palette = ColorPalette.modern
+        if !snapshotConfiguration.markerColors.isEmpty {
+            palette.colors = snapshotConfiguration.markerColors
+        }
 
         let swiftUIView = PreParsedAccessibilitySnapshotView(
             snapshotImage: data.image,
