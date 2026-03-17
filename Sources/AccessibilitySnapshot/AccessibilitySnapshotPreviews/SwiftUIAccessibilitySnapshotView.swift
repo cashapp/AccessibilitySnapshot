@@ -110,6 +110,24 @@ public struct AccessibilitySnapshotView<Content: View>: View {
         let hostingController = UIHostingController(rootView: adjustedContent)
         hostingController.view.frame = CGRect(origin: .zero, size: renderSize)
 
+        // UIViewRepresentable views (e.g. PathShapeUIView) report accessibilityPath and
+        // accessibilityFrame in screen coordinates. These properties rely on UIView coordinate
+        // conversion (`convert(_:to: nil)`), which requires the view to be installed in a
+        // UIWindow to produce meaningful results. Without a window, all views report their
+        // position as (0,0) and their paths overlap at the origin.
+        //
+        // This mirrors the UIKit snapshot path (SnapshotTesting+Accessibility, FBSnapshotTestCase),
+        // which also installs the container in a temporary window before parsing.
+        let window = UIWindow(frame: CGRect(origin: .zero, size: renderSize))
+        window.rootViewController = hostingController
+        window.makeKeyAndVisible()
+        hostingController.view.layoutIfNeeded()
+
+        defer {
+            window.isHidden = true
+            window.rootViewController = nil
+        }
+        
         do {
             snapshotImage = try hostingController.view.renderToImage(
                 configuration: configuration.rendering
