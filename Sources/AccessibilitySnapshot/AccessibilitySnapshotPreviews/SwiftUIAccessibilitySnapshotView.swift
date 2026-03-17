@@ -116,10 +116,10 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             )
 
             let parser = AccessibilityHierarchyParser()
-            markers = parser.parseAccessibilityElements(
+            markers = parser.parseAccessibilityHierarchy(
                 in: hostingController.view,
                 rotorResultLimit: configuration.rotors.resultLimit
-            )
+            ).flattenToElements()
         } catch {
             parseError = error
         }
