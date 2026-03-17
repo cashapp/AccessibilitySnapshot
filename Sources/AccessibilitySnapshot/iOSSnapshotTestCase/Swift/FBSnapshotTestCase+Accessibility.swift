@@ -95,6 +95,8 @@ public extension FBSnapshotTestCase {
             layoutEngine: layoutEngine,
             snapshotConfiguration: .init(viewRenderingMode: viewRenderingMode),
             suffixes: suffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
             file: file,
             line: line
         )
@@ -178,7 +180,15 @@ public extension FBSnapshotTestCase {
 
         containerView.sizeToFit()
 
-        FBSnapshotVerifyView(containerView, identifier: identifier, suffixes: effectiveSuffixes, file: file, line: line)
+        FBSnapshotVerifyView(
+            containerView,
+            identifier: identifier,
+            suffixes: effectiveSuffixes,
+            perPixelTolerance: perPixelTolerance,
+            overallTolerance: overallTolerance,
+            file: file,
+            line: line
+        )
     }
 
     /// Snapshots the `view` simulating the way it will appear with Smart Invert Colors enabled.
