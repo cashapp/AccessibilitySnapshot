@@ -160,9 +160,11 @@ extension NSObject {
         // Read expanded/collapsed status from the private _accessibilityExpandedStatus method.
         // SwiftUI DisclosureGroup and expandable list sections set this to communicate state to VoiceOver.
         let expandedSelector = NSSelectorFromString("_accessibilityExpandedStatus")
+        var rawExpandedStatus = 0
         if responds(to: expandedSelector),
            let rawStatus = value(forKey: "_accessibilityExpandedStatus") as? Int
         {
+            rawExpandedStatus = rawStatus
             switch rawStatus {
             case 1:
                 traitSpecifiers.append(strings.expandedStatusName)
@@ -266,6 +268,15 @@ extension NSObject {
                 hintDescription = String(format: strings.adjustableTraitHintFormat, existingHintDescription)
             } else {
                 hintDescription = strings.adjustableTraitHint
+            }
+        }
+
+        if rawExpandedStatus == 1 || rawExpandedStatus == 2 {
+            let expandedHint = rawExpandedStatus == 1 ? strings.expandedStatusHint : strings.collapsedStatusHint
+            if let existingHint = hintDescription?.nonEmpty()?.strippingTrailingPeriod() {
+                hintDescription = "\(existingHint). \(expandedHint)"
+            } else {
+                hintDescription = expandedHint
             }
         }
 
@@ -393,6 +404,10 @@ extension NSObject {
         let expandedStatusName: String
 
         let collapsedStatusName: String
+
+        let expandedStatusHint: String
+
+        let collapsedStatusHint: String
 
         // MARK: - Life Cycle
 
@@ -583,6 +598,16 @@ extension NSObject {
             collapsedStatusName = "Collapsed.".localized(
                 key: "status.collapsed.description",
                 comment: "Description for the collapsed accessibility status",
+                locale: locale
+            )
+            expandedStatusHint = "Double tap to collapse.".localized(
+                key: "status.expanded.hint",
+                comment: "Hint for expanded elements",
+                locale: locale
+            )
+            collapsedStatusHint = "Double tap to expand.".localized(
+                key: "status.collapsed.hint",
+                comment: "Hint for collapsed elements",
                 locale: locale
             )
         }
