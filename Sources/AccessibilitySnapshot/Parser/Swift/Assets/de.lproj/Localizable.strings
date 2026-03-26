@@ -109,6 +109,12 @@
 /* Description for the 'is editing' accessibility trait */
 "trait.text_field_is_editing.description" = "Bearbeiten";
 
+/* Description for the expanded accessibility status */
+"status.expanded.description" = "Erweitert.";
+
+/* Description for the collapsed accessibility status */
+"status.collapsed.description" = "Reduziert.";
+
 /* Description for an accessibility rotor indicating that it has no results available */
 "custom_rotors.no_results" = "<keine Ergebnisse>";
 
