@@ -112,6 +112,12 @@
 /* Description for the collapsed accessibility status */
 "status.collapsed.description" = "Свернуто.";
 
+/* Hint for expanded elements */
+"status.expanded.hint" = "Коснитесь дважды, чтобы свернуть.";
+
+/* Hint for collapsed elements */
+"status.collapsed.hint" = "Коснитесь дважды, чтобы развернуть.";
+
 /* Description for an accessibility rotor indicating that it has no results available */
 "custom_rotors.no_results" = "<нет результатов>";
 

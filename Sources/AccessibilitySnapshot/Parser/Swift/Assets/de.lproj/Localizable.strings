@@ -112,6 +112,12 @@
 /* Description for the collapsed accessibility status */
 "status.collapsed.description" = "Reduziert.";
 
+/* Hint for expanded elements */
+"status.expanded.hint" = "Doppeltippen zum Reduzieren.";
+
+/* Hint for collapsed elements */
+"status.collapsed.hint" = "Doppeltippen zum Erweitern.";
+
 /* Description for an accessibility rotor indicating that it has no results available */
 "custom_rotors.no_results" = "<keine Ergebnisse>";
 
