@@ -106,6 +106,12 @@
 /* Description for the 'is editing' accessibility trait */
 "trait.text_field_is_editing.description" = "Идет правка";
 
+/* Description for the expanded accessibility status */
+"status.expanded.description" = "Развернуто.";
+
+/* Description for the collapsed accessibility status */
+"status.collapsed.description" = "Свернуто.";
+
 /* Description for an accessibility rotor indicating that it has no results available */
 "custom_rotors.no_results" = "<нет результатов>";
 

@@ -159,6 +159,22 @@ extension NSObject {
             traitSpecifiers.append(strings.searchFieldTraitName)
         }
 
+        // Read expanded/collapsed status from the private _accessibilityExpandedStatus method.
+        // SwiftUI DisclosureGroup and expandable list sections set this to communicate state to VoiceOver.
+        let expandedSelector = NSSelectorFromString("_accessibilityExpandedStatus")
+        if responds(to: expandedSelector),
+           let rawStatus = value(forKey: "_accessibilityExpandedStatus") as? Int
+        {
+            switch rawStatus {
+            case 1:
+                traitSpecifiers.append(strings.expandedStatusName)
+            case 2:
+                traitSpecifiers.append(strings.collapsedStatusName)
+            default:
+                break
+            }
+        }
+
         // If the description is empty, use the hint as the description.
         if accessibilityDescription.isEmpty {
             accessibilityDescription = hintDescription ?? ""
@@ -374,6 +390,10 @@ extension NSObject {
 
         let isEditingTraitName: String
 
+        let expandedStatusName: String
+
+        let collapsedStatusName: String
+
         // MARK: - Life Cycle
 
         init(locale: String?) {
@@ -548,6 +568,16 @@ extension NSObject {
             isEditingTraitName = "Is editing.".localized(
                 key: "trait.text_field_is_editing.description",
                 comment: "Description for the 'is editing' accessibility trait",
+                locale: locale
+            )
+            expandedStatusName = "Expanded.".localized(
+                key: "status.expanded.description",
+                comment: "Description for the expanded accessibility status",
+                locale: locale
+            )
+            collapsedStatusName = "Collapsed.".localized(
+                key: "status.collapsed.description",
+                comment: "Description for the collapsed accessibility status",
                 locale: locale
             )
         }
