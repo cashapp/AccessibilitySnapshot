@@ -53,6 +53,10 @@ final class RootViewController: UITableViewController {
             ("SwiftUI Text Entry", { _ in UIHostingController(rootView: SwiftUITextEntry()) }),
         ]
 
+        if #available(iOS 15.0, *) {
+            accessibilityScreens.append(("List with Section Headers", { _ in UIHostingController(rootView: SwiftUIListWithSections()) }))
+            accessibilityScreens.append(("List with Headers and Footers", { _ in UIHostingController(rootView: SwiftUIListWithHeadersAndFooters()) }))
+        }
         if #available(iOS 14.0, *) {
             accessibilityScreens.append(("Accessibility Custom Content", { _ in AccessibilityCustomContentViewController() }))
         }
