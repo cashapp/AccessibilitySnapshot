@@ -649,7 +649,14 @@ private extension AccessibilityHierarchyParser {
             }
 
         case let .group(elements, _, _, _):
-            return elements.reduce(CGRect.null) { $0.union(accessibilitySortFrame(for: $1, in: root)) }
+            // Use the topmost-leftmost child's frame to position the group, matching VoiceOver behavior
+            // (see comment in sortedElements about "first element in the group that would be selected").
+            return elements
+                .map { accessibilitySortFrame(for: $0, in: root) }
+                .min { f1, f2 in
+                    if f1.origin.y != f2.origin.y { return f1.origin.y < f2.origin.y }
+                    return f1.origin.x < f2.origin.x
+                } ?? .null
         }
     }
 }
@@ -722,9 +729,18 @@ private extension NSObject {
             }
             // Capture container info - this path always creates a group, so just capture for metadata
             let container = (self as? UIView).flatMap { containerInfo(for: $0) }
+
+            // When accessibilityElements produces only groups (no direct elements), the array
+            // order is a structural artifact of the view hierarchy, not a semantic ordering.
+            // Allow frame-based re-sorting in that case to correctly interleave elements from
+            // separate internal containers (e.g. UICollectionView headers vs cells).
+            let hasDirectElements = accessibilityHierarchyOfElements.contains {
+                if case .element = $0 { return true }
+                return false
+            }
             recursiveAccessibilityHierarchy.append(.group(
                 accessibilityHierarchyOfElements,
-                explicitlyOrdered: true,
+                explicitlyOrdered: hasDirectElements,
                 frameOverrideProvider: overridesElementFrame(with: contextProvider) ? self : nil,
                 container: container
             ))
