@@ -17,6 +17,21 @@ public struct AccessibilityElement: Equatable, Codable {
         case path(UIBezierPath)
     }
 
+    /// The expanded/collapsed state of a disclosure-style accessibility element.
+    ///
+    /// SwiftUI `DisclosureGroup` and expandable list sections communicate their state to VoiceOver
+    /// through `_accessibilityExpandedStatus`. This enum represents the three possible states.
+    public enum ExpandedStatus: Int, Equatable, Codable {
+        /// The element does not support expanded/collapsed state.
+        case unsupported = 0
+
+        /// The element is expanded.
+        case expanded = 1
+
+        /// The element is collapsed.
+        case collapsed = 2
+    }
+
     public struct CustomRotor: Equatable, CustomStringConvertible, Codable {
         public struct ResultMarker: Equatable, CustomStringConvertible, Codable {
             public let elementDescription: String
@@ -195,6 +210,9 @@ public struct AccessibilityElement: Equatable, Codable {
     /// Whether the element performs an action based on user interaction.
     public let respondsToUserInteraction: Bool
 
+    /// The expanded/collapsed state of the element, if applicable.
+    public let expandedStatus: ExpandedStatus
+
     // MARK: - Initialization
 
     init(
@@ -212,7 +230,8 @@ public struct AccessibilityElement: Equatable, Codable {
         customContent: [CustomContent],
         customRotors: [CustomRotor],
         accessibilityLanguage: String?,
-        respondsToUserInteraction: Bool
+        respondsToUserInteraction: Bool,
+        expandedStatus: ExpandedStatus = .unsupported
     ) {
         self.description = description
         self.label = label
@@ -229,5 +248,6 @@ public struct AccessibilityElement: Equatable, Codable {
         self.customRotors = customRotors
         self.accessibilityLanguage = accessibilityLanguage
         self.respondsToUserInteraction = respondsToUserInteraction
+        self.expandedStatus = expandedStatus
     }
 }
