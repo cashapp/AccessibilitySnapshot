@@ -13,6 +13,8 @@ public struct AccessibilitySnapshotView<Content: View>: View {
     private let renderSize: CGSize
 
     @State private var markers: [AccessibilityMarker] = []
+    @State private var hierarchy: [AccessibilityHierarchy] = []
+    @State private var colorAssignment: HierarchyColorAssignment?
     @State private var snapshotImage: UIImage?
     @State private var parseError: Error?
 
@@ -36,6 +38,10 @@ public struct AccessibilitySnapshotView<Content: View>: View {
         configuration.showsUnspokenTraits
     }
 
+    private var showContainers: Bool {
+        configuration.showContainers
+    }
+
     public var body: some View {
         VStack(spacing: 0) {
             if let snapshotImage = snapshotImage {
@@ -44,13 +50,23 @@ public struct AccessibilitySnapshotView<Content: View>: View {
                 errorView(error: parseError)
             }
 
-            LegendView(
-                markers: markers,
-                palette: palette,
-                showUserInputLabels: showUserInputLabels,
-                showUnspokenTraits: showUnspokenTraits
-            )
-            .frame(width: renderSize.width)
+            if showContainers, let colorAssignment {
+                HierarchyLegendView(
+                    nodes: colorAssignment.nodes,
+                    palette: palette,
+                    showUserInputLabels: showUserInputLabels,
+                    showUnspokenTraits: showUnspokenTraits
+                )
+                .frame(width: renderSize.width)
+            } else {
+                LegendView(
+                    markers: markers,
+                    palette: palette,
+                    showUserInputLabels: showUserInputLabels,
+                    showUnspokenTraits: showUnspokenTraits
+                )
+                .frame(width: renderSize.width)
+            }
         }
         .onAppear {
             // Only parse if we don't already have pre-parsed data
@@ -70,20 +86,47 @@ public struct AccessibilitySnapshotView<Content: View>: View {
                 .resizable()
                 .frame(width: renderSize.width, height: renderSize.height)
 
-            ForEach(markers.indices, id: \.self) { index in
-                let marker = markers[index]
-
-                ElementOverlay(
-                    index: index,
-                    shape: marker.shape,
-                    palette: palette
-                )
-
-                if shouldShowActivationPoint(for: marker) {
-                    ActivationPointView(
-                        position: marker.activationPoint,
-                        color: palette.strokeColor(at: index)
+            if showContainers, let colorAssignment {
+                ForEach(colorAssignment.containers.indices, id: \.self) { i in
+                    let entry = colorAssignment.containers[i]
+                    ContainerOverlayView(
+                        container: entry.container,
+                        index: entry.colorIndex,
+                        palette: palette
                     )
+                }
+
+                ForEach(colorAssignment.elements.indices, id: \.self) { i in
+                    let entry = colorAssignment.elements[i]
+                    ElementOverlay(
+                        index: entry.colorIndex,
+                        shape: entry.element.shape,
+                        palette: palette
+                    )
+
+                    if shouldShowActivationPoint(for: entry.element) {
+                        ActivationPointView(
+                            position: entry.element.activationPoint,
+                            color: palette.strokeColor(at: entry.colorIndex)
+                        )
+                    }
+                }
+            } else {
+                ForEach(markers.indices, id: \.self) { index in
+                    let marker = markers[index]
+
+                    ElementOverlay(
+                        index: index,
+                        shape: marker.shape,
+                        palette: palette
+                    )
+
+                    if shouldShowActivationPoint(for: marker) {
+                        ActivationPointView(
+                            position: marker.activationPoint,
+                            color: palette.strokeColor(at: index)
+                        )
+                    }
                 }
             }
         }
@@ -110,14 +153,6 @@ public struct AccessibilitySnapshotView<Content: View>: View {
         let hostingController = UIHostingController(rootView: adjustedContent)
         hostingController.view.frame = CGRect(origin: .zero, size: renderSize)
 
-        // UIViewRepresentable views (e.g. PathShapeUIView) report accessibilityPath and
-        // accessibilityFrame in screen coordinates. These properties rely on UIView coordinate
-        // conversion (`convert(_:to: nil)`), which requires the view to be installed in a
-        // UIWindow to produce meaningful results. Without a window, all views report their
-        // position as (0,0) and their paths overlap at the origin.
-        //
-        // This mirrors the UIKit snapshot path (SnapshotTesting+Accessibility, FBSnapshotTestCase),
-        // which also installs the container in a temporary window before parsing.
         let window = UIWindow(frame: CGRect(origin: .zero, size: renderSize))
         window.rootViewController = hostingController
         window.makeKeyAndVisible()
@@ -127,17 +162,20 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             window.isHidden = true
             window.rootViewController = nil
         }
-        
+
         do {
             snapshotImage = try hostingController.view.renderToImage(
                 configuration: configuration.rendering
             )
 
             let parser = AccessibilityHierarchyParser()
-            markers = parser.parseAccessibilityHierarchy(
+            let parsedHierarchy = parser.parseAccessibilityHierarchy(
                 in: hostingController.view,
                 rotorResultLimit: configuration.rotors.resultLimit
-            ).flattenToElements()
+            )
+            hierarchy = parsedHierarchy
+            colorAssignment = HierarchyColorAssignment.build(from: parsedHierarchy)
+            markers = parsedHierarchy.flattenToElements()
         } catch {
             parseError = error
         }
@@ -185,6 +223,8 @@ public extension AccessibilitySnapshotView where Content == UIViewWrapper {
 public struct PreParsedAccessibilitySnapshotView: View {
     private let snapshotImage: UIImage
     private let markers: [AccessibilityMarker]
+    private let hierarchy: [AccessibilityHierarchy]
+    private let colorAssignment: HierarchyColorAssignment?
     private let configuration: AccessibilitySnapshotConfiguration
     private let palette: ColorPalette
     private let renderSize: CGSize
@@ -192,12 +232,15 @@ public struct PreParsedAccessibilitySnapshotView: View {
     public init(
         snapshotImage: UIImage,
         markers: [AccessibilityMarker],
+        hierarchy: [AccessibilityHierarchy] = [],
         configuration: AccessibilitySnapshotConfiguration = .init(viewRenderingMode: .drawHierarchyInRect),
         palette: ColorPalette = .default,
         renderSize: CGSize
     ) {
         self.snapshotImage = snapshotImage
         self.markers = markers
+        self.hierarchy = hierarchy
+        colorAssignment = hierarchy.isEmpty ? nil : HierarchyColorAssignment.build(from: hierarchy)
         self.configuration = configuration
         self.palette = palette
         self.renderSize = renderSize
@@ -211,11 +254,12 @@ public struct PreParsedAccessibilitySnapshotView: View {
         configuration.showsUnspokenTraits
     }
 
+    private var showContainers: Bool {
+        configuration.showContainers
+    }
+
     private var legendOnRight: Bool {
         let aspectRatio = renderSize.width / renderSize.height
-        // Match UIKit's legendLocation logic exactly:
-        // Wide views (aspectRatio > 1) or views smaller than minimumWidth should display legend below
-        // minimumWidth = minimumLegendWidth + legendInset * 2 (includes padding on both sides)
         let minimumWidth = LegendLayoutMetrics.minimumWidth
         return aspectRatio <= 1 && renderSize.width >= minimumWidth
     }
@@ -227,33 +271,48 @@ public struct PreParsedAccessibilitySnapshotView: View {
 
     public var body: some View {
         if legendOnRight {
-            // Tall view: snapshot on left, legend on right (may span multiple columns)
             HStack(alignment: .top, spacing: 0) {
                 snapshotWithOverlays
-                multiColumnLegend
+                if showContainers, let colorAssignment {
+                    HierarchyLegendView(
+                        nodes: colorAssignment.nodes,
+                        palette: palette,
+                        showUserInputLabels: showUserInputLabels,
+                        showUnspokenTraits: showUnspokenTraits
+                    )
+                } else {
+                    multiColumnLegend
+                }
             }
             .background(Color(white: 0.9))
         } else {
-            // Wide view: snapshot on top, legend on bottom
             VStack(spacing: 0) {
                 snapshotWithOverlays
-                    .frame(width: contentWidth) // Center snapshot if smaller than legend
-                LegendView(
-                    markers: markers,
-                    palette: palette,
-                    showUserInputLabels: showUserInputLabels,
-                    showUnspokenTraits: showUnspokenTraits
-                )
-                .frame(width: contentWidth)
+                    .frame(width: contentWidth)
+                if showContainers, let colorAssignment {
+                    HierarchyLegendView(
+                        nodes: colorAssignment.nodes,
+                        palette: palette,
+                        showUserInputLabels: showUserInputLabels,
+                        showUnspokenTraits: showUnspokenTraits
+                    )
+                    .frame(width: contentWidth)
+                } else {
+                    LegendView(
+                        markers: markers,
+                        palette: palette,
+                        showUserInputLabels: showUserInputLabels,
+                        showUnspokenTraits: showUnspokenTraits
+                    )
+                    .frame(width: contentWidth)
+                }
             }
             .background(Color(white: 0.9))
         }
     }
 
-    /// Wraps legend items into multiple columns when they exceed the available height
     @ViewBuilder
     private var multiColumnLegend: some View {
-        // Match UIKit's available height calculation exactly (no multiplier!)
         let availableHeight = renderSize.height - LegendLayoutMetrics.legendInset * 2
 
         ColumnWrapLayout(
@@ -281,19 +340,46 @@ public struct PreParsedAccessibilitySnapshotView: View {
                 .resizable()
                 .frame(width: renderSize.width, height: renderSize.height)
 
-            ForEach(markers.indices, id: \.self) { index in
-                let marker = markers[index]
-                ElementOverlay(
-                    index: index,
-                    shape: marker.shape,
-                    palette: palette
-                )
-
-                if shouldShowActivationPoint(for: marker) {
-                    ActivationPointView(
-                        position: marker.activationPoint,
-                        color: palette.strokeColor(at: index)
+            if showContainers, let colorAssignment {
+                ForEach(colorAssignment.containers.indices, id: \.self) { i in
+                    let entry = colorAssignment.containers[i]
+                    ContainerOverlayView(
+                        container: entry.container,
+                        index: entry.colorIndex,
+                        palette: palette
                     )
+                }
+
+                ForEach(colorAssignment.elements.indices, id: \.self) { i in
+                    let entry = colorAssignment.elements[i]
+                    ElementOverlay(
+                        index: entry.colorIndex,
+                        shape: entry.element.shape,
+                        palette: palette
+                    )
+
+                    if shouldShowActivationPoint(for: entry.element) {
+                        ActivationPointView(
+                            position: entry.element.activationPoint,
+                            color: palette.strokeColor(at: entry.colorIndex)
+                        )
+                    }
+                }
+            } else {
+                ForEach(markers.indices, id: \.self) { index in
+                    let marker = markers[index]
+                    ElementOverlay(
+                        index: index,
+                        shape: marker.shape,
+                        palette: palette
+                    )
+
+                    if shouldShowActivationPoint(for: marker) {
+                        ActivationPointView(
+                            position: marker.activationPoint,
+                            color: palette.strokeColor(at: index)
+                        )
+                    }
                 }
             }
         }

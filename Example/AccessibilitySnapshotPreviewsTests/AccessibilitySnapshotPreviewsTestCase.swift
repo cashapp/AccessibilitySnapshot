@@ -1,3 +1,4 @@
+import AccessibilitySnapshotCore
 import FBSnapshotTestCase_Accessibility
 import iOSSnapshotTestCase
 
@@ -35,17 +36,30 @@ class AccessibilitySnapshotPreviewsTestCase: FBSnapshotTestCase {
     func snapshotVerifyAccessibility<V: View>(
         _ view: V,
         identifier: String = "",
+        configuration: AccessibilitySnapshotConfiguration? = nil,
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        SnapshotVerifyAccessibility(
-            view,
-            size: UIScreen.main.bounds.size,
-            identifier: identifier,
-            layoutEngine: .swiftui,
-            file: file,
-            line: line
-        )
+        if let configuration {
+            SnapshotVerifyAccessibility(
+                view,
+                size: UIScreen.main.bounds.size,
+                identifier: identifier,
+                layoutEngine: .swiftui,
+                snapshotConfiguration: configuration,
+                file: file,
+                line: line
+            )
+        } else {
+            SnapshotVerifyAccessibility(
+                view,
+                size: UIScreen.main.bounds.size,
+                identifier: identifier,
+                layoutEngine: .swiftui,
+                file: file,
+                line: line
+            )
+        }
     }
 
     // MARK: - Configuration
