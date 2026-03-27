@@ -270,42 +270,37 @@ public struct PreParsedAccessibilitySnapshotView: View {
     }
 
     public var body: some View {
-        if legendOnRight {
+        if showContainers, let colorAssignment {
+            // Container mode: always legend below for readability
+            VStack(spacing: 0) {
+                snapshotWithOverlays
+                    .frame(width: contentWidth)
+                HierarchyLegendView(
+                    nodes: colorAssignment.nodes,
+                    palette: palette,
+                    showUserInputLabels: showUserInputLabels,
+                    showUnspokenTraits: showUnspokenTraits
+                )
+                .frame(width: contentWidth)
+            }
+            .background(Color(white: 0.9))
+        } else if legendOnRight {
             HStack(alignment: .top, spacing: 0) {
                 snapshotWithOverlays
-                if showContainers, let colorAssignment {
-                    HierarchyLegendView(
-                        nodes: colorAssignment.nodes,
-                        palette: palette,
-                        showUserInputLabels: showUserInputLabels,
-                        showUnspokenTraits: showUnspokenTraits
-                    )
-                } else {
-                    multiColumnLegend
-                }
+                multiColumnLegend
             }
             .background(Color(white: 0.9))
         } else {
             VStack(spacing: 0) {
                 snapshotWithOverlays
                     .frame(width: contentWidth)
-                if showContainers, let colorAssignment {
-                    HierarchyLegendView(
-                        nodes: colorAssignment.nodes,
-                        palette: palette,
-                        showUserInputLabels: showUserInputLabels,
-                        showUnspokenTraits: showUnspokenTraits
-                    )
-                    .frame(width: contentWidth)
-                } else {
-                    LegendView(
-                        markers: markers,
-                        palette: palette,
-                        showUserInputLabels: showUserInputLabels,
-                        showUnspokenTraits: showUnspokenTraits
-                    )
-                    .frame(width: contentWidth)
-                }
+                LegendView(
+                    markers: markers,
+                    palette: palette,
+                    showUserInputLabels: showUserInputLabels,
+                    showUnspokenTraits: showUnspokenTraits
+                )
+                .frame(width: contentWidth)
             }
             .background(Color(white: 0.9))
         }
