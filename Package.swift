@@ -95,5 +95,10 @@ let package = Package(
             dependencies: ["AccessibilitySnapshotCore", "iOSSnapshotTestCase", "FBSnapshotTestCase-Accessibility"],
             path: "Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC"
         ),
+        .testTarget(
+            name: "AccessibilitySnapshotParserTests",
+            dependencies: ["AccessibilitySnapshotParser"],
+            path: "Tests/AccessibilitySnapshotParserTests"
+        ),
     ]
 )
