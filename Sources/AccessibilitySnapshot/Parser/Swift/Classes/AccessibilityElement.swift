@@ -19,8 +19,20 @@ public struct AccessibilityElement: Equatable, Codable {
 
     /// The expanded/collapsed state of a disclosure-style accessibility element.
     ///
-    /// SwiftUI `DisclosureGroup` and expandable list sections communicate their state to VoiceOver
-    /// through `_accessibilityExpandedStatus`. This enum represents the three possible states.
+    /// `_accessibilityExpandedStatus` is a private method on `NSObject` (available on all
+    /// `NSObject` subclasses, defaulting to `0`/unsupported). It was first given meaningful
+    /// return values by `SwiftUI.AccessibilityNode` (`_TtC7SwiftUI17AccessibilityNode`) in
+    /// iOS 14.2, where `DisclosureGroup` and expandable list sections override it to
+    /// communicate their expanded/collapsed state to VoiceOver.
+    ///
+    /// In iOS 18.0, Apple added a public `accessibilityExpandedStatus` property to UIKit's
+    /// `UIAccessibility` protocol. However, as of iOS 18.5, SwiftUI's `DisclosureGroup` only
+    /// sets the private `_accessibilityExpandedStatus` — the public property returns `.unsupported`
+    /// for SwiftUI elements. Setting the public property on a UIKit view does sync to the private
+    /// one, but not vice versa.
+    ///
+    /// This enum represents the three possible states, mirroring the raw integer values returned
+    /// by both APIs.
     public enum ExpandedStatus: Int, Equatable, Codable {
         /// The element does not support expanded/collapsed state.
         case unsupported = 0

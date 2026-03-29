@@ -159,8 +159,12 @@ extension NSObject {
             traitSpecifiers.append(strings.searchFieldTraitName)
         }
 
-        // Read expanded/collapsed status from the private _accessibilityExpandedStatus method.
-        // SwiftUI DisclosureGroup and expandable list sections set this to communicate state to VoiceOver.
+        // Read expanded/collapsed status from `_accessibilityExpandedStatus`, a private method on
+        // NSObject (defaults to 0/unsupported). SwiftUI's AccessibilityNode overrides this for
+        // DisclosureGroup elements (since iOS 14.2). This is the only reliable source for SwiftUI
+        // expanded state — the public iOS 18 `accessibilityExpandedStatus` property returns
+        // `.unsupported` for SwiftUI elements. UIKit views that set the public property are also
+        // covered here since UIKit syncs to the private method.
         let expandedSelector = NSSelectorFromString("_accessibilityExpandedStatus")
         var rawExpandedStatus = 0
         if responds(to: expandedSelector),
