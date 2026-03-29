@@ -28,7 +28,7 @@ public enum AccessibilityHierarchy: Equatable, Codable {
     /// For elements: returns the traversal index.
     /// For containers: returns the minimum sort index of its children (recursively).
     public var sortIndex: Int {
-        reduced(Int.max) { accumulator, node in
+        reduce(Int.max) { accumulator, node in
             guard case let .element(_, index) = node else { return accumulator }
             return min(accumulator, index)
         }
@@ -40,7 +40,7 @@ public enum AccessibilityHierarchy: Equatable, Codable {
 public extension AccessibilityHierarchy {
     /// Recursively visits each node in the hierarchy tree
     func forEach(_ apply: (AccessibilityHierarchy) -> Void) {
-        reduced(()) { _, node in apply(node) }
+        reduce(()) { _, node in apply(node) }
     }
 }
 

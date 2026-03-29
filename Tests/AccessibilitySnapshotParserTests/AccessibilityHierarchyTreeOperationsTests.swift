@@ -81,7 +81,7 @@
 
         func testFilterKeepsMatchingElement() {
             let node = element(label: "Save")
-            let result = node.filtered { n in
+            let result = node.filter { n in
                 if case let .element(e, _) = n { return e.label == "Save" }
                 return false
             }
@@ -90,7 +90,7 @@
 
         func testFilterRemovesNonMatchingElement() {
             let node = element(label: "Cancel")
-            let result = node.filtered { n in
+            let result = node.filter { n in
                 if case let .element(e, _) = n { return e.label == "Save" }
                 return false
             }
@@ -99,7 +99,7 @@
 
         func testFilterPreservesTraversalIndex() {
             let node = element(label: "X", index: 42)
-            let result = node.filtered { _ in true }
+            let result = node.filter { _ in true }
             if case let .element(_, idx) = result {
                 XCTAssertEqual(idx, 42)
             } else {
@@ -119,7 +119,7 @@
                 element(label: "Cancel", index: 1),
             ])
 
-            let result = tree.filtered { n in
+            let result = tree.filter { n in
                 if case let .element(e, _) = n { return e.label == "Save" }
                 return false
             }
@@ -137,7 +137,7 @@
                 element(label: "Delete", index: 1),
             ])
 
-            let result = tree.filtered { n in
+            let result = tree.filter { n in
                 if case let .element(e, _) = n { return e.label == "Save" }
                 return false
             }
@@ -149,7 +149,7 @@
                 element(label: "Item"),
             ])
 
-            let result = tree.filtered { n in
+            let result = tree.filter { n in
                 if case let .container(c, _) = n {
                     if case .dataTable = c.type { return true }
                 }
@@ -170,7 +170,7 @@
                 element(label: "Volume", index: 0),
             ])
 
-            let result = tree.filtered { _ in true }
+            let result = tree.filter { _ in true }
             guard case let .container(c, _) = result else {
                 return XCTFail("Expected container")
             }
@@ -199,7 +199,7 @@
                 ]),
             ])
 
-            let result = tree.filtered { n in
+            let result = tree.filter { n in
                 if case let .element(e, _) = n { return e.label == "Target" }
                 return false
             }
@@ -225,7 +225,7 @@
                 group(children: [element(label: "C", traits: .button, index: 2)]),
             ])
 
-            let result = tree.filtered { n in
+            let result = tree.filter { n in
                 if case let .element(e, _) = n { return e.traits.contains(.button) }
                 return false
             }
@@ -249,7 +249,7 @@
                 element(label: "Subtitle", traits: .header, index: 2),
             ])
 
-            let result = tree.filtered { n in
+            let result = tree.filter { n in
                 if case let .element(e, _) = n { return e.traits.contains(.header) }
                 return false
             }
@@ -268,7 +268,7 @@
             ])
 
             // Keep all elements and dataTable containers
-            let result = tree.filtered { n in
+            let result = tree.filter { n in
                 if case let .container(c, _) = n {
                     if case .dataTable = c.type { return true }
                 }
@@ -336,20 +336,20 @@
                     element(label: "B", index: 1),
                 ]),
             ])
-            XCTAssertEqual(tree.filtered { _ in true }, tree)
+            XCTAssertEqual(tree.filter { _ in true }, tree)
         }
 
         func testAlwaysFalseReturnsNil() {
             let tree = group(children: [element(label: "A")])
-            XCTAssertNil(tree.filtered { _ in false })
+            XCTAssertNil(tree.filter { _ in false })
         }
 
         func testFilterEmptyContainer() {
             let tree = group(label: "Empty", children: [])
             // No children, container doesn't match → nil
-            XCTAssertNil(tree.filtered { _ in false })
+            XCTAssertNil(tree.filter { _ in false })
             // Container matches predicate → kept empty
-            let kept = tree.filtered { _ in true }
+            let kept = tree.filter { _ in true }
             XCTAssertNotNil(kept)
             if case let .container(_, children) = kept {
                 XCTAssertTrue(children.isEmpty)
@@ -364,7 +364,7 @@
 
         func testMapTransformsElementLabel() {
             let node = element(label: "hello", index: 5)
-            let result = node.mapped { n in
+            let result = node.map { n in
                 guard case let .element(e, idx) = n else { return n }
                 return .element(
                     AccessibilityElement(
@@ -398,7 +398,7 @@
                 element(label: "A", index: 0),
                 group(children: [element(label: "B", index: 1)]),
             ])
-            XCTAssertEqual(tree.mapped { $0 }, tree)
+            XCTAssertEqual(tree.map { $0 }, tree)
         }
 
         // =========================================================================
@@ -413,7 +413,7 @@
                 element(label: "B", index: 1),
             ])
 
-            let result = tree.mapped { n in
+            let result = tree.map { n in
                 guard case let .element(e, idx) = n else { return n }
                 return .element(
                     AccessibilityElement(
@@ -451,7 +451,7 @@
                 element(label: "Child", index: 0),
             ])
 
-            _ = tree.mapped { n in
+            _ = tree.map { n in
                 switch n {
                 case let .element(e, _):
                     visitOrder.append(e.label ?? "?")
@@ -475,7 +475,7 @@
                 ]),
             ])
 
-            let result = tree.mapped { n in
+            let result = tree.map { n in
                 guard case let .element(e, idx) = n else { return n }
                 return .element(
                     AccessibilityElement(
@@ -513,7 +513,7 @@
                 element(label: "Home", index: 0),
             ])
 
-            let result = tree.mapped { n in
+            let result = tree.map { n in
                 guard case let .container(_, children) = n else { return n }
                 return .container(
                     AccessibilityContainer(type: .tabBar, frame: .zero),
@@ -533,7 +533,7 @@
         func testMapCanCollapseContainerToElement() {
             let tree = group(children: [element(label: "Only", index: 7)])
 
-            let result = tree.mapped { n in
+            let result = tree.map { n in
                 if case let .container(_, children) = n, children.count == 1 {
                     return children[0]
                 }
@@ -571,7 +571,7 @@
 
         func testMapEmptyContainer() {
             let tree = group(label: "Empty", children: [])
-            let result = tree.mapped { $0 }
+            let result = tree.map { $0 }
             XCTAssertEqual(result, tree)
         }
 
@@ -630,7 +630,7 @@
                 ]),
             ])
 
-            let count = tree.reduced(0) { accumulator, node in
+            let count = tree.reduce(0) { accumulator, node in
                 if case .element = node { return accumulator + 1 }
                 return accumulator
             }
@@ -643,7 +643,7 @@
                 group(children: []),
             ])
 
-            let count = tree.reduced(0) { accumulator, node in
+            let count = tree.reduce(0) { accumulator, node in
                 if case .container = node { return accumulator + 1 }
                 return accumulator
             }
@@ -665,7 +665,7 @@
                 ]),
             ])
 
-            let labels = tree.reduced([String]()) { accumulator, node in
+            let labels = tree.reduce([String]()) { accumulator, node in
                 if case let .element(e, _) = node, let lbl = e.label {
                     return accumulator + [lbl]
                 }
@@ -683,7 +683,7 @@
             ])
 
             var order: [String] = []
-            tree.reduced(()) { _, node in
+            tree.reduce(()) { _, node in
                 switch node {
                 case let .element(e, _):
                     order.append(e.label ?? "?")
@@ -711,7 +711,7 @@
                 ]),
             ])
 
-            let maxIndex = tree.reduced(Int.min) { accumulator, node in
+            let maxIndex = tree.reduce(Int.min) { accumulator, node in
                 if case let .element(_, idx) = node { return max(accumulator, idx) }
                 return accumulator
             }
@@ -730,7 +730,7 @@
                 element(label: "OK", traits: .button),
             ])
 
-            let hasButton = tree.reduced(false) { accumulator, node in
+            let hasButton = tree.reduce(false) { accumulator, node in
                 if accumulator { return true }
                 if case let .element(e, _) = node { return e.traits.contains(.button) }
                 return false
@@ -744,7 +744,7 @@
                 element(label: "B"),
             ])
 
-            let allInteractive = tree.reduced(true) { accumulator, node in
+            let allInteractive = tree.reduce(true) { accumulator, node in
                 if !accumulator { return false }
                 if case let .element(e, _) = node { return e.respondsToUserInteraction }
                 return accumulator
@@ -760,13 +760,13 @@
 
         func testReduceOnSingleElement() {
             let node = element(label: "Solo", index: 0)
-            let count = node.reduced(0) { accumulator, _ in accumulator + 1 }
+            let count = node.reduce(0) { accumulator, _ in accumulator + 1 }
             XCTAssertEqual(count, 1)
         }
 
         func testReduceEmptyContainer() {
             let tree = group(children: [])
-            let count = tree.reduced(0) { accumulator, _ in accumulator + 1 }
+            let count = tree.reduce(0) { accumulator, _ in accumulator + 1 }
             XCTAssertEqual(count, 1, "Just the container itself")
         }
 
@@ -830,7 +830,7 @@
                 }
             }
 
-            let reducedOrder = tree.reduced([String]()) { accumulator, node in
+            let reducedOrder = tree.reduce([String]()) { accumulator, node in
                 if case let .element(e, _) = node, let lbl = e.label {
                     return accumulator + [lbl]
                 }
@@ -850,7 +850,7 @@
                 ]),
             ])
 
-            let reduceMin = tree.reduced(Int.max) { accumulator, node in
+            let reduceMin = tree.reduce(Int.max) { accumulator, node in
                 guard case let .element(_, index) = node else { return accumulator }
                 return min(accumulator, index)
             }
@@ -923,11 +923,11 @@
             ])
 
             let result = tree
-                .filtered { n in
+                .filter { n in
                     if case let .element(e, _) = n { return e.traits.contains(.button) }
                     return true
                 }?
-                .mapped { n in
+                .map { n in
                     guard case let .element(e, idx) = n else { return n }
                     return .element(
                         AccessibilityElement(
@@ -973,11 +973,11 @@
             ])
 
             let headerLabels = tree
-                .filtered { n in
+                .filter { n in
                     if case let .element(e, _) = n { return e.traits.contains(.header) }
                     return true
                 }?
-                .reduced([String]()) { accumulator, node in
+                .reduce([String]()) { accumulator, node in
                     if case let .element(e, _) = node, let lbl = e.label {
                         return accumulator + [lbl]
                     }
@@ -1000,7 +1000,7 @@
             ])
 
             let uppercased = tree
-                .mapped { n in
+                .map { n in
                     guard case let .element(e, idx) = n else { return n }
                     return .element(
                         AccessibilityElement(
@@ -1023,7 +1023,7 @@
                         traversalIndex: idx
                     )
                 }
-                .reduced("") { accumulator, node in
+                .reduce("") { accumulator, node in
                     if case let .element(e, _) = node, let lbl = e.label {
                         return accumulator.isEmpty ? lbl : accumulator + "," + lbl
                     }
@@ -1048,11 +1048,11 @@
             ])
 
             let result = tree
-                .filtered { n in
+                .filter { n in
                     if case let .element(e, _) = n { return e.traits.contains(.button) }
                     return true
                 }?
-                .mapped { n in
+                .map { n in
                     guard case let .element(e, idx) = n else { return n }
                     return .element(
                         AccessibilityElement(
@@ -1075,7 +1075,7 @@
                         traversalIndex: idx
                     )
                 }
-                .reduced(0) { accumulator, node in
+                .reduce(0) { accumulator, node in
                     if case .element = node { return accumulator + 1 }
                     return accumulator
                 }

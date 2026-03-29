@@ -61,13 +61,13 @@ public extension AccessibilityHierarchy {
     /// Each node is combined into the accumulator before its children,
     /// left to right. This mirrors `forEach` order — parent first, then
     /// children in traversal order.
-    func reduced<Result>(
+    func reduce<Result>(
         _ initialResult: Result,
         _ combine: (Result, AccessibilityHierarchy) -> Result
     ) -> Result {
         var result = combine(initialResult, self)
         for child in children {
-            result = child.reduced(result, combine)
+            result = child.reduce(result, combine)
         }
         return result
     }
@@ -97,7 +97,7 @@ public extension Array where Element == AccessibilityHierarchy {
     ) -> Result {
         var result = initialResult
         for root in self {
-            result = root.reduced(result, combine)
+            result = root.reduce(result, combine)
         }
         return result
     }
