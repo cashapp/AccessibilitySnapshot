@@ -13,14 +13,14 @@ public extension AccessibilityHierarchy {
     ///   - Removed when no children survive AND the container doesn't match.
     ///
     /// Returns nil when nothing in the subtree matches.
-    func filtered(
+    func filter(
         _ isIncluded: (AccessibilityHierarchy) -> Bool
     ) -> AccessibilityHierarchy? {
         switch self {
         case .element:
             return isIncluded(self) ? self : nil
         case let .container(container, children):
-            let surviving = children.compactMap { $0.filtered(isIncluded) }
+            let surviving = children.compactMap { $0.filter(isIncluded) }
             if !surviving.isEmpty {
                 return .container(container, children: surviving)
             }
@@ -40,14 +40,14 @@ public extension AccessibilityHierarchy {
     /// Children are mapped before their parent, so the closure receives
     /// each container with its already-transformed children. This makes it
     /// safe to inspect or reshape subtrees during the transform.
-    func mapped(
+    func map(
         _ transform: (AccessibilityHierarchy) -> AccessibilityHierarchy
     ) -> AccessibilityHierarchy {
         switch self {
         case .element:
             return transform(self)
         case let .container(container, children):
-            let mappedChildren = children.map { $0.mapped(transform) }
+            let mappedChildren = children.map { $0.map(transform) }
             return transform(.container(container, children: mappedChildren))
         }
     }
@@ -80,14 +80,14 @@ public extension Array where Element == AccessibilityHierarchy {
     func filteredHierarchy(
         _ isIncluded: (AccessibilityHierarchy) -> Bool
     ) -> [AccessibilityHierarchy] {
-        compactMap { $0.filtered(isIncluded) }
+        compactMap { $0.filter(isIncluded) }
     }
 
     /// Maps every node in every root, bottom-up.
     func mappedHierarchy(
         _ transform: (AccessibilityHierarchy) -> AccessibilityHierarchy
     ) -> [AccessibilityHierarchy] {
-        map { $0.mapped(transform) }
+        map { $0.map(transform) }
     }
 
     /// Reduces all roots into a single value, left-to-right pre-order.

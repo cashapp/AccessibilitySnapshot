@@ -28,9 +28,9 @@ public enum AccessibilityHierarchy: Equatable, Codable {
     /// For elements: returns the traversal index.
     /// For containers: returns the minimum sort index of its children (recursively).
     public var sortIndex: Int {
-        reduced(Int.max) { acc, node in
-            guard case let .element(_, index) = node else { return acc }
-            return min(acc, index)
+        reduced(Int.max) { accumulator, node in
+            guard case let .element(_, index) = node else { return accumulator }
+            return min(accumulator, index)
         }
     }
 }
@@ -47,9 +47,9 @@ public extension AccessibilityHierarchy {
 public extension Array where Element == AccessibilityHierarchy {
     /// Flattens an array of hierarchy nodes into a single array of elements in VoiceOver traversal order
     func flattenToElements() -> [AccessibilityElement] {
-        reducedHierarchy([(index: Int, element: AccessibilityElement)]()) { acc, node in
-            guard case let .element(element, index) = node else { return acc }
-            return acc + [(index, element)]
+        reducedHierarchy([(index: Int, element: AccessibilityElement)]()) { accumulator, node in
+            guard case let .element(element, index) = node else { return accumulator }
+            return accumulator + [(index, element)]
         }
         .sorted { $0.index < $1.index }
         .map { $0.element }
@@ -57,9 +57,9 @@ public extension Array where Element == AccessibilityHierarchy {
 
     /// Flattens an array of hierarchy nodes into a single array of containers in depth-first order
     func flattenToContainers() -> [AccessibilityContainer] {
-        reducedHierarchy([]) { acc, node in
-            guard case let .container(container, _) = node else { return acc }
-            return acc + [container]
+        reducedHierarchy([]) { accumulator, node in
+            guard case let .container(container, _) = node else { return accumulator }
+            return accumulator + [container]
         }
     }
 }

@@ -5,7 +5,7 @@
     final class AccessibilityHierarchyTreeOperationsTests: XCTestCase {
         // MARK: - Fixtures
 
-        private func el(
+        private func element(
             label: String,
             value: String? = nil,
             traits: UIAccessibilityTraits = .none,
@@ -80,7 +80,7 @@
         // =========================================================================
 
         func testFilterKeepsMatchingElement() {
-            let node = el(label: "Save")
+            let node = element(label: "Save")
             let result = node.filtered { n in
                 if case let .element(e, _) = n { return e.label == "Save" }
                 return false
@@ -89,7 +89,7 @@
         }
 
         func testFilterRemovesNonMatchingElement() {
-            let node = el(label: "Cancel")
+            let node = element(label: "Cancel")
             let result = node.filtered { n in
                 if case let .element(e, _) = n { return e.label == "Save" }
                 return false
@@ -98,7 +98,7 @@
         }
 
         func testFilterPreservesTraversalIndex() {
-            let node = el(label: "X", index: 42)
+            let node = element(label: "X", index: 42)
             let result = node.filtered { _ in true }
             if case let .element(_, idx) = result {
                 XCTAssertEqual(idx, 42)
@@ -115,8 +115,8 @@
 
         func testContainerKeptWhenChildMatches() {
             let tree = group(label: "Toolbar", children: [
-                el(label: "Save", index: 0),
-                el(label: "Cancel", index: 1),
+                element(label: "Save", index: 0),
+                element(label: "Cancel", index: 1),
             ])
 
             let result = tree.filtered { n in
@@ -133,8 +133,8 @@
 
         func testContainerRemovedWhenNoChildMatches() {
             let tree = group(label: "Toolbar", children: [
-                el(label: "Cancel", index: 0),
-                el(label: "Delete", index: 1),
+                element(label: "Cancel", index: 0),
+                element(label: "Delete", index: 1),
             ])
 
             let result = tree.filtered { n in
@@ -146,7 +146,7 @@
 
         func testEmptyContainerKeptWhenPredicateMatchesContainer() {
             let tree = dataTable(children: [
-                el(label: "Item"),
+                element(label: "Item"),
             ])
 
             let result = tree.filtered { n in
@@ -167,7 +167,7 @@
 
         func testContainerPreservesMetadata() {
             let tree = group(label: "Settings", children: [
-                el(label: "Volume", index: 0),
+                element(label: "Volume", index: 0),
             ])
 
             let result = tree.filtered { _ in true }
@@ -190,11 +190,11 @@
         func testDeepNestedElementSurvives() {
             let tree = group(label: "Root", children: [
                 group(label: "Section A", children: [
-                    el(label: "Nope", index: 0),
+                    element(label: "Nope", index: 0),
                 ]),
                 group(label: "Section B", children: [
                     group(label: "Subsection", children: [
-                        el(label: "Target", index: 1),
+                        element(label: "Target", index: 1),
                     ]),
                 ]),
             ])
@@ -220,9 +220,9 @@
 
         func testMultipleMatchesAcrossBranches() {
             let tree = group(children: [
-                group(children: [el(label: "A", traits: .button, index: 0)]),
-                group(children: [el(label: "B", index: 1)]),
-                group(children: [el(label: "C", traits: .button, index: 2)]),
+                group(children: [element(label: "A", traits: .button, index: 0)]),
+                group(children: [element(label: "B", index: 1)]),
+                group(children: [element(label: "C", traits: .button, index: 2)]),
             ])
 
             let result = tree.filtered { n in
@@ -244,9 +244,9 @@
 
         func testFilterByTrait() {
             let tree = group(children: [
-                el(label: "Title", traits: .header, index: 0),
-                el(label: "Body", index: 1),
-                el(label: "Subtitle", traits: .header, index: 2),
+                element(label: "Title", traits: .header, index: 0),
+                element(label: "Body", index: 1),
+                element(label: "Subtitle", traits: .header, index: 2),
             ])
 
             let result = tree.filtered { n in
@@ -262,9 +262,9 @@
 
         func testFilterForContainerType() {
             let tree = group(children: [
-                dataTable(children: [el(label: "Row 1", index: 0)]),
-                tabBar(children: [el(label: "Home", index: 1)]),
-                group(children: [el(label: "Other", index: 2)]),
+                dataTable(children: [element(label: "Row 1", index: 0)]),
+                tabBar(children: [element(label: "Home", index: 1)]),
+                group(children: [element(label: "Other", index: 2)]),
             ])
 
             // Keep all elements and dataTable containers
@@ -292,9 +292,9 @@
 
         func testFilteredHierarchyOnArray() {
             let roots: [AccessibilityHierarchy] = [
-                el(label: "A", index: 0),
-                el(label: "B", index: 1),
-                el(label: "C", index: 2),
+                element(label: "A", index: 0),
+                element(label: "B", index: 1),
+                element(label: "C", index: 2),
             ]
 
             let result = roots.filteredHierarchy { n in
@@ -306,8 +306,8 @@
 
         func testFilteredHierarchyPrunesEmptyContainers() {
             let roots: [AccessibilityHierarchy] = [
-                group(label: "Has Match", children: [el(label: "Keep")]),
-                group(label: "No Match", children: [el(label: "Drop")]),
+                group(label: "Has Match", children: [element(label: "Keep")]),
+                group(label: "No Match", children: [element(label: "Drop")]),
             ]
 
             let result = roots.filteredHierarchy { n in
@@ -331,16 +331,16 @@
 
         func testAlwaysTruePreservesTree() {
             let tree = group(label: "Root", children: [
-                el(label: "A", index: 0),
+                element(label: "A", index: 0),
                 group(label: "Inner", children: [
-                    el(label: "B", index: 1),
+                    element(label: "B", index: 1),
                 ]),
             ])
             XCTAssertEqual(tree.filtered { _ in true }, tree)
         }
 
         func testAlwaysFalseReturnsNil() {
-            let tree = group(children: [el(label: "A")])
+            let tree = group(children: [element(label: "A")])
             XCTAssertNil(tree.filtered { _ in false })
         }
 
@@ -363,7 +363,7 @@
         // =========================================================================
 
         func testMapTransformsElementLabel() {
-            let node = el(label: "hello", index: 5)
+            let node = element(label: "hello", index: 5)
             let result = node.mapped { n in
                 guard case let .element(e, idx) = n else { return n }
                 return .element(
@@ -395,8 +395,8 @@
 
         func testMapIdentityPreservesTree() {
             let tree = group(children: [
-                el(label: "A", index: 0),
-                group(children: [el(label: "B", index: 1)]),
+                element(label: "A", index: 0),
+                group(children: [element(label: "B", index: 1)]),
             ])
             XCTAssertEqual(tree.mapped { $0 }, tree)
         }
@@ -409,8 +409,8 @@
 
         func testMapTransformsContainerChildren() {
             let tree = group(children: [
-                el(label: "A", index: 0),
-                el(label: "B", index: 1),
+                element(label: "A", index: 0),
+                element(label: "B", index: 1),
             ])
 
             let result = tree.mapped { n in
@@ -448,7 +448,7 @@
             var visitOrder: [String] = []
 
             let tree = group(label: "Root", children: [
-                el(label: "Child", index: 0),
+                element(label: "Child", index: 0),
             ])
 
             _ = tree.mapped { n in
@@ -470,7 +470,7 @@
             let tree = group(children: [
                 group(children: [
                     group(children: [
-                        el(label: "deep", index: 0),
+                        element(label: "deep", index: 0),
                     ]),
                 ]),
             ])
@@ -510,7 +510,7 @@
 
         func testMapCanReplaceContainerType() {
             let tree = group(label: "Nav", children: [
-                el(label: "Home", index: 0),
+                element(label: "Home", index: 0),
             ])
 
             let result = tree.mapped { n in
@@ -531,7 +531,7 @@
         }
 
         func testMapCanCollapseContainerToElement() {
-            let tree = group(children: [el(label: "Only", index: 7)])
+            let tree = group(children: [element(label: "Only", index: 7)])
 
             let result = tree.mapped { n in
                 if case let .container(_, children) = n, children.count == 1 {
@@ -545,9 +545,9 @@
 
         func testMapCanReindexTraversalOrder() {
             let roots: [AccessibilityHierarchy] = [
-                el(label: "A", index: 0),
-                el(label: "B", index: 1),
-                el(label: "C", index: 2),
+                element(label: "A", index: 0),
+                element(label: "B", index: 1),
+                element(label: "C", index: 2),
             ]
 
             var counter = 10
@@ -577,8 +577,8 @@
 
         func testMappedHierarchyOnArray() {
             let roots: [AccessibilityHierarchy] = [
-                el(label: "a", index: 0),
-                el(label: "b", index: 1),
+                element(label: "a", index: 0),
+                element(label: "b", index: 1),
             ]
 
             let result = roots.mappedHierarchy { n in
@@ -623,29 +623,29 @@
 
         func testReduceCountsElements() {
             let tree = group(children: [
-                el(label: "A", index: 0),
+                element(label: "A", index: 0),
                 group(children: [
-                    el(label: "B", index: 1),
-                    el(label: "C", index: 2),
+                    element(label: "B", index: 1),
+                    element(label: "C", index: 2),
                 ]),
             ])
 
-            let count = tree.reduced(0) { acc, node in
-                if case .element = node { return acc + 1 }
-                return acc
+            let count = tree.reduced(0) { accumulator, node in
+                if case .element = node { return accumulator + 1 }
+                return accumulator
             }
             XCTAssertEqual(count, 3)
         }
 
         func testReduceCountsContainers() {
             let tree = group(children: [
-                group(children: [el(label: "A")]),
+                group(children: [element(label: "A")]),
                 group(children: []),
             ])
 
-            let count = tree.reduced(0) { acc, node in
-                if case .container = node { return acc + 1 }
-                return acc
+            let count = tree.reduced(0) { accumulator, node in
+                if case .container = node { return accumulator + 1 }
+                return accumulator
             }
             XCTAssertEqual(count, 3, "Root + 2 inner containers")
         }
@@ -658,27 +658,27 @@
 
         func testReduceCollectsLabels() {
             let tree = group(children: [
-                el(label: "A", index: 0),
-                el(label: "B", index: 1),
+                element(label: "A", index: 0),
+                element(label: "B", index: 1),
                 group(children: [
-                    el(label: "C", index: 2),
+                    element(label: "C", index: 2),
                 ]),
             ])
 
-            let labels = tree.reduced([String]()) { acc, node in
+            let labels = tree.reduced([String]()) { accumulator, node in
                 if case let .element(e, _) = node, let lbl = e.label {
-                    return acc + [lbl]
+                    return accumulator + [lbl]
                 }
-                return acc
+                return accumulator
             }
             XCTAssertEqual(labels, ["A", "B", "C"])
         }
 
         func testReducePreOrderVisitOrder() {
             let tree = group(label: "R", children: [
-                el(label: "1", index: 0),
+                element(label: "1", index: 0),
                 group(label: "G", children: [
-                    el(label: "2", index: 1),
+                    element(label: "2", index: 1),
                 ]),
             ])
 
@@ -704,16 +704,16 @@
 
         func testReduceComputesMaxTraversalIndex() {
             let tree = group(children: [
-                el(label: "A", index: 3),
+                element(label: "A", index: 3),
                 group(children: [
-                    el(label: "B", index: 7),
-                    el(label: "C", index: 1),
+                    element(label: "B", index: 7),
+                    element(label: "C", index: 1),
                 ]),
             ])
 
-            let maxIndex = tree.reduced(Int.min) { acc, node in
-                if case let .element(_, idx) = node { return max(acc, idx) }
-                return acc
+            let maxIndex = tree.reduced(Int.min) { accumulator, node in
+                if case let .element(_, idx) = node { return max(accumulator, idx) }
+                return accumulator
             }
             XCTAssertEqual(maxIndex, 7)
         }
@@ -726,12 +726,12 @@
 
         func testReduceChecksAnyButton() {
             let tree = group(children: [
-                el(label: "Title", traits: .header),
-                el(label: "OK", traits: .button),
+                element(label: "Title", traits: .header),
+                element(label: "OK", traits: .button),
             ])
 
-            let hasButton = tree.reduced(false) { acc, node in
-                if acc { return true }
+            let hasButton = tree.reduced(false) { accumulator, node in
+                if accumulator { return true }
                 if case let .element(e, _) = node { return e.traits.contains(.button) }
                 return false
             }
@@ -740,14 +740,14 @@
 
         func testReduceChecksAllInteractive() {
             let tree = group(children: [
-                el(label: "A"),
-                el(label: "B"),
+                element(label: "A"),
+                element(label: "B"),
             ])
 
-            let allInteractive = tree.reduced(true) { acc, node in
-                if !acc { return false }
+            let allInteractive = tree.reduced(true) { accumulator, node in
+                if !accumulator { return false }
                 if case let .element(e, _) = node { return e.respondsToUserInteraction }
-                return acc
+                return accumulator
             }
             XCTAssertTrue(allInteractive)
         }
@@ -759,50 +759,50 @@
         // =========================================================================
 
         func testReduceOnSingleElement() {
-            let node = el(label: "Solo", index: 0)
-            let count = node.reduced(0) { acc, _ in acc + 1 }
+            let node = element(label: "Solo", index: 0)
+            let count = node.reduced(0) { accumulator, _ in accumulator + 1 }
             XCTAssertEqual(count, 1)
         }
 
         func testReduceEmptyContainer() {
             let tree = group(children: [])
-            let count = tree.reduced(0) { acc, _ in acc + 1 }
+            let count = tree.reduced(0) { accumulator, _ in accumulator + 1 }
             XCTAssertEqual(count, 1, "Just the container itself")
         }
 
         func testReducedHierarchyOnArray() {
             let roots: [AccessibilityHierarchy] = [
-                el(label: "A", index: 0),
+                element(label: "A", index: 0),
                 group(children: [
-                    el(label: "B", index: 1),
+                    element(label: "B", index: 1),
                 ]),
             ]
 
-            let count = roots.reducedHierarchy(0) { acc, node in
-                if case .element = node { return acc + 1 }
-                return acc
+            let count = roots.reducedHierarchy(0) { accumulator, node in
+                if case .element = node { return accumulator + 1 }
+                return accumulator
             }
             XCTAssertEqual(count, 2)
         }
 
         func testReducedHierarchyEmptyArray() {
             let roots: [AccessibilityHierarchy] = []
-            let count = roots.reducedHierarchy(0) { acc, _ in acc + 1 }
+            let count = roots.reducedHierarchy(0) { accumulator, _ in accumulator + 1 }
             XCTAssertEqual(count, 0)
         }
 
         func testReducedHierarchyVisitsAllRoots() {
             let roots: [AccessibilityHierarchy] = [
-                group(children: [el(label: "A")]),
-                group(children: [el(label: "B")]),
-                group(children: [el(label: "C")]),
+                group(children: [element(label: "A")]),
+                group(children: [element(label: "B")]),
+                group(children: [element(label: "C")]),
             ]
 
-            let labels = roots.reducedHierarchy([String]()) { acc, node in
+            let labels = roots.reducedHierarchy([String]()) { accumulator, node in
                 if case let .element(e, _) = node, let lbl = e.label {
-                    return acc + [lbl]
+                    return accumulator + [lbl]
                 }
-                return acc
+                return accumulator
             }
             XCTAssertEqual(labels, ["A", "B", "C"])
         }
@@ -816,10 +816,10 @@
         /// Proves forEach visits in same order as reduced.
         func testForEachMatchesReduceOrder() {
             let tree = group(label: "R", children: [
-                el(label: "1", index: 0),
+                element(label: "1", index: 0),
                 group(label: "G", children: [
-                    el(label: "2", index: 1),
-                    el(label: "3", index: 2),
+                    element(label: "2", index: 1),
+                    element(label: "3", index: 2),
                 ]),
             ])
 
@@ -830,11 +830,11 @@
                 }
             }
 
-            let reducedOrder = tree.reduced([String]()) { acc, node in
+            let reducedOrder = tree.reduced([String]()) { accumulator, node in
                 if case let .element(e, _) = node, let lbl = e.label {
-                    return acc + [lbl]
+                    return accumulator + [lbl]
                 }
-                return acc
+                return accumulator
             }
 
             XCTAssertEqual(forEachOrder, reducedOrder)
@@ -843,16 +843,16 @@
         /// Proves sortIndex equals reduce-based minimum traversal index.
         func testSortIndexMatchesReduceMin() {
             let tree = group(children: [
-                el(label: "A", index: 5),
+                element(label: "A", index: 5),
                 group(children: [
-                    el(label: "B", index: 2),
-                    el(label: "C", index: 8),
+                    element(label: "B", index: 2),
+                    element(label: "C", index: 8),
                 ]),
             ])
 
-            let reduceMin = tree.reduced(Int.max) { acc, node in
-                guard case let .element(_, index) = node else { return acc }
-                return min(acc, index)
+            let reduceMin = tree.reduced(Int.max) { accumulator, node in
+                guard case let .element(_, index) = node else { return accumulator }
+                return min(accumulator, index)
             }
 
             XCTAssertEqual(tree.sortIndex, reduceMin)
@@ -863,20 +863,20 @@
         func testFlattenToElementsMatchesReduce() {
             let roots: [AccessibilityHierarchy] = [
                 group(children: [
-                    el(label: "C", index: 2),
-                    el(label: "A", index: 0),
+                    element(label: "C", index: 2),
+                    element(label: "A", index: 0),
                 ]),
                 group(children: [
-                    el(label: "B", index: 1),
+                    element(label: "B", index: 1),
                 ]),
             ]
 
             let fromFlatten = roots.flattenToElements().map { $0.label }
 
             let fromReduce = roots
-                .reducedHierarchy([(index: Int, label: String?)]()) { acc, node in
-                    guard case let .element(e, idx) = node else { return acc }
-                    return acc + [(idx, e.label)]
+                .reducedHierarchy([(index: Int, label: String?)]()) { accumulator, node in
+                    guard case let .element(e, idx) = node else { return accumulator }
+                    return accumulator + [(idx, e.label)]
                 }
                 .sorted { $0.index < $1.index }
                 .map { $0.label }
@@ -889,16 +889,16 @@
         func testFlattenToContainersMatchesReduce() {
             let roots: [AccessibilityHierarchy] = [
                 group(label: "Outer", children: [
-                    dataTable(children: [el(label: "X")]),
-                    tabBar(children: [el(label: "Y")]),
+                    dataTable(children: [element(label: "X")]),
+                    tabBar(children: [element(label: "Y")]),
                 ]),
             ]
 
             let fromFlatten = roots.flattenToContainers()
 
-            let fromReduce = roots.reducedHierarchy([AccessibilityContainer]()) { acc, node in
-                guard case let .container(container, _) = node else { return acc }
-                return acc + [container]
+            let fromReduce = roots.reducedHierarchy([AccessibilityContainer]()) { accumulator, node in
+                guard case let .container(container, _) = node else { return accumulator }
+                return accumulator + [container]
             }
 
             XCTAssertEqual(fromFlatten.count, fromReduce.count)
@@ -917,9 +917,9 @@
 
         func testFilterThenMap() {
             let tree = group(children: [
-                el(label: "Keep", traits: .button, index: 0),
-                el(label: "Drop", index: 1),
-                el(label: "Also Keep", traits: .button, index: 2),
+                element(label: "Keep", traits: .button, index: 0),
+                element(label: "Drop", index: 1),
+                element(label: "Also Keep", traits: .button, index: 2),
             ])
 
             let result = tree
@@ -967,9 +967,9 @@
 
         func testFilterThenReduce() {
             let tree = group(children: [
-                el(label: "Header", traits: .header, index: 0),
-                el(label: "Body", index: 1),
-                el(label: "Footer", traits: .header, index: 2),
+                element(label: "Header", traits: .header, index: 0),
+                element(label: "Body", index: 1),
+                element(label: "Footer", traits: .header, index: 2),
             ])
 
             let headerLabels = tree
@@ -977,11 +977,11 @@
                     if case let .element(e, _) = n { return e.traits.contains(.header) }
                     return true
                 }?
-                .reduced([String]()) { acc, node in
+                .reduced([String]()) { accumulator, node in
                     if case let .element(e, _) = node, let lbl = e.label {
-                        return acc + [lbl]
+                        return accumulator + [lbl]
                     }
-                    return acc
+                    return accumulator
                 }
 
             XCTAssertEqual(headerLabels, ["Header", "Footer"])
@@ -995,8 +995,8 @@
 
         func testMapThenReduce() {
             let tree = group(children: [
-                el(label: "a", index: 0),
-                el(label: "b", index: 1),
+                element(label: "a", index: 0),
+                element(label: "b", index: 1),
             ])
 
             let uppercased = tree
@@ -1023,11 +1023,11 @@
                         traversalIndex: idx
                     )
                 }
-                .reduced("") { acc, node in
+                .reduced("") { accumulator, node in
                     if case let .element(e, _) = node, let lbl = e.label {
-                        return acc.isEmpty ? lbl : acc + "," + lbl
+                        return accumulator.isEmpty ? lbl : accumulator + "," + lbl
                     }
-                    return acc
+                    return accumulator
                 }
 
             XCTAssertEqual(uppercased, "A,B")
@@ -1041,10 +1041,10 @@
 
         func testFilterMapReduce() {
             let tree = group(children: [
-                el(label: "Settings", traits: .button, index: 0),
-                el(label: "Info", index: 1),
-                el(label: "Profile", traits: .button, index: 2),
-                el(label: "Help", index: 3),
+                element(label: "Settings", traits: .button, index: 0),
+                element(label: "Info", index: 1),
+                element(label: "Profile", traits: .button, index: 2),
+                element(label: "Help", index: 3),
             ])
 
             let result = tree
@@ -1075,9 +1075,9 @@
                         traversalIndex: idx
                     )
                 }
-                .reduced(0) { acc, node in
-                    if case .element = node { return acc + 1 }
-                    return acc
+                .reduced(0) { accumulator, node in
+                    if case .element = node { return accumulator + 1 }
+                    return accumulator
                 }
 
             XCTAssertEqual(result, 2)
