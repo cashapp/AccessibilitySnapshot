@@ -277,7 +277,7 @@ public final class AccessibilityHierarchyParser {
         let minimumVerticalSeparation = userInterfaceIdiom == .phone ? 8.0 : 13.0
 
         let sortedNodes = explicitlyOrdered ? nodes : nodes
-            .map { ($0, Self.accessibilitySortFrame(for: $0, in: root)) }
+            .map { ($0, Self.accessibilitySortFrame(for: $0, in: root, horizontalCompare: horizontalCompare)) }
             .sorted { obj1, obj2 in
                 let origin1 = obj1.1.origin
                 let origin2 = obj2.1.origin
@@ -637,7 +637,11 @@ extension AccessibilityHierarchyParser {
 
 private extension AccessibilityHierarchyParser {
     /// Returns a CGRect that can be used for sorting by position.
-    static func accessibilitySortFrame(for node: AccessibilityNode, in root: UIView) -> CGRect {
+    static func accessibilitySortFrame(
+        for node: AccessibilityNode,
+        in root: UIView,
+        horizontalCompare: @escaping (CGFloat, CGFloat) -> Bool
+    ) -> CGRect {
         switch node {
         case let .element(frameProvider, _),
              let .group(_, _, frameProvider?, _):
@@ -649,13 +653,13 @@ private extension AccessibilityHierarchyParser {
             }
 
         case let .group(elements, _, _, _):
-            // Use the topmost-leftmost child's frame to position the group, matching VoiceOver behavior
-            // (see comment in sortedElements about "first element in the group that would be selected").
+            // Matches VoiceOver behavior: groups sort by their first-selected child
+            // (see comment in sortedElements).
             return elements
-                .map { accessibilitySortFrame(for: $0, in: root) }
+                .map { accessibilitySortFrame(for: $0, in: root, horizontalCompare: horizontalCompare) }
                 .min { f1, f2 in
                     if f1.origin.y != f2.origin.y { return f1.origin.y < f2.origin.y }
-                    return f1.origin.x < f2.origin.x
+                    return horizontalCompare(f1.origin.x, f2.origin.x)
                 } ?? .null
         }
     }
