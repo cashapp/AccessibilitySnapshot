@@ -17,6 +17,33 @@ public struct AccessibilityElement: Equatable, Codable {
         case path(UIBezierPath)
     }
 
+    /// The expanded/collapsed state of a disclosure-style accessibility element.
+    ///
+    /// `_accessibilityExpandedStatus` is a private method on `NSObject` (available on all
+    /// `NSObject` subclasses, defaulting to `0`/unsupported). It was first given meaningful
+    /// return values by `SwiftUI.AccessibilityNode` (`_TtC7SwiftUI17AccessibilityNode`) in
+    /// iOS 14.2, where `DisclosureGroup` and expandable list sections override it to
+    /// communicate their expanded/collapsed state to VoiceOver.
+    ///
+    /// In iOS 18.0, Apple added a public `accessibilityExpandedStatus` property to UIKit's
+    /// `UIAccessibility` protocol. However, as of iOS 18.5, SwiftUI's `DisclosureGroup` only
+    /// sets the private `_accessibilityExpandedStatus` — the public property returns `.unsupported`
+    /// for SwiftUI elements. Setting the public property on a UIKit view does sync to the private
+    /// one, but not vice versa.
+    ///
+    /// This enum represents the three possible states, mirroring the raw integer values returned
+    /// by both APIs.
+    public enum ExpandedStatus: Int, Equatable, Codable {
+        /// The element does not support expanded/collapsed state.
+        case unsupported = 0
+
+        /// The element is expanded.
+        case expanded = 1
+
+        /// The element is collapsed.
+        case collapsed = 2
+    }
+
     public struct CustomRotor: Equatable, CustomStringConvertible, Codable {
         public struct ResultMarker: Equatable, CustomStringConvertible, Codable {
             public let elementDescription: String
@@ -195,6 +222,9 @@ public struct AccessibilityElement: Equatable, Codable {
     /// Whether the element performs an action based on user interaction.
     public let respondsToUserInteraction: Bool
 
+    /// The expanded/collapsed state of the element, if applicable.
+    public let expandedStatus: ExpandedStatus
+
     // MARK: - Initialization
 
     init(
@@ -212,7 +242,8 @@ public struct AccessibilityElement: Equatable, Codable {
         customContent: [CustomContent],
         customRotors: [CustomRotor],
         accessibilityLanguage: String?,
-        respondsToUserInteraction: Bool
+        respondsToUserInteraction: Bool,
+        expandedStatus: ExpandedStatus = .unsupported
     ) {
         self.description = description
         self.label = label
@@ -229,5 +260,6 @@ public struct AccessibilityElement: Equatable, Codable {
         self.customRotors = customRotors
         self.accessibilityLanguage = accessibilityLanguage
         self.respondsToUserInteraction = respondsToUserInteraction
+        self.expandedStatus = expandedStatus
     }
 }
