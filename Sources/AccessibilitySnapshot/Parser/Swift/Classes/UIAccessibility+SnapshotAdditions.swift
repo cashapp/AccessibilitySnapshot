@@ -580,20 +580,32 @@ extension String {
 
 // Private UIAccessibilityTraits constants. Bit positions sourced from AXRuntime.framework
 // statics (_kAX*Trait symbols), as extracted in facebook/idb PrivateHeaders/AXRuntime/AXTraits.h.
+//
+// ┌─────┬────────────────────┬──────────────────────┬─────────────────────────────────┐
+// │ Bit │ Hex                │ Name                 │ UIKit Source                    │
+// ├─────┼────────────────────┼──────────────────────┼─────────────────────────────────┤
+// │  18 │ 0x0000000000040000 │ textEntry            │ UITextField, UITextView         │
+// │  21 │ 0x0000000000200000 │ isEditing            │ First-responder text fields     │
+// │  24 │ 0x0000000001000000 │ secureTextField       │ UITextField.isSecureTextEntry   │
+// │  27 │ 0x0000000008000000 │ backButton           │ UINavigationBar back item       │
+// │  28 │ 0x0000000010000000 │ tabBarItem           │ UITabBarButton                  │
+// │  47 │ 0x0000800000000000 │ textArea             │ UITextView, SwiftUI TextEditor  │
+// │  53 │ 0x0020000000000000 │ switchButton         │ UISwitch                        │
+// └─────┴────────────────────┴──────────────────────┴─────────────────────────────────┘
 extension UIAccessibilityTraits {
-    static let textEntry = UIAccessibilityTraits(rawValue: 1 << 18) // 0x0000000000040000
+    static let textEntry = UIAccessibilityTraits(rawValue: 1 << 18)
 
-    static let isEditing = UIAccessibilityTraits(rawValue: 1 << 21) // 0x0000000000200000
+    static let isEditing = UIAccessibilityTraits(rawValue: 1 << 21)
 
-    static let secureTextField = UIAccessibilityTraits(rawValue: 1 << 24) // 0x0000000001000000
+    static let secureTextField = UIAccessibilityTraits(rawValue: 1 << 24)
 
-    static let backButton = UIAccessibilityTraits(rawValue: 1 << 27) // 0x0000000008000000
+    static let backButton = UIAccessibilityTraits(rawValue: 1 << 27)
 
-    static let tabBarItem = UIAccessibilityTraits(rawValue: 1 << 28) // 0x0000000010000000
+    static let tabBarItem = UIAccessibilityTraits(rawValue: 1 << 28)
 
-    static let textArea = UIAccessibilityTraits(rawValue: 1 << 47) // 0x0000800000000000
+    static let textArea = UIAccessibilityTraits(rawValue: 1 << 47)
 
-    static let switchButton = UIAccessibilityTraits(rawValue: 1 << 53) // 0x0020000000000000
+    static let switchButton = UIAccessibilityTraits(rawValue: 1 << 53)
 }
 
 // MARK: -
