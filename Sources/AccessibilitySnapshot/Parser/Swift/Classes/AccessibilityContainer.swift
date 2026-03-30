@@ -26,8 +26,12 @@ public struct AccessibilityContainer: Equatable, Codable {
     /// Container's frame in the root view's coordinate space (for visualization)
     public let frame: CGRect
 
-    public init(type: ContainerType, frame: CGRect) {
+    /// Custom actions inherited by all elements within this container (e.g. SwiftUI swipe actions)
+    public let customActions: [AccessibilityElement.CustomAction]
+
+    public init(type: ContainerType, frame: CGRect, customActions: [AccessibilityElement.CustomAction] = []) {
         self.type = type
         self.frame = frame
+        self.customActions = customActions
     }
 }

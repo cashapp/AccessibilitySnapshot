@@ -11,4 +11,9 @@ final class SwiftUISnapshotTests: SnapshotTestCase {
     func testSimpleViewAtSizeThatFits() {
         SnapshotVerifyAccessibility(SwiftUIView())
     }
+
+    @available(iOS 15.0, *)
+    func testSwipeActionsDemo() {
+        SnapshotVerifyAccessibility(SwiftUISwipeActionsDemo(), size: UIScreen.main.bounds.size)
+    }
 }
