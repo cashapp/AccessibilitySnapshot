@@ -126,13 +126,11 @@ extension NSObject {
         }
 
         if accessibilityTraits.contains(.textEntry) {
-            if accessibilityTraits.contains(.textArea) {
-                // This is a UITextView/TextEditor
+            if accessibilityTraits.contains(.secureTextField) {
+                traitSpecifiers.append(strings.secureTextFieldTraitName)
             } else {
-                // This is a UITextField/TextField
+                traitSpecifiers.append(strings.textEntryTraitName)
             }
-
-            traitSpecifiers.append(strings.textEntryTraitName)
 
             if accessibilityTraits.contains(.isEditing) {
                 traitSpecifiers.append(strings.isEditingTraitName)
@@ -366,6 +364,8 @@ extension NSObject {
 
         let textEntryTraitName: String
 
+        let secureTextFieldTraitName: String
+
         let textEntryTraitHint: String
 
         let textEntryIsEditingTraitHint: String
@@ -530,6 +530,11 @@ extension NSObject {
                 comment: "Description for the 'text entry' accessibility trait",
                 locale: locale
             )
+            secureTextFieldTraitName = "Secure Text Field.".localized(
+                key: "trait.secure_text_field.description",
+                comment: "Description for the 'secure text field' accessibility trait",
+                locale: locale
+            )
             textEntryTraitHint = "Double tap to edit.".localized(
                 key: "trait.text_field.hint",
                 comment: "Hint describing how to use elements with the 'text entry' accessibility trait",
@@ -573,10 +578,14 @@ extension String {
 
 // MARK: -
 
+// Private UIAccessibilityTraits constants. Bit positions sourced from AXRuntime.framework
+// statics (_kAX*Trait symbols), as extracted in facebook/idb PrivateHeaders/AXRuntime/AXTraits.h.
 extension UIAccessibilityTraits {
     static let textEntry = UIAccessibilityTraits(rawValue: 1 << 18) // 0x0000000000040000
 
     static let isEditing = UIAccessibilityTraits(rawValue: 1 << 21) // 0x0000000000200000
+
+    static let secureTextField = UIAccessibilityTraits(rawValue: 1 << 24) // 0x0000000001000000
 
     static let backButton = UIAccessibilityTraits(rawValue: 1 << 27) // 0x0000000008000000
 

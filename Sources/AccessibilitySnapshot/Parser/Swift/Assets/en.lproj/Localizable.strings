@@ -94,6 +94,9 @@
 /* Description for the 'text entry' accessibility trait */
 "trait.text_field.description" = "Text Field.";
 
+/* Description for the 'secure text field' accessibility trait */
+"trait.secure_text_field.description" = "Secure Text Field.";
+
 /* Hint describing how to use elements with the 'text entry' accessibility trait */
 "trait.text_field.hint" = "Double tap to edit.";
 

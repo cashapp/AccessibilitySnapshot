@@ -33,6 +33,7 @@ public extension UIAccessibilityTraits {
         // Private traits (defined in UIAccessibility+SnapshotAdditions.swift)
         (.textEntry, "textEntry"),
         (.isEditing, "isEditing"),
+        (.secureTextField, "secureTextField"),
         (.backButton, "backButton"),
         (.tabBarItem, "tabBarItem"),
         (.textArea, "textArea"),

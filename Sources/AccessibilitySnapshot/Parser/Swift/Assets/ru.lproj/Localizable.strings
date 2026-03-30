@@ -94,6 +94,9 @@
 /* Description for the 'text entry' accessibility trait */
 "trait.text_field.description" = "текстовое поле.";
 
+/* Description for the 'secure text field' accessibility trait */
+"trait.secure_text_field.description" = "Защищённое текстовое поле.";
+
 /* Hint describing how to use elements with the 'text entry' accessibility trait */
 "trait.text_field.hint" = "коснитесь дважды, чтобы редактировать";
 
