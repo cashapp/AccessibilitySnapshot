@@ -126,13 +126,11 @@ extension NSObject {
         }
 
         if accessibilityTraits.contains(.textEntry) {
-            if accessibilityTraits.contains(.scrollable) {
-                // This is a UITextView/TextEditor
+            if accessibilityTraits.contains(.secureTextField) {
+                traitSpecifiers.append(strings.secureTextFieldTraitName)
             } else {
-                // This is a UITextField/TextField
+                traitSpecifiers.append(strings.textEntryTraitName)
             }
-
-            traitSpecifiers.append(strings.textEntryTraitName)
 
             if accessibilityTraits.contains(.isEditing) {
                 traitSpecifiers.append(strings.isEditingTraitName)
@@ -235,9 +233,9 @@ extension NSObject {
             if accessibilityTraits.contains(.isEditing) {
                 hintDescription = strings.textEntryIsEditingTraitHint
             } else {
-                if accessibilityTraits.contains(.scrollable) {
+                if accessibilityTraits.contains(.textArea) {
                     // This is a UITextView/TextEditor
-                    hintDescription = strings.scrollableTextEntryTraitHint
+                    hintDescription = strings.textAreaTraitHint
                 } else {
                     // This is a UITextField/TextField
                     hintDescription = strings.textEntryTraitHint
@@ -366,11 +364,13 @@ extension NSObject {
 
         let textEntryTraitName: String
 
+        let secureTextFieldTraitName: String
+
         let textEntryTraitHint: String
 
         let textEntryIsEditingTraitHint: String
 
-        let scrollableTextEntryTraitHint: String
+        let textAreaTraitHint: String
 
         let isEditingTraitName: String
 
@@ -530,6 +530,11 @@ extension NSObject {
                 comment: "Description for the 'text entry' accessibility trait",
                 locale: locale
             )
+            secureTextFieldTraitName = "Secure Text Field.".localized(
+                key: "trait.secure_text_field.description",
+                comment: "Description for the 'secure text field' accessibility trait",
+                locale: locale
+            )
             textEntryTraitHint = "Double tap to edit.".localized(
                 key: "trait.text_field.hint",
                 comment: "Hint describing how to use elements with the 'text entry' accessibility trait",
@@ -540,9 +545,9 @@ extension NSObject {
                 comment: "Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited",
                 locale: locale
             )
-            scrollableTextEntryTraitHint = "Double tap to edit., Use the rotor to access Misspelled Words".localized(
-                key: "trait.scrollable_text_field.hint",
-                comment: "Hint describing how to use elements with the 'text entry' and 'scrollable' accessibility traits",
+            textAreaTraitHint = "Double tap to edit., Use the rotor to access Misspelled Words".localized(
+                key: "trait.text_area.hint",
+                comment: "Hint describing how to use elements with the 'text entry' and 'text area' accessibility traits",
                 locale: locale
             )
             isEditingTraitName = "Is editing.".localized(
@@ -573,18 +578,34 @@ extension String {
 
 // MARK: -
 
+// Private UIAccessibilityTraits constants. Bit positions sourced from AXRuntime.framework
+// statics (_kAX*Trait symbols), as extracted in facebook/idb PrivateHeaders/AXRuntime/AXTraits.h.
+//
+// ┌─────┬────────────────────┬──────────────────────┬─────────────────────────────────┐
+// │ Bit │ Hex                │ Name                 │ UIKit Source                    │
+// ├─────┼────────────────────┼──────────────────────┼─────────────────────────────────┤
+// │  18 │ 0x0000000000040000 │ textEntry            │ UITextField, UITextView         │
+// │  21 │ 0x0000000000200000 │ isEditing            │ First-responder text fields     │
+// │  24 │ 0x0000000001000000 │ secureTextField      │ UITextField.isSecureTextEntry   │
+// │  27 │ 0x0000000008000000 │ backButton           │ UINavigationBar back item       │
+// │  28 │ 0x0000000010000000 │ tabBarItem           │ UITabBarButton                  │
+// │  47 │ 0x0000800000000000 │ textArea             │ UITextView, SwiftUI TextEditor  │
+// │  53 │ 0x0020000000000000 │ switchButton         │ UISwitch                        │
+// └─────┴────────────────────┴──────────────────────┴─────────────────────────────────┘
 extension UIAccessibilityTraits {
-    static let textEntry = UIAccessibilityTraits(rawValue: 1 << 18) // 0x0000000000040000
+    static let textEntry = UIAccessibilityTraits(rawValue: 1 << 18)
 
-    static let isEditing = UIAccessibilityTraits(rawValue: 1 << 21) // 0x0000000000200000
+    static let isEditing = UIAccessibilityTraits(rawValue: 1 << 21)
 
-    static let backButton = UIAccessibilityTraits(rawValue: 1 << 27) // 0x0000000008000000
+    static let secureTextField = UIAccessibilityTraits(rawValue: 1 << 24)
 
-    static let tabBarItem = UIAccessibilityTraits(rawValue: 1 << 28) // 0x0000000010000000
+    static let backButton = UIAccessibilityTraits(rawValue: 1 << 27)
 
-    static let scrollable = UIAccessibilityTraits(rawValue: 1 << 47) // 0x0000800000000000
+    static let tabBarItem = UIAccessibilityTraits(rawValue: 1 << 28)
 
-    static let switchButton = UIAccessibilityTraits(rawValue: 1 << 53) // 0x0020000000000000
+    static let textArea = UIAccessibilityTraits(rawValue: 1 << 47)
+
+    static let switchButton = UIAccessibilityTraits(rawValue: 1 << 53)
 }
 
 // MARK: -
