@@ -126,7 +126,7 @@ extension NSObject {
         }
 
         if accessibilityTraits.contains(.textEntry) {
-            if accessibilityTraits.contains(.scrollable) {
+            if accessibilityTraits.contains(.textArea) {
                 // This is a UITextView/TextEditor
             } else {
                 // This is a UITextField/TextField
@@ -235,9 +235,9 @@ extension NSObject {
             if accessibilityTraits.contains(.isEditing) {
                 hintDescription = strings.textEntryIsEditingTraitHint
             } else {
-                if accessibilityTraits.contains(.scrollable) {
+                if accessibilityTraits.contains(.textArea) {
                     // This is a UITextView/TextEditor
-                    hintDescription = strings.scrollableTextEntryTraitHint
+                    hintDescription = strings.textAreaTraitHint
                 } else {
                     // This is a UITextField/TextField
                     hintDescription = strings.textEntryTraitHint
@@ -370,7 +370,7 @@ extension NSObject {
 
         let textEntryIsEditingTraitHint: String
 
-        let scrollableTextEntryTraitHint: String
+        let textAreaTraitHint: String
 
         let isEditingTraitName: String
 
@@ -540,9 +540,9 @@ extension NSObject {
                 comment: "Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited",
                 locale: locale
             )
-            scrollableTextEntryTraitHint = "Double tap to edit., Use the rotor to access Misspelled Words".localized(
-                key: "trait.scrollable_text_field.hint",
-                comment: "Hint describing how to use elements with the 'text entry' and 'scrollable' accessibility traits",
+            textAreaTraitHint = "Double tap to edit., Use the rotor to access Misspelled Words".localized(
+                key: "trait.text_area.hint",
+                comment: "Hint describing how to use elements with the 'text entry' and 'text area' accessibility traits",
                 locale: locale
             )
             isEditingTraitName = "Is editing.".localized(
@@ -582,7 +582,7 @@ extension UIAccessibilityTraits {
 
     static let tabBarItem = UIAccessibilityTraits(rawValue: 1 << 28) // 0x0000000010000000
 
-    static let scrollable = UIAccessibilityTraits(rawValue: 1 << 47) // 0x0000800000000000
+    static let textArea = UIAccessibilityTraits(rawValue: 1 << 47) // 0x0000800000000000
 
     static let switchButton = UIAccessibilityTraits(rawValue: 1 << 53) // 0x0020000000000000
 }

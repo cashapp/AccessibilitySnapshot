@@ -35,7 +35,7 @@ public extension UIAccessibilityTraits {
         (.isEditing, "isEditing"),
         (.backButton, "backButton"),
         (.tabBarItem, "tabBarItem"),
-        (.scrollable, "scrollable"),
+        (.textArea, "textArea"),
         (.switchButton, "switchButton"),
     ]
 
