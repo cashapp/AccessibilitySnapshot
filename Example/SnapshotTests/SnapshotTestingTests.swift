@@ -160,6 +160,17 @@ final class SnapshotTestingTests: XCTestCase {
         )
     }
 
+    func testSwiftUISecureField() {
+        let view = SwiftUISecureField()
+            .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height)
+
+        assertSnapshot(
+            of: view,
+            as: .accessibilityImage,
+            named: nameForDevice()
+        )
+    }
+
     // MARK: - Private Methods
 
     private func nameForDevice(baseName: String? = nil) -> String {
