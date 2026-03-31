@@ -204,23 +204,18 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(hierarchy.count, 1)
 
         // Verify it's a container with correct label
-        if case let .container(containerInfo, children) = hierarchy.first {
-            if case let .semanticGroup(label, _, _) = containerInfo.type {
-                XCTAssertEqual(label, "Group Label")
-            } else {
-                XCTFail("Expected semanticGroup container type")
-            }
-            XCTAssertEqual(children.count, 1)
-
-            // Verify child element
-            if case let .element(childElement, _) = children.first {
-                XCTAssertEqual(childElement.description, "Element")
-            } else {
-                XCTFail("Expected element child")
-            }
+        let containers = hierarchy.flattenToContainers()
+        XCTAssertEqual(containers.count, 1)
+        if case let .semanticGroup(label, _, _) = containers.first?.type {
+            XCTAssertEqual(label, "Group Label")
         } else {
-            XCTFail("Expected container at root level")
+            XCTFail("Expected semanticGroup container type")
         }
+
+        // Verify child element
+        let elements = hierarchy.flattenToElements()
+        XCTAssertEqual(elements.count, 1)
+        XCTAssertEqual(elements.first?.description, "Element")
     }
 
     func testSemanticGroupWithoutLabelIsFlattened() {
@@ -244,11 +239,10 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(hierarchy.count, 1)
 
         // Verify it's an element, not a container
-        if case let .element(elementInfo, _) = hierarchy.first {
-            XCTAssertEqual(elementInfo.description, "Element")
-        } else {
-            XCTFail("Expected element at root level (container should be flattened)")
-        }
+        XCTAssertTrue(hierarchy.flattenToContainers().isEmpty, "Container should be flattened")
+        let elements = hierarchy.flattenToElements()
+        XCTAssertEqual(elements.count, 1)
+        XCTAssertEqual(elements.first?.description, "Element")
     }
 
     func testListContainerIsAlwaysPreserved() {
@@ -277,12 +271,10 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         // Should have one list container at root level
         XCTAssertEqual(hierarchy.count, 1)
 
-        if case let .container(containerInfo, children) = hierarchy.first {
-            XCTAssertEqual(containerInfo.type, .list)
-            XCTAssertEqual(children.count, 2)
-        } else {
-            XCTFail("Expected list container at root level")
-        }
+        let containers = hierarchy.flattenToContainers()
+        XCTAssertEqual(containers.count, 1)
+        XCTAssertEqual(containers.first?.type, .list)
+        XCTAssertEqual(hierarchy.flattenToElements().count, 2)
     }
 
     func testLandmarkContainerIsAlwaysPreserved() {
@@ -303,11 +295,9 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         XCTAssertEqual(hierarchy.count, 1)
 
-        if case let .container(containerInfo, _) = hierarchy.first {
-            XCTAssertEqual(containerInfo.type, .landmark)
-        } else {
-            XCTFail("Expected landmark container at root level")
-        }
+        let containers = hierarchy.flattenToContainers()
+        XCTAssertEqual(containers.count, 1)
+        XCTAssertEqual(containers.first?.type, .landmark)
     }
 
     func testNestedContainersPreserveHierarchy() {
@@ -320,63 +310,36 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         // Should have outer container at root
         XCTAssertEqual(hierarchy.count, 1)
 
-        if case let .container(outerInfo, outerChildren) = hierarchy.first {
-            if case let .semanticGroup(label, _, _) = outerInfo.type {
-                XCTAssertEqual(label, "Outer Container")
-            } else {
-                XCTFail("Expected semanticGroup container type for outer")
-            }
-
-            // Should have 2 children: "Outer Item" element and inner container
-            XCTAssertEqual(outerChildren.count, 2)
-
-            // Find the outer item element
-            let outerElements = outerChildren.compactMap { node -> AccessibilityElement? in
-                if case let .element(element, _) = node { return element }
-                return nil
-            }
-            XCTAssertEqual(outerElements.count, 1)
-            XCTAssertEqual(outerElements.first?.description, "Outer Item")
-
-            // Find the inner container
-            let innerContainers = outerChildren.compactMap { node -> (AccessibilityContainer, [AccessibilityHierarchy])? in
-                if case let .container(info, children) = node { return (info, children) }
-                return nil
-            }
-            XCTAssertEqual(innerContainers.count, 1)
-            if let innerContainer = innerContainers.first?.0,
-               case let .semanticGroup(label, _, _) = innerContainer.type
-            {
-                XCTAssertEqual(label, "Inner Container")
-            } else {
-                XCTFail("Expected semanticGroup container type for inner")
-            }
-
-            // Inner container should have 2 element children
-            if let innerChildren = innerContainers.first?.1 {
-                let innerElements = innerChildren.compactMap { node -> AccessibilityElement? in
-                    if case let .element(element, _) = node { return element }
-                    return nil
-                }
-                XCTAssertEqual(innerElements.count, 2)
-                XCTAssertEqual(innerElements.map { $0.description }, ["Inner Item 1", "Inner Item 2"])
-            }
-        } else {
-            XCTFail("Expected outer container")
-        }
-
-        // Verify flattening produces correct element order
-        let flattenedElements = hierarchy.flattenToElements()
-        XCTAssertEqual(flattenedElements.map { $0.description }, ["Outer Item", "Inner Item 1", "Inner Item 2"])
-
-        // Verify flattenToContainers gets both containers
+        // Verify both containers are present with correct labels
         let containers = hierarchy.flattenToContainers()
         XCTAssertEqual(containers.count, 2)
         let containerLabels = containers.compactMap { container -> String? in
             if case let .semanticGroup(label, _, _) = container.type { return label }
             return nil
         }
-        XCTAssertEqual(Set(containerLabels), ["Outer Container", "Inner Container"])
+        XCTAssertEqual(containerLabels, ["Outer Container", "Inner Container"])
+
+        // Verify flattening produces correct element order
+        let flattenedElements = hierarchy.flattenToElements()
+        XCTAssertEqual(flattenedElements.map { $0.description }, ["Outer Item", "Inner Item 1", "Inner Item 2"])
+
+        // Verify structure: outer has 2 direct children (1 element + 1 container)
+        guard case let .container(_, outerChildren) = hierarchy.first else {
+            return XCTFail("Expected outer container")
+        }
+        XCTAssertEqual(outerChildren.count, 2)
+        XCTAssertEqual(outerChildren.flattenToContainers().count, 1, "Outer has 1 direct container child")
+
+        // Verify inner container has 2 element children
+        guard case let .container(_, innerChildren) = outerChildren.first(where: {
+            if case .container = $0 { return true }
+            return false
+        }) else {
+            return XCTFail("Expected inner container")
+        }
+        let innerElements = innerChildren.flattenToElements()
+        XCTAssertEqual(innerElements.count, 2)
+        XCTAssertEqual(innerElements.map { $0.description }, ["Inner Item 1", "Inner Item 2"])
     }
 
     func testHierarchySortOrder() {
@@ -438,16 +401,12 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let parser = AccessibilityHierarchyParser()
         let hierarchy = parser.parseAccessibilityHierarchy(in: rootView)
 
-        if case let .container(_, children) = hierarchy.first {
-            let childDescriptions = children.compactMap { node -> String? in
-                if case let .element(element, _) = node { return element.description }
-                return nil
-            }
-            // Children should be sorted by position
-            XCTAssertEqual(childDescriptions, ["First", "Second", "Third"])
-        } else {
-            XCTFail("Expected list container")
+        guard case let .container(_, children) = hierarchy.first else {
+            return XCTFail("Expected list container")
         }
+        // Children should be sorted by position
+        let childDescriptions = children.flattenToElements().map { $0.description }
+        XCTAssertEqual(childDescriptions, ["First", "Second", "Third"])
     }
 
     func testFlattenToContainers() {
@@ -608,26 +567,14 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         XCTAssertEqual(decoded.count, 1)
 
-        if case let .container(decodedContainer, children) = decoded.first {
-            XCTAssertEqual(decodedContainer.type, .list)
-            XCTAssertEqual(children.count, 2)
+        let containers = decoded.flattenToContainers()
+        XCTAssertEqual(containers.count, 1)
+        XCTAssertEqual(containers.first?.type, .list)
 
-            if case let .element(child1, index1) = children[0] {
-                XCTAssertEqual(child1.description, "Item 1")
-                XCTAssertEqual(index1, 0)
-            } else {
-                XCTFail("Expected element child")
-            }
-
-            if case let .element(child2, index2) = children[1] {
-                XCTAssertEqual(child2.description, "Item 2")
-                XCTAssertEqual(index2, 1)
-            } else {
-                XCTFail("Expected element child")
-            }
-        } else {
-            XCTFail("Expected container at root")
-        }
+        let elements = decoded.flattenToElements()
+        XCTAssertEqual(elements.count, 2)
+        XCTAssertEqual(elements[0].description, "Item 1")
+        XCTAssertEqual(elements[1].description, "Item 2")
     }
 
     func testShapeCodableWithPath() throws {
@@ -801,17 +748,15 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         // Should have one container with dataTable type
         XCTAssertEqual(hierarchy.count, 1)
 
-        if case let .container(container, children) = hierarchy.first {
-            if case let .dataTable(rowCount, columnCount) = container.type {
-                XCTAssertEqual(rowCount, 5)
-                XCTAssertEqual(columnCount, 4)
-            } else {
-                XCTFail("Expected dataTable container type")
-            }
-            XCTAssertEqual(children.count, 2)
+        let containers = hierarchy.flattenToContainers()
+        XCTAssertEqual(containers.count, 1)
+        if case let .dataTable(rowCount, columnCount) = containers.first?.type {
+            XCTAssertEqual(rowCount, 5)
+            XCTAssertEqual(columnCount, 4)
         } else {
-            XCTFail("Expected dataTable container")
+            XCTFail("Expected dataTable container type")
         }
+        XCTAssertEqual(hierarchy.flattenToElements().count, 2)
     }
 
     func testDataTableContainerCodable() throws {

@@ -28,12 +28,9 @@ public enum AccessibilityHierarchy: Equatable, Codable {
     /// For elements: returns the traversal index.
     /// For containers: returns the minimum sort index of its children (recursively).
     public var sortIndex: Int {
-        switch self {
-        case let .element(_, index):
-            return index
-        case let .container(_, children):
-            // Return minimum sort index of children, or Int.max if no children
-            return children.map { $0.sortIndex }.min() ?? Int.max
+        reduce(Int.max) { accumulator, node in
+            guard case let .element(_, index) = node else { return accumulator }
+            return min(accumulator, index)
         }
     }
 }
@@ -43,58 +40,26 @@ public enum AccessibilityHierarchy: Equatable, Codable {
 public extension AccessibilityHierarchy {
     /// Recursively visits each node in the hierarchy tree
     func forEach(_ apply: (AccessibilityHierarchy) -> Void) {
-        apply(self)
-        for child in children {
-            child.forEach(apply)
-        }
+        reduce(()) { _, node in apply(node) }
     }
 }
 
 public extension Array where Element == AccessibilityHierarchy {
     /// Flattens an array of hierarchy nodes into a single array of elements in VoiceOver traversal order
     func flattenToElements() -> [AccessibilityElement] {
-        var elementPairs: [(index: Int, element: AccessibilityElement)] = []
-
-        func collectElements(from node: AccessibilityHierarchy) {
-            switch node {
-            case let .element(element, index):
-                elementPairs.append((index, element))
-            case let .container(_, children):
-                for child in children {
-                    collectElements(from: child)
-                }
-            }
+        reducedHierarchy([(index: Int, element: AccessibilityElement)]()) { accumulator, node in
+            guard case let .element(element, index) = node else { return accumulator }
+            return accumulator + [(index, element)]
         }
-
-        for node in self {
-            collectElements(from: node)
-        }
-
-        return elementPairs
-            .sorted { $0.index < $1.index }
-            .map { $0.element }
+        .sorted { $0.index < $1.index }
+        .map { $0.element }
     }
 
     /// Flattens an array of hierarchy nodes into a single array of containers in depth-first order
     func flattenToContainers() -> [AccessibilityContainer] {
-        var containers: [AccessibilityContainer] = []
-
-        func collectContainers(from node: AccessibilityHierarchy) {
-            switch node {
-            case .element:
-                break
-            case let .container(container, children):
-                containers.append(container)
-                for child in children {
-                    collectContainers(from: child)
-                }
-            }
+        reducedHierarchy([]) { accumulator, node in
+            guard case let .container(container, _) = node else { return accumulator }
+            return accumulator + [container]
         }
-
-        for node in self {
-            collectContainers(from: node)
-        }
-
-        return containers
     }
 }
