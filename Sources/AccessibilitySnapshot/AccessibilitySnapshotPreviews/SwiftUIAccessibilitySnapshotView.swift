@@ -81,13 +81,18 @@ public struct AccessibilitySnapshotView<Content: View>: View {
 
     @ViewBuilder
     private func snapshotWithOverlays(image: UIImage) -> some View {
-        ZStack(alignment: .topLeading) {
-            Image(uiImage: image)
-                .resizable()
-                .frame(width: renderSize.width, height: renderSize.height)
+        Image(uiImage: image)
+            .resizable()
+            .frame(width: renderSize.width, height: renderSize.height)
+            .overlay(containerOverlayLayer)
+            .overlay(elementOverlayLayer)
+            .clipped()
+    }
 
-            // Container overlays (behind elements)
-            if showContainers, let colorAssignment {
+    @ViewBuilder
+    private var containerOverlayLayer: some View {
+        if showContainers, let colorAssignment {
+            ZStack(alignment: .topLeading) {
                 ForEach(colorAssignment.containers.indices, id: \.self) { i in
                     let entry = colorAssignment.containers[i]
                     ContainerOverlayView(
@@ -96,8 +101,12 @@ public struct AccessibilitySnapshotView<Content: View>: View {
                     )
                 }
             }
+            .frame(width: renderSize.width, height: renderSize.height)
+        }
+    }
 
-            // Element overlays — always rendered identically regardless of container mode
+    private var elementOverlayLayer: some View {
+        ZStack(alignment: .topLeading) {
             ForEach(markers.indices, id: \.self) { index in
                 let marker = markers[index]
 
@@ -116,7 +125,6 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             }
         }
         .frame(width: renderSize.width, height: renderSize.height)
-        .clipped()
     }
 
     @ViewBuilder
@@ -315,13 +323,18 @@ public struct PreParsedAccessibilitySnapshotView: View {
     }
 
     private var snapshotWithOverlays: some View {
-        ZStack(alignment: .topLeading) {
-            Image(uiImage: snapshotImage)
-                .resizable()
-                .frame(width: renderSize.width, height: renderSize.height)
+        Image(uiImage: snapshotImage)
+            .resizable()
+            .frame(width: renderSize.width, height: renderSize.height)
+            .overlay(preParsedContainerOverlayLayer)
+            .overlay(preParsedElementOverlayLayer)
+            .clipped()
+    }
 
-            // Container overlays (behind elements)
-            if showContainers, let colorAssignment {
+    @ViewBuilder
+    private var preParsedContainerOverlayLayer: some View {
+        if showContainers, let colorAssignment {
+            ZStack(alignment: .topLeading) {
                 ForEach(colorAssignment.containers.indices, id: \.self) { i in
                     let entry = colorAssignment.containers[i]
                     ContainerOverlayView(
@@ -330,8 +343,12 @@ public struct PreParsedAccessibilitySnapshotView: View {
                     )
                 }
             }
+            .frame(width: renderSize.width, height: renderSize.height)
+        }
+    }
 
-            // Element overlays — always rendered identically regardless of container mode
+    private var preParsedElementOverlayLayer: some View {
+        ZStack(alignment: .topLeading) {
             ForEach(markers.indices, id: \.self) { index in
                 let marker = markers[index]
                 ElementOverlay(
@@ -349,7 +366,6 @@ public struct PreParsedAccessibilitySnapshotView: View {
             }
         }
         .frame(width: renderSize.width, height: renderSize.height)
-        .clipped()
     }
 
     private func shouldShowActivationPoint(for marker: AccessibilityMarker) -> Bool {
