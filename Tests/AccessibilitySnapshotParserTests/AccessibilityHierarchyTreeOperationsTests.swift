@@ -73,11 +73,7 @@
             return nil
         }
 
-        // =========================================================================
-
         // MARK: - Filter: Element
-
-        // =========================================================================
 
         func testFilterKeepsMatchingElement() {
             let node = element(label: "Save")
@@ -107,11 +103,7 @@
             }
         }
 
-        // =========================================================================
-
         // MARK: - Filter: Container
-
-        // =========================================================================
 
         func testContainerKeptWhenChildMatches() {
             let tree = group(label: "Toolbar", children: [
@@ -181,11 +173,7 @@
             }
         }
 
-        // =========================================================================
-
         // MARK: - Filter: Nested
-
-        // =========================================================================
 
         func testDeepNestedElementSurvives() {
             let tree = group(label: "Root", children: [
@@ -236,11 +224,7 @@
             XCTAssertEqual(children.count, 2, "Middle branch (no buttons) should be pruned")
         }
 
-        // =========================================================================
-
         // MARK: - Filter: Trait & Container Type
-
-        // =========================================================================
 
         func testFilterByTrait() {
             let tree = group(children: [
@@ -284,11 +268,7 @@
             XCTAssertEqual(children.count, 3)
         }
 
-        // =========================================================================
-
         // MARK: - Filter: Array
-
-        // =========================================================================
 
         func testFilteredHierarchyOnArray() {
             let roots: [AccessibilityHierarchy] = [
@@ -317,11 +297,7 @@
             XCTAssertEqual(result.count, 1)
         }
 
-        // =========================================================================
-
         // MARK: - Filter: Edge Cases
-
-        // =========================================================================
 
         func testFilterOnEmptyArray() {
             let roots: [AccessibilityHierarchy] = []
@@ -356,41 +332,16 @@
             }
         }
 
-        // =========================================================================
-
         // MARK: - Map: Element
 
-        // =========================================================================
-
         func testMapTransformsElementLabel() {
-            let node = element(label: "hello", index: 5)
-            let result = node.map { n in
-                guard case let .element(e, idx) = n else { return n }
-                return .element(
-                    AccessibilityElement(
-                        description: e.description.uppercased(),
-                        label: e.label?.uppercased(),
-                        value: e.value,
-                        traits: e.traits,
-                        identifier: e.identifier,
-                        hint: e.hint,
-                        userInputLabels: e.userInputLabels,
-                        shape: e.shape,
-                        activationPoint: e.activationPoint,
-                        usesDefaultActivationPoint: e.usesDefaultActivationPoint,
-                        customActions: e.customActions,
-                        customContent: e.customContent,
-                        customRotors: e.customRotors,
-                        accessibilityLanguage: e.accessibilityLanguage,
-                        respondsToUserInteraction: e.respondsToUserInteraction
-                    ),
-                    traversalIndex: idx
-                )
+            let input = element(label: "A", index: 5)
+            let expected = element(label: "mapped", index: 5)
+            let result = input.map { node in
+                guard case let .element(_, idx) = node else { return node }
+                return self.element(label: "mapped", index: idx)
             }
-            XCTAssertEqual(label(of: result), "HELLO")
-            if case let .element(_, idx) = result {
-                XCTAssertEqual(idx, 5, "Traversal index preserved")
-            }
+            XCTAssertEqual(result, expected)
         }
 
         func testMapIdentityPreservesTree() {
@@ -401,47 +352,22 @@
             XCTAssertEqual(tree.map { $0 }, tree)
         }
 
-        // =========================================================================
-
         // MARK: - Map: Container
 
-        // =========================================================================
-
         func testMapTransformsContainerChildren() {
-            let tree = group(children: [
+            let input = group(children: [
                 element(label: "A", index: 0),
                 element(label: "B", index: 1),
             ])
-
-            let result = tree.map { n in
-                guard case let .element(e, idx) = n else { return n }
-                return .element(
-                    AccessibilityElement(
-                        description: e.description,
-                        label: (e.label ?? "") + "!",
-                        value: e.value,
-                        traits: e.traits,
-                        identifier: e.identifier,
-                        hint: e.hint,
-                        userInputLabels: e.userInputLabels,
-                        shape: e.shape,
-                        activationPoint: e.activationPoint,
-                        usesDefaultActivationPoint: e.usesDefaultActivationPoint,
-                        customActions: e.customActions,
-                        customContent: e.customContent,
-                        customRotors: e.customRotors,
-                        accessibilityLanguage: e.accessibilityLanguage,
-                        respondsToUserInteraction: e.respondsToUserInteraction
-                    ),
-                    traversalIndex: idx
-                )
+            let expected = group(children: [
+                element(label: "mapped", index: 0),
+                element(label: "mapped", index: 1),
+            ])
+            let result = input.map { node in
+                guard case let .element(_, idx) = node else { return node }
+                return self.element(label: "mapped", index: idx)
             }
-
-            guard case let .container(_, children) = result else {
-                return XCTFail("Expected container")
-            }
-            XCTAssertEqual(label(of: children[0]), "A!")
-            XCTAssertEqual(label(of: children[1]), "B!")
+            XCTAssertEqual(result, expected)
         }
 
         func testMapIsBottomUp() {
@@ -467,107 +393,75 @@
         }
 
         func testMapDeepNesting() {
-            let tree = group(children: [
+            let input = group(children: [
                 group(children: [
                     group(children: [
-                        element(label: "deep", index: 0),
+                        element(label: "deep"),
                     ]),
                 ]),
             ])
-
-            let result = tree.map { n in
-                guard case let .element(e, idx) = n else { return n }
-                return .element(
-                    AccessibilityElement(
-                        description: e.description,
-                        label: "found",
-                        value: e.value,
-                        traits: e.traits,
-                        identifier: e.identifier,
-                        hint: e.hint,
-                        userInputLabels: e.userInputLabels,
-                        shape: e.shape,
-                        activationPoint: e.activationPoint,
-                        usesDefaultActivationPoint: e.usesDefaultActivationPoint,
-                        customActions: e.customActions,
-                        customContent: e.customContent,
-                        customRotors: e.customRotors,
-                        accessibilityLanguage: e.accessibilityLanguage,
-                        respondsToUserInteraction: e.respondsToUserInteraction
-                    ),
-                    traversalIndex: idx
-                )
+            let expected = group(children: [
+                group(children: [
+                    group(children: [
+                        element(label: "found"),
+                    ]),
+                ]),
+            ])
+            let result = input.map { node in
+                guard case .element = node else { return node }
+                return self.element(label: "found")
             }
-
-            guard case let .container(_, l1) = result,
-                  case let .container(_, l2) = l1[0],
-                  case let .container(_, l3) = l2[0]
-            else {
-                return XCTFail("Expected nested containers")
-            }
-            XCTAssertEqual(label(of: l3[0]), "found")
+            XCTAssertEqual(result, expected)
         }
 
         func testMapCanReplaceContainerType() {
-            let tree = group(label: "Nav", children: [
-                element(label: "Home", index: 0),
+            let input = group(label: "Nav", children: [
+                element(label: "Home"),
             ])
-
-            let result = tree.map { n in
-                guard case let .container(_, children) = n else { return n }
-                return .container(
-                    AccessibilityContainer(type: .tabBar, frame: .zero),
-                    children: children
-                )
+            let expected = tabBar(children: [
+                element(label: "Home"),
+            ])
+            let result = input.map { node in
+                guard case let .container(_, children) = node else { return node }
+                return self.tabBar(children: children)
             }
-
-            guard case let .container(c, children) = result else {
-                return XCTFail("Expected container")
-            }
-            if case .tabBar = c.type {} else {
-                XCTFail("Expected tabBar type")
-            }
-            XCTAssertEqual(children.count, 1)
+            XCTAssertEqual(result, expected)
         }
 
         func testMapCanCollapseContainerToElement() {
-            let tree = group(children: [element(label: "Only", index: 7)])
-
-            let result = tree.map { n in
-                if case let .container(_, children) = n, children.count == 1 {
+            let input = group(children: [element(label: "Only", index: 7)])
+            let expected = element(label: "Only", index: 7)
+            let result = input.map { node in
+                if case let .container(_, children) = node, children.count == 1 {
                     return children[0]
                 }
-                return n
+                return node
             }
-
-            XCTAssertEqual(label(of: result), "Only")
+            XCTAssertEqual(result, expected)
         }
 
         func testMapCanReindexTraversalOrder() {
-            let roots: [AccessibilityHierarchy] = [
+            let input: [AccessibilityHierarchy] = [
                 element(label: "A", index: 0),
                 element(label: "B", index: 1),
                 element(label: "C", index: 2),
             ]
-
+            let expected: [AccessibilityHierarchy] = [
+                element(label: "A", index: 10),
+                element(label: "B", index: 20),
+                element(label: "C", index: 30),
+            ]
             var counter = 10
-            let result = roots.mappedHierarchy { n in
-                guard case let .element(e, _) = n else { return n }
+            let result = input.mappedHierarchy { node in
+                guard case let .element(e, _) = node else { return node }
                 let newIndex = counter
                 counter += 10
                 return .element(e, traversalIndex: newIndex)
             }
-
-            if case let .element(_, idx) = result[0] { XCTAssertEqual(idx, 10) }
-            if case let .element(_, idx) = result[1] { XCTAssertEqual(idx, 20) }
-            if case let .element(_, idx) = result[2] { XCTAssertEqual(idx, 30) }
+            XCTAssertEqual(result, expected)
         }
 
-        // =========================================================================
-
         // MARK: - Map: Edge Cases & Array
-
-        // =========================================================================
 
         func testMapEmptyContainer() {
             let tree = group(label: "Empty", children: [])
@@ -576,37 +470,19 @@
         }
 
         func testMappedHierarchyOnArray() {
-            let roots: [AccessibilityHierarchy] = [
-                element(label: "a", index: 0),
-                element(label: "b", index: 1),
+            let input: [AccessibilityHierarchy] = [
+                element(label: "A", index: 0),
+                element(label: "B", index: 1),
             ]
-
-            let result = roots.mappedHierarchy { n in
-                guard case let .element(e, idx) = n else { return n }
-                return .element(
-                    AccessibilityElement(
-                        description: e.description,
-                        label: e.label?.uppercased(),
-                        value: e.value,
-                        traits: e.traits,
-                        identifier: e.identifier,
-                        hint: e.hint,
-                        userInputLabels: e.userInputLabels,
-                        shape: e.shape,
-                        activationPoint: e.activationPoint,
-                        usesDefaultActivationPoint: e.usesDefaultActivationPoint,
-                        customActions: e.customActions,
-                        customContent: e.customContent,
-                        customRotors: e.customRotors,
-                        accessibilityLanguage: e.accessibilityLanguage,
-                        respondsToUserInteraction: e.respondsToUserInteraction
-                    ),
-                    traversalIndex: idx
-                )
+            let expected: [AccessibilityHierarchy] = [
+                element(label: "mapped", index: 0),
+                element(label: "mapped", index: 1),
+            ]
+            let result = input.mappedHierarchy { node in
+                guard case let .element(_, idx) = node else { return node }
+                return self.element(label: "mapped", index: idx)
             }
-
-            XCTAssertEqual(label(of: result[0]), "A")
-            XCTAssertEqual(label(of: result[1]), "B")
+            XCTAssertEqual(result, expected)
         }
 
         func testMappedHierarchyEmptyArray() {
@@ -615,11 +491,7 @@
             XCTAssertTrue(result.isEmpty)
         }
 
-        // =========================================================================
-
         // MARK: - Reduce: Count
-
-        // =========================================================================
 
         func testReduceCountsElements() {
             let tree = group(children: [
@@ -650,11 +522,7 @@
             XCTAssertEqual(count, 3, "Root + 2 inner containers")
         }
 
-        // =========================================================================
-
         // MARK: - Reduce: Collect
-
-        // =========================================================================
 
         func testReduceCollectsLabels() {
             let tree = group(children: [
@@ -696,11 +564,7 @@
             XCTAssertEqual(order, ["R", "1", "G", "2"])
         }
 
-        // =========================================================================
-
         // MARK: - Reduce: Numeric
-
-        // =========================================================================
 
         func testReduceComputesMaxTraversalIndex() {
             let tree = group(children: [
@@ -718,11 +582,7 @@
             XCTAssertEqual(maxIndex, 7)
         }
 
-        // =========================================================================
-
         // MARK: - Reduce: Boolean
-
-        // =========================================================================
 
         func testReduceChecksAnyButton() {
             let tree = group(children: [
@@ -752,11 +612,7 @@
             XCTAssertTrue(allInteractive)
         }
 
-        // =========================================================================
-
         // MARK: - Reduce: Edge Cases & Array
-
-        // =========================================================================
 
         func testReduceOnSingleElement() {
             let node = element(label: "Solo", index: 0)
@@ -807,11 +663,7 @@
             XCTAssertEqual(labels, ["A", "B", "C"])
         }
 
-        // =========================================================================
-
         // MARK: - Rewrite Validation
-
-        // =========================================================================
 
         /// Proves forEach visits in same order as reduced.
         func testForEachMatchesReduceOrder() {
@@ -909,61 +761,31 @@
             }
         }
 
-        // =========================================================================
-
         // MARK: - Composition: Filter + Map
 
-        // =========================================================================
-
         func testFilterThenMap() {
-            let tree = group(children: [
+            let input = group(children: [
                 element(label: "Keep", traits: .button, index: 0),
                 element(label: "Drop", index: 1),
                 element(label: "Also Keep", traits: .button, index: 2),
             ])
-
-            let result = tree
-                .filter { n in
-                    if case let .element(e, _) = n { return e.traits.contains(.button) }
+            let expected = group(children: [
+                element(label: "mapped", index: 0),
+                element(label: "mapped", index: 2),
+            ])
+            let result = input
+                .filter { node in
+                    if case let .element(e, _) = node { return e.traits.contains(.button) }
                     return true
                 }?
-                .map { n in
-                    guard case let .element(e, idx) = n else { return n }
-                    return .element(
-                        AccessibilityElement(
-                            description: e.description,
-                            label: e.label?.uppercased(),
-                            value: e.value,
-                            traits: e.traits,
-                            identifier: e.identifier,
-                            hint: e.hint,
-                            userInputLabels: e.userInputLabels,
-                            shape: e.shape,
-                            activationPoint: e.activationPoint,
-                            usesDefaultActivationPoint: e.usesDefaultActivationPoint,
-                            customActions: e.customActions,
-                            customContent: e.customContent,
-                            customRotors: e.customRotors,
-                            accessibilityLanguage: e.accessibilityLanguage,
-                            respondsToUserInteraction: e.respondsToUserInteraction
-                        ),
-                        traversalIndex: idx
-                    )
+                .map { node in
+                    guard case let .element(_, idx) = node else { return node }
+                    return self.element(label: "mapped", index: idx)
                 }
-
-            guard case let .container(_, children) = result else {
-                return XCTFail("Expected container")
-            }
-            XCTAssertEqual(children.count, 2)
-            XCTAssertEqual(label(of: children[0]), "KEEP")
-            XCTAssertEqual(label(of: children[1]), "ALSO KEEP")
+            XCTAssertEqual(result, expected)
         }
 
-        // =========================================================================
-
         // MARK: - Composition: Filter + Reduce
-
-        // =========================================================================
 
         func testFilterThenReduce() {
             let tree = group(children: [
@@ -987,100 +809,52 @@
             XCTAssertEqual(headerLabels, ["Header", "Footer"])
         }
 
-        // =========================================================================
-
         // MARK: - Composition: Map + Reduce
 
-        // =========================================================================
-
         func testMapThenReduce() {
-            let tree = group(children: [
-                element(label: "a", index: 0),
-                element(label: "b", index: 1),
+            let input = group(children: [
+                element(label: "A", index: 0),
+                element(label: "B", index: 1),
             ])
-
-            let uppercased = tree
-                .map { n in
-                    guard case let .element(e, idx) = n else { return n }
-                    return .element(
-                        AccessibilityElement(
-                            description: e.description,
-                            label: e.label?.uppercased(),
-                            value: e.value,
-                            traits: e.traits,
-                            identifier: e.identifier,
-                            hint: e.hint,
-                            userInputLabels: e.userInputLabels,
-                            shape: e.shape,
-                            activationPoint: e.activationPoint,
-                            usesDefaultActivationPoint: e.usesDefaultActivationPoint,
-                            customActions: e.customActions,
-                            customContent: e.customContent,
-                            customRotors: e.customRotors,
-                            accessibilityLanguage: e.accessibilityLanguage,
-                            respondsToUserInteraction: e.respondsToUserInteraction
-                        ),
-                        traversalIndex: idx
-                    )
+            let count = input
+                .map { node in
+                    guard case let .element(_, idx) = node else { return node }
+                    return self.element(label: "mapped", index: idx)
                 }
-                .reduce("") { accumulator, node in
-                    if case let .element(e, _) = node, let lbl = e.label {
-                        return accumulator.isEmpty ? lbl : accumulator + "," + lbl
+                .reduce(0) { accumulator, node in
+                    if case let .element(e, _) = node, e.label == "mapped" {
+                        return accumulator + 1
                     }
                     return accumulator
                 }
-
-            XCTAssertEqual(uppercased, "A,B")
+            XCTAssertEqual(count, 2)
         }
-
-        // =========================================================================
 
         // MARK: - Composition: All Three
 
-        // =========================================================================
-
         func testFilterMapReduce() {
-            let tree = group(children: [
+            let input = group(children: [
                 element(label: "Settings", traits: .button, index: 0),
                 element(label: "Info", index: 1),
                 element(label: "Profile", traits: .button, index: 2),
                 element(label: "Help", index: 3),
             ])
-
-            let result = tree
-                .filter { n in
-                    if case let .element(e, _) = n { return e.traits.contains(.button) }
+            let labels = input
+                .filter { node in
+                    if case let .element(e, _) = node { return e.traits.contains(.button) }
                     return true
                 }?
-                .map { n in
-                    guard case let .element(e, idx) = n else { return n }
-                    return .element(
-                        AccessibilityElement(
-                            description: e.description,
-                            label: "[" + (e.label ?? "") + "]",
-                            value: e.value,
-                            traits: e.traits,
-                            identifier: e.identifier,
-                            hint: e.hint,
-                            userInputLabels: e.userInputLabels,
-                            shape: e.shape,
-                            activationPoint: e.activationPoint,
-                            usesDefaultActivationPoint: e.usesDefaultActivationPoint,
-                            customActions: e.customActions,
-                            customContent: e.customContent,
-                            customRotors: e.customRotors,
-                            accessibilityLanguage: e.accessibilityLanguage,
-                            respondsToUserInteraction: e.respondsToUserInteraction
-                        ),
-                        traversalIndex: idx
-                    )
+                .map { node in
+                    guard case let .element(_, idx) = node else { return node }
+                    return self.element(label: "mapped", index: idx)
                 }
-                .reduce(0) { accumulator, node in
-                    if case .element = node { return accumulator + 1 }
+                .reduce([String]()) { accumulator, node in
+                    if case let .element(e, _) = node, let lbl = e.label {
+                        return accumulator + [lbl]
+                    }
                     return accumulator
                 }
-
-            XCTAssertEqual(result, 2)
+            XCTAssertEqual(labels, ["mapped", "mapped"])
         }
     }
 #endif
