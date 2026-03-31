@@ -86,6 +86,7 @@ public struct AccessibilitySnapshotView<Content: View>: View {
                 .resizable()
                 .frame(width: renderSize.width, height: renderSize.height)
 
+            // Container overlays (behind elements)
             if showContainers, let colorAssignment {
                 ForEach(colorAssignment.containers.indices, id: \.self) { i in
                     let entry = colorAssignment.containers[i]
@@ -95,38 +96,23 @@ public struct AccessibilitySnapshotView<Content: View>: View {
                         palette: palette
                     )
                 }
+            }
 
-                ForEach(colorAssignment.elements.indices, id: \.self) { i in
-                    let entry = colorAssignment.elements[i]
-                    ElementOverlay(
-                        index: entry.colorIndex,
-                        shape: entry.element.shape,
-                        palette: palette
+            // Element overlays — always rendered identically regardless of container mode
+            ForEach(markers.indices, id: \.self) { index in
+                let marker = markers[index]
+
+                ElementOverlay(
+                    index: index,
+                    shape: marker.shape,
+                    palette: palette
+                )
+
+                if shouldShowActivationPoint(for: marker) {
+                    ActivationPointView(
+                        position: marker.activationPoint,
+                        color: palette.strokeColor(at: index)
                     )
-
-                    if shouldShowActivationPoint(for: entry.element) {
-                        ActivationPointView(
-                            position: entry.element.activationPoint,
-                            color: palette.strokeColor(at: entry.colorIndex)
-                        )
-                    }
-                }
-            } else {
-                ForEach(markers.indices, id: \.self) { index in
-                    let marker = markers[index]
-
-                    ElementOverlay(
-                        index: index,
-                        shape: marker.shape,
-                        palette: palette
-                    )
-
-                    if shouldShowActivationPoint(for: marker) {
-                        ActivationPointView(
-                            position: marker.activationPoint,
-                            color: palette.strokeColor(at: index)
-                        )
-                    }
                 }
             }
         }
@@ -335,6 +321,7 @@ public struct PreParsedAccessibilitySnapshotView: View {
                 .resizable()
                 .frame(width: renderSize.width, height: renderSize.height)
 
+            // Container overlays (behind elements)
             if showContainers, let colorAssignment {
                 ForEach(colorAssignment.containers.indices, id: \.self) { i in
                     let entry = colorAssignment.containers[i]
@@ -344,37 +331,22 @@ public struct PreParsedAccessibilitySnapshotView: View {
                         palette: palette
                     )
                 }
+            }
 
-                ForEach(colorAssignment.elements.indices, id: \.self) { i in
-                    let entry = colorAssignment.elements[i]
-                    ElementOverlay(
-                        index: entry.colorIndex,
-                        shape: entry.element.shape,
-                        palette: palette
+            // Element overlays — always rendered identically regardless of container mode
+            ForEach(markers.indices, id: \.self) { index in
+                let marker = markers[index]
+                ElementOverlay(
+                    index: index,
+                    shape: marker.shape,
+                    palette: palette
+                )
+
+                if shouldShowActivationPoint(for: marker) {
+                    ActivationPointView(
+                        position: marker.activationPoint,
+                        color: palette.strokeColor(at: index)
                     )
-
-                    if shouldShowActivationPoint(for: entry.element) {
-                        ActivationPointView(
-                            position: entry.element.activationPoint,
-                            color: palette.strokeColor(at: entry.colorIndex)
-                        )
-                    }
-                }
-            } else {
-                ForEach(markers.indices, id: \.self) { index in
-                    let marker = markers[index]
-                    ElementOverlay(
-                        index: index,
-                        shape: marker.shape,
-                        palette: palette
-                    )
-
-                    if shouldShowActivationPoint(for: marker) {
-                        ActivationPointView(
-                            position: marker.activationPoint,
-                            color: palette.strokeColor(at: index)
-                        )
-                    }
                 }
             }
         }
