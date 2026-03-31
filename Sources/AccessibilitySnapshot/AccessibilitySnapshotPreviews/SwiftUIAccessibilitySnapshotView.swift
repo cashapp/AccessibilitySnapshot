@@ -91,8 +91,7 @@ public struct AccessibilitySnapshotView<Content: View>: View {
                 ForEach(colorAssignment.containers.indices, id: \.self) { i in
                     let entry = colorAssignment.containers[i]
                     ContainerOverlayView(
-                        container: entry.container,
-                        index: entry.colorIndex,
+                        entry: entry,
                         palette: palette
                     )
                 }
@@ -326,8 +325,7 @@ public struct PreParsedAccessibilitySnapshotView: View {
                 ForEach(colorAssignment.containers.indices, id: \.self) { i in
                     let entry = colorAssignment.containers[i]
                     ContainerOverlayView(
-                        container: entry.container,
-                        index: entry.colorIndex,
+                        entry: entry,
                         palette: palette
                     )
                 }

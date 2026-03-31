@@ -3,23 +3,23 @@ import AccessibilitySnapshotParser
 import SwiftUI
 
 /// Renders a dashed border overlay for an accessibility container on the snapshot.
+/// The border wraps around the child element frames, not the container UIView's geometry.
 @available(iOS 16.0, *)
 struct ContainerOverlayView: View {
-    let container: AccessibilityContainer
-    let index: Int
+    let entry: HierarchyColorAssignment.ContainerEntry
     let palette: ColorPalette
 
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: DesignTokens.Element.overlayCornerRadius)
                 .stroke(
-                    palette.strokeColor(at: index),
+                    palette.strokeColor(at: entry.colorIndex),
                     style: StrokeStyle(lineWidth: DesignTokens.Element.strokeWidth, dash: [4, 4])
                 )
                 .frame(width: frame.width, height: frame.height)
 
             // Badge: left-aligned, centered vertically on the top border line
-            ContainerBadge(index: index, palette: palette)
+            ContainerBadge(index: entry.colorIndex, palette: palette)
                 .offset(
                     x: DesignTokens.Badge.size / 2,
                     y: -DesignTokens.Badge.minSize / 2
@@ -30,9 +30,9 @@ struct ContainerOverlayView: View {
     }
 
     private var frame: CGRect {
-        container.frame.insetBy(
-            dx: -DesignTokens.Element.overlayOutset,
-            dy: -DesignTokens.Element.overlayOutset
+        entry.bounds.insetBy(
+            dx: -DesignTokens.Element.overlayOutset * 2,
+            dy: -DesignTokens.Element.overlayOutset * 2
         )
     }
 }
@@ -45,7 +45,6 @@ struct ContainerBadge: View {
 
     var body: some View {
         HStack(spacing: 2) {
-            // Layer icon (stacked squares)
             Image(systemName: "square.on.square")
                 .font(.system(size: 8, weight: .bold))
                 .foregroundColor(.white)

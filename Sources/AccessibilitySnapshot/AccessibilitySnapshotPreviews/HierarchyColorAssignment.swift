@@ -1,5 +1,6 @@
 import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser
+import CoreGraphics
 
 /// Assigns color indices to containers and elements in the hierarchy.
 ///
@@ -14,24 +15,26 @@ public struct HierarchyColorAssignment {
         case container(AccessibilityContainer, colorIndex: Int, children: [AssignedNode])
     }
 
+    /// A container with its color index and computed bounds (union of child element frames).
+    public struct ContainerEntry {
+        public let container: AccessibilityContainer
+        public let colorIndex: Int
+        /// Bounding rect computed from child element frames, not the container UIView's frame.
+        public let bounds: CGRect
+    }
+
     /// The assigned nodes in hierarchy order.
     public let nodes: [AssignedNode]
 
-    /// All containers with their color indices, in depth-first order.
-    public let containers: [(container: AccessibilityContainer, colorIndex: Int)]
+    /// All containers with their color indices and computed bounds, in depth-first order.
+    public let containers: [ContainerEntry]
 
     /// Builds color assignments from a hierarchy tree.
-    ///
-    /// Elements are assigned their flat traversal index (0, 1, 2, ...) so they match
-    /// the `markers` array used by the non-container overlay path.
-    /// Containers are assigned indices starting after the last element index, so they
-    /// get distinct colors from the same palette.
     public static func build(from hierarchy: [AccessibilityHierarchy]) -> HierarchyColorAssignment {
         var elementCounter = 0
         var containerCounter = 0
-        var allContainers: [(container: AccessibilityContainer, colorIndex: Int)] = []
+        var allContainers: [ContainerEntry] = []
 
-        // First pass: count elements so we know where container indices start
         let totalElements = hierarchy.flattenToElements().count
 
         func assign(_ nodes: [AccessibilityHierarchy]) -> [AssignedNode] {
@@ -40,8 +43,13 @@ public struct HierarchyColorAssignment {
                 case let .container(container, children):
                     let index = totalElements + containerCounter
                     containerCounter += 1
-                    allContainers.append((container, index))
                     let assignedChildren = assign(children)
+                    let bounds = computeBounds(of: assignedChildren)
+                    allContainers.append(ContainerEntry(
+                        container: container,
+                        colorIndex: index,
+                        bounds: bounds
+                    ))
                     return .container(container, colorIndex: index, children: assignedChildren)
 
                 case let .element(element, _):
@@ -57,5 +65,29 @@ public struct HierarchyColorAssignment {
             nodes: assignedNodes,
             containers: allContainers
         )
+    }
+
+    /// Computes the bounding rect that encloses all descendant element frames.
+    private static func computeBounds(of nodes: [AssignedNode]) -> CGRect {
+        var rects: [CGRect] = []
+        collectElementFrames(from: nodes, into: &rects)
+        guard let first = rects.first else { return .zero }
+        return rects.dropFirst().reduce(first) { $0.union($1) }
+    }
+
+    private static func collectElementFrames(from nodes: [AssignedNode], into rects: inout [CGRect]) {
+        for node in nodes {
+            switch node {
+            case let .element(element, _):
+                switch element.shape {
+                case let .frame(rect):
+                    rects.append(rect)
+                case let .path(path):
+                    rects.append(path.bounds)
+                }
+            case let .container(_, _, children):
+                collectElementFrames(from: children, into: &rects)
+            }
+        }
     }
 }
