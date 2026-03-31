@@ -12,6 +12,8 @@ struct ContainerDemo: View {
 /// which the parser can detect (SwiftUI's .accessibilityElement(children:) doesn't
 /// set UIAccessibilityContainerType).
 private struct ContainerDemoUIViewWrapper: UIViewRepresentable {
+    private static let viewWidth: CGFloat = 360
+
     func makeUIView(context: Context) -> UIView {
         let root = UIView()
         root.backgroundColor = .systemBackground
@@ -46,26 +48,34 @@ private struct ContainerDemoUIViewWrapper: UIViewRepresentable {
         root.addSubview(transactionList)
         root.addSubview(button)
 
-        // Layout
-        let padding: CGFloat = 16
-        let spacing: CGFloat = 16
+        // Layout with proper spacing
+        let padding: CGFloat = 20
+        let containerSpacing: CGFloat = 24
+        let itemSpacing: CGFloat = 12
+        let containerPadding: CGFloat = 16
+        let contentWidth = Self.viewWidth - padding * 2
+
         var y = padding
 
         for container in [accountGroup, transactionList] {
-            var childY: CGFloat = 8
+            var childY = containerPadding
             for subview in container.subviews {
-                subview.sizeToFit()
-                subview.frame.origin = CGPoint(x: 8, y: childY)
-                childY = subview.frame.maxY + 4
+                subview.frame = CGRect(
+                    x: containerPadding,
+                    y: childY,
+                    width: contentWidth - containerPadding * 2,
+                    height: subview.sizeThatFits(CGSize(width: contentWidth - containerPadding * 2, height: .greatestFiniteMagnitude)).height
+                )
+                childY = subview.frame.maxY + itemSpacing
             }
-            container.frame = CGRect(x: padding, y: y, width: 300, height: childY + 8)
-            y = container.frame.maxY + spacing
+            container.frame = CGRect(x: padding, y: y, width: contentWidth, height: childY - itemSpacing + containerPadding)
+            y = container.frame.maxY + containerSpacing
         }
 
         button.frame.origin = CGPoint(x: padding, y: y)
         y = button.frame.maxY + padding
 
-        root.frame = CGRect(x: 0, y: 0, width: 332, height: y)
+        root.frame = CGRect(x: 0, y: 0, width: Self.viewWidth, height: y)
         return root
     }
 
@@ -75,6 +85,7 @@ private struct ContainerDemoUIViewWrapper: UIViewRepresentable {
         let label = UILabel()
         label.text = text
         label.font = font
+        label.numberOfLines = 0
         label.isAccessibilityElement = true
         return label
     }
