@@ -9,6 +9,9 @@ struct ContainerOverlayView: View {
     let entry: HierarchyColorAssignment.ContainerEntry
     let palette: ColorPalette
 
+    /// Padding between the dashed border and the outermost child element overlays.
+    private static let containerPadding: CGFloat = 6
+
     var body: some View {
         ZStack(alignment: .topLeading) {
             RoundedRectangle(cornerRadius: DesignTokens.Element.overlayCornerRadius)
@@ -30,10 +33,9 @@ struct ContainerOverlayView: View {
     }
 
     private var frame: CGRect {
-        entry.bounds.insetBy(
-            dx: -DesignTokens.Element.overlayOutset * 2,
-            dy: -DesignTokens.Element.overlayOutset * 2
-        )
+        // Expand outward from the child-element bounding rect
+        let outset = DesignTokens.Element.overlayOutset + Self.containerPadding
+        return entry.bounds.insetBy(dx: -outset, dy: -outset)
     }
 }
 
