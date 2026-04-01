@@ -265,16 +265,15 @@ public struct PreParsedAccessibilitySnapshotView: View {
     public var body: some View {
         if showContainers, let colorAssignment {
             // Container mode: always legend below for readability
-            VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 0) {
                 snapshotWithOverlays
-                    .frame(width: contentWidth)
                 HierarchyLegendView(
                     nodes: colorAssignment.nodes,
                     palette: palette,
                     showUserInputLabels: showUserInputLabels,
                     showUnspokenTraits: showUnspokenTraits
                 )
-                .frame(width: contentWidth)
+                .frame(width: max(renderSize.width, LegendLayoutMetrics.minimumWidth))
             }
             .background(Color(white: 0.9))
         } else if legendOnRight {
