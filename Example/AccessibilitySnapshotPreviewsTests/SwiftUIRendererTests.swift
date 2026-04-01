@@ -27,6 +27,13 @@ final class SwiftUIRendererTests: AccessibilitySnapshotPreviewsTestCase {
         snapshotVerifyAccessibility(UnspokenTraitsDemoView())
     }
 
+    func testContainerDemoWithoutContainers() {
+        snapshotVerifyAccessibility(
+            ContainerDemo(),
+            identifier: "no_containers"
+        )
+    }
+
     func testContainerDemo() {
         snapshotVerifyAccessibility(
             ContainerDemo(),

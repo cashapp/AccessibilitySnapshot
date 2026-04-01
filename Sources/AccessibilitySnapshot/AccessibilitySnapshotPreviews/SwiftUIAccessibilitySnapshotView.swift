@@ -263,38 +263,42 @@ public struct PreParsedAccessibilitySnapshotView: View {
     }
 
     public var body: some View {
-        if showContainers, let colorAssignment {
-            // Container mode: always legend below for readability
-            VStack(alignment: .leading, spacing: 0) {
-                snapshotWithOverlays
-                HierarchyLegendView(
-                    nodes: colorAssignment.nodes,
-                    palette: palette,
-                    showUserInputLabels: showUserInputLabels,
-                    showUnspokenTraits: showUnspokenTraits
-                )
-                .frame(width: max(renderSize.width, LegendLayoutMetrics.minimumWidth))
-            }
-            .background(Color(white: 0.9))
-        } else if legendOnRight {
+        if legendOnRight {
             HStack(alignment: .top, spacing: 0) {
                 snapshotWithOverlays
-                multiColumnLegend
+                legendContent
             }
             .background(Color(white: 0.9))
         } else {
             VStack(spacing: 0) {
                 snapshotWithOverlays
                     .frame(width: contentWidth)
-                LegendView(
-                    markers: markers,
-                    palette: palette,
-                    showUserInputLabels: showUserInputLabels,
-                    showUnspokenTraits: showUnspokenTraits
-                )
-                .frame(width: contentWidth)
+                legendContent
+                    .frame(width: contentWidth)
             }
             .background(Color(white: 0.9))
+        }
+    }
+
+    @ViewBuilder
+    private var legendContent: some View {
+        if showContainers, let colorAssignment {
+            HierarchyLegendView(
+                nodes: colorAssignment.nodes,
+                palette: palette,
+                showUserInputLabels: showUserInputLabels,
+                showUnspokenTraits: showUnspokenTraits
+            )
+            .padding(LegendLayoutMetrics.legendInset)
+        } else if legendOnRight {
+            multiColumnLegend
+        } else {
+            LegendView(
+                markers: markers,
+                palette: palette,
+                showUserInputLabels: showUserInputLabels,
+                showUnspokenTraits: showUnspokenTraits
+            )
         }
     }
 
