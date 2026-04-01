@@ -1,3 +1,4 @@
+import AccessibilitySnapshotCore
 @testable import AccessibilitySnapshotPreviewsDemo
 
 @available(iOS 16.0, *)
@@ -24,5 +25,19 @@ final class SwiftUIRendererTests: AccessibilitySnapshotPreviewsTestCase {
 
     func testUnspokenTraitsDemo() {
         snapshotVerifyAccessibility(UnspokenTraitsDemoView())
+    }
+
+    func testContainerDemoWithoutContainers() {
+        snapshotVerifyAccessibility(
+            ContainerDemo(),
+            identifier: "no_containers"
+        )
+    }
+
+    func testContainerDemo() {
+        snapshotVerifyAccessibility(
+            ContainerDemo(),
+            configuration: .init(viewRenderingMode: .drawHierarchyInRect, showContainers: true)
+        )
     }
 }

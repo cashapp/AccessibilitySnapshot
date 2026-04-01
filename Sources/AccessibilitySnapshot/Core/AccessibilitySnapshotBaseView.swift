@@ -11,6 +11,9 @@ public struct ParsedAccessibilityData {
     /// The parsed accessibility markers.
     public let markers: [AccessibilityMarker]
 
+    /// The full accessibility hierarchy tree (containers + elements).
+    public let hierarchy: [AccessibilityHierarchy]
+
     /// The bounds size of the contained view.
     public let containedViewBounds: CGSize
 }
@@ -97,14 +100,16 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
         containedView.layoutIfNeeded()
 
         let parser = AccessibilityHierarchyParser()
-        let markers = parser.parseAccessibilityHierarchy(
+        let hierarchy = parser.parseAccessibilityHierarchy(
             in: containedView,
             rotorResultLimit: snapshotConfiguration.rotors.resultLimit
-        ).flattenToElements()
+        )
+        let markers = hierarchy.flattenToElements()
 
         let parsedData = ParsedAccessibilityData(
             image: image,
             markers: markers,
+            hierarchy: hierarchy,
             containedViewBounds: containedView.bounds.size
         )
 
