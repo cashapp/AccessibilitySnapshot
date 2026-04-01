@@ -84,8 +84,8 @@ public struct AccessibilitySnapshotView<Content: View>: View {
         Image(uiImage: image)
             .resizable()
             .frame(width: renderSize.width, height: renderSize.height)
-            .overlay(containerOverlayLayer)
             .overlay(elementOverlayLayer)
+            .overlay(containerOverlayLayer)
             .clipped()
     }
 
@@ -329,8 +329,8 @@ public struct PreParsedAccessibilitySnapshotView: View {
         Image(uiImage: snapshotImage)
             .resizable()
             .frame(width: renderSize.width, height: renderSize.height)
-            .overlay(preParsedContainerOverlayLayer)
             .overlay(preParsedElementOverlayLayer)
+            .overlay(preParsedContainerOverlayLayer)
             .clipped()
     }
 
