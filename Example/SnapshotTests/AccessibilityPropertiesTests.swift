@@ -45,6 +45,12 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         SnapshotVerifyAccessibility(navBarBackButtonTraitsViewController.view)
     }
 
+    func testSearchBarInNavigationBar() {
+        let searchBarViewController = SearchBarAccessibilityViewController()
+        searchBarViewController.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(searchBarViewController.view)
+    }
+
     func testSwitchControls() {
         let switchControlViewController = SwitchControlViewController()
         switchControlViewController.view.frame = UIScreen.main.bounds

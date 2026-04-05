@@ -11,4 +11,9 @@ final class SwiftUISnapshotTests: SnapshotTestCase {
     func testSimpleViewAtSizeThatFits() {
         SnapshotVerifyAccessibility(SwiftUIView())
     }
+
+    @available(iOS 16.0, *)
+    func testSearchableToolbarPlacement() {
+        SnapshotVerifyAccessibility(SwiftUISearchableView(), size: UIScreen.main.bounds.size)
+    }
 }
