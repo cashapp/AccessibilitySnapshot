@@ -702,7 +702,16 @@ private extension NSObject {
         // alpha. VoiceOver actually has some very low alpha threshold at which it will still display an element
         // (presumably to account for animations and/or rounding error). We use an alpha threshold of zero since that
         // should fulfill the intent.
-        if let `self` = self as? UIView, self.isHidden || self.frame.size == .zero || self.alpha <= 0 {
+        //
+        // Zero-frame views are pruned only when they are accessibility elements or explicit accessibility containers
+        // (accessibilityElements is set). Zero-frame wrapper views that only contain subviews are allowed through,
+        // because SwiftUI bridging layers (e.g. _UIInheritedView inside _UIFloatingBarContainerView) use zero-frame
+        // wrappers whose children overflow with clipsToBounds=false. Pruning those hides real accessible content
+        // such as the UISearchBarTextField rendered by .searchable().
+        if let `self` = self as? UIView,
+           self.isHidden || self.alpha <= 0
+           || (self.frame.size == .zero && (self.isAccessibilityElement || self.accessibilityElements != nil))
+        {
             return []
         }
 

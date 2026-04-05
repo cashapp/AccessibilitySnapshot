@@ -885,6 +885,39 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(decoded.type, .landmark)
     }
 
+    // MARK: - Zero-Frame Wrapper Views
+
+    /// Verifies that the parser traverses through a zero-frame non-clipping wrapper view to
+    /// find accessible children. This reproduces the SwiftUI bridging view hierarchy used by
+    /// UISearchController on iOS 26+, where a zero-frame _UIInheritedView wraps visible search
+    /// field content.
+    func testAccessibleChildrenFoundThroughZeroFrameNonClippingWrapper() {
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
+
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 116))
+
+        // A zero-frame wrapper that does not clip — children overflow and are visible.
+        let zeroFrameWrapper = UIView(frame: .zero)
+        zeroFrameWrapper.clipsToBounds = false
+        container.addSubview(zeroFrameWrapper)
+
+        let searchBar = UISearchBar(frame: CGRect(x: 0, y: 0, width: 375, height: 56))
+        zeroFrameWrapper.addSubview(searchBar)
+
+        window.addSubview(container)
+        window.makeKeyAndVisible()
+        container.setNeedsLayout()
+        container.layoutIfNeeded()
+
+        let elements = parseMarkers(in: container)
+
+        let hasSearchField = elements.contains { $0.traits.contains(.searchField) }
+        XCTAssertTrue(hasSearchField, "Expected the parser to traverse a zero-frame non-clipping wrapper and find the search field.")
+
+        window.resignKey()
+        window.isHidden = true
+    }
+
     // MARK: - Private Helpers
 
     private func parseMarkers(in view: UIView) -> [AccessibilityMarker] {
