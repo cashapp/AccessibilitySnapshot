@@ -131,7 +131,7 @@ public final class AccessibilityHierarchyParser {
     /// - `.list`, `.landmark`, `.dataTable`: INCLUDE (affects rotor navigation)
     /// - Views with `.tabBar` trait: INCLUDE (affects tab navigation)
     /// - `.semanticGroup` without properties: EXCLUDE (no announcement)
-    /// - `.none` containers: EXCLUDE (no special behavior)
+    /// - `.none` containers: EXCLUDE unless they carry private custom actions (e.g. swipe actions)
     ///
     /// Each element node includes a `traversalIndex` indicating its position in VoiceOver's navigation order.
     /// Use `flattenToElements()` on the result to get the same output as `parseAccessibilityElements`.
@@ -538,7 +538,9 @@ public final class AccessibilityHierarchyParser {
                         case .dataTable:
                             containerType = .dataTable(rowCount: info.rowCount ?? 0, columnCount: info.columnCount ?? 0)
                         case .none:
-                            // Should not reach here since containerInfo(for:) returns nil for .none
+                            // Reachable when a .none-typed view becomes a container solely because it
+                            // has private custom actions (e.g. SwiftUI swipe actions). Wrap as a
+                            // label-less semantic group so the container exists to carry customActions.
                             containerType = .semanticGroup(label: info.label, value: info.value, identifier: info.identifier)
                         @unknown default:
                             containerType = .semanticGroup(label: info.label, value: info.value, identifier: info.identifier)
