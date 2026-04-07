@@ -131,7 +131,7 @@ public final class AccessibilityHierarchyParser {
     /// - `.list`, `.landmark`, `.dataTable`: INCLUDE (affects rotor navigation)
     /// - Views with `.tabBar` trait: INCLUDE (affects tab navigation)
     /// - `.semanticGroup` without properties: EXCLUDE (no announcement)
-    /// - `.none` containers: EXCLUDE (no special behavior)
+    /// - `.none` containers: EXCLUDE unless they carry private custom actions (e.g. swipe actions)
     ///
     /// Each element node includes a `traversalIndex` indicating its position in VoiceOver's navigation order.
     /// Use `flattenToElements()` on the result to get the same output as `parseAccessibilityElements`.
@@ -226,7 +226,7 @@ public final class AccessibilityHierarchyParser {
                 activationPoint: activationPoint,
                 screenScale: (root.window?.screen ?? UIScreen.main).scale
             ),
-            customActions: object.accessibilityCustomActions?.map { AccessibilityElement.CustomAction(name: $0.name, image: $0.image) } ?? [],
+            customActions: object.allCustomActions,
             customContent: object.customContent,
             customRotors: object.customRotors(in: root, context: context, resultLimit: rotorResultLimit),
             accessibilityLanguage: object.accessibilityLanguage,
@@ -538,7 +538,9 @@ public final class AccessibilityHierarchyParser {
                         case .dataTable:
                             containerType = .dataTable(rowCount: info.rowCount ?? 0, columnCount: info.columnCount ?? 0)
                         case .none:
-                            // Should not reach here since containerInfo(for:) returns nil for .none
+                            // Reachable when a .none-typed view becomes a container solely because it
+                            // has private custom actions (e.g. SwiftUI swipe actions). Wrap as a
+                            // label-less semantic group so the container exists to carry customActions.
                             containerType = .semanticGroup(label: info.label, value: info.value, identifier: info.identifier)
                         @unknown default:
                             containerType = .semanticGroup(label: info.label, value: info.value, identifier: info.identifier)
@@ -547,7 +549,8 @@ public final class AccessibilityHierarchyParser {
 
                     let container = AccessibilityContainer(
                         type: containerType,
-                        frame: frame
+                        frame: frame,
+                        customActions: info.customActions
                     )
                     return [.container(container, children: mappedChildren)]
                 }
@@ -666,6 +669,7 @@ private struct ContainerInfo {
     let traits: UIAccessibilityTraits
     let rowCount: Int?
     let columnCount: Int?
+    let customActions: [AccessibilityElement.CustomAction]
 }
 
 private enum AccessibilityNode {
@@ -686,7 +690,30 @@ private enum AccessibilityNode {
 
 // MARK: -
 
+private let privateCustomActionsSelector = NSSelectorFromString("_privateAccessibilityCustomActions")
+
 private extension NSObject {
+    /// Private custom actions via NSObject's `_privateAccessibilityCustomActions`.
+    /// Only observed on container views (e.g. `ListCollectionViewCell`), not on elements.
+    /// VoiceOver presents these first, does not deduplicate against public actions.
+    var privateAccessibilityCustomActions: [AccessibilityElement.CustomAction] {
+        guard responds(to: privateCustomActionsSelector),
+              let result = perform(privateCustomActionsSelector)?.takeUnretainedValue(),
+              let actions = result as? [UIAccessibilityCustomAction]
+        else {
+            return []
+        }
+        return actions.map { AccessibilityElement.CustomAction(name: $0.name, image: $0.image) }
+    }
+
+    /// All custom actions in VoiceOver order: private first, then public, no deduplication.
+    var allCustomActions: [AccessibilityElement.CustomAction] {
+        let pub = (accessibilityCustomActions ?? []).map { AccessibilityElement.CustomAction(name: $0.name, image: $0.image) }
+        let priv = privateAccessibilityCustomActions
+        guard !priv.isEmpty else { return pub }
+        return priv + pub
+    }
+
     /// Recursively parses the accessibility elements/containers on the screen.
     ///
     /// Note that the order the nodes are returned in does not reflect the order that VoiceOver will iterate through
@@ -782,19 +809,31 @@ private extension NSObject {
             return (dataTable.accessibilityRowCount(), dataTable.accessibilityColumnCount())
         }()
 
+        // Capture private custom actions (e.g. SwiftUI swipe actions)
+        let customActions = view.privateAccessibilityCustomActions
+
+        func makeInfo(rowCount: Int? = nil, columnCount: Int? = nil) -> ContainerInfo {
+            ContainerInfo(view: view, type: containerType, label: label, value: value, identifier: identifier, traits: traits, rowCount: rowCount, columnCount: columnCount, customActions: customActions)
+        }
+
         // tabBar trait always creates container
         if traits.contains(.tabBar) {
-            return ContainerInfo(view: view, type: containerType, label: label, value: value, identifier: identifier, traits: traits, rowCount: nil, columnCount: nil)
+            return makeInfo()
         }
 
         // list, landmark, dataTable always create container
         if containerType == .list || containerType == .landmark || containerType == .dataTable {
-            return ContainerInfo(view: view, type: containerType, label: label, value: value, identifier: identifier, traits: traits, rowCount: rowCount, columnCount: columnCount)
+            return makeInfo(rowCount: rowCount, columnCount: columnCount)
         }
 
         // semanticGroup only if has label/value/identifier
         if containerType == .semanticGroup, label != nil || value != nil || identifier != nil {
-            return ContainerInfo(view: view, type: containerType, label: label, value: value, identifier: identifier, traits: traits, rowCount: nil, columnCount: nil)
+            return makeInfo()
+        }
+
+        // Private custom actions make this a meaningful container
+        if !customActions.isEmpty {
+            return makeInfo()
         }
 
         return nil
