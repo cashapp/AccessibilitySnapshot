@@ -11,6 +11,9 @@ public struct ParsedAccessibilityData {
     /// The parsed accessibility markers.
     public let markers: [AccessibilityMarker]
 
+    /// The full accessibility hierarchy tree (containers + elements).
+    public let hierarchy: [AccessibilityHierarchy]
+
     /// The bounds size of the contained view.
     public let containedViewBounds: CGSize
 }
@@ -87,6 +90,16 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
         containedView.setNeedsLayout()
         containedView.layoutIfNeeded()
 
+        // Parse accessibility BEFORE rendering the image. This ensures that
+        // drawHierarchy(afterScreenUpdates:) — which can trigger safe area
+        // layout changes — captures the same layout state the parser read.
+        let parser = AccessibilityHierarchyParser()
+        let hierarchy = parser.parseAccessibilityHierarchy(
+            in: containedView,
+            rotorResultLimit: snapshotConfiguration.rotors.resultLimit
+        )
+        let markers = hierarchy.flattenToElements()
+
         let image = try containedView.renderToImage(
             configuration: snapshotConfiguration.rendering
         )
@@ -94,17 +107,10 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
         snapshotView.image = image
         snapshotView.bounds.size = containedView.bounds.size
 
-        containedView.layoutIfNeeded()
-
-        let parser = AccessibilityHierarchyParser()
-        let markers = parser.parseAccessibilityHierarchy(
-            in: containedView,
-            rotorResultLimit: snapshotConfiguration.rotors.resultLimit
-        ).flattenToElements()
-
         let parsedData = ParsedAccessibilityData(
             image: image,
             markers: markers,
+            hierarchy: hierarchy,
             containedViewBounds: containedView.bounds.size
         )
 

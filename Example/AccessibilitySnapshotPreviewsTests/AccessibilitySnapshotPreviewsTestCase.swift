@@ -1,3 +1,4 @@
+import AccessibilitySnapshotCore
 import FBSnapshotTestCase_Accessibility
 import iOSSnapshotTestCase
 
@@ -35,14 +36,17 @@ class AccessibilitySnapshotPreviewsTestCase: FBSnapshotTestCase {
     func snapshotVerifyAccessibility<V: View>(
         _ view: V,
         identifier: String = "",
+        configuration: AccessibilitySnapshotConfiguration? = nil,
         file: StaticString = #file,
         line: UInt = #line
     ) {
+        let effectiveConfiguration = configuration ?? .init(viewRenderingMode: .drawHierarchyInRect)
         SnapshotVerifyAccessibility(
             view,
             size: UIScreen.main.bounds.size,
             identifier: identifier,
             layoutEngine: .swiftui,
+            snapshotConfiguration: effectiveConfiguration,
             file: file,
             line: line
         )
@@ -59,6 +63,7 @@ class AccessibilitySnapshotPreviewsTestCase: FBSnapshotTestCase {
     private static let testedDevices = [
         TestDeviceConfig(systemVersion: "18.5", screenSize: CGSize(width: 402, height: 874), screenScale: 3),
         TestDeviceConfig(systemVersion: "26.2", screenSize: CGSize(width: 402, height: 874), screenScale: 3),
+        TestDeviceConfig(systemVersion: "26.4", screenSize: CGSize(width: 402, height: 874), screenScale: 3),
     ]
 
     override func setUp() {
@@ -87,6 +92,6 @@ class AccessibilitySnapshotPreviewsTestCase: FBSnapshotTestCase {
         }
 
         fileNameOptions = [.OS, .screenSize, .screenScale]
-        recordMode = false
+        recordMode = true
     }
 }
