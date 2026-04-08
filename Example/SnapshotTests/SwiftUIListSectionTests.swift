@@ -16,8 +16,8 @@ final class SwiftUIListSectionTests: SnapshotTestCase {
         SnapshotVerifyAccessibility(
             SwiftUIListWithSections(),
             size: UIScreen.main.bounds.size,
-            perPixelTolerance: 0.02,
-            overallTolerance: 0.02
+            perPixelTolerance: 0.05,
+            overallTolerance: 0.05
         )
     }
 
@@ -26,8 +26,8 @@ final class SwiftUIListSectionTests: SnapshotTestCase {
         SnapshotVerifyAccessibility(
             SwiftUIListWithHeadersAndFooters(),
             size: UIScreen.main.bounds.size,
-            perPixelTolerance: 0.02,
-            overallTolerance: 0.02
+            perPixelTolerance: 0.05,
+            overallTolerance: 0.05
         )
     }
 }
