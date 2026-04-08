@@ -274,7 +274,7 @@ public final class AccessibilityHierarchyParser {
         let minimumVerticalSeparation = userInterfaceIdiom == .phone ? 8.0 : 13.0
 
         let sortedNodes = explicitlyOrdered ? nodes : nodes
-            .map { ($0, Self.accessibilitySortFrame(for: $0, in: root, horizontalCompare: horizontalCompare)) }
+            .map { ($0, Self.accessibilitySortFrame(for: $0, in: root, horizontalCompare: horizontalCompare, minimumVerticalSeparation: minimumVerticalSeparation)) }
             .sorted { obj1, obj2 in
                 let origin1 = obj1.1.origin
                 let origin2 = obj2.1.origin
@@ -632,7 +632,8 @@ private extension AccessibilityHierarchyParser {
     static func accessibilitySortFrame(
         for node: AccessibilityNode,
         in root: UIView,
-        horizontalCompare: @escaping (CGFloat, CGFloat) -> Bool
+        horizontalCompare: @escaping (CGFloat, CGFloat) -> Bool,
+        minimumVerticalSeparation: CGFloat
     ) -> CGRect {
         switch node {
         case let .element(frameProvider, _),
@@ -646,11 +647,13 @@ private extension AccessibilityHierarchyParser {
 
         case let .group(elements, _, _, _):
             // Matches VoiceOver behavior: groups sort by their first-selected child
-            // (see comment in sortedElements).
+            // using the same thresholded comparator as sortedElements.
             return elements
-                .map { accessibilitySortFrame(for: $0, in: root, horizontalCompare: horizontalCompare) }
+                .map { accessibilitySortFrame(for: $0, in: root, horizontalCompare: horizontalCompare, minimumVerticalSeparation: minimumVerticalSeparation) }
                 .min { f1, f2 in
-                    if f1.origin.y != f2.origin.y { return f1.origin.y < f2.origin.y }
+                    if f1.origin.y != f2.origin.y, abs(f1.origin.y - f2.origin.y) >= minimumVerticalSeparation {
+                        return f1.origin.y < f2.origin.y
+                    }
                     return horizontalCompare(f1.origin.x, f2.origin.x)
                 } ?? .null
         }
@@ -735,17 +738,9 @@ private extension NSObject {
             }
             let container = (self as? UIView).flatMap { containerInfo(for: $0) }
 
-            // When accessibilityElements produces only groups (no direct elements), the array
-            // order is a structural artifact of the view hierarchy, not a semantic ordering.
-            // Allow frame-based re-sorting in that case to correctly interleave elements from
-            // separate internal containers (e.g. UICollectionView headers vs cells).
-            let hasDirectElements = accessibilityHierarchyOfElements.contains {
-                if case .element = $0 { return true }
-                return false
-            }
             recursiveAccessibilityHierarchy.append(.group(
                 accessibilityHierarchyOfElements,
-                explicitlyOrdered: hasDirectElements,
+                explicitlyOrdered: true,
                 frameOverrideProvider: overridesElementFrame(with: contextProvider) ? self : nil,
                 container: container
             ))

@@ -951,16 +951,15 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
     // MARK: - Sort Order Tests
 
-    /// When accessibilityElements produces only groups (containers, no direct elements),
-    /// the parser should allow frame-based re-sorting rather than preserving array order.
-    /// This matches VoiceOver's behavior with UICollectionView-backed SwiftUI Lists where
-    /// headers and cells live in separate internal containers.
-    func testGroupsOnlyAccessibilityElementsAreSortedByFrame() {
+    /// When accessibilityElements contains only subgroups, the explicit array order
+    /// should still be preserved. Verified against VoiceOver on a real device: VoiceOver
+    /// respects the accessibilityElements array order regardless of whether children are
+    /// direct elements or subgroups.
+    func testAccessibilityElementsPreservesOrderEvenWithOnlySubgroups() {
         let rootView = UIView(frame: .init(x: 0, y: 0, width: 200, height: 300))
 
-        // Simulate UICollectionView's internal structure: two container views
-        // in accessibilityElements, where cells come before headers in the array
-        // but headers are visually above cells.
+        // Two container views in accessibilityElements, where cells come before
+        // headers in the array but headers are visually above cells.
         let cellContainer = UIView(frame: .init(x: 0, y: 100, width: 200, height: 200))
         cellContainer.shouldGroupAccessibilityChildren = true
         rootView.addSubview(cellContainer)
@@ -987,7 +986,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         header.accessibilityFrame = CGRect(x: 0, y: 0, width: 200, height: 40)
         headerContainer.addSubview(header)
 
-        // Set accessibilityElements with cells before headers (wrong visual order)
+        // Set accessibilityElements with cells before headers
         rootView.accessibilityElements = [cellContainer, headerContainer]
 
         let parser = AccessibilityHierarchyParser()
@@ -997,9 +996,9 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
         ).flattenToElements().map { $0.description }
 
-        // Header should come first because it's visually above the cells,
-        // even though cellContainer was listed first in accessibilityElements
-        XCTAssertEqual(elements, ["Header", "Cell 1", "Cell 2"])
+        // Explicit array order is preserved: cells before header,
+        // matching VoiceOver's actual behavior for accessibilityElements.
+        XCTAssertEqual(elements, ["Cell 1", "Cell 2", "Header"])
     }
 
     /// When accessibilityElements contains direct accessibility elements (not just containers),
@@ -1082,6 +1081,46 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         // Group B (first child at y=0) should sort before Group A (first child at y=50)
         XCTAssertEqual(elements, ["B1", "A1", "A2"])
+    }
+
+    /// When two groups' first children are within the vertical threshold (8pt on phone),
+    /// horizontal position should break the tie — matching the thresholded comparator
+    /// used by sortedElements for sibling ordering.
+    func testGroupSortFrameRespectsVerticalThreshold() {
+        let rootView = UIView(frame: .init(x: 0, y: 0, width: 400, height: 200))
+
+        // Group A: first child at y=0, x=200 (right side)
+        let groupA = UIView(frame: .init(x: 200, y: 0, width: 200, height: 100))
+        groupA.shouldGroupAccessibilityChildren = true
+        rootView.addSubview(groupA)
+
+        let a1 = UIView(frame: .init(x: 0, y: 0, width: 200, height: 40))
+        a1.isAccessibilityElement = true
+        a1.accessibilityLabel = "A1"
+        a1.accessibilityFrame = CGRect(x: 200, y: 0, width: 200, height: 40)
+        groupA.addSubview(a1)
+
+        // Group B: first child at y=5 (within 8pt threshold), x=0 (left side)
+        let groupB = UIView(frame: .init(x: 0, y: 5, width: 200, height: 100))
+        groupB.shouldGroupAccessibilityChildren = true
+        rootView.addSubview(groupB)
+
+        let b1 = UIView(frame: .init(x: 0, y: 0, width: 200, height: 40))
+        b1.isAccessibilityElement = true
+        b1.accessibilityLabel = "B1"
+        b1.accessibilityFrame = CGRect(x: 0, y: 5, width: 200, height: 40)
+        groupB.addSubview(b1)
+
+        let parser = AccessibilityHierarchyParser()
+        let elements = parser.parseAccessibilityHierarchy(
+            in: rootView,
+            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight),
+            userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
+        ).flattenToElements().map { $0.description }
+
+        // 5pt vertical difference is below the 8pt phone threshold, so horizontal
+        // position breaks the tie: B1 (x=0) sorts before A1 (x=200) in LTR.
+        XCTAssertEqual(elements, ["B1", "A1"])
     }
 
     // MARK: - Private Helpers
