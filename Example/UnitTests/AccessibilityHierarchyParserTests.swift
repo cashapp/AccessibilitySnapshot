@@ -918,6 +918,37 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         window.isHidden = true
     }
 
+    /// Verifies that the parser still prunes a zero-frame wrapper that clips its bounds, since
+    /// clipped children are invisible. This is the complement of
+    /// testAccessibleChildrenFoundThroughZeroFrameNonClippingWrapper and ensures the predicate
+    /// does not over-allow zero-frame views.
+    func testAccessibleChildrenPrunedBehindZeroFrameClippingWrapper() {
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
+
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 116))
+
+        // A zero-frame wrapper that clips — children are invisible.
+        let zeroFrameWrapper = UIView(frame: .zero)
+        zeroFrameWrapper.clipsToBounds = true
+        container.addSubview(zeroFrameWrapper)
+
+        let searchBar = UISearchBar(frame: CGRect(x: 0, y: 0, width: 375, height: 56))
+        zeroFrameWrapper.addSubview(searchBar)
+
+        window.addSubview(container)
+        window.makeKeyAndVisible()
+        container.setNeedsLayout()
+        container.layoutIfNeeded()
+
+        let elements = parseMarkers(in: container)
+
+        let hasSearchField = elements.contains { $0.traits.contains(.searchField) }
+        XCTAssertFalse(hasSearchField, "Expected the parser to prune children behind a zero-frame clipping wrapper.")
+
+        window.resignKey()
+        window.isHidden = true
+    }
+
     // MARK: - Private Helpers
 
     private func parseMarkers(in view: UIView) -> [AccessibilityMarker] {
