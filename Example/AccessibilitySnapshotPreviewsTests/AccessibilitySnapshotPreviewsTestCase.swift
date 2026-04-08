@@ -40,7 +40,7 @@ class AccessibilitySnapshotPreviewsTestCase: FBSnapshotTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        let effectiveConfiguration = configuration ?? .init(viewRenderingMode: .drawHierarchyInRect)
+        let effectiveConfiguration = configuration ?? .init(viewRenderingMode: .renderLayerInContext)
         SnapshotVerifyAccessibility(
             view,
             size: UIScreen.main.bounds.size,
@@ -92,6 +92,6 @@ class AccessibilitySnapshotPreviewsTestCase: FBSnapshotTestCase {
         }
 
         fileNameOptions = [.OS, .screenSize, .screenScale]
-        recordMode = true
+        recordMode = false
     }
 }

@@ -14,6 +14,9 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
     /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
     /// approximation of the description that VoiceOver will read for each element.
     ///
+    /// - Note: For SwiftUI views, prefer `drawHierarchyInKeyWindow: false` (the default). Setting it to `true`
+    ///   uses `drawHierarchyInRect` which can cause overlay misalignment due to safe area layout changes.
+    ///
     /// - parameter size: The size of the snapshotted view. Note this size does not include the legend. Pass `nil` to
     /// use the view's size that fits.
     /// - parameter showActivationPoints: When to show indicators for elements' accessibility activation points.

@@ -9,6 +9,10 @@ public extension FBSnapshotTestCase {
     /// When `recordMode` is true, records a snapshot of the view. When `recordMode` is false, performs a comparison
     /// with the existing snapshot.
     ///
+    /// - Note: This method uses the test case's `viewRenderingMode` to render the snapshot. For SwiftUI views,
+    ///   use `renderLayerInContext` (the default when `usesDrawViewHierarchyInRect` is `false`) to avoid
+    ///   overlay misalignment caused by safe area layout changes in `drawHierarchyInRect`.
+    ///
     /// - parameter view: The view that will be snapshotted.
     /// - parameter size: The size of the `view`. Note this size does not include the legend. Pass `nil` to use the
     /// view's size that fits.

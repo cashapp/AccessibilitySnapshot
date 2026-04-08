@@ -104,9 +104,17 @@ public struct AccessibilitySnapshotConfiguration {
 
 public enum ViewRenderingMode {
     /// Render the view's layer in a `CGContext` using the `render(in:)` method.
+    ///
+    /// This is the recommended mode for SwiftUI snapshot tests. The `drawHierarchyInRect` mode
+    /// renders content with safe area offsets applied, which causes overlay positions to misalign
+    /// with the rendered content in SwiftUI views.
     case renderLayerInContext
 
     /// Draw the view's hierarchy after screen updates using the `drawHierarchy(in:afterScreenUpdates:)` method.
+    ///
+    /// - Note: This mode can cause overlay misalignment in SwiftUI views because
+    ///   `afterScreenUpdates` triggers safe area layout changes. Use `renderLayerInContext`
+    ///   for SwiftUI snapshot tests.
     case drawHierarchyInRect
 }
 
