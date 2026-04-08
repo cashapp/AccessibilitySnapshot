@@ -9,7 +9,7 @@ final class RootViewController: UITableViewController {
     // MARK: - Life Cycle
 
     init() {
-        var accessibilityScreens = [
+        var accessibilityScreens: [(String, (UIViewController) -> UIViewController)] = [
             ("View Accessibility Properties", { _ in ViewAccessibilityPropertiesViewController() }),
             ("Label Accessibility Properties", { _ in LabelAccessibilityPropertiesViewController() }),
             ("Nav Bar Back Button Accessibility Traits", { _ in NavBarBackButtonAccessibilityTraitsViewController() }),
@@ -51,8 +51,12 @@ final class RootViewController: UITableViewController {
             ("Text Field", { _ in TextFieldViewController() }),
             ("Text View", { _ in TextViewViewController() }),
             ("SwiftUI Text Entry", { _ in UIHostingController(rootView: SwiftUITextEntry()) }),
+            ("Search Bar in Navigation Bar", { _ in SearchBarAccessibilityViewController() }),
         ]
 
+        if #available(iOS 16.0, *) {
+            accessibilityScreens.append(("SwiftUI Searchable", { _ in UIHostingController(rootView: SwiftUISearchableView()) }))
+        }
         if #available(iOS 14.0, *) {
             accessibilityScreens.append(("Accessibility Custom Content", { _ in AccessibilityCustomContentViewController() }))
         }
