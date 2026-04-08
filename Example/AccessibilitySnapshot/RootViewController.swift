@@ -51,6 +51,7 @@ final class RootViewController: UITableViewController {
             ("Text Field", { _ in TextFieldViewController() }),
             ("Text View", { _ in TextViewViewController() }),
             ("SwiftUI Text Entry", { _ in UIHostingController(rootView: SwiftUITextEntry()) }),
+            ("Search Bar in Navigation Bar", { _ in SearchBarAccessibilityViewController() }),
         ]
 
         if #available(iOS 16.0, *) {
