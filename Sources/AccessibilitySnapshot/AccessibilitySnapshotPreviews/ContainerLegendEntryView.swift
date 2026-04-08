@@ -31,7 +31,7 @@ struct ContainerLegendEntryView: View {
                     )
             )
             .overlay(alignment: .topLeading) {
-                ContainerBadge(index: index, palette: palette)
+                ContainerBadge(index: index, container: container, palette: palette)
                     .offset(
                         x: Self.containerInset,
                         y: -badgeHeight / 2
@@ -41,10 +41,11 @@ struct ContainerLegendEntryView: View {
     }
 }
 
-/// A badge for container entries that includes a layer icon alongside the number.
+/// A badge for container entries that includes a layer icon, number, and container label.
 @available(iOS 16.0, *)
 struct ContainerBadge: View {
     let index: Int
+    let container: AccessibilityContainer
     let palette: ColorPalette
 
     var body: some View {
@@ -53,9 +54,8 @@ struct ContainerBadge: View {
                 .font(.system(size: 8, weight: .bold))
                 .foregroundColor(.white)
 
-            Text("\(index + 1)")
+            Text(displayName)
                 .font(DesignTokens.Typography.badgeNumber)
-                .tracking(-1)
                 .foregroundColor(.white)
         }
         .padding(.horizontal, 4)
@@ -64,5 +64,26 @@ struct ContainerBadge: View {
             RoundedRectangle(cornerRadius: DesignTokens.Badge.cornerRadius)
                 .fill(palette.color(at: index))
         )
+    }
+
+    private var displayName: String {
+        switch container.type {
+        case let .semanticGroup(label, value, identifier):
+            let parts = [label, value].compactMap { $0?.isEmpty == false ? $0 : nil }
+            if !parts.isEmpty {
+                return parts.joined(separator: ": ")
+            } else if let identifier, !identifier.isEmpty {
+                return identifier
+            }
+            return "Semantic Group"
+        case .list:
+            return "List"
+        case .landmark:
+            return "Landmark"
+        case let .dataTable(rowCount, columnCount):
+            return "Data Table (\(rowCount) × \(columnCount))"
+        case .tabBar:
+            return "Tab Bar"
+        }
     }
 }
