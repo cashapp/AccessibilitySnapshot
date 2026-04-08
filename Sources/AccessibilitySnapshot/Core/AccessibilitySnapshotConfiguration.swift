@@ -64,6 +64,9 @@ public struct AccessibilitySnapshotConfiguration {
     /// Whether to show unspoken accessibility traits (keyboardKey, playsSound, etc.) in the legend. Defaults to `true`.
     public let showsUnspokenTraits: Bool
 
+    /// Whether to show a hierarchical legend that groups elements by their accessibility containers. Defaults to `false`.
+    public let showContainers: Bool
+
     // MARK: - Initialization
 
     /// Creates a new accessibility snapshot configuration.
@@ -77,6 +80,7 @@ public struct AccessibilitySnapshotConfiguration {
     ///   - includesCustomRotors: When to show accessibility custom rotors and their contents. Defaults to `.whenOverridden`.
     ///   - rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to `10`.
     ///   - showsUnspokenTraits: Whether to show unspoken traits in the legend. Defaults to `true`.
+    ///   - showContainers: Whether to show a hierarchical legend grouping elements by container. Defaults to `false`.
     public init(
         viewRenderingMode: ViewRenderingMode,
         colorRenderingMode: ColorRenderingMode = .monochrome,
@@ -85,7 +89,8 @@ public struct AccessibilitySnapshotConfiguration {
         includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden,
         includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden,
         rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit,
-        showsUnspokenTraits: Bool = true
+        showsUnspokenTraits: Bool = true,
+        showContainers: Bool = false
     ) {
         rendering = Rendering(renderMode: viewRenderingMode, colorMode: colorRenderingMode)
         rotors = Rotors(displayMode: includesCustomRotors, resultLimit: rotorResultLimit)
@@ -93,14 +98,23 @@ public struct AccessibilitySnapshotConfiguration {
         activationPointDisplayMode = activationPointDisplay
         inputLabelDisplayMode = includesInputLabels
         self.showsUnspokenTraits = showsUnspokenTraits
+        self.showContainers = showContainers
     }
 }
 
 public enum ViewRenderingMode {
     /// Render the view's layer in a `CGContext` using the `render(in:)` method.
+    ///
+    /// This is the recommended mode for SwiftUI snapshot tests. The `drawHierarchyInRect` mode
+    /// renders content with safe area offsets applied, which causes overlay positions to misalign
+    /// with the rendered content in SwiftUI views.
     case renderLayerInContext
 
     /// Draw the view's hierarchy after screen updates using the `drawHierarchy(in:afterScreenUpdates:)` method.
+    ///
+    /// - Note: This mode can cause overlay misalignment in SwiftUI views because
+    ///   `afterScreenUpdates` triggers safe area layout changes. Use `renderLayerInContext`
+    ///   for SwiftUI snapshot tests.
     case drawHierarchyInRect
 }
 
