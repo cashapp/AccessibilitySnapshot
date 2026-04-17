@@ -1,10 +1,10 @@
 import Foundation
 
-/// A catalog entry describing a single private/KVC-accessed Apple accessibility API.
+/// A catalog entry describing a single private Apple accessibility API.
 ///
 /// Each conformer names a selector and the Swift type its getter returns. Callers invoke the
-/// selector through `NSObject.ax_private(_:)`, which resolves it safely at runtime — using
-/// `method(for:)` + `unsafeBitCast` for primitive returns and `perform(_:)` for object returns.
+/// selector through `NSObject.ax_private(_:)`, which resolves it safely at runtime via
+/// `method(for:)` + `unsafeBitCast` for primitive returns.
 ///
 /// KVC is deliberately avoided: plain `NSObject`s respond to some private accessibility selectors
 /// but are not KVC-compliant for them, and `value(forKey:)` raises `NSUnknownKeyException`.
@@ -32,16 +32,6 @@ extension PrivateAXIntSelector {
     }
 }
 
-/// Convenience conformance for selectors returning Objective-C objects.
-protocol PrivateAXObjectSelector: PrivateAXSelector where Return: AnyObject {}
-
-extension PrivateAXObjectSelector {
-    static func invoke(on target: NSObject) -> Return? {
-        let selector = NSSelectorFromString(name)
-        return target.perform(selector)?.takeUnretainedValue() as? Return
-    }
-}
-
 /// Namespace for known private/KVC-accessed accessibility selectors. Each nested type documents
 /// why we depend on it and which public API (if any) can replace it on newer OS versions.
 enum PrivateAX {
@@ -51,11 +41,10 @@ enum PrivateAX {
     /// `accessibilityExpandedStatus` property:
     ///
     /// 1. `_accessibilityExpandedStatus` is a method defined on `NSObject` (defaults to
-    ///    `0`/unsupported). It was first given meaningful values by `SwiftUI.AccessibilityNode`
-    ///    in iOS 14.2, which overrides it for `DisclosureGroup` and expandable list sections.
-    ///    VoiceOver reads this private method directly — it is the ground truth that drives
-    ///    the "Expanded."/"Collapsed." announcement and the "Double tap to collapse/expand."
-    ///    hint.
+    ///    `0`/unsupported). `SwiftUI.AccessibilityNode` overrides it for `DisclosureGroup` and
+    ///    expandable list sections. VoiceOver reads this private method directly — it is the
+    ///    ground truth that drives the "Expanded."/"Collapsed." announcement and the "Double
+    ///    tap to collapse/expand." hint.
     ///
     /// 2. In iOS 18 Apple added a public `accessibilityExpandedStatus` property on
     ///    `UIAccessibility`. The public **setter** writes through to the private getter, so
