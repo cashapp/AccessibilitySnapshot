@@ -47,11 +47,29 @@ extension PrivateAXObjectSelector {
 enum PrivateAX {
     /// Reads the expanded/collapsed state of a disclosure-style element.
     ///
-    /// `_accessibilityExpandedStatus` is defined on `NSObject` (defaults to 0/unsupported) and
-    /// was first given meaningful values by `SwiftUI.AccessibilityNode` in iOS 14.2 for
-    /// `DisclosureGroup`. In iOS 18 Apple added a public `accessibilityExpandedStatus` property,
-    /// but SwiftUI still only populates the private one — so this private selector remains the
-    /// single source of truth for both SwiftUI and UIKit.
+    /// Why we read the **private** `_accessibilityExpandedStatus` and not the public iOS 18
+    /// `accessibilityExpandedStatus` property:
+    ///
+    /// 1. `_accessibilityExpandedStatus` is a method defined on `NSObject` (defaults to
+    ///    `0`/unsupported). It was first given meaningful values by `SwiftUI.AccessibilityNode`
+    ///    in iOS 14.2, which overrides it for `DisclosureGroup` and expandable list sections.
+    ///    VoiceOver reads this private method directly — it is the ground truth that drives
+    ///    the "Expanded."/"Collapsed." announcement and the "Double tap to collapse/expand."
+    ///    hint.
+    ///
+    /// 2. In iOS 18 Apple added a public `accessibilityExpandedStatus` property on
+    ///    `UIAccessibility`. The public **setter** writes through to the private getter, so
+    ///    UIKit views that set the public property still expose the value via the private
+    ///    method. The public **getter**, however, reads from separate storage: it does NOT
+    ///    observe overrides of the private method made by SwiftUI. For every SwiftUI
+    ///    `DisclosureGroup`, the public property returns `.unsupported` while the private
+    ///    method returns the real state.
+    ///
+    /// 3. On-device testing with VoiceOver confirmed that when the two disagree, VoiceOver
+    ///    always announces based on the private value.
+    ///
+    /// Therefore the private method is the single source of truth for both SwiftUI and UIKit,
+    /// and reading the public property would only introduce inconsistency without adding signal.
     enum ExpandedStatus: PrivateAXIntSelector {
         static let name = "_accessibilityExpandedStatus"
     }

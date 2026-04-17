@@ -208,6 +208,9 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         rotorResultLimit: Int
     ) -> AccessibilityElement {
+        // Read expanded/collapsed status once and thread it through. See `PrivateAX.ExpandedStatus`
+        // for why we read the private `_accessibilityExpandedStatus` rather than the public iOS 18
+        // API, and why a single read is sufficient for both the stored enum and the description.
         let expandedStatus = object.expandedStatus
         let (description, hint) = object.accessibilityDescription(context: context, expandedStatus: expandedStatus)
         let activationPoint = object.accessibilityActivationPoint
