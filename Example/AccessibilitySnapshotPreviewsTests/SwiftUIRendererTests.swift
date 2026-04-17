@@ -37,7 +37,7 @@ final class SwiftUIRendererTests: AccessibilitySnapshotPreviewsTestCase {
     func testContainerDemo() {
         snapshotVerifyAccessibility(
             ContainerDemo(),
-            configuration: .init(viewRenderingMode: .renderLayerInContext, showContainers: true)
+            configuration: .init(viewRenderingMode: .drawHierarchyInRect, showContainers: true)
         )
     }
 }
