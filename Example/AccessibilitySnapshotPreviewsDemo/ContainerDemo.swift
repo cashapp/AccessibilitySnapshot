@@ -2,94 +2,43 @@ import AccessibilitySnapshotPreviews
 import SwiftUI
 import UIKit
 
+/// Exercises every info variant of `accessibilityContainerType = .semanticGroup`:
+/// label only, label + value, identifier only, and all three populated together.
 struct ContainerDemo: View {
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            DemoSection(title: "Account Info", description: "Semantic group container") {
+        VStack(alignment: .leading, spacing: 16) {
+            DemoSection(title: "Label only", description: "label = \"Account Info\"") {
                 Text("Balance: $1,234.56")
                 Text("Last updated: Today")
             }
-            .semanticGroupContainer(label: "Account Info")
+            .accessibilityContainer(type: .semanticGroup, label: "Account Info")
 
-            DemoSection(title: "Transactions", description: "Another semantic group") {
-                Text("Coffee Shop - $4.50")
-                Text("Grocery Store - $52.30")
-                Text("Gas Station - $35.00")
+            DemoSection(title: "Label + value", description: "+ value = \"Premium\"") {
+                Text("Plan: Premium")
+                Text("Renews: Dec 1")
             }
-            .semanticGroupContainer(label: "Transactions")
+            .accessibilityContainer(type: .semanticGroup, label: "Subscription", value: "Premium")
 
-            Button("View All Transactions") {}
-                .buttonStyle(.bordered)
+            DemoSection(title: "Identifier only", description: "id = \"profile.card\"") {
+                Text("Jane Doe")
+                Text("jane@example.com")
+            }
+            .accessibilityContainer(type: .semanticGroup, identifier: "profile.card")
+
+            DemoSection(title: "All three", description: "label + value + id") {
+                Text("2 unread messages")
+            }
+            .accessibilityContainer(
+                type: .semanticGroup,
+                label: "Inbox",
+                value: "2 unread",
+                identifier: "inbox.card"
+            )
 
             Spacer()
         }
         .padding()
     }
-}
-
-// MARK: - Semantic Group Container
-
-/// A SwiftUI modifier that wraps the content in a UIKit view with
-/// `accessibilityContainerType = .semanticGroup`, since SwiftUI has no native equivalent.
-private extension View {
-    func semanticGroupContainer(label: String? = nil) -> some View {
-        SemanticGroupWrapper(label: label) { self }
-    }
-}
-
-private struct SemanticGroupWrapper<Content: View>: UIViewRepresentable {
-    let label: String?
-    let content: Content
-
-    init(label: String?, @ViewBuilder content: () -> Content) {
-        self.label = label
-        self.content = content()
-    }
-
-    func makeUIView(context: Context) -> SemanticGroupUIView {
-        let container = SemanticGroupUIView()
-        container.accessibilityLabel = label
-
-        let hosting = UIHostingController(rootView: content)
-        hosting.view.backgroundColor = .clear
-        hosting.view.translatesAutoresizingMaskIntoConstraints = false
-        container.addSubview(hosting.view)
-        NSLayoutConstraint.activate([
-            hosting.view.topAnchor.constraint(equalTo: container.topAnchor),
-            hosting.view.bottomAnchor.constraint(equalTo: container.bottomAnchor),
-            hosting.view.leadingAnchor.constraint(equalTo: container.leadingAnchor),
-            hosting.view.trailingAnchor.constraint(equalTo: container.trailingAnchor),
-        ])
-        context.coordinator.hostingController = hosting
-        return container
-    }
-
-    func updateUIView(_ uiView: SemanticGroupUIView, context: Context) {
-        context.coordinator.hostingController?.rootView = content
-        uiView.accessibilityLabel = label
-    }
-
-    func makeCoordinator() -> Coordinator { Coordinator() }
-
-    class Coordinator {
-        var hostingController: UIHostingController<Content>?
-    }
-}
-
-/// A UIView that reports itself as a semantic group accessibility container.
-private class SemanticGroupUIView: UIView {
-    override var accessibilityContainerType: UIAccessibilityContainerType {
-        get { .semanticGroup }
-        set {}
-    }
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        isAccessibilityElement = false
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) { fatalError() }
 }
 
 // MARK: - Previews

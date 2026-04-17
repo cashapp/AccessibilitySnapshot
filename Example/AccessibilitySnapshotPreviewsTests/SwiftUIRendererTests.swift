@@ -40,4 +40,32 @@ final class SwiftUIRendererTests: AccessibilitySnapshotPreviewsTestCase {
             configuration: .init(viewRenderingMode: .drawHierarchyInRect, showContainers: true)
         )
     }
+
+    func testListContainerDemo() {
+        snapshotVerifyAccessibility(
+            ListContainerDemo(),
+            configuration: .init(viewRenderingMode: .drawHierarchyInRect, showContainers: true)
+        )
+    }
+
+    func testLandmarkContainerDemo() {
+        snapshotVerifyAccessibility(
+            LandmarkContainerDemo(),
+            configuration: .init(viewRenderingMode: .drawHierarchyInRect, showContainers: true)
+        )
+    }
+
+    func testDataTableContainerDemo() {
+        snapshotVerifyAccessibility(
+            DataTableContainerDemo(),
+            configuration: .init(viewRenderingMode: .drawHierarchyInRect, showContainers: true)
+        )
+    }
+
+    func testTabBarContainerDemo() {
+        snapshotVerifyAccessibility(
+            TabBarContainerDemo(),
+            configuration: .init(viewRenderingMode: .drawHierarchyInRect, showContainers: true)
+        )
+    }
 }
