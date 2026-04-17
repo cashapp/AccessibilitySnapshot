@@ -378,37 +378,32 @@ final class ExpandedStatusDiagnosticTests: XCTestCase {
         print("=== END SWIFTUI ACCESSIBILITYNODE INVESTIGATION ===")
     }
 
-    /// Test on plain NSObject (not UIView) — does KVC setter work?
+    /// Test on plain NSObject (not UIView) — does the getter work?
+    /// Note: plain NSObject is NOT KVC-compliant for `_accessibilityExpandedStatus`,
+    /// even though it responds to the selector. We must use method(for:) rather than
+    /// value(forKey:) to avoid NSUnknownKeyException.
     func testNSObjectExpandedStatusBehavior() {
         let obj = NSObject()
         let selector = NSSelectorFromString("_accessibilityExpandedStatus")
         let setSelector = NSSelectorFromString("_setAccessibilityExpandedStatus:")
 
         print("=== NSOBJECT BEHAVIOR ===")
-        print("  responds to getter: \(obj.responds(to: selector))")
-        print("  responds to setter: \(obj.responds(to: setSelector))")
-        print("  initial private value: \((obj.value(forKey: "_accessibilityExpandedStatus") as? Int) ?? -1)")
-        print("  initial public value: \(obj.accessibilityExpandedStatus.rawValue)")
+        let respondsToGetter = obj.responds(to: selector)
+        let respondsToSetter = obj.responds(to: setSelector)
+        print("  responds to getter: \(respondsToGetter)")
+        print("  responds to setter: \(respondsToSetter)")
 
-        // Try setting via KVC
-        obj.setValue(1, forKey: "_accessibilityExpandedStatus")
-        print("  after KVC set to 1:")
-        print("    private: \((obj.value(forKey: "_accessibilityExpandedStatus") as? Int) ?? -1)")
-        print("    public: \(obj.accessibilityExpandedStatus.rawValue)")
+        if respondsToGetter {
+            let imp = obj.method(for: selector)
+            typealias Fn = @convention(c) (AnyObject, Selector) -> Int
+            let fn = unsafeBitCast(imp, to: Fn.self)
+            let value = fn(obj, selector)
+            print("  getter returns: \(value)")
+        }
 
-        // Try setting public
-        obj.accessibilityExpandedStatus = .collapsed
-        print("  after public set to .collapsed:")
-        print("    private: \((obj.value(forKey: "_accessibilityExpandedStatus") as? Int) ?? -1)")
-        print("    public: \(obj.accessibilityExpandedStatus.rawValue)")
-
-        // Check what VoiceOver would actually read — is there an _accessibilityExpandedStatusDescription?
+        // Check for the description selector
         let descSelector = NSSelectorFromString("_accessibilityExpandedStatusDescription")
         print("  responds to _accessibilityExpandedStatusDescription: \(obj.responds(to: descSelector))")
-        if obj.responds(to: descSelector) {
-            let desc = obj.perform(descSelector)?.takeUnretainedValue() as? String
-            print("    value: \(desc ?? "nil")")
-        }
 
         print("=== END NSOBJECT BEHAVIOR ===")
     }
