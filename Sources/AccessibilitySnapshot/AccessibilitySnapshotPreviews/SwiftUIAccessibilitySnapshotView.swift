@@ -183,7 +183,7 @@ public extension AccessibilitySnapshotView where Content == UIViewWrapper {
 /// This is used when the UIView has already been snapshotted and parsed.
 @available(iOS 16.0, *)
 public struct PreParsedAccessibilitySnapshotView: View {
-    private let snapshotImage: UIImage
+    private let bakedSnapshotImage: UIImage
     private let markers: [AccessibilityMarker]
     private let colorAssignment: HierarchyColorAssignment?
     private let configuration: AccessibilitySnapshotConfiguration
@@ -198,12 +198,22 @@ public struct PreParsedAccessibilitySnapshotView: View {
         palette: ColorPalette = .default,
         renderSize: CGSize
     ) {
-        self.snapshotImage = snapshotImage
         self.markers = markers
         colorAssignment = hierarchy.isEmpty ? nil : HierarchyColorAssignment.build(from: hierarchy)
         self.configuration = configuration
         self.palette = palette
         self.renderSize = renderSize
+
+        // Bake the snapshot + element overlays into a single flat UIImage.
+        // This guarantees the snapshot and its overlays are composited 1:1 before
+        // the legend enters the layout — the legend can never affect overlay alignment.
+        bakedSnapshotImage = Self.bakeSnapshot(
+            snapshotImage: snapshotImage,
+            markers: markers,
+            palette: palette,
+            renderSize: renderSize,
+            activationPointDisplayMode: configuration.activationPointDisplayMode
+        )
     }
 
     private var showContainers: Bool {
@@ -314,6 +324,71 @@ public struct PreParsedAccessibilitySnapshotView: View {
     }
 
     private var snapshotWithOverlays: some View {
+        Image(uiImage: bakedSnapshotImage)
+            .resizable()
+            .frame(width: renderSize.width, height: renderSize.height)
+    }
+
+    // MARK: - Snapshot Baking
+
+    /// Renders the snapshot image + element overlays into a single flat UIImage.
+    /// The output is independent of any surrounding SwiftUI layout — legend changes
+    /// cannot shift overlay positions within this image.
+    private static func bakeSnapshot(
+        snapshotImage: UIImage,
+        markers: [AccessibilityMarker],
+        palette: ColorPalette,
+        renderSize: CGSize,
+        activationPointDisplayMode: AccessibilityContentDisplayMode
+    ) -> UIImage {
+        let overlayView = SnapshotOverlayView(
+            snapshotImage: snapshotImage,
+            markers: markers,
+            palette: palette,
+            renderSize: renderSize,
+            activationPointDisplayMode: activationPointDisplayMode
+        )
+
+        let hosting = UIHostingController(rootView: overlayView)
+        if #available(iOS 16.4, *) {
+            hosting.safeAreaRegions = []
+        }
+        hosting.view.frame = CGRect(origin: .zero, size: renderSize)
+        hosting.view.backgroundColor = .clear
+
+        // Temporarily place the hosting view in a window so drawHierarchy can
+        // pump the render cycle SwiftUI needs. safeAreaRegions=[] prevents the
+        // window's safe area from propagating into the content.
+        let tempWindow = UIWindow(frame: CGRect(origin: .zero, size: renderSize))
+        tempWindow.addSubview(hosting.view)
+        hosting.view.layoutIfNeeded()
+
+        defer {
+            hosting.view.removeFromSuperview()
+        }
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = snapshotImage.scale
+        let renderer = UIGraphicsImageRenderer(size: renderSize, format: format)
+        return renderer.image { _ in
+            hosting.view.drawHierarchy(in: CGRect(origin: .zero, size: renderSize), afterScreenUpdates: true)
+        }
+    }
+}
+
+// MARK: - Snapshot Overlay View (private — used only for baking)
+
+/// The snapshot image + element overlays, composed as a SwiftUI view.
+/// Only used internally to bake these pixels into a flat UIImage — never displayed directly.
+@available(iOS 16.0, *)
+private struct SnapshotOverlayView: View {
+    let snapshotImage: UIImage
+    let markers: [AccessibilityMarker]
+    let palette: ColorPalette
+    let renderSize: CGSize
+    let activationPointDisplayMode: AccessibilityContentDisplayMode
+
+    var body: some View {
         ZStack(alignment: .topLeading) {
             Image(uiImage: snapshotImage)
                 .resizable()
@@ -340,7 +415,7 @@ public struct PreParsedAccessibilitySnapshotView: View {
     }
 
     private func shouldShowActivationPoint(for marker: AccessibilityMarker) -> Bool {
-        switch configuration.activationPointDisplayMode {
+        switch activationPointDisplayMode {
         case .always:
             return true
         case .whenOverridden:

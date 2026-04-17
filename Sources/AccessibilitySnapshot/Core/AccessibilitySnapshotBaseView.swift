@@ -90,21 +90,23 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
         containedView.setNeedsLayout()
         containedView.layoutIfNeeded()
 
-        let image = try containedView.renderToImage(
-            configuration: snapshotConfiguration.rendering
-        )
-
-        snapshotView.image = image
-        snapshotView.bounds.size = containedView.bounds.size
-
-        containedView.layoutIfNeeded()
-
+        // Parse accessibility first so marker frames reflect the pre-render layout state.
+        // `drawHierarchy(afterScreenUpdates: true)` can mutate layout for views that defer it
+        // until render time (e.g. nested UIHostingController inside UIViewRepresentable).
+        // Parsing after render would produce frames from a different layout than the image.
         let parser = AccessibilityHierarchyParser()
         let hierarchy = parser.parseAccessibilityHierarchy(
             in: containedView,
             rotorResultLimit: snapshotConfiguration.rotors.resultLimit
         )
         let markers = hierarchy.flattenToElements()
+
+        let image = try containedView.renderToImage(
+            configuration: snapshotConfiguration.rendering
+        )
+
+        snapshotView.image = image
+        snapshotView.bounds.size = containedView.bounds.size
 
         let parsedData = ParsedAccessibilityData(
             image: image,
