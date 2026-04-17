@@ -2,7 +2,14 @@ import UIKit
 
 extension NSObject {
     /// Returns a tuple consisting of the `description` and (optionally) a `hint` that VoiceOver will read for the object.
-    func accessibilityDescription(context: AccessibilityHierarchyParser.Context?) -> (description: String, hint: String?) {
+    ///
+    /// - parameter context: Positional context (e.g. list start, tab bar item) that shapes the description.
+    /// - parameter expandedStatus: The element's expanded/collapsed state, read by the parser via
+    ///   `PrivateAX.ExpandedStatus`. Passed in so this method does not re-read the private selector.
+    func accessibilityDescription(
+        context: AccessibilityHierarchyParser.Context?,
+        expandedStatus: AccessibilityElement.ExpandedStatus = .unsupported
+    ) -> (description: String, hint: String?) {
         let strings = Strings(locale: accessibilityLanguage)
 
         var accessibilityDescription =
@@ -157,26 +164,13 @@ extension NSObject {
             traitSpecifiers.append(strings.searchFieldTraitName)
         }
 
-        // Read expanded/collapsed status from `_accessibilityExpandedStatus`, a private method on
-        // NSObject (defaults to 0/unsupported). SwiftUI's AccessibilityNode overrides this for
-        // DisclosureGroup elements (since iOS 14.2). This is the only reliable source for SwiftUI
-        // expanded state — the public iOS 18 `accessibilityExpandedStatus` property returns
-        // `.unsupported` for SwiftUI elements. UIKit views that set the public property are also
-        // covered here since UIKit syncs to the private method.
-        let expandedSelector = NSSelectorFromString("_accessibilityExpandedStatus")
-        var rawExpandedStatus = 0
-        if responds(to: expandedSelector),
-           let rawStatus = value(forKey: "_accessibilityExpandedStatus") as? Int
-        {
-            rawExpandedStatus = rawStatus
-            switch rawStatus {
-            case 1:
-                traitSpecifiers.append(strings.expandedStatusName)
-            case 2:
-                traitSpecifiers.append(strings.collapsedStatusName)
-            default:
-                break
-            }
+        switch expandedStatus {
+        case .expanded:
+            traitSpecifiers.append(strings.expandedStatusName)
+        case .collapsed:
+            traitSpecifiers.append(strings.collapsedStatusName)
+        case .unsupported:
+            break
         }
 
         // If the description is empty, use the hint as the description.
@@ -275,8 +269,14 @@ extension NSObject {
             }
         }
 
-        if rawExpandedStatus == 1 || rawExpandedStatus == 2 {
-            let expandedHint = rawExpandedStatus == 1 ? strings.expandedStatusHint : strings.collapsedStatusHint
+        let expandedHint: String? = {
+            switch expandedStatus {
+            case .expanded: return strings.expandedStatusHint
+            case .collapsed: return strings.collapsedStatusHint
+            case .unsupported: return nil
+            }
+        }()
+        if let expandedHint {
             if let existingHint = hintDescription?.nonEmpty()?.strippingTrailingPeriod() {
                 hintDescription = "\(existingHint). \(expandedHint)"
             } else {

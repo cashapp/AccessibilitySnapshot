@@ -205,7 +205,8 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         rotorResultLimit: Int
     ) -> AccessibilityElement {
-        let (description, hint) = object.accessibilityDescription(context: context)
+        let expandedStatus = object.expandedStatus
+        let (description, hint) = object.accessibilityDescription(context: context, expandedStatus: expandedStatus)
         let activationPoint = object.accessibilityActivationPoint
 
         return AccessibilityElement(
@@ -228,7 +229,7 @@ public final class AccessibilityHierarchyParser {
             customRotors: object.customRotors(in: root, context: context, resultLimit: rotorResultLimit),
             accessibilityLanguage: object.accessibilityLanguage,
             respondsToUserInteraction: object.accessibilityRespondsToUserInteraction,
-            expandedStatus: object.expandedStatus
+            expandedStatus: expandedStatus
         )
     }
 
@@ -896,22 +897,6 @@ private extension UIView {
 }
 
 private extension NSObject {
-    /// Returns the expanded/collapsed state by reading `_accessibilityExpandedStatus`, a private
-    /// method available on all `NSObject` subclasses (defaults to 0/unsupported). SwiftUI's
-    /// `AccessibilityNode` overrides this for `DisclosureGroup` elements (since iOS 14.2),
-    /// and it is the only reliable source for SwiftUI expanded state — the public iOS 18
-    /// `accessibilityExpandedStatus` property returns `.unsupported` for SwiftUI views.
-    /// UIKit views that set the public property are also covered, since UIKit syncs the
-    /// public property to the private method.
-    var expandedStatus: AccessibilityElement.ExpandedStatus {
-        let selector = NSSelectorFromString("_accessibilityExpandedStatus")
-        guard responds(to: selector) else {
-            return .unsupported
-        }
-        let rawValue = (value(forKey: "_accessibilityExpandedStatus") as? Int) ?? 0
-        return AccessibilityElement.ExpandedStatus(rawValue: rawValue) ?? .unsupported
-    }
-
     var customContent: [AccessibilityElement.CustomContent] {
         // Github runs tests on specific iOS versions against specific versions of Xcode in CI.
         // Forward deployment on old versions of Xcode require a compile time check which require differentiation by swift version rather than iOS SDK.
