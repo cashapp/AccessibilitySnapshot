@@ -127,7 +127,7 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             window.isHidden = true
             window.rootViewController = nil
         }
-        
+
         do {
             snapshotImage = try hostingController.view.renderToImage(
                 configuration: configuration.rendering
@@ -185,6 +185,7 @@ public extension AccessibilitySnapshotView where Content == UIViewWrapper {
 public struct PreParsedAccessibilitySnapshotView: View {
     private let snapshotImage: UIImage
     private let markers: [AccessibilityMarker]
+    private let colorAssignment: HierarchyColorAssignment?
     private let configuration: AccessibilitySnapshotConfiguration
     private let palette: ColorPalette
     private let renderSize: CGSize
@@ -192,15 +193,21 @@ public struct PreParsedAccessibilitySnapshotView: View {
     public init(
         snapshotImage: UIImage,
         markers: [AccessibilityMarker],
+        hierarchy: [AccessibilityHierarchy] = [],
         configuration: AccessibilitySnapshotConfiguration = .init(viewRenderingMode: .drawHierarchyInRect),
         palette: ColorPalette = .default,
         renderSize: CGSize
     ) {
         self.snapshotImage = snapshotImage
         self.markers = markers
+        colorAssignment = hierarchy.isEmpty ? nil : HierarchyColorAssignment.build(from: hierarchy)
         self.configuration = configuration
         self.palette = palette
         self.renderSize = renderSize
+    }
+
+    private var showContainers: Bool {
+        configuration.showContainers
     }
 
     private var showUserInputLabels: Bool {
@@ -230,7 +237,7 @@ public struct PreParsedAccessibilitySnapshotView: View {
             // Tall view: snapshot on left, legend on right (may span multiple columns)
             HStack(alignment: .top, spacing: 0) {
                 snapshotWithOverlays
-                multiColumnLegend
+                legendSideContent
             }
             .background(Color(white: 0.9))
         } else {
@@ -238,15 +245,46 @@ public struct PreParsedAccessibilitySnapshotView: View {
             VStack(spacing: 0) {
                 snapshotWithOverlays
                     .frame(width: contentWidth) // Center snapshot if smaller than legend
-                LegendView(
-                    markers: markers,
-                    palette: palette,
-                    showUserInputLabels: showUserInputLabels,
-                    showUnspokenTraits: showUnspokenTraits
-                )
-                .frame(width: contentWidth)
+                legendBottomContent
+                    .frame(width: contentWidth)
             }
             .background(Color(white: 0.9))
+        }
+    }
+
+    @ViewBuilder
+    private var legendSideContent: some View {
+        if showContainers, let colorAssignment {
+            HierarchyLegendView(
+                nodes: colorAssignment.nodes,
+                palette: palette,
+                showUserInputLabels: showUserInputLabels,
+                showUnspokenTraits: showUnspokenTraits
+            )
+            .frame(minWidth: LegendLayoutMetrics.minimumLegendWidth, alignment: .topLeading)
+            .padding(LegendLayoutMetrics.legendInset)
+        } else {
+            multiColumnLegend
+        }
+    }
+
+    @ViewBuilder
+    private var legendBottomContent: some View {
+        if showContainers, let colorAssignment {
+            HierarchyLegendView(
+                nodes: colorAssignment.nodes,
+                palette: palette,
+                showUserInputLabels: showUserInputLabels,
+                showUnspokenTraits: showUnspokenTraits
+            )
+            .padding(LegendLayoutMetrics.legendInset)
+        } else {
+            LegendView(
+                markers: markers,
+                palette: palette,
+                showUserInputLabels: showUserInputLabels,
+                showUnspokenTraits: showUnspokenTraits
+            )
         }
     }
 
