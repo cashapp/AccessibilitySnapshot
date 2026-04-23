@@ -54,6 +54,14 @@ final class RootViewController: UITableViewController {
             ("Search Bar in Navigation Bar", { _ in SearchBarAccessibilityViewController() }),
         ]
 
+        if #available(iOS 15.0, *) {
+            accessibilityScreens.append(("List with Section Headers", { _ in UIHostingController(rootView: SwiftUIListWithSections()) }))
+            accessibilityScreens.append(("List with Headers and Footers", { _ in UIHostingController(rootView: SwiftUIListWithHeadersAndFooters()) }))
+            accessibilityScreens.append(("Form with Sections", { _ in UIHostingController(rootView: SwiftUIFormWithSections()) }))
+        }
+        if #available(iOS 16.0, *) {
+            accessibilityScreens.append(("NavigationStack with Toolbar", { _ in UIHostingController(rootView: SwiftUIViewWithNavigationStack()) }))
+        }
         if #available(iOS 16.0, *) {
             accessibilityScreens.append(("SwiftUI Searchable", { _ in UIHostingController(rootView: SwiftUISearchableView()) }))
         }
