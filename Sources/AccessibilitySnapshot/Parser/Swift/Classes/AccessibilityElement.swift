@@ -17,6 +17,23 @@ public struct AccessibilityElement: Equatable, Codable {
         case path(UIBezierPath)
     }
 
+    /// The expanded/collapsed state of a disclosure-style accessibility element.
+    ///
+    /// Populated from the private `_accessibilityExpandedStatus` method — see
+    /// `PrivateAX.ExpandedStatus` for the full rationale. The raw integer values mirror both
+    /// the private method's return values and the public iOS 18 `UIAccessibility.ExpandedStatus`
+    /// enum.
+    public enum ExpandedStatus: Int, Equatable, Codable {
+        /// The element does not support expanded/collapsed state.
+        case unsupported = 0
+
+        /// The element is expanded.
+        case expanded = 1
+
+        /// The element is collapsed.
+        case collapsed = 2
+    }
+
     public struct CustomRotor: Equatable, CustomStringConvertible, Codable {
         public struct ResultMarker: Equatable, CustomStringConvertible, Codable {
             public let elementDescription: String
@@ -52,9 +69,10 @@ public struct AccessibilityElement: Equatable, Codable {
             name = from.displayName(locale: parentElement.accessibilityLanguage)
             let collected = from.collectAllResults(nextLimit: resultLimit, previousLimit: resultLimit)
             limit = collected.limit
-            resultMarkers = collected.results.compactMap { result in
+            resultMarkers = collected.results.compactMap { result -> ResultMarker? in
                 guard let element = result.targetElement as? NSObject else { return nil }
-                var description = element.accessibilityDescription(context: context).description
+                let elementExpandedStatus = element.expandedStatus
+                var description = element.accessibilityDescription(context: context, expandedStatus: elementExpandedStatus).description
                 var shape: Shape? = AccessibilityHierarchyParser.accessibilityShape(for: element, in: root)
 
                 if let range = result.targetRange,
@@ -195,6 +213,9 @@ public struct AccessibilityElement: Equatable, Codable {
     /// Whether the element performs an action based on user interaction.
     public let respondsToUserInteraction: Bool
 
+    /// The expanded/collapsed state of the element, if applicable.
+    public let expandedStatus: ExpandedStatus
+
     // MARK: - Initialization
 
     init(
@@ -212,7 +233,8 @@ public struct AccessibilityElement: Equatable, Codable {
         customContent: [CustomContent],
         customRotors: [CustomRotor],
         accessibilityLanguage: String?,
-        respondsToUserInteraction: Bool
+        respondsToUserInteraction: Bool,
+        expandedStatus: ExpandedStatus = .unsupported
     ) {
         self.description = description
         self.label = label
@@ -229,5 +251,6 @@ public struct AccessibilityElement: Equatable, Codable {
         self.customRotors = customRotors
         self.accessibilityLanguage = accessibilityLanguage
         self.respondsToUserInteraction = respondsToUserInteraction
+        self.expandedStatus = expandedStatus
     }
 }
