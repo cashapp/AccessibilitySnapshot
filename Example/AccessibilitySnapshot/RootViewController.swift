@@ -1,10 +1,13 @@
 import SwiftUI
 import UIKit
 
-final class RootViewController: UITableViewController {
+final class RootViewController: UITableViewController, UISearchResultsUpdating {
     // MARK: - Private Properties
 
-    private let accessibilityScreens: [(String, (UIViewController) -> UIViewController)]
+    private let allScreens: [(String, (UIViewController) -> UIViewController)]
+    private var filteredScreens: [(String, (UIViewController) -> UIViewController)]
+
+    private let searchController = UISearchController(searchResultsController: nil)
 
     // MARK: - Life Cycle
 
@@ -60,6 +63,9 @@ final class RootViewController: UITableViewController {
         if #available(iOS 14.0, *) {
             accessibilityScreens.append(("Accessibility Custom Content", { _ in AccessibilityCustomContentViewController() }))
         }
+        if #available(iOS 15.0, *) {
+            accessibilityScreens.append(("Swipe Actions (SwiftUI)", { _ in UIHostingController(rootView: SwiftUISwipeActionsDemo()) }))
+        }
         if #available(iOS 17.0, *) {
             accessibilityScreens.append(("Block based accessors", { _ in BlockBasedAccessibilityViewController() }))
         }
@@ -69,7 +75,8 @@ final class RootViewController: UITableViewController {
         if #available(iOS 14.0, *) {
             accessibilityScreens.append(("Keyboard Shortcuts (SwiftUI)", { _ in UIHostingController(rootView: SwiftUIKeyboardShortcuts()) }))
         }
-        self.accessibilityScreens = accessibilityScreens
+        allScreens = accessibilityScreens
+        filteredScreens = accessibilityScreens
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -79,16 +86,39 @@ final class RootViewController: UITableViewController {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Filter demos"
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
+    }
+
+    // MARK: - UISearchResultsUpdating
+
+    func updateSearchResults(for searchController: UISearchController) {
+        let query = searchController.searchBar.text ?? ""
+        if query.isEmpty {
+            filteredScreens = allScreens
+        } else {
+            filteredScreens = allScreens.filter { $0.0.localizedCaseInsensitiveContains(query) }
+        }
+        tableView.reloadData()
+    }
+
     // MARK: - UITableViewDataSource
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return accessibilityScreens.count
+        return filteredScreens.count
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
 
-        cell.textLabel?.text = accessibilityScreens[indexPath.row].0
+        cell.textLabel?.text = filteredScreens[indexPath.row].0
 
         return cell
     }
@@ -96,7 +126,7 @@ final class RootViewController: UITableViewController {
     // MARK: - UITableViewDelegate
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let viewController = accessibilityScreens[indexPath.row].1(self)
+        let viewController = filteredScreens[indexPath.row].1(self)
         viewController.modalPresentationStyle = .fullScreen
         let navigationController = UINavigationController(rootViewController: viewController)
         viewController.navigationItem.leftBarButtonItem = UIBarButtonItem(image: .init(systemName: "xmark"), style: .plain, target: self, action: #selector(dismiss(_:)))
