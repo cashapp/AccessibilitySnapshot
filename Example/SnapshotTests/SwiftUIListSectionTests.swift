@@ -26,4 +26,22 @@ final class SwiftUIListSectionTests: SnapshotTestCase {
             size: UIScreen.main.bounds.size
         )
     }
+
+    /// Regression test for issue #129.
+    @available(iOS 15.0, *)
+    func testFormWithSections() {
+        SnapshotVerifyAccessibility(
+            SwiftUIFormWithSections(),
+            size: UIScreen.main.bounds.size
+        )
+    }
+
+    /// Regression test for issue #168.
+    @available(iOS 16.0, *)
+    func testNavigationStackWithToolbar() {
+        SnapshotVerifyAccessibility(
+            SwiftUIViewWithNavigationStack(),
+            size: UIScreen.main.bounds.size
+        )
+    }
 }

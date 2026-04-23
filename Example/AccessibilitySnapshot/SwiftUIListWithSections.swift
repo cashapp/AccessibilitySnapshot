@@ -43,3 +43,40 @@ struct SwiftUIListWithHeadersAndFooters: View {
         }
     }
 }
+
+/// Reproduces issue #129: sectioned SwiftUI Form on iOS 16+.
+@available(iOS 15.0, *)
+struct SwiftUIFormWithSections: View {
+    var body: some View {
+        Form {
+            Section("Profile") {
+                Text("Name: Alice")
+                Text("Email: alice@example.com")
+            }
+            Section("Preferences") {
+                Text("Language: English")
+                Text("Timezone: PST")
+            }
+        }
+    }
+}
+
+/// Reproduces issue #168: NavigationStack with toolbar and title.
+@available(iOS 16.0, *)
+struct SwiftUIViewWithNavigationStack: View {
+    var body: some View {
+        NavigationStack {
+            Text("Text inside a NavigationStack")
+                .navigationTitle("Navigation Stack")
+                .toolbar {
+                    ToolbarItem {
+                        Button {
+                            // no-op
+                        } label: {
+                            Text("Add")
+                        }
+                    }
+                }
+        }
+    }
+}
