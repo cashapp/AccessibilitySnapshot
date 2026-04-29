@@ -150,7 +150,6 @@ public final class AccessibilityHierarchyParser {
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
         let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
 
-        // Parse elements using the same logic as parseAccessibilityElements
         let accessibilityNodes = root.recursiveAccessibilityHierarchy()
 
         let uncontextualizedElements = sortedElements(
@@ -177,7 +176,6 @@ public final class AccessibilityHierarchyParser {
             buildElement(from: element.object, context: element.context, in: root, rotorResultLimit: rotorResultLimit)
         }
 
-        // Map AccessibilityNode tree to AccessibilityHierarchy tree
         return mapNodesToHierarchy(accessibilityNodes, sortedElements: uncontextualizedElements, elements: elements, in: root)
     }
 
@@ -201,7 +199,6 @@ public final class AccessibilityHierarchyParser {
 
     // MARK: - Private Methods
 
-    /// Builds an AccessibilityElement from an NSObject and its context
     private func buildElement(
         from object: NSObject,
         context: Context?,
@@ -277,7 +274,7 @@ public final class AccessibilityHierarchyParser {
         let minimumVerticalSeparation = userInterfaceIdiom == .phone ? 8.0 : 13.0
 
         let sortedNodes = explicitlyOrdered ? nodes : nodes
-            .map { ($0, Self.accessibilitySortFrame(for: $0, in: root)) }
+            .map { ($0, Self.accessibilitySortFrame(for: $0, in: root, horizontalCompare: horizontalCompare, minimumVerticalSeparation: minimumVerticalSeparation)) }
             .sorted { obj1, obj2 in
                 let origin1 = obj1.1.origin
                 let origin2 = obj2.1.origin
@@ -495,14 +492,12 @@ public final class AccessibilityHierarchyParser {
 
     // MARK: - Private Hierarchy Methods
 
-    /// Maps AccessibilityNode tree to AccessibilityHierarchy tree
     private func mapNodesToHierarchy(
         _ nodes: [AccessibilityNode],
         sortedElements: [(object: NSObject, contextProvider: ContextProvider?)],
         elements: [AccessibilityElement],
         in root: UIView
     ) -> [AccessibilityHierarchy] {
-        // Build lookup: object identity → traversal index
         var indexLookup: [ObjectIdentifier: Int] = [:]
         for (index, element) in sortedElements.enumerated() {
             indexLookup[ObjectIdentifier(element.object)] = index
@@ -523,7 +518,6 @@ public final class AccessibilityHierarchyParser {
                 if let info = containerInfo {
                     let frame = root.convert(info.view.bounds, from: info.view)
 
-                    // Convert UIAccessibilityContainerType + associated data to our ContainerType
                     let containerType: AccessibilityContainer.ContainerType
                     if info.traits.contains(.tabBar) {
                         containerType = .tabBar
@@ -538,7 +532,6 @@ public final class AccessibilityHierarchyParser {
                         case .dataTable:
                             containerType = .dataTable(rowCount: info.rowCount ?? 0, columnCount: info.columnCount ?? 0)
                         case .none:
-                            // Should not reach here since containerInfo(for:) returns nil for .none
                             containerType = .semanticGroup(label: info.label, value: info.value, identifier: info.identifier)
                         @unknown default:
                             containerType = .semanticGroup(label: info.label, value: info.value, identifier: info.identifier)
@@ -552,7 +545,6 @@ public final class AccessibilityHierarchyParser {
                     return [.container(container, children: mappedChildren)]
                 }
 
-                // Not a meaningful container - flatten children
                 return mappedChildren
             }
         }
@@ -637,7 +629,12 @@ extension AccessibilityHierarchyParser {
 
 private extension AccessibilityHierarchyParser {
     /// Returns a CGRect that can be used for sorting by position.
-    static func accessibilitySortFrame(for node: AccessibilityNode, in root: UIView) -> CGRect {
+    static func accessibilitySortFrame(
+        for node: AccessibilityNode,
+        in root: UIView,
+        horizontalCompare: @escaping (CGFloat, CGFloat) -> Bool,
+        minimumVerticalSeparation: CGFloat
+    ) -> CGRect {
         switch node {
         case let .element(frameProvider, _),
              let .group(_, _, frameProvider?, _):
@@ -649,7 +646,16 @@ private extension AccessibilityHierarchyParser {
             }
 
         case let .group(elements, _, _, _):
-            return elements.reduce(CGRect.null) { $0.union(accessibilitySortFrame(for: $1, in: root)) }
+            // Matches VoiceOver behavior: groups sort by their first-selected child
+            // using the same thresholded comparator as sortedElements.
+            return elements
+                .map { accessibilitySortFrame(for: $0, in: root, horizontalCompare: horizontalCompare, minimumVerticalSeparation: minimumVerticalSeparation) }
+                .min { f1, f2 in
+                    if f1.origin.y != f2.origin.y, abs(f1.origin.y - f2.origin.y) >= minimumVerticalSeparation {
+                        return f1.origin.y < f2.origin.y
+                    }
+                    return horizontalCompare(f1.origin.x, f2.origin.x)
+                } ?? .null
         }
     }
 }
@@ -730,8 +736,8 @@ private extension NSObject {
                     )
                 )
             }
-            // Capture container info - this path always creates a group, so just capture for metadata
             let container = (self as? UIView).flatMap { containerInfo(for: $0) }
+
             recursiveAccessibilityHierarchy.append(.group(
                 accessibilityHierarchyOfElements,
                 explicitlyOrdered: true,
@@ -758,7 +764,6 @@ private extension NSObject {
                 )
             }
 
-            // Capture container info if this is a meaningful container
             let container = containerInfo(for: self)
 
             if shouldGroupAccessibilityChildren || container != nil {
@@ -773,8 +778,6 @@ private extension NSObject {
         return recursiveAccessibilityHierarchy
     }
 
-    /// Creates ContainerInfo for a view if it represents a meaningful accessibility container.
-    /// Returns nil if the view is not a container worth visualizing.
     private func containerInfo(for view: UIView) -> ContainerInfo? {
         let containerType = view.accessibilityContainerType
         let traits = view.accessibilityTraits
@@ -782,7 +785,6 @@ private extension NSObject {
         let value = view.accessibilityValue
         let identifier = (view as UIAccessibilityIdentification).accessibilityIdentifier
 
-        // Extract data table dimensions if applicable
         let (rowCount, columnCount): (Int?, Int?) = {
             guard containerType == .dataTable,
                   let dataTable = view as? UIAccessibilityContainerDataTable
@@ -792,17 +794,14 @@ private extension NSObject {
             return (dataTable.accessibilityRowCount(), dataTable.accessibilityColumnCount())
         }()
 
-        // tabBar trait always creates container
         if traits.contains(.tabBar) {
             return ContainerInfo(view: view, type: containerType, label: label, value: value, identifier: identifier, traits: traits, rowCount: nil, columnCount: nil)
         }
 
-        // list, landmark, dataTable always create container
         if containerType == .list || containerType == .landmark || containerType == .dataTable {
             return ContainerInfo(view: view, type: containerType, label: label, value: value, identifier: identifier, traits: traits, rowCount: rowCount, columnCount: columnCount)
         }
 
-        // semanticGroup only if has label/value/identifier
         if containerType == .semanticGroup, label != nil || value != nil || identifier != nil {
             return ContainerInfo(view: view, type: containerType, label: label, value: value, identifier: identifier, traits: traits, rowCount: nil, columnCount: nil)
         }
