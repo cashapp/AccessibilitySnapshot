@@ -62,6 +62,13 @@ final class SwiftUIRendererTests: AccessibilitySnapshotPreviewsTestCase {
         )
     }
 
+    func testSwiftUITableDemo() {
+        snapshotVerifyAccessibility(
+            SwiftUITableDemo(),
+            configuration: .init(viewRenderingMode: .drawHierarchyInRect, showContainers: true)
+        )
+    }
+
     func testTabBarContainerDemo() {
         snapshotVerifyAccessibility(
             TabBarContainerDemo(),

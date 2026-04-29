@@ -21,6 +21,7 @@ struct ContainerLegendEntryView: View {
             VStack(alignment: .leading, spacing: LegendLayoutMetrics.legendVerticalSpacing) {
                 childViews
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(Self.containerInset)
             .padding(.top, badgeHeight / 2)
             .overlay(
