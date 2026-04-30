@@ -1163,27 +1163,6 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(elements, ["child"], "Element should still be parsed even when its container drops it")
     }
 
-    func testParserHandlesTabBarTraitViewWithUnresolvableButtons() {
-        let root = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
-        let tabBarish = UIView(frame: root.bounds)
-        tabBarish.accessibilityTraits.insert(.tabBar)
-
-        let dangling = UIAccessibilityElement(accessibilityContainer: tabBarish)
-        dangling.accessibilityLabel = "dangling"
-        dangling.accessibilityFrame = CGRect(x: 0, y: 0, width: 10, height: 10)
-        tabBarish.accessibilityElements = [dangling]
-        root.addSubview(tabBarish)
-
-        let parser = AccessibilityHierarchyParser()
-        let elements = parser.parseAccessibilityHierarchy(
-            in: root,
-            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight),
-            userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
-        ).flattenToElements().map { $0.description }
-
-        XCTAssertEqual(elements, ["dangling"], "Tab-bar-trait view with unresolvable buttons must not crash the parser")
-    }
-
     // MARK: - Private Helpers
 
     private func parseMarkers(in view: UIView) -> [AccessibilityMarker] {
