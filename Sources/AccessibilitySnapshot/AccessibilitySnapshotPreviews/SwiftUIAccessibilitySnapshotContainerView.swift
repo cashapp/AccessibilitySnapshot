@@ -39,6 +39,7 @@ public final class SwiftUIAccessibilitySnapshotContainerView: AccessibilitySnaps
         let swiftUIView = PreParsedAccessibilitySnapshotView(
             snapshotImage: data.image,
             markers: data.markers,
+            hierarchy: data.hierarchy,
             configuration: snapshotConfiguration,
             palette: palette,
             renderSize: data.containedViewBounds
