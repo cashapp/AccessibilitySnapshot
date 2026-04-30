@@ -73,12 +73,6 @@ public extension FBSnapshotTestCase {
         line: UInt = #line
     ) {
         let hostingController = UIHostingController(rootView: view)
-        // Disable safe area regions so drawHierarchy(afterScreenUpdates:) doesn't apply
-        // status bar / safe area offsets to the rendered image, which would misalign
-        // the snapshot content with the parsed accessibility frames.
-        if #available(iOS 16.4, *) {
-            hostingController.safeAreaRegions = []
-        }
         hostingController.view.bounds.size = size ?? hostingController.sizeThatFits(in: .zero)
 
         SnapshotVerifyAccessibility(
