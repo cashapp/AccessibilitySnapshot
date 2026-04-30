@@ -327,22 +327,20 @@ public final class AccessibilityHierarchyParser {
                 let tabBarButtons = view.allUITabBarButtons()
                 let tabBarItems = tabBar.items ?? []
 
-                // This logic assumes that the UITabBar has the same number of buttons as it does items, and that they
-                // are in the same order. From testing, this seems to always be true, but there may be some cases that
-                // aren't handled properly here.
+                // An unexpected tab bar shape — no items, a button count that isn't a multiple
+                // of the item count, or a button that isn't in our list — should not crash the
+                // process. Skip context for this element instead; it will still be parsed.
                 //
-                // We use modulo instead of equality because iOS 26 tab bars have multiple sets of tab buttons at
-                // different levels in the view hierarchy, so the total count may be a multiple of the item count.
-                precondition(
-                    tabBarButtons.count % tabBarItems.count == 0,
-                    "UITabBar does not have the same number of tab views as tab items."
-                )
-
-                guard let index = tabBarButtons.firstIndex(of: element) else {
-                    fatalError("Can't find tab bar button in UITabBar")
+                // We use modulo instead of equality because iOS 26 tab bars have multiple sets
+                // of tab buttons at different levels in the view hierarchy, so the total count
+                // may be a multiple of the item count.
+                guard !tabBarItems.isEmpty,
+                      tabBarButtons.count % tabBarItems.count == 0,
+                      let index = tabBarButtons.firstIndex(of: element)
+                else {
+                    return nil
                 }
 
-                // Use modulo to get the tab item index since there may be multiple sets of buttons
                 let tabIndex = index % tabBarItems.count
 
                 return .tabBarItem(
@@ -371,8 +369,11 @@ public final class AccessibilityHierarchyParser {
                     viewToElementsMap[view] = accessibleElements
                 }
 
+                guard let index = accessibleElements.firstIndex(of: element) else {
+                    return nil
+                }
                 return .tab(
-                    index: accessibleElements.firstIndex(of: element)! + 1,
+                    index: index + 1,
                     count: accessibleElements.count
                 )
             }
@@ -380,10 +381,11 @@ public final class AccessibilityHierarchyParser {
         case let .accessibilityContainer(container):
             let elementIndex = container.index(ofAccessibilityElement: element)
 
-            assert(
-                elementIndex != NSNotFound,
-                "Element should not have a container as a context provider if it is not an element in that container"
-            )
+            // The container may not actually contain the element if its accessibility tree is in
+            // an inconsistent state. Drop context for this element rather than crashing.
+            guard elementIndex != NSNotFound else {
+                return nil
+            }
 
             if container is UISegmentedControl {
                 return .series(
