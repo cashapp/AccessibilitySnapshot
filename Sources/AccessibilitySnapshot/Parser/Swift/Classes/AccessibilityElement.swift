@@ -69,10 +69,9 @@ public struct AccessibilityElement: Equatable, Codable {
             name = from.displayName(locale: parentElement.accessibilityLanguage)
             let collected = from.collectAllResults(nextLimit: resultLimit, previousLimit: resultLimit)
             limit = collected.limit
-            resultMarkers = collected.results.compactMap { result -> ResultMarker? in
+            resultMarkers = collected.results.compactMap { result in
                 guard let element = result.targetElement as? NSObject else { return nil }
-                let elementExpandedStatus = element.expandedStatus
-                var description = element.accessibilityDescription(context: context, expandedStatus: elementExpandedStatus).description
+                var description = element.accessibilityDescription(context: context, expandedStatus: element.expandedStatus).description
                 var shape: Shape? = AccessibilityHierarchyParser.accessibilityShape(for: element, in: root)
 
                 if let range = result.targetRange,
