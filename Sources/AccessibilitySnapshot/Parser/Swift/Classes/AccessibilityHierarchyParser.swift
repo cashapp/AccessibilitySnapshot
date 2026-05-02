@@ -564,7 +564,7 @@ extension AccessibilityHierarchyParser {
     /// Returns the shape of the accessibility element in the root view's coordinate space.
     /// VoiceOver prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
     static func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityMarker.Shape {
-        if let accessibilityPath = element.accessibilityPath, preferPath {
+        if let accessibilityPath = element.accessibilityPath, preferPath, accessibilityPath.hasFiniteBounds {
             return .path(root.convert(accessibilityPath, from: nil))
 
         } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer, !element.accessibilityFrameInContainerSpace.isNull {
@@ -605,8 +605,8 @@ extension AccessibilityHierarchyParser {
             return frame
         }
 
-        if let path = element.accessibilityPath {
-            return path.bounds
+        if let path = element.accessibilityPath, path.hasFiniteBounds {
+            return path.cgPath.boundingBoxOfPath
         }
 
         return frame
@@ -666,6 +666,27 @@ private extension AccessibilityHierarchyParser {
 }
 
 // MARK: -
+
+private extension UIBezierPath {
+    /// True when the path is non-empty and its CGPath bounding box has finite
+    /// origin and size.
+    ///
+    /// `UIBezierPath.bounds` calls `CGPathGetPathBoundingBox`, which returns
+    /// `CGRect.null` (origin `.infinity`) for empty paths and may carry
+    /// non-finite values when callers feed in `.nan`/`.infinity`. Storing
+    /// such a path in `Shape.path` lets those values flow into downstream
+    /// `Int(_:)` conversions and trap with a Swift runtime SIGTRAP. Callers
+    /// gate `.path(...)` on this check and fall back to `.frame(...)`.
+    var hasFiniteBounds: Bool {
+        guard !isEmpty else { return false }
+        let rect = cgPath.boundingBoxOfPath
+        return !rect.isNull
+            && rect.origin.x.isFinite
+            && rect.origin.y.isFinite
+            && rect.size.width.isFinite
+            && rect.size.height.isFinite
+    }
+}
 
 /// Captures container information at node creation time, avoiding the need to re-derive it later.
 private struct ContainerInfo {
