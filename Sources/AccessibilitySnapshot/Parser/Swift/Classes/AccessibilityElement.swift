@@ -19,10 +19,9 @@ public struct AccessibilityElement: Equatable, Codable {
 
     /// The expanded/collapsed state of a disclosure-style accessibility element.
     ///
-    /// Populated from the private `_accessibilityExpandedStatus` method — see
-    /// `PrivateAX.ExpandedStatus` for the full rationale. The raw integer values mirror both
-    /// the private method's return values and the public iOS 18 `UIAccessibility.ExpandedStatus`
-    /// enum.
+    /// Populated by the parser's expanded-status resolver. The raw integer values mirror
+    /// `UIAccessibility.ExpandedStatus` on iOS 18 and the legacy accessibility runtime values
+    /// used by snapshot builds that opt in to private accessibility APIs.
     public enum ExpandedStatus: Int, Equatable, Codable {
         /// The element does not support expanded/collapsed state.
         case unsupported = 0
