@@ -5,7 +5,7 @@ import SwiftUI
 /// Displays an element's custom actions.
 @available(iOS 16.0, *)
 struct CustomActionsView: View {
-    let actions: [AccessibilityMarker.CustomAction]
+    let actions: [String]
     let locale: String?
 
     private typealias Tokens = DesignTokens.CustomContent
@@ -18,7 +18,7 @@ struct CustomActionsView: View {
                 .lineLimit(nil)
 
             ForEach(actions.indices, id: \.self) { index in
-                Text("↳ \(actions[index].name)")
+                Text("↳ \(actions[index])")
                     .font(DesignTokens.Typography.secondary)
                     .foregroundColor(DesignTokens.Colors.primaryText)
                     .lineLimit(nil)
@@ -34,7 +34,7 @@ struct CustomActionsView: View {
 #Preview("Single Action") {
     CustomActionsView(
         actions: [
-            .init(name: "Delete"),
+            "Delete",
         ],
         locale: nil
     )
@@ -45,9 +45,9 @@ struct CustomActionsView: View {
 #Preview("Multiple Actions") {
     CustomActionsView(
         actions: [
-            .init(name: "Delete"),
-            .init(name: "Duplicate"),
-            .init(name: "Share"),
+            "Delete",
+            "Duplicate",
+            "Share",
         ],
         locale: nil
     )
