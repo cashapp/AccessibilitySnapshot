@@ -730,8 +730,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let encoder = JSONEncoder()
         let data = try encoder.encode(action)
 
-        let json = try JSONSerialization.jsonObject(with: data) as? String
-        XCTAssertEqual(json, "Delete")
+        let json = String(data: data, encoding: .utf8)
+        XCTAssertEqual(json, "\"Delete\"")
 
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(AccessibilityElement.CustomAction.self, from: data)
