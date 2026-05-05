@@ -97,49 +97,7 @@ public struct AccessibilityElement: Equatable, Codable {
         }
     }
 
-    public struct CustomAction: Equatable, Codable {
-        public var name: String
-        public var image: UIImage?
-
-        public init(name: String, image: UIImage? = nil) {
-            self.name = name
-            self.image = image
-        }
-
-        @available(iOS 14.0, *)
-        init(from: UIAccessibilityCustomAction) {
-            name = from.name
-            image = from.image
-        }
-
-        private enum CodingKeys: String, CodingKey {
-            case name
-            case imageData
-            case imageScale
-        }
-
-        public init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            name = try container.decode(String.self, forKey: .name)
-
-            if let imageData = try container.decodeIfPresent(Data.self, forKey: .imageData) {
-                let scale = try container.decodeIfPresent(CGFloat.self, forKey: .imageScale) ?? 1.0
-                image = UIImage(data: imageData, scale: scale)
-            } else {
-                image = nil
-            }
-        }
-
-        public func encode(to encoder: Encoder) throws {
-            var container = encoder.container(keyedBy: CodingKeys.self)
-            try container.encode(name, forKey: .name)
-
-            if let image = image, let pngData = image.pngData() {
-                try container.encode(pngData, forKey: .imageData)
-                try container.encode(image.scale, forKey: .imageScale)
-            }
-        }
-    }
+    public typealias CustomAction = String
 
     // MARK: - Public Properties
 
