@@ -269,18 +269,20 @@ extension NSObject {
             }
         }
 
-        let expandedHint: String? = {
+        let expandedHint: (hint: String, format: String)? = {
             switch expandedStatus {
-            case .expanded: return strings.expandedStatusHint
-            case .collapsed: return strings.collapsedStatusHint
+            case .expanded:
+                return (strings.expandedStatusHint, strings.expandedStatusHintFormat)
+            case .collapsed:
+                return (strings.collapsedStatusHint, strings.collapsedStatusHintFormat)
             case .unsupported: return nil
             }
         }()
-        if let expandedHint {
+        if let expandedHint, !accessibilityTraits.contains(.notEnabled) {
             if let existingHint = hintDescription?.nonEmpty()?.strippingTrailingPeriod() {
-                hintDescription = "\(existingHint). \(expandedHint)"
+                hintDescription = String(format: expandedHint.format, existingHint)
             } else {
-                hintDescription = expandedHint
+                hintDescription = expandedHint.hint
             }
         }
 
@@ -411,7 +413,11 @@ extension NSObject {
 
         let expandedStatusHint: String
 
+        let expandedStatusHintFormat: String
+
         let collapsedStatusHint: String
+
+        let collapsedStatusHintFormat: String
 
         // MARK: - Life Cycle
 
@@ -609,9 +615,19 @@ extension NSObject {
                 comment: "Hint for expanded elements",
                 locale: locale
             )
+            expandedStatusHintFormat = "%@. Double tap to collapse.".localized(
+                key: "status.expanded.hint_format",
+                comment: "Format for hint describing expanded elements; param0: the existing hint",
+                locale: locale
+            )
             collapsedStatusHint = "Double tap to expand.".localized(
                 key: "status.collapsed.hint",
                 comment: "Hint for collapsed elements",
+                locale: locale
+            )
+            collapsedStatusHintFormat = "%@. Double tap to expand.".localized(
+                key: "status.collapsed.hint_format",
+                comment: "Format for hint describing collapsed elements; param0: the existing hint",
                 locale: locale
             )
         }

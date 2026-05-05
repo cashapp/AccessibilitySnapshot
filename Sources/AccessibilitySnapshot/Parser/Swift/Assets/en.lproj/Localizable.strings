@@ -118,8 +118,14 @@
 /* Hint for expanded elements */
 "status.expanded.hint" = "Double tap to collapse.";
 
+/* Format for hint describing expanded elements; param0: the existing hint */
+"status.expanded.hint_format" = "%@. Double tap to collapse.";
+
 /* Hint for collapsed elements */
 "status.collapsed.hint" = "Double tap to expand.";
+
+/* Format for hint describing collapsed elements; param0: the existing hint */
+"status.collapsed.hint_format" = "%@. Double tap to expand.";
 
 /* Description for an accessibility rotor indicating that it has no results available */
 "custom_rotors.no_results" = "<no results>";

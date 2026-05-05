@@ -217,6 +217,25 @@ public struct AccessibilityElement: Equatable, Codable {
 
     // MARK: - Initialization
 
+    private enum CodingKeys: String, CodingKey {
+        case description
+        case label
+        case value
+        case traits
+        case identifier
+        case hint
+        case userInputLabels
+        case shape
+        case activationPoint
+        case usesDefaultActivationPoint
+        case customActions
+        case customContent
+        case customRotors
+        case accessibilityLanguage
+        case respondsToUserInteraction
+        case expandedStatus
+    }
+
     init(
         description: String,
         label: String?,
@@ -251,5 +270,47 @@ public struct AccessibilityElement: Equatable, Codable {
         self.accessibilityLanguage = accessibilityLanguage
         self.respondsToUserInteraction = respondsToUserInteraction
         self.expandedStatus = expandedStatus
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        description = try container.decode(String.self, forKey: .description)
+        label = try container.decodeIfPresent(String.self, forKey: .label)
+        value = try container.decodeIfPresent(String.self, forKey: .value)
+        traits = try container.decode(UIAccessibilityTraits.self, forKey: .traits)
+        identifier = try container.decodeIfPresent(String.self, forKey: .identifier)
+        hint = try container.decodeIfPresent(String.self, forKey: .hint)
+        userInputLabels = try container.decodeIfPresent([String].self, forKey: .userInputLabels)
+        shape = try container.decode(Shape.self, forKey: .shape)
+        activationPoint = try container.decode(CGPoint.self, forKey: .activationPoint)
+        usesDefaultActivationPoint = try container.decode(Bool.self, forKey: .usesDefaultActivationPoint)
+        customActions = try container.decode([CustomAction].self, forKey: .customActions)
+        customContent = try container.decode([CustomContent].self, forKey: .customContent)
+        customRotors = try container.decode([CustomRotor].self, forKey: .customRotors)
+        accessibilityLanguage = try container.decodeIfPresent(String.self, forKey: .accessibilityLanguage)
+        respondsToUserInteraction = try container.decode(Bool.self, forKey: .respondsToUserInteraction)
+        expandedStatus = try container.decodeIfPresent(ExpandedStatus.self, forKey: .expandedStatus) ?? .unsupported
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(description, forKey: .description)
+        try container.encodeIfPresent(label, forKey: .label)
+        try container.encodeIfPresent(value, forKey: .value)
+        try container.encode(traits, forKey: .traits)
+        try container.encodeIfPresent(identifier, forKey: .identifier)
+        try container.encodeIfPresent(hint, forKey: .hint)
+        try container.encodeIfPresent(userInputLabels, forKey: .userInputLabels)
+        try container.encode(shape, forKey: .shape)
+        try container.encode(activationPoint, forKey: .activationPoint)
+        try container.encode(usesDefaultActivationPoint, forKey: .usesDefaultActivationPoint)
+        try container.encode(customActions, forKey: .customActions)
+        try container.encode(customContent, forKey: .customContent)
+        try container.encode(customRotors, forKey: .customRotors)
+        try container.encodeIfPresent(accessibilityLanguage, forKey: .accessibilityLanguage)
+        try container.encode(respondsToUserInteraction, forKey: .respondsToUserInteraction)
+        try container.encode(expandedStatus, forKey: .expandedStatus)
     }
 }

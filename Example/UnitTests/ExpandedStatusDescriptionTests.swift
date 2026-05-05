@@ -58,6 +58,31 @@ final class ExpandedStatusDescriptionTests: XCTestCase {
         XCTAssertEqual(hint, "Shows more content. Double tap to expand.")
     }
 
+    func testDisabledExpandedElementDoesNotAddActionHint() {
+        let view = UIView()
+        view.isAccessibilityElement = true
+        view.accessibilityLabel = "Section"
+        view.accessibilityTraits = [.notEnabled]
+
+        let (description, hint) = view.accessibilityDescription(context: nil, expandedStatus: .expanded)
+
+        XCTAssertEqual(description, "Section. Dimmed. Expanded.")
+        XCTAssertNil(hint)
+    }
+
+    func testDisabledCollapsedElementPreservesExistingHintWithoutAddingActionHint() {
+        let view = UIView()
+        view.isAccessibilityElement = true
+        view.accessibilityLabel = "Section"
+        view.accessibilityHint = "Read only"
+        view.accessibilityTraits = [.notEnabled]
+
+        let (description, hint) = view.accessibilityDescription(context: nil, expandedStatus: .collapsed)
+
+        XCTAssertEqual(description, "Section. Dimmed. Collapsed.")
+        XCTAssertEqual(hint, "Read only")
+    }
+
     func testDefaultExpandedStatusParameterIsUnsupported() {
         let view = UIView()
         view.isAccessibilityElement = true

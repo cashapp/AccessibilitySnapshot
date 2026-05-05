@@ -118,8 +118,14 @@
 /* Hint for expanded elements */
 "status.expanded.hint" = "Doppeltippen zum Reduzieren.";
 
+/* Format for hint describing expanded elements; param0: the existing hint */
+"status.expanded.hint_format" = "%@. Doppeltippen zum Reduzieren.";
+
 /* Hint for collapsed elements */
 "status.collapsed.hint" = "Doppeltippen zum Erweitern.";
+
+/* Format for hint describing collapsed elements; param0: the existing hint */
+"status.collapsed.hint_format" = "%@. Doppeltippen zum Erweitern.";
 
 /* Description for an accessibility rotor indicating that it has no results available */
 "custom_rotors.no_results" = "<keine Ergebnisse>";

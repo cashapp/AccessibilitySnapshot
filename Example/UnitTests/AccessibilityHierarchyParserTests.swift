@@ -511,7 +511,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             customContent: [],
             customRotors: [],
             accessibilityLanguage: "en-US",
-            respondsToUserInteraction: true
+            respondsToUserInteraction: true,
+            expandedStatus: .expanded
         )
 
         let encoder = JSONEncoder()
@@ -533,6 +534,40 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(decoded.customActions.map { $0.name }, element.customActions.map { $0.name })
         XCTAssertEqual(decoded.accessibilityLanguage, element.accessibilityLanguage)
         XCTAssertEqual(decoded.respondsToUserInteraction, element.respondsToUserInteraction)
+        XCTAssertEqual(decoded.expandedStatus, element.expandedStatus)
+    }
+
+    func testAccessibilityElementCodableDefaultsMissingExpandedStatus() throws {
+        let element = AccessibilityElement(
+            description: "Legacy Button",
+            label: "Button Label",
+            value: "Button Value",
+            traits: [.button],
+            identifier: "legacy-button-id",
+            hint: "Double tap to activate",
+            userInputLabels: nil,
+            shape: .frame(CGRect(x: 10, y: 20, width: 100, height: 44)),
+            activationPoint: CGPoint(x: 60, y: 42),
+            usesDefaultActivationPoint: true,
+            customActions: [],
+            customContent: [],
+            customRotors: [],
+            accessibilityLanguage: nil,
+            respondsToUserInteraction: true,
+            expandedStatus: .expanded
+        )
+
+        let encoder = JSONEncoder()
+        let data = try encoder.encode(element)
+        var payload = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        payload.removeValue(forKey: "expandedStatus")
+        let legacyData = try JSONSerialization.data(withJSONObject: payload)
+
+        let decoder = JSONDecoder()
+        let decoded = try decoder.decode(AccessibilityElement.self, from: legacyData)
+
+        XCTAssertEqual(decoded.description, element.description)
+        XCTAssertEqual(decoded.expandedStatus, .unsupported)
     }
 
     func testAccessibilityContainerCodable() throws {
