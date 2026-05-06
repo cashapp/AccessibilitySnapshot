@@ -507,7 +507,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             shape: .frame(CGRect(x: 10, y: 20, width: 100, height: 44)),
             activationPoint: CGPoint(x: 60, y: 42),
             usesDefaultActivationPoint: true,
-            customActions: [AccessibilityElement.CustomAction(name: "Delete", image: nil)],
+            customActions: ["Delete"],
             customContent: [],
             customRotors: [],
             accessibilityLanguage: "en-US",
@@ -530,7 +530,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(decoded.shape, element.shape)
         XCTAssertEqual(decoded.activationPoint, element.activationPoint)
         XCTAssertEqual(decoded.usesDefaultActivationPoint, element.usesDefaultActivationPoint)
-        XCTAssertEqual(decoded.customActions.map { $0.name }, element.customActions.map { $0.name })
+        XCTAssertEqual(decoded.customActions, element.customActions)
         XCTAssertEqual(decoded.accessibilityLanguage, element.accessibilityLanguage)
         XCTAssertEqual(decoded.respondsToUserInteraction, element.respondsToUserInteraction)
     }
@@ -724,50 +724,19 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         }
     }
 
-    func testCustomActionWithImageCodable() throws {
-        // Create a simple red image for testing
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10))
-        let testImage = renderer.image { context in
-            UIColor.red.setFill()
-            context.fill(CGRect(x: 0, y: 0, width: 10, height: 10))
-        }
-
-        let action = AccessibilityElement.CustomAction(name: "Delete", image: testImage)
+    func testCustomActionCodable() throws {
+        let action: AccessibilityElement.CustomAction = "Delete"
 
         let encoder = JSONEncoder()
         let data = try encoder.encode(action)
 
-        // Verify imageData and imageScale are included
-        let json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-        XCTAssertEqual(json["name"] as? String, "Delete")
-        XCTAssertNotNil(json["imageData"], "Image should be encoded as imageData")
-        XCTAssertNotNil(json["imageScale"], "Image scale should be encoded")
+        let json = String(data: data, encoding: .utf8)
+        XCTAssertEqual(json, "\"Delete\"")
 
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(AccessibilityElement.CustomAction.self, from: data)
 
-        XCTAssertEqual(decoded.name, "Delete")
-        XCTAssertNotNil(decoded.image, "Image should be decoded")
-        XCTAssertEqual(decoded.image?.size, testImage.size, "Image size should be preserved")
-        XCTAssertEqual(decoded.image?.scale, testImage.scale, "Image scale should be preserved")
-    }
-
-    func testCustomActionWithoutImageCodable() throws {
-        let action = AccessibilityElement.CustomAction(name: "Edit", image: nil)
-
-        let encoder = JSONEncoder()
-        let data = try encoder.encode(action)
-
-        // Verify imageData is not included when image is nil
-        let json = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-        XCTAssertEqual(json["name"] as? String, "Edit")
-        XCTAssertNil(json["imageData"], "imageData should not be present when image is nil")
-
-        let decoder = JSONDecoder()
-        let decoded = try decoder.decode(AccessibilityElement.CustomAction.self, from: data)
-
-        XCTAssertEqual(decoded.name, "Edit")
-        XCTAssertNil(decoded.image)
+        XCTAssertEqual(decoded, action)
     }
 
     // MARK: - Data Table Tests
