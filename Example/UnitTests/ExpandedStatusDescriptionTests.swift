@@ -4,93 +4,91 @@ import XCTest
 
 final class ExpandedStatusDescriptionTests: XCTestCase {
     func testExpandedAppendsToDescription() {
-        let view = UIView()
-        view.isAccessibilityElement = true
-        view.accessibilityLabel = "Section"
+        let view = makeView(expandedStatus: .expanded)
 
-        let (description, hint) = view.accessibilityDescription(context: nil, expandedStatus: .expanded)
+        let (description, hint) = view.accessibilityDescription(context: nil)
 
         XCTAssertEqual(description, "Section. Expanded.")
         XCTAssertEqual(hint, "Double tap to collapse.")
     }
 
     func testCollapsedAppendsToDescription() {
-        let view = UIView()
-        view.isAccessibilityElement = true
-        view.accessibilityLabel = "Section"
+        let view = makeView(expandedStatus: .collapsed)
 
-        let (description, hint) = view.accessibilityDescription(context: nil, expandedStatus: .collapsed)
+        let (description, hint) = view.accessibilityDescription(context: nil)
 
         XCTAssertEqual(description, "Section. Collapsed.")
         XCTAssertEqual(hint, "Double tap to expand.")
     }
 
     func testUnsupportedLeavesDescriptionAndHintAlone() {
-        let view = UIView()
-        view.isAccessibilityElement = true
-        view.accessibilityLabel = "Section"
+        let view = makeView(expandedStatus: .unsupported)
 
-        let (description, hint) = view.accessibilityDescription(context: nil, expandedStatus: .unsupported)
+        let (description, hint) = view.accessibilityDescription(context: nil)
 
         XCTAssertEqual(description, "Section")
         XCTAssertNil(hint)
     }
 
     func testExpandedHintConcatenatesWithExistingHint() {
-        let view = UIView()
-        view.isAccessibilityElement = true
-        view.accessibilityLabel = "Section"
+        let view = makeView(expandedStatus: .expanded)
         view.accessibilityHint = "Shows more content."
 
-        let (_, hint) = view.accessibilityDescription(context: nil, expandedStatus: .expanded)
+        let (_, hint) = view.accessibilityDescription(context: nil)
 
         XCTAssertEqual(hint, "Shows more content. Double tap to collapse.")
     }
 
     func testCollapsedHintConcatenatesWithHintMissingTrailingPeriod() {
-        let view = UIView()
-        view.isAccessibilityElement = true
-        view.accessibilityLabel = "Section"
+        let view = makeView(expandedStatus: .collapsed)
         view.accessibilityHint = "Shows more content"
 
-        let (_, hint) = view.accessibilityDescription(context: nil, expandedStatus: .collapsed)
+        let (_, hint) = view.accessibilityDescription(context: nil)
 
         XCTAssertEqual(hint, "Shows more content. Double tap to expand.")
     }
 
     func testDisabledExpandedElementDoesNotAddActionHint() {
-        let view = UIView()
-        view.isAccessibilityElement = true
-        view.accessibilityLabel = "Section"
+        let view = makeView(expandedStatus: .expanded)
         view.accessibilityTraits = [.notEnabled]
 
-        let (description, hint) = view.accessibilityDescription(context: nil, expandedStatus: .expanded)
+        let (description, hint) = view.accessibilityDescription(context: nil)
 
         XCTAssertEqual(description, "Section. Dimmed. Expanded.")
         XCTAssertNil(hint)
     }
 
     func testDisabledCollapsedElementPreservesExistingHintWithoutAddingActionHint() {
-        let view = UIView()
-        view.isAccessibilityElement = true
-        view.accessibilityLabel = "Section"
+        let view = makeView(expandedStatus: .collapsed)
         view.accessibilityHint = "Read only"
         view.accessibilityTraits = [.notEnabled]
 
-        let (description, hint) = view.accessibilityDescription(context: nil, expandedStatus: .collapsed)
+        let (description, hint) = view.accessibilityDescription(context: nil)
 
         XCTAssertEqual(description, "Section. Dimmed. Collapsed.")
         XCTAssertEqual(hint, "Read only")
     }
 
-    func testDefaultExpandedStatusParameterIsUnsupported() {
-        let view = UIView()
-        view.isAccessibilityElement = true
-        view.accessibilityLabel = "Section"
+    func testMissingExpandedStatusIsUnsupported() {
+        let view = makeView()
 
         let (description, hint) = view.accessibilityDescription(context: nil)
 
         XCTAssertEqual(description, "Section")
         XCTAssertNil(hint)
+    }
+
+    private func makeView(expandedStatus: AccessibilityElement.ExpandedStatus? = nil) -> UIView {
+        let view = UIView()
+        view.isAccessibilityElement = true
+        view.accessibilityLabel = "Section"
+
+        #if compiler(>=6.0)
+            if #available(iOS 18.0, *), let expandedStatus {
+                view.accessibilityExpandedStatus = UIAccessibility.ExpandedStatus(rawValue: expandedStatus.rawValue) ?? .unsupported
+            }
+        #endif
+
+        return view
     }
 }

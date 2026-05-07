@@ -4,13 +4,11 @@ extension NSObject {
     /// Returns a tuple consisting of the `description` and (optionally) a `hint` that VoiceOver will read for the object.
     ///
     /// - parameter context: Positional context (e.g. list start, tab bar item) that shapes the description.
-    /// - parameter expandedStatus: The element's expanded/collapsed state, read by the parser via
-    ///   `PrivateAX.ExpandedStatus`. Passed in so this method does not re-read the private selector.
     func accessibilityDescription(
-        context: AccessibilityHierarchyParser.Context?,
-        expandedStatus: AccessibilityElement.ExpandedStatus = .unsupported
+        context: AccessibilityHierarchyParser.Context?
     ) -> (description: String, hint: String?) {
         let strings = Strings(locale: accessibilityLanguage)
+        let resolvedExpandedStatus = expandedStatus
 
         var accessibilityDescription =
             accessibilityLabelOverride(for: context) ??
@@ -164,7 +162,7 @@ extension NSObject {
             traitSpecifiers.append(strings.searchFieldTraitName)
         }
 
-        switch expandedStatus {
+        switch resolvedExpandedStatus {
         case .expanded:
             traitSpecifiers.append(strings.expandedStatusName)
         case .collapsed:
@@ -270,7 +268,7 @@ extension NSObject {
         }
 
         let expandedHint: (hint: String, format: String)? = {
-            switch expandedStatus {
+            switch resolvedExpandedStatus {
             case .expanded:
                 return (strings.expandedStatusHint, strings.expandedStatusHintFormat)
             case .collapsed:

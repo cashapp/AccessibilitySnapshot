@@ -70,7 +70,7 @@ public struct AccessibilityElement: Equatable, Codable {
             limit = collected.limit
             resultMarkers = collected.results.compactMap { result in
                 guard let element = result.targetElement as? NSObject else { return nil }
-                var description = element.accessibilityDescription(context: context, expandedStatus: element.expandedStatus).description
+                var description = element.accessibilityDescription(context: context).description
                 var shape: Shape? = AccessibilityHierarchyParser.accessibilityShape(for: element, in: root)
 
                 if let range = result.targetRange,

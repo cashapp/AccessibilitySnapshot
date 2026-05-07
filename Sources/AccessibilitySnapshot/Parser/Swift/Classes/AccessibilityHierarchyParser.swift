@@ -205,10 +205,8 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         rotorResultLimit: Int
     ) -> AccessibilityElement {
-        // Read expanded/collapsed status once and thread it through so the stored enum and the
-        // rendered description cannot disagree.
         let expandedStatus = object.expandedStatus
-        let (description, hint) = object.accessibilityDescription(context: context, expandedStatus: expandedStatus)
+        let (description, hint) = object.accessibilityDescription(context: context)
         let activationPoint = object.accessibilityActivationPoint
 
         return AccessibilityElement(
