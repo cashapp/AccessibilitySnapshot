@@ -205,7 +205,6 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         rotorResultLimit: Int
     ) -> AccessibilityElement {
-        let expandedStatus = object.expandedStatus
         let (description, hint) = object.accessibilityDescription(context: context)
         let activationPoint = object.accessibilityActivationPoint
 
@@ -229,7 +228,7 @@ public final class AccessibilityHierarchyParser {
             customRotors: object.customRotors(in: root, context: context, resultLimit: rotorResultLimit),
             accessibilityLanguage: object.accessibilityLanguage,
             respondsToUserInteraction: object.accessibilityRespondsToUserInteraction,
-            expandedStatus: expandedStatus
+            expandedStatus: object.expandedStatus
         )
     }
 
