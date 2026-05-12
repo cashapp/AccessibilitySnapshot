@@ -36,16 +36,8 @@ public final class SwiftUIAccessibilitySnapshotContainerView: AccessibilitySnaps
             palette.colors = snapshotConfiguration.markerColors
         }
 
-        let bakedImage = PreParsedAccessibilitySnapshotView.bakeSnapshot(
-            snapshotImage: data.image,
-            markers: data.markers,
-            palette: palette,
-            renderSize: data.containedViewBounds,
-            activationPointDisplayMode: snapshotConfiguration.activationPointDisplayMode
-        )
-
         let swiftUIView = PreParsedAccessibilitySnapshotView(
-            bakedImage: bakedImage,
+            snapshotImage: data.image,
             markers: data.markers,
             hierarchy: data.hierarchy,
             configuration: snapshotConfiguration,
@@ -54,9 +46,6 @@ public final class SwiftUIAccessibilitySnapshotContainerView: AccessibilitySnaps
         )
 
         let hosting = UIHostingController(rootView: AnyView(swiftUIView))
-        if #available(iOS 16.4, *) {
-            hosting.safeAreaRegions = []
-        }
         hosting.view.backgroundColor = UIColor(white: 0.9, alpha: 1.0)
 
         let targetSize = CGSize(

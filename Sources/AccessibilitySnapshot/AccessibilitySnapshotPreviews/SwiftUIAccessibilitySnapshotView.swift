@@ -87,12 +87,6 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             .edgesIgnoringSafeArea(.all)
 
         let hostingController = UIHostingController(rootView: adjustedContent)
-        // Match the bake path: opt out of safe-area regions so the rendered image isn't
-        // shifted by the window's status bar / safe area, which would misalign the parsed
-        // accessibility frames.
-        if #available(iOS 16.4, *) {
-            hostingController.safeAreaRegions = []
-        }
         hostingController.view.frame = CGRect(origin: .zero, size: renderSize)
 
         // UIViewRepresentable views (e.g. PathShapeUIView) report accessibilityPath and
@@ -150,13 +144,9 @@ public extension AccessibilitySnapshotView where Content == UIViewWrapper {
 // MARK: - Pre-parsed Snapshot View
 
 /// A SwiftUI view that displays a pre-rendered snapshot with accessibility overlays and legend.
-///
-/// `bakedImage` must already contain the snapshot composited with element overlays. Use
-/// `bakeSnapshot(...)` to produce it. Baking outside SwiftUI keeps overlay alignment
-/// independent of the surrounding legend layout.
 @available(iOS 16.0, *)
 public struct PreParsedAccessibilitySnapshotView: View {
-    private let bakedImage: UIImage
+    private let snapshotImage: UIImage
     private let markers: [AccessibilityMarker]
     private let colorAssignment: HierarchyColorAssignment?
     private let configuration: AccessibilitySnapshotConfiguration
@@ -164,14 +154,14 @@ public struct PreParsedAccessibilitySnapshotView: View {
     private let renderSize: CGSize
 
     public init(
-        bakedImage: UIImage,
+        snapshotImage: UIImage,
         markers: [AccessibilityMarker],
         hierarchy: [AccessibilityHierarchy] = [],
         configuration: AccessibilitySnapshotConfiguration = .init(viewRenderingMode: .drawHierarchyInRect),
         palette: ColorPalette = .default,
         renderSize: CGSize
     ) {
-        self.bakedImage = bakedImage
+        self.snapshotImage = snapshotImage
         self.markers = markers
         colorAssignment = (configuration.showContainers && !hierarchy.isEmpty)
             ? HierarchyColorAssignment.build(from: hierarchy)
@@ -279,54 +269,13 @@ public struct PreParsedAccessibilitySnapshotView: View {
     }
 
     private var snapshotWithOverlays: some View {
-        Image(uiImage: bakedImage)
-            .resizable()
-            .frame(width: renderSize.width, height: renderSize.height)
-    }
-
-    // MARK: - Snapshot Baking
-
-    /// Composites the snapshot image and its element overlays into a single flat `UIImage`.
-    /// Baking outside the SwiftUI layout means surrounding views (e.g. the legend) cannot
-    /// shift overlay positions.
-    public static func bakeSnapshot(
-        snapshotImage: UIImage,
-        markers: [AccessibilityMarker],
-        palette: ColorPalette,
-        renderSize: CGSize,
-        activationPointDisplayMode: AccessibilityContentDisplayMode
-    ) -> UIImage {
-        let overlayView = SnapshotOverlayView(
+        SnapshotOverlayView(
             snapshotImage: snapshotImage,
             markers: markers,
             palette: palette,
             renderSize: renderSize,
-            activationPointDisplayMode: activationPointDisplayMode
+            activationPointDisplayMode: configuration.activationPointDisplayMode
         )
-
-        let hosting = UIHostingController(rootView: overlayView)
-        // Without this, drawHierarchy bakes the host's safe-area offsets into the image
-        // and overlays no longer line up with the parsed accessibility frames.
-        if #available(iOS 16.4, *) {
-            hosting.safeAreaRegions = []
-        }
-        hosting.view.frame = CGRect(origin: .zero, size: renderSize)
-        hosting.view.backgroundColor = .clear
-
-        // drawHierarchy(afterScreenUpdates: true) needs the view to be in a window so
-        // SwiftUI's render cycle can run.
-        let tempWindow = UIWindow(frame: CGRect(origin: .zero, size: renderSize))
-        tempWindow.addSubview(hosting.view)
-        hosting.view.layoutIfNeeded()
-
-        defer { hosting.view.removeFromSuperview() }
-
-        let format = UIGraphicsImageRendererFormat()
-        format.scale = snapshotImage.scale
-        let renderer = UIGraphicsImageRenderer(size: renderSize, format: format)
-        return renderer.image { _ in
-            hosting.view.drawHierarchy(in: CGRect(origin: .zero, size: renderSize), afterScreenUpdates: true)
-        }
     }
 }
 

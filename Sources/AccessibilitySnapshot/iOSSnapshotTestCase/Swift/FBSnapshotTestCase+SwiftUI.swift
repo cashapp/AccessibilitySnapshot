@@ -73,11 +73,6 @@ public extension FBSnapshotTestCase {
         line: UInt = #line
     ) {
         let hostingController = UIHostingController(rootView: view)
-        // SwiftUI engine only: the bake step needs an edge-to-edge render. The UIKit engine's
-        // existing references were captured with safe-area insets, so don't touch them.
-        if layoutEngine == .swiftui, #available(iOS 16.4, *) {
-            hostingController.safeAreaRegions = []
-        }
         hostingController.view.bounds.size = size ?? hostingController.sizeThatFits(in: .zero)
 
         SnapshotVerifyAccessibility(
