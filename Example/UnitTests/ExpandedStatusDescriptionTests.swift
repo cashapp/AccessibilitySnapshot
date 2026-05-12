@@ -79,16 +79,33 @@ final class ExpandedStatusDescriptionTests: XCTestCase {
     }
 
     private func makeView(expandedStatus: AccessibilityElement.ExpandedStatus? = nil) -> UIView {
-        let view = UIView()
+        let view: UIView
+        if let expandedStatus {
+            view = ExpandedStatusView(expandedStatus: expandedStatus)
+        } else {
+            view = UIView()
+        }
         view.isAccessibilityElement = true
         view.accessibilityLabel = "Section"
-
-        #if compiler(>=6.0)
-            if #available(iOS 18.0, *), let expandedStatus {
-                view.accessibilityExpandedStatus = UIAccessibility.ExpandedStatus(rawValue: expandedStatus.rawValue) ?? .unsupported
-            }
-        #endif
-
         return view
+    }
+}
+
+private final class ExpandedStatusView: UIView {
+    private let storedExpandedStatus: AccessibilityElement.ExpandedStatus
+
+    init(expandedStatus: AccessibilityElement.ExpandedStatus) {
+        storedExpandedStatus = expandedStatus
+        super.init(frame: .zero)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not implemented")
+    }
+
+    @objc(_accessibilityExpandedStatus)
+    func accessibilitySnapshot_expandedStatus() -> Int {
+        return storedExpandedStatus.rawValue
     }
 }
