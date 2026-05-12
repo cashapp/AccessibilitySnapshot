@@ -90,26 +90,24 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
         containedView.setNeedsLayout()
         containedView.layoutIfNeeded()
 
-        // Parse before rendering: drawHierarchy(afterScreenUpdates: true) can commit deferred
-        // layout for nested SwiftUI hosts, and parsing afterwards would produce frames from a
-        // different layout than the captured image.
-        let parser = AccessibilityHierarchyParser()
-        let hierarchy = parser.parseAccessibilityHierarchy(
-            in: containedView,
-            rotorResultLimit: snapshotConfiguration.rotors.resultLimit
-        )
-        let markers = hierarchy.flattenToElements()
-
-        // Re-flush in case custom accessibilityElements implementations dirtied layout while
-        // we walked the tree, so the rendered image matches the geometry in `markers`.
-        containedView.layoutIfNeeded()
-
         let image = try containedView.renderToImage(
             configuration: snapshotConfiguration.rendering
         )
 
         snapshotView.image = image
         snapshotView.bounds.size = containedView.bounds.size
+
+        // Parse after rendering. `drawHierarchy(afterScreenUpdates: true)` commits any
+        // deferred layout (UITabBar configures its items lazily, for example), so post-render
+        // parsing reflects the same state captured in `image`.
+        containedView.layoutIfNeeded()
+
+        let parser = AccessibilityHierarchyParser()
+        let hierarchy = parser.parseAccessibilityHierarchy(
+            in: containedView,
+            rotorResultLimit: snapshotConfiguration.rotors.resultLimit
+        )
+        let markers = hierarchy.flattenToElements()
 
         let parsedData = ParsedAccessibilityData(
             image: image,
