@@ -73,10 +73,11 @@ public extension FBSnapshotTestCase {
         line: UInt = #line
     ) {
         let hostingController = UIHostingController(rootView: view)
-        // Disable safe area regions so drawHierarchy(afterScreenUpdates:) doesn't apply
-        // status bar / safe area offsets to the rendered image, which would misalign
-        // the snapshot content with the parsed accessibility frames.
-        if #available(iOS 16.4, *) {
+        // The SwiftUI layout engine bakes the snapshot + overlays into a flat image, and the bake
+        // step needs the hosting controller to render edge-to-edge. The legacy UIKit engine
+        // captures pixels in-place and its existing references include the safe area inset, so
+        // only disable safe area regions for the SwiftUI engine.
+        if layoutEngine == .swiftui, #available(iOS 16.4, *) {
             hostingController.safeAreaRegions = []
         }
         hostingController.view.bounds.size = size ?? hostingController.sizeThatFits(in: .zero)
