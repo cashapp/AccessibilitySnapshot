@@ -2,8 +2,6 @@ import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser
 import SwiftUI
 
-// Note: The `.accessibilityPreview()` View extension is provided by the AccessibilityPreviews module.
-
 /// A SwiftUI container view that displays a snapshot with accessibility overlays and legend.
 @available(iOS 16.0, *)
 public struct AccessibilitySnapshotView<Content: View>: View {
@@ -53,7 +51,6 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             .frame(width: renderSize.width)
         }
         .onAppear {
-            // Only parse if we don't already have pre-parsed data
             if snapshotImage == nil {
                 parseAccessibility()
             }
@@ -63,32 +60,14 @@ public struct AccessibilitySnapshotView<Content: View>: View {
 
     // MARK: - Private Views
 
-    @ViewBuilder
     private func snapshotWithOverlays(image: UIImage) -> some View {
-        ZStack(alignment: .topLeading) {
-            Image(uiImage: image)
-                .resizable()
-                .frame(width: renderSize.width, height: renderSize.height)
-
-            ForEach(markers.indices, id: \.self) { index in
-                let marker = markers[index]
-
-                ElementOverlay(
-                    index: index,
-                    shape: marker.shape,
-                    palette: palette
-                )
-
-                if shouldShowActivationPoint(for: marker) {
-                    ActivationPointView(
-                        position: marker.activationPoint,
-                        color: palette.strokeColor(at: index)
-                    )
-                }
-            }
-        }
-        .frame(width: renderSize.width, height: renderSize.height)
-        .clipped()
+        SnapshotOverlayView(
+            snapshotImage: image,
+            markers: markers,
+            palette: palette,
+            renderSize: renderSize,
+            activationPointDisplayMode: configuration.activationPointDisplayMode
+        )
     }
 
     @ViewBuilder
@@ -108,16 +87,18 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             .edgesIgnoringSafeArea(.all)
 
         let hostingController = UIHostingController(rootView: adjustedContent)
+        // Match the bake path: opt out of safe-area regions so the rendered image isn't
+        // shifted by the window's status bar / safe area, which would misalign the parsed
+        // accessibility frames.
+        if #available(iOS 16.4, *) {
+            hostingController.safeAreaRegions = []
+        }
         hostingController.view.frame = CGRect(origin: .zero, size: renderSize)
 
         // UIViewRepresentable views (e.g. PathShapeUIView) report accessibilityPath and
-        // accessibilityFrame in screen coordinates. These properties rely on UIView coordinate
-        // conversion (`convert(_:to: nil)`), which requires the view to be installed in a
-        // UIWindow to produce meaningful results. Without a window, all views report their
-        // position as (0,0) and their paths overlap at the origin.
-        //
-        // This mirrors the UIKit snapshot path (SnapshotTesting+Accessibility, FBSnapshotTestCase),
-        // which also installs the container in a temporary window before parsing.
+        // accessibilityFrame in screen coordinates via `convert(_:to: nil)`, which requires
+        // the view to be installed in a UIWindow. Without one, every view reports (0,0) and
+        // the paths collapse to the origin.
         let window = UIWindow(frame: CGRect(origin: .zero, size: renderSize))
         window.rootViewController = hostingController
         window.makeKeyAndVisible()
@@ -140,17 +121,6 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             ).flattenToElements()
         } catch {
             parseError = error
-        }
-    }
-
-    private func shouldShowActivationPoint(for marker: AccessibilityMarker) -> Bool {
-        switch configuration.activationPointDisplayMode {
-        case .always:
-            return true
-        case .whenOverridden:
-            return !marker.usesDefaultActivationPoint
-        case .never:
-            return false
         }
     }
 }
@@ -180,64 +150,35 @@ public extension AccessibilitySnapshotView where Content == UIViewWrapper {
 // MARK: - Pre-parsed Snapshot View
 
 /// A SwiftUI view that displays a pre-rendered snapshot with accessibility overlays and legend.
-/// This is used when the UIView has already been snapshotted and parsed.
+///
+/// `bakedImage` must already contain the snapshot composited with element overlays. Use
+/// `bakeSnapshot(...)` to produce it. Baking outside SwiftUI keeps overlay alignment
+/// independent of the surrounding legend layout.
 @available(iOS 16.0, *)
 public struct PreParsedAccessibilitySnapshotView: View {
-    /// Reference-type holder so the baked image can be memoized across SwiftUI struct re-inits
-    /// via `@State`. Without this, parent re-renders would reconstruct this view and re-bake
-    /// (UIHostingController + UIWindow + drawHierarchy) on every body evaluation.
-    private final class BakeCache {
-        var snapshotImage: UIImage?
-        var bakedImage: UIImage?
-    }
-
-    private let snapshotImage: UIImage
+    private let bakedImage: UIImage
     private let markers: [AccessibilityMarker]
     private let colorAssignment: HierarchyColorAssignment?
     private let configuration: AccessibilitySnapshotConfiguration
     private let palette: ColorPalette
     private let renderSize: CGSize
 
-    @State private var cache = BakeCache()
-
     public init(
-        snapshotImage: UIImage,
+        bakedImage: UIImage,
         markers: [AccessibilityMarker],
         hierarchy: [AccessibilityHierarchy] = [],
         configuration: AccessibilitySnapshotConfiguration = .init(viewRenderingMode: .drawHierarchyInRect),
         palette: ColorPalette = .default,
         renderSize: CGSize
     ) {
-        self.snapshotImage = snapshotImage
+        self.bakedImage = bakedImage
         self.markers = markers
-        colorAssignment = hierarchy.isEmpty ? nil : HierarchyColorAssignment.build(from: hierarchy)
+        colorAssignment = (configuration.showContainers && !hierarchy.isEmpty)
+            ? HierarchyColorAssignment.build(from: hierarchy)
+            : nil
         self.configuration = configuration
         self.palette = palette
         self.renderSize = renderSize
-    }
-
-    /// The snapshot + element overlays composited into a single flat UIImage.
-    /// Baking flattens the snapshot and its overlays before the legend enters the layout, so the
-    /// legend can never affect overlay alignment. Computed lazily on first access and cached on the
-    /// `@State`-backed `BakeCache` so repeated body evaluations don't re-bake.
-    private var bakedSnapshotImage: UIImage {
-        if let baked = cache.bakedImage, cache.snapshotImage === snapshotImage {
-            return baked
-        }
-        let baked = Self.bakeSnapshot(
-            snapshotImage: snapshotImage,
-            markers: markers,
-            palette: palette,
-            renderSize: renderSize,
-            activationPointDisplayMode: configuration.activationPointDisplayMode
-        )
-        cache.snapshotImage = snapshotImage
-        cache.bakedImage = baked
-        return baked
-    }
-
-    private var showContainers: Bool {
-        configuration.showContainers
     }
 
     private var showUserInputLabels: Bool {
@@ -248,33 +189,29 @@ public struct PreParsedAccessibilitySnapshotView: View {
         configuration.showsUnspokenTraits
     }
 
+    // Mirrors UIKit's `legendLocation`: place the legend on the right only when the view is
+    // taller than wide and at least as wide as the legend's minimum footprint; otherwise
+    // it goes below.
     private var legendOnRight: Bool {
         let aspectRatio = renderSize.width / renderSize.height
-        // Match UIKit's legendLocation logic exactly:
-        // Wide views (aspectRatio > 1) or views smaller than minimumWidth should display legend below
-        // minimumWidth = minimumLegendWidth + legendInset * 2 (includes padding on both sides)
-        let minimumWidth = LegendLayoutMetrics.minimumWidth
-        return aspectRatio <= 1 && renderSize.width >= minimumWidth
+        return aspectRatio <= 1 && renderSize.width >= LegendLayoutMetrics.minimumWidth
     }
 
-    /// Minimum content width to ensure legend fits properly
     private var contentWidth: CGFloat {
         max(renderSize.width, LegendLayoutMetrics.minimumWidth)
     }
 
     public var body: some View {
         if legendOnRight {
-            // Tall view: snapshot on left, legend on right (may span multiple columns)
             HStack(alignment: .top, spacing: 0) {
                 snapshotWithOverlays
                 legendSideContent
             }
             .background(Color(white: 0.9))
         } else {
-            // Wide view: snapshot on top, legend on bottom
             VStack(spacing: 0) {
                 snapshotWithOverlays
-                    .frame(width: contentWidth) // Center snapshot if smaller than legend
+                    .frame(width: contentWidth)
                 legendBottomContent
                     .frame(width: contentWidth)
             }
@@ -282,17 +219,21 @@ public struct PreParsedAccessibilitySnapshotView: View {
         }
     }
 
+    private func hierarchyLegend(_ assignment: HierarchyColorAssignment) -> HierarchyLegendView {
+        HierarchyLegendView(
+            nodes: assignment.nodes,
+            palette: palette,
+            showUserInputLabels: showUserInputLabels,
+            showUnspokenTraits: showUnspokenTraits
+        )
+    }
+
     @ViewBuilder
     private var legendSideContent: some View {
-        if showContainers, let colorAssignment {
-            HierarchyLegendView(
-                nodes: colorAssignment.nodes,
-                palette: palette,
-                showUserInputLabels: showUserInputLabels,
-                showUnspokenTraits: showUnspokenTraits
-            )
-            .frame(minWidth: LegendLayoutMetrics.minimumLegendWidth, alignment: .topLeading)
-            .padding(LegendLayoutMetrics.legendInset)
+        if let colorAssignment {
+            hierarchyLegend(colorAssignment)
+                .frame(minWidth: LegendLayoutMetrics.minimumLegendWidth, alignment: .topLeading)
+                .padding(LegendLayoutMetrics.legendInset)
         } else {
             multiColumnLegend
         }
@@ -300,15 +241,10 @@ public struct PreParsedAccessibilitySnapshotView: View {
 
     @ViewBuilder
     private var legendBottomContent: some View {
-        if showContainers, let colorAssignment {
-            HierarchyLegendView(
-                nodes: colorAssignment.nodes,
-                palette: palette,
-                showUserInputLabels: showUserInputLabels,
-                showUnspokenTraits: showUnspokenTraits
-            )
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(LegendLayoutMetrics.legendInset)
+        if let colorAssignment {
+            hierarchyLegend(colorAssignment)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(LegendLayoutMetrics.legendInset)
         } else {
             LegendView(
                 markers: markers,
@@ -319,10 +255,8 @@ public struct PreParsedAccessibilitySnapshotView: View {
         }
     }
 
-    /// Wraps legend items into multiple columns when they exceed the available height
     @ViewBuilder
     private var multiColumnLegend: some View {
-        // Match UIKit's available height calculation exactly (no multiplier!)
         let availableHeight = renderSize.height - LegendLayoutMetrics.legendInset * 2
 
         ColumnWrapLayout(
@@ -345,17 +279,17 @@ public struct PreParsedAccessibilitySnapshotView: View {
     }
 
     private var snapshotWithOverlays: some View {
-        Image(uiImage: bakedSnapshotImage)
+        Image(uiImage: bakedImage)
             .resizable()
             .frame(width: renderSize.width, height: renderSize.height)
     }
 
     // MARK: - Snapshot Baking
 
-    /// Renders the snapshot image + element overlays into a single flat UIImage.
-    /// The output is independent of any surrounding SwiftUI layout — legend changes
-    /// cannot shift overlay positions within this image.
-    private static func bakeSnapshot(
+    /// Composites the snapshot image and its element overlays into a single flat `UIImage`.
+    /// Baking outside the SwiftUI layout means surrounding views (e.g. the legend) cannot
+    /// shift overlay positions.
+    public static func bakeSnapshot(
         snapshotImage: UIImage,
         markers: [AccessibilityMarker],
         palette: ColorPalette,
@@ -371,22 +305,21 @@ public struct PreParsedAccessibilitySnapshotView: View {
         )
 
         let hosting = UIHostingController(rootView: overlayView)
+        // Without this, drawHierarchy bakes the host's safe-area offsets into the image
+        // and overlays no longer line up with the parsed accessibility frames.
         if #available(iOS 16.4, *) {
             hosting.safeAreaRegions = []
         }
         hosting.view.frame = CGRect(origin: .zero, size: renderSize)
         hosting.view.backgroundColor = .clear
 
-        // Temporarily place the hosting view in a window so drawHierarchy can
-        // pump the render cycle SwiftUI needs. safeAreaRegions=[] prevents the
-        // window's safe area from propagating into the content.
+        // drawHierarchy(afterScreenUpdates: true) needs the view to be in a window so
+        // SwiftUI's render cycle can run.
         let tempWindow = UIWindow(frame: CGRect(origin: .zero, size: renderSize))
         tempWindow.addSubview(hosting.view)
         hosting.view.layoutIfNeeded()
 
-        defer {
-            hosting.view.removeFromSuperview()
-        }
+        defer { hosting.view.removeFromSuperview() }
 
         let format = UIGraphicsImageRendererFormat()
         format.scale = snapshotImage.scale
@@ -397,10 +330,9 @@ public struct PreParsedAccessibilitySnapshotView: View {
     }
 }
 
-// MARK: - Snapshot Overlay View (private — used only for baking)
+// MARK: - Snapshot Overlay View
 
-/// The snapshot image + element overlays, composed as a SwiftUI view.
-/// Only used internally to bake these pixels into a flat UIImage — never displayed directly.
+/// Snapshot image + element overlays as a SwiftUI view.
 @available(iOS 16.0, *)
 private struct SnapshotOverlayView: View {
     let snapshotImage: UIImage

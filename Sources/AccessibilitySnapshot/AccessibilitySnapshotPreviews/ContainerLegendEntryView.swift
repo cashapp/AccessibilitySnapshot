@@ -70,10 +70,11 @@ struct ContainerBadge: View {
     private var displayName: String {
         switch container.type {
         case let .semanticGroup(label, value, identifier):
-            let parts = [label, value].compactMap { $0?.isEmpty == false ? $0 : nil }
+            let parts = [label, value].compactMap { $0 }.filter { !$0.isEmpty }
             if !parts.isEmpty {
                 return parts.joined(separator: ": ")
-            } else if let identifier, !identifier.isEmpty {
+            }
+            if let identifier, !identifier.isEmpty {
                 return identifier
             }
             return "Semantic Group"
