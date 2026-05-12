@@ -73,6 +73,13 @@ public extension FBSnapshotTestCase {
         line: UInt = #line
     ) {
         let hostingController = UIHostingController(rootView: view)
+        // Without this, SwiftUI shifts content down by the window's safe-area inset, but
+        // the parsed accessibility frames come from the un-shifted coordinate space —
+        // overlays end up offset from their elements. UIKit-engine references already
+        // include the inset, so only scope this to the SwiftUI engine.
+        if layoutEngine == .swiftui, #available(iOS 16.4, *) {
+            hostingController.safeAreaRegions = []
+        }
         hostingController.view.bounds.size = size ?? hostingController.sizeThatFits(in: .zero)
 
         SnapshotVerifyAccessibility(
