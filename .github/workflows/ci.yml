@@ -77,12 +77,26 @@ jobs:
       - name: Zip Test Results
         if: failure()
         run: zip -r TestResults-${{ matrix.platform }}.zip TestResults-*.xcresult
+      - name: Collect Failed Snapshot Images
+        if: failure()
+        run: |
+          mkdir -p FailedSnapshots
+          find ~/Library/Developer/CoreSimulator/Devices \
+            \( -name "failed_*.png" -o -name "diffed_*.png" \) \
+            -exec cp {} FailedSnapshots/ \; 2>/dev/null || true
+          ls -la FailedSnapshots/ || true
       - name: Upload Results
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
         if: failure()
         with:
           name: Test Results-(${{ matrix.platform }})
           path: TestResults-${{ matrix.platform }}.zip
+      - name: Upload Failed Snapshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: Failed Snapshots-(${{ matrix.platform }})
+          path: FailedSnapshots
       - name: Upload Reference Images
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # ratchet:actions/upload-artifact@v4
         if: failure()
