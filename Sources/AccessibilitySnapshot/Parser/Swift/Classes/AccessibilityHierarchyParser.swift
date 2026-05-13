@@ -266,7 +266,7 @@ public final class AccessibilityHierarchyParser {
         case .rightToLeft:
             horizontalCompare = (>)
         @unknown default:
-            fatalError("Unknown user interface layout direction: \(userInterfaceLayoutDirection)")
+            horizontalCompare = (<)
         }
 
         // Derived via experimentation, these magic numbers are the cutoff for VoiceOver to consider
@@ -331,9 +331,8 @@ public final class AccessibilityHierarchyParser {
                 // of the item count, or a button that isn't in our list — should not crash the
                 // process. Skip context for this element instead; it will still be parsed.
                 //
-                // We use modulo instead of equality because iOS 26 tab bars have multiple sets
-                // of tab buttons at different levels in the view hierarchy, so the total count
-                // may be a multiple of the item count.
+                // Some UIKit tab bars expose multiple button sets at different levels in the
+                // view hierarchy, so the total count may be a multiple of the item count.
                 guard !tabBarItems.isEmpty,
                       tabBarButtons.count % tabBarItems.count == 0,
                       let index = tabBarButtons.firstIndex(of: element)
@@ -826,12 +825,16 @@ private extension NSObject {
 
     /// The form of context provider the object acts as for elements beneath it in the hierarchy when the elements
     /// beneath it are part of the view hierarchy and the object is not an accessibility container.
-    private func providedContextAsSuperview() -> AccessibilityHierarchyParser.ContextProvider {
+    private func providedContextAsSuperview() -> AccessibilityHierarchyParser.ContextProvider? {
         if accessibilityContainerType == .dataTable, let self = self as? UIAccessibilityContainerDataTable {
             return .dataTable(self)
         }
 
-        return .superview(self as! UIView)
+        guard let view = self as? UIView else {
+            return nil
+        }
+
+        return .superview(view)
     }
 
     /// The form of context provider the object acts as for elements beneath it in the hierarchy when the object is
