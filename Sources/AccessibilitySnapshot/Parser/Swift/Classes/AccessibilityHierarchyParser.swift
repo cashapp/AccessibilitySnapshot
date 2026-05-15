@@ -102,7 +102,9 @@ public final class AccessibilityHierarchyParser {
     ///
     /// - parameter root: The root view of the accessibility hierarchy. Coordinates in the returned markers will be
     /// relative to this view's coordinate space.
-    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to 10.
+    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction.
+    /// Values less than or equal to 0 include rotor names only and do not evaluate rotor result blocks.
+    /// Defaults to 10.
     /// - parameter userInterfaceLayoutDirectionProvider: The provider of the device's user interface layout direction.
     /// In most cases, this should use the default value, `UIApplication.shared`.
     @available(*, deprecated, message: "Use parseAccessibilityHierarchy(in:) and flattenToElements() instead")
@@ -137,7 +139,9 @@ public final class AccessibilityHierarchyParser {
     /// Use `flattenToElements()` on the result to get the same output as `parseAccessibilityElements`.
     ///
     /// - parameter root: The root view of the accessibility hierarchy
-    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to 10.
+    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction.
+    /// Values less than or equal to 0 include rotor names only and do not evaluate rotor result blocks.
+    /// Defaults to 10.
     /// - parameter userInterfaceLayoutDirectionProvider: Provider of the device's UI layout direction
     /// - parameter userInterfaceIdiomProvider: Provider of the device's interface idiom
     /// - returns: Array of root-level hierarchy nodes with containers grouping their children

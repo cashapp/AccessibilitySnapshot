@@ -6,6 +6,52 @@ import XCTest
 @testable import AccessibilitySnapshotParser
 
 final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
+    func test_zeroLimitPreservesRotorNameWithoutCollectingResults() {
+        var searchCount = 0
+        let rotor = UIAccessibilityCustomRotor(name: "Errors") { _ in
+            searchCount += 1
+            return .init(targetElement: "error" as NSString, targetRange: nil)
+        }
+
+        let marker = AccessibilityElement.CustomRotor(
+            from: rotor,
+            parentElement: NSObject(),
+            root: UIView(),
+            resultLimit: 0
+        )
+
+        guard let marker else {
+            return XCTFail("Expected custom rotor marker")
+        }
+        XCTAssertEqual(marker.name, "Errors")
+        XCTAssertEqual(marker.resultMarkers, [])
+        XCTAssertEqual(marker.limit, .none)
+        XCTAssertEqual(searchCount, 0)
+    }
+
+    func test_negativeLimitPreservesRotorNameWithoutCollectingResults() {
+        var searchCount = 0
+        let rotor = UIAccessibilityCustomRotor(name: "Errors") { _ in
+            searchCount += 1
+            return .init(targetElement: "error" as NSString, targetRange: nil)
+        }
+
+        let marker = AccessibilityElement.CustomRotor(
+            from: rotor,
+            parentElement: NSObject(),
+            root: UIView(),
+            resultLimit: -1
+        )
+
+        guard let marker else {
+            return XCTFail("Expected custom rotor marker")
+        }
+        XCTAssertEqual(marker.name, "Errors")
+        XCTAssertEqual(marker.resultMarkers, [])
+        XCTAssertEqual(marker.limit, .none)
+        XCTAssertEqual(searchCount, 0)
+    }
+
     func test_collectResults() {
         let strings: [NSString] = ["one", "two", "three", "four", "five"]
 
