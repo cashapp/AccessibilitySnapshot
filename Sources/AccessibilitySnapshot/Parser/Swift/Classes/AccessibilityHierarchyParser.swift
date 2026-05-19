@@ -715,9 +715,11 @@ private extension NSObject {
         // _UIInheritedView inside _UIFloatingBarContainerView) use zero-frame wrappers whose children overflow and
         // are visible. Pruning those hides real accessible content such as the UISearchBarTextField rendered by
         // .searchable().
+        let explicitAccessibilityElements = resolvedAccessibilityElements()
+
         if let `self` = self as? UIView,
            self.isHidden || self.alpha <= 0
-           || (self.frame.size == .zero && (self.clipsToBounds || self.isAccessibilityElement || self.accessibilityElements != nil))
+           || (self.frame.size == .zero && (self.clipsToBounds || self.isAccessibilityElement || explicitAccessibilityElements != nil))
         {
             return []
         }
@@ -727,7 +729,7 @@ private extension NSObject {
         if isAccessibilityElement {
             recursiveAccessibilityHierarchy.append(.element(self, contextProvider: contextProvider))
 
-        } else if let accessibilityElements = accessibilityElements as? [NSObject] {
+        } else if let accessibilityElements = explicitAccessibilityElements {
             var accessibilityHierarchyOfElements: [AccessibilityNode] = []
             for element in accessibilityElements {
                 accessibilityHierarchyOfElements.append(
@@ -776,6 +778,38 @@ private extension NSObject {
         }
 
         return recursiveAccessibilityHierarchy
+    }
+
+    /// Returns the explicit accessibility elements exposed by this object. When
+    /// `accessibilityElements` is set (including to an empty array) it is used directly. When it is
+    /// `nil`, this falls back to the `accessibilityElementCount()` / `accessibilityElement(at:)`
+    /// container APIs, mirroring the order in which `UIAccessibilityContainer` consumers (including
+    /// VoiceOver) resolve elements. Returns `nil` when the object does not act as an explicit
+    /// accessibility container.
+    private func resolvedAccessibilityElements() -> [NSObject]? {
+        if let elements = accessibilityElements as? [NSObject] {
+            return elements
+        }
+
+        let count = accessibilityElementCount()
+        guard count > 0 else {
+            return nil
+        }
+
+        var elements: [NSObject] = []
+        elements.reserveCapacity(count)
+        for index in 0 ..< count {
+            if let element = accessibilityElement(at: index) as? NSObject {
+                elements.append(element)
+            }
+        }
+        if elements.count != count {
+            print(
+                "[AccessibilitySnapshot] Warning: \(type(of: self)) reported accessibilityElementCount() == "
+                    + "\(count) but only \(elements.count) element(s) were returned by accessibilityElement(at:)."
+            )
+        }
+        return elements.isEmpty ? nil : elements
     }
 
     private func containerInfo(for view: UIView) -> ContainerInfo? {
