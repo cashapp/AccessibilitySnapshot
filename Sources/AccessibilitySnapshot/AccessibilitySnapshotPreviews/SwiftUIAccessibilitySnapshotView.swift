@@ -209,19 +209,26 @@ public struct PreParsedAccessibilitySnapshotView: View {
         }
     }
 
-    private func hierarchyLegend(_ assignment: HierarchyColorAssignment) -> HierarchyLegendView {
+    private func hierarchyLegend(
+        _ assignment: HierarchyColorAssignment,
+        availableHeight: CGFloat? = nil
+    ) -> HierarchyLegendView {
         HierarchyLegendView(
             nodes: assignment.nodes,
             palette: palette,
             showUserInputLabels: showUserInputLabels,
-            showUnspokenTraits: showUnspokenTraits
+            showUnspokenTraits: showUnspokenTraits,
+            availableHeight: availableHeight
         )
     }
 
     @ViewBuilder
     private var legendSideContent: some View {
         if let colorAssignment {
-            hierarchyLegend(colorAssignment)
+            // Side legends share vertical space with the snapshot — flow entries across
+            // columns so deep hierarchies don't overflow the snapshot height.
+            let availableHeight = renderSize.height - LegendLayoutMetrics.legendInset * 2
+            hierarchyLegend(colorAssignment, availableHeight: availableHeight)
                 .frame(minWidth: LegendLayoutMetrics.minimumLegendWidth, alignment: .topLeading)
                 .padding(LegendLayoutMetrics.legendInset)
         } else {
