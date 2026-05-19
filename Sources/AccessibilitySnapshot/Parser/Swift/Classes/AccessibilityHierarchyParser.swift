@@ -782,13 +782,20 @@ private extension NSObject {
 
     /// Returns the explicit accessibility elements exposed by this object. When
     /// `accessibilityElements` is set (including to an empty array) it is used directly. When it is
-    /// `nil`, this falls back to the `accessibilityElementCount()` / `accessibilityElement(at:)`
-    /// container APIs, mirroring the order in which `UIAccessibilityContainer` consumers (including
-    /// VoiceOver) resolve elements. Returns `nil` when the object does not act as an explicit
-    /// accessibility container.
+    /// `nil` and the receiver is not a `UIView`, this falls back to the `accessibilityElementCount()` /
+    /// `accessibilityElement(at:)` container APIs, mirroring how `UIAccessibilityContainer` consumers
+    /// (including VoiceOver) resolve elements. For `UIView` instances the existing subview-iteration
+    /// path is used instead — UIKit synthesizes counts from the subview tree when flags like
+    /// `shouldGroupAccessibilityChildren` are set, which would otherwise duplicate or recurse on
+    /// elements already covered by subview parsing. Returns `nil` when the object does not act as an
+    /// explicit accessibility container.
     private func resolvedAccessibilityElements() -> [NSObject]? {
         if let elements = accessibilityElements as? [NSObject] {
             return elements
+        }
+
+        guard !(self is UIView) else {
+            return nil
         }
 
         let count = accessibilityElementCount()
