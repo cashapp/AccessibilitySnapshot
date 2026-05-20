@@ -488,7 +488,6 @@ public final class AccessibilityHierarchyParser {
         return nil
     }
 
-    // MARK: - Private Properties
 
     // MARK: - Private Hierarchy Methods
 
