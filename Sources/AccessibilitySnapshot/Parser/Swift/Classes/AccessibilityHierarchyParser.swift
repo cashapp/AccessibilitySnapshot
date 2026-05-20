@@ -746,8 +746,11 @@ private extension NSObject {
             ))
 
         } else if let `self` = self as? UIView {
-            // If there is at least one modal subview, the last modal is the only subview parsed in the accessibility
-            // hierarchy. Otherwise, parse all of the subviews.
+            // When a subview has accessibilityViewIsModal = YES, UIKit's
+            // _subviewsReplacedByModalViewSubviewsIfNecessary: replaces
+            // the parent's child list with just the last visible modal
+            // sibling. The modal's own children are fully traversed;
+            // all other siblings at the same level are cut.
             let subviewsToParse: [UIView]
             if let lastModalView = self.subviews.last(where: { $0.accessibilityViewIsModal }) {
                 subviewsToParse = [lastModalView]

@@ -115,6 +115,99 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(padAgain, ["C", "D", "B", "A"])
     }
 
+    // MARK: - Modal Z-Order Tests
+
+    func testModalCutsSiblingsAndTraversesOwnChildren() {
+        let rootView = UIView(frame: .init(x: 0, y: 0, width: 400, height: 400))
+
+        let background = UIView(frame: .init(x: 20, y: 20, width: 160, height: 44))
+        background.isAccessibilityElement = true
+        background.accessibilityLabel = "Background"
+        background.accessibilityFrame = background.frame
+        rootView.addSubview(background)
+
+        let modal = UIView(frame: .init(x: 20, y: 100, width: 360, height: 200))
+        modal.accessibilityViewIsModal = true
+        rootView.addSubview(modal)
+
+        let modalChild = UIView(frame: .init(x: 10, y: 10, width: 100, height: 44))
+        modalChild.isAccessibilityElement = true
+        modalChild.accessibilityLabel = "Modal Content"
+        modalChild.accessibilityFrame = CGRect(x: 30, y: 110, width: 100, height: 44)
+        modal.addSubview(modalChild)
+
+        let labels = AccessibilityHierarchyParser()
+            .parseAccessibilityHierarchy(in: rootView)
+            .flattenToElements()
+            .compactMap(\.label)
+
+        XCTAssertEqual(labels, ["Modal Content"])
+    }
+
+    func testModalCutsSiblingsAboveAndBelow() {
+        let rootView = UIView(frame: .init(x: 0, y: 0, width: 400, height: 400))
+
+        let below = UIView(frame: .init(x: 20, y: 20, width: 160, height: 44))
+        below.isAccessibilityElement = true
+        below.accessibilityLabel = "Below"
+        below.accessibilityFrame = below.frame
+        rootView.addSubview(below)
+
+        let modal = UIView(frame: .init(x: 20, y: 100, width: 360, height: 200))
+        modal.accessibilityViewIsModal = true
+        rootView.addSubview(modal)
+
+        let modalChild = UIView(frame: .init(x: 10, y: 10, width: 100, height: 44))
+        modalChild.isAccessibilityElement = true
+        modalChild.accessibilityLabel = "Modal Content"
+        modalChild.accessibilityFrame = CGRect(x: 30, y: 110, width: 100, height: 44)
+        modal.addSubview(modalChild)
+
+        let above = UIView(frame: .init(x: 100, y: 120, width: 160, height: 44))
+        above.isAccessibilityElement = true
+        above.accessibilityLabel = "Above"
+        above.accessibilityFrame = above.frame
+        rootView.addSubview(above)
+
+        let labels = AccessibilityHierarchyParser()
+            .parseAccessibilityHierarchy(in: rootView)
+            .flattenToElements()
+            .compactMap(\.label)
+
+        XCTAssertEqual(labels, ["Modal Content"])
+    }
+
+    func testLastModalSiblingWins() {
+        let rootView = UIView(frame: .init(x: 0, y: 0, width: 400, height: 400))
+
+        let modal1 = UIView(frame: .init(x: 20, y: 20, width: 360, height: 150))
+        modal1.accessibilityViewIsModal = true
+        rootView.addSubview(modal1)
+
+        let child1 = UIView(frame: .init(x: 10, y: 10, width: 100, height: 44))
+        child1.isAccessibilityElement = true
+        child1.accessibilityLabel = "First Modal"
+        child1.accessibilityFrame = CGRect(x: 30, y: 30, width: 100, height: 44)
+        modal1.addSubview(child1)
+
+        let modal2 = UIView(frame: .init(x: 20, y: 200, width: 360, height: 150))
+        modal2.accessibilityViewIsModal = true
+        rootView.addSubview(modal2)
+
+        let child2 = UIView(frame: .init(x: 10, y: 10, width: 100, height: 44))
+        child2.isAccessibilityElement = true
+        child2.accessibilityLabel = "Second Modal"
+        child2.accessibilityFrame = CGRect(x: 30, y: 210, width: 100, height: 44)
+        modal2.addSubview(child2)
+
+        let labels = AccessibilityHierarchyParser()
+            .parseAccessibilityHierarchy(in: rootView)
+            .flattenToElements()
+            .compactMap(\.label)
+
+        XCTAssertEqual(labels, ["Second Modal"])
+    }
+
     // MARK: - Activation Point Default Detection
 
     func testZeroFrameAndZeroActivationPointIsDefault() {

@@ -5,62 +5,32 @@ import iOSSnapshotTestCase
 
 final class ModalTests: SnapshotTestCase {
     func testSingleModal() {
-        let modalAccessibilityViewController = ModalAccessibilityViewController(
-            topLevelCount: 1,
-            containerCount: 0,
-            modalAccessibilityMode: .viewContainsAccessibleElement
-        )
-        modalAccessibilityViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(modalAccessibilityViewController.view)
+        let vc = ModalAccessibilityViewController(configuration: .singleModal)
+        vc.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(vc.view)
     }
 
     func testSingleDirectlySpecifiedModal() {
-        let modalAccessibilityViewController = ModalAccessibilityViewController(
-            topLevelCount: 1,
-            containerCount: 0,
-            modalAccessibilityMode: .viewIsAccessible
-        )
-        modalAccessibilityViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(modalAccessibilityViewController.view)
+        let vc = ModalAccessibilityViewController(configuration: .singleDirectModal)
+        vc.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(vc.view)
     }
 
     func testSingleInaccessibleModal() {
-        let modalAccessibilityViewController = ModalAccessibilityViewController(
-            topLevelCount: 1,
-            containerCount: 0,
-            modalAccessibilityMode: .viewIsInaccessible
-        )
-        modalAccessibilityViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(modalAccessibilityViewController.view)
+        let vc = ModalAccessibilityViewController(configuration: .singleInaccessibleModal)
+        vc.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(vc.view)
     }
 
     func testTwoModals() {
-        let modalAccessibilityViewController = ModalAccessibilityViewController(
-            topLevelCount: 2,
-            containerCount: 0,
-            modalAccessibilityMode: .viewContainsAccessibleElement
-        )
-        modalAccessibilityViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(modalAccessibilityViewController.view)
+        let vc = ModalAccessibilityViewController(configuration: .twoModals)
+        vc.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(vc.view)
     }
 
-    func testTwoContainers() {
-        let modalAccessibilityViewController = ModalAccessibilityViewController(
-            topLevelCount: 0,
-            containerCount: 2,
-            modalAccessibilityMode: .viewContainsAccessibleElement
-        )
-        modalAccessibilityViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(modalAccessibilityViewController.view)
-    }
-
-    func testOneModalOneContainer() {
-        let modalAccessibilityViewController = ModalAccessibilityViewController(
-            topLevelCount: 1,
-            containerCount: 1,
-            modalAccessibilityMode: .viewContainsAccessibleElement
-        )
-        modalAccessibilityViewController.view.frame = UIScreen.main.bounds
-        SnapshotVerifyAccessibility(modalAccessibilityViewController.view)
+    func testModalWithForeground() {
+        let vc = ModalAccessibilityViewController(configuration: .modalWithForeground)
+        vc.view.frame = UIScreen.main.bounds
+        SnapshotVerifyAccessibility(vc.view)
     }
 }
