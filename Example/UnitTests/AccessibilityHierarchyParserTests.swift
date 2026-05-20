@@ -1132,6 +1132,55 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(elements, ["child"], "Element should still be parsed even when its container drops it")
     }
 
+    /// A `UITabBar` with no items previously triggered a modulo-by-zero `precondition` inside
+    /// `context(for:from:...)`. The parser should now skip the tab-bar context for elements under
+    /// such a tab bar without crashing.
+    func testParserHandlesUITabBarWithoutItems() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+        let tabBar = UITabBar(frame: CGRect(x: 0, y: 150, width: 200, height: 50))
+        // No items set — `tabBar.items` is nil, so the parser sees an empty item list.
+
+        let child = UIView(frame: CGRect(x: 0, y: 0, width: 50, height: 50))
+        child.isAccessibilityElement = true
+        child.accessibilityLabel = "orphan"
+        tabBar.addSubview(child)
+
+        root.addSubview(tabBar)
+
+        let parser = AccessibilityHierarchyParser()
+        let elements = parser.parseAccessibilityHierarchy(
+            in: root,
+            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight),
+            userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
+        ).flattenToElements().map { $0.description }
+
+        XCTAssertTrue(
+            elements.contains("orphan"),
+            "Element under an itemless UITabBar should still be parsed without tab-bar context"
+        )
+    }
+
+    /// A view whose `accessibilityPath` is an empty `UIBezierPath` previously produced a
+    /// `CGRect.null` bounding box, whose infinite values trapped in downstream `Int(_:)`
+    /// conversions. The parser should fall back to the element's frame for shape and size.
+    func testParserHandlesEmptyAccessibilityPath() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+        let element = ActivationPointTestView(frame: CGRect(x: 10, y: 10, width: 50, height: 50))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "emptyPath"
+        element.overriddenPath = UIBezierPath()
+        root.addSubview(element)
+
+        let parser = AccessibilityHierarchyParser()
+        let elements = parser.parseAccessibilityHierarchy(
+            in: root,
+            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight),
+            userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
+        ).flattenToElements().map { $0.description }
+
+        XCTAssertEqual(elements, ["emptyPath"], "Element with empty accessibility path should still be parsed")
+    }
+
     // MARK: - Private Helpers
 
     private func parseMarkers(in view: UIView) -> [AccessibilityMarker] {

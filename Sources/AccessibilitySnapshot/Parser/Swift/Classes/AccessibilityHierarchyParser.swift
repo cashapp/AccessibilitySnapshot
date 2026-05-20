@@ -1,6 +1,18 @@
 import Accessibility
+import os.log
 import SwiftUI
 import UIKit
+
+/// Surfaces parser resilience events that would previously have crashed the host.
+///
+/// The parser intentionally degrades gracefully when the host's accessibility tree is in an
+/// unexpected shape (mismatched tab bar counts, containers reporting `NSNotFound` for their own
+/// children, degenerate `UIBezierPath`s, etc.). These events are logged here so they remain
+/// visible during development without bringing the process down.
+private let parserLog = OSLog(
+    subsystem: "com.cashapp.AccessibilitySnapshot",
+    category: "Parser"
+)
 
 public protocol UserInterfaceLayoutDirectionProviding {
     var userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection { get }
@@ -270,6 +282,12 @@ public final class AccessibilityHierarchyParser {
         case .rightToLeft:
             horizontalCompare = (>)
         @unknown default:
+            os_log(
+                "Unknown UIUserInterfaceLayoutDirection (%{public}d); falling back to left-to-right ordering.",
+                log: parserLog,
+                type: .error,
+                userInterfaceLayoutDirection.rawValue
+            )
             horizontalCompare = (<)
         }
 
@@ -341,6 +359,13 @@ public final class AccessibilityHierarchyParser {
                       tabBarButtons.count % tabBarItems.count == 0,
                       let index = tabBarButtons.firstIndex(of: element)
                 else {
+                    os_log(
+                        "UITabBar has an unexpected shape (buttons=%{public}d, items=%{public}d); dropping tab-bar context for element.",
+                        log: parserLog,
+                        type: .error,
+                        tabBarButtons.count,
+                        tabBarItems.count
+                    )
                     return nil
                 }
 
@@ -373,6 +398,11 @@ public final class AccessibilityHierarchyParser {
                 }
 
                 guard let index = accessibleElements.firstIndex(of: element) else {
+                    os_log(
+                        "Tab-bar-trait view does not contain the element being parsed; dropping tab context.",
+                        log: parserLog,
+                        type: .error
+                    )
                     return nil
                 }
                 return .tab(
@@ -387,6 +417,11 @@ public final class AccessibilityHierarchyParser {
             // The container may not actually contain the element if its accessibility tree is in
             // an inconsistent state. Drop context for this element rather than crashing.
             guard elementIndex != NSNotFound else {
+                os_log(
+                    "Accessibility container reported NSNotFound for an element it advertises; dropping container context.",
+                    log: parserLog,
+                    type: .error
+                )
                 return nil
             }
 
@@ -856,6 +891,12 @@ private extension NSObject {
         }
 
         guard let view = self as? UIView else {
+            os_log(
+                "Non-UIView object %{public}@ reports providesContext=true but cannot supply superview context; skipping.",
+                log: parserLog,
+                type: .error,
+                String(describing: type(of: self))
+            )
             return nil
         }
 
