@@ -160,6 +160,7 @@ public final class AccessibilityHierarchyParser {
             userInterfaceIdiom: userInterfaceIdiom
         )
 
+        var viewToElementsMap: [UIView: [NSObject]] = [:]
         let contextualizedElements = uncontextualizedElements.map { element in
             ContextualElement(
                 object: element.object,
@@ -167,7 +168,8 @@ public final class AccessibilityHierarchyParser {
                     for: element.object,
                     from: element.contextProvider,
                     userInterfaceLayoutDirection: userInterfaceLayoutDirection,
-                    userInterfaceIdiom: userInterfaceIdiom
+                    userInterfaceIdiom: userInterfaceIdiom,
+                    viewToElementsMap: &viewToElementsMap
                 )
             )
         }
@@ -315,7 +317,8 @@ public final class AccessibilityHierarchyParser {
         for element: NSObject,
         from contextProvider: ContextProvider?,
         userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection,
-        userInterfaceIdiom: UIUserInterfaceIdiom
+        userInterfaceIdiom: UIUserInterfaceIdiom,
+        viewToElementsMap: inout [UIView: [NSObject]]
     ) -> Context? {
         guard let contextProvider = contextProvider else {
             return nil
@@ -485,10 +488,6 @@ public final class AccessibilityHierarchyParser {
         return nil
     }
 
-    // MARK: - Private Properties
-
-    /// Used for memoization of accessibility hierarchy parsing when determining element contexts.
-    private var viewToElementsMap: [UIView: [NSObject]] = [:]
 
     // MARK: - Private Hierarchy Methods
 
