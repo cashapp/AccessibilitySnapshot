@@ -591,6 +591,7 @@ extension String {
 // │  28 │ 0x0000000010000000 │ tabBarItem           │ UITabBarButton                  │
 // │  47 │ 0x0000800000000000 │ textArea             │ UITextView, SwiftUI TextEditor  │
 // │  53 │ 0x0020000000000000 │ switchButton         │ UISwitch                        │
+// │  56 │ 0x0100000000000000 │ alert                │ UIAlertController               │
 // └─────┴────────────────────┴──────────────────────┴─────────────────────────────────┘
 extension UIAccessibilityTraits {
     static let textEntry = UIAccessibilityTraits(rawValue: 1 << 18)
@@ -606,6 +607,8 @@ extension UIAccessibilityTraits {
     static let textArea = UIAccessibilityTraits(rawValue: 1 << 47)
 
     static let switchButton = UIAccessibilityTraits(rawValue: 1 << 53)
+
+    static let alert = UIAccessibilityTraits(rawValue: 1 << 56)
 }
 
 // MARK: -

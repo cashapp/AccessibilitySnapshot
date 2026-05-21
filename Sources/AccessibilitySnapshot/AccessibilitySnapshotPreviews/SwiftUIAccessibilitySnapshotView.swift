@@ -73,17 +73,19 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             ForEach(markers.indices, id: \.self) { index in
                 let marker = markers[index]
 
-                ElementOverlay(
-                    index: index,
-                    shape: marker.shape,
-                    palette: palette
-                )
-
-                if shouldShowActivationPoint(for: marker) {
-                    ActivationPointView(
-                        position: marker.activationPoint,
-                        color: palette.strokeColor(at: index)
+                Group {
+                    ElementOverlay(
+                        index: index,
+                        shape: marker.shape,
+                        palette: palette
                     )
+
+                    if shouldShowActivationPoint(for: marker) {
+                        ActivationPointView(
+                            position: marker.activationPoint,
+                            color: palette.strokeColor(at: index)
+                        )
+                    }
                 }
             }
         }
@@ -283,17 +285,19 @@ public struct PreParsedAccessibilitySnapshotView: View {
 
             ForEach(markers.indices, id: \.self) { index in
                 let marker = markers[index]
-                ElementOverlay(
-                    index: index,
-                    shape: marker.shape,
-                    palette: palette
-                )
-
-                if shouldShowActivationPoint(for: marker) {
-                    ActivationPointView(
-                        position: marker.activationPoint,
-                        color: palette.strokeColor(at: index)
+                Group {
+                    ElementOverlay(
+                        index: index,
+                        shape: marker.shape,
+                        palette: palette
                     )
+
+                    if shouldShowActivationPoint(for: marker) {
+                        ActivationPointView(
+                            position: marker.activationPoint,
+                            color: palette.strokeColor(at: index)
+                        )
+                    }
                 }
             }
         }

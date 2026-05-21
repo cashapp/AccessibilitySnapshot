@@ -116,7 +116,7 @@ public final class AccessibilitySnapshotView: AccessibilitySnapshotBaseView {
                 }
 
             case .always:
-                guard containedView.bounds.contains(marker.activationPoint) else {
+                guard containedView.bounds.contains(marker.activationPoint.cgPoint) else {
                     break
                 }
 
@@ -124,7 +124,7 @@ public final class AccessibilitySnapshotView: AccessibilitySnapshotBaseView {
                     image: UIImage(named: "Crosshairs", in: Bundle.accessibilitySnapshotResources, compatibleWith: nil)
                 )
                 activationPointView.bounds.size = .init(width: 16, height: 16)
-                activationPointView.center = marker.activationPoint
+                activationPointView.center = marker.activationPoint.cgPoint
                 activationPointView.tintColor = baseColor
                 snapshotView.addSubview(activationPointView)
                 displayMarker.activationPointView = activationPointView

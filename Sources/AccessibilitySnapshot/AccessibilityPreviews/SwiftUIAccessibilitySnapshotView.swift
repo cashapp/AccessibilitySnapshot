@@ -165,7 +165,7 @@ private struct MarkerOverlayView: View {
                         .resizable()
                         .frame(width: 16, height: 16)
                         .foregroundColor(color)
-                        .position(marker.activationPoint)
+                        .position(marker.activationPoint.cgPoint)
                 }
             }
         }

@@ -4,8 +4,6 @@ import SwiftUI
 
 // MARK: - Number Badge
 
-/// A numbered badge for accessibility element markers.
-/// Used in both overlay (positioned on snapshot) and legend (standalone marker).
 @available(iOS 16.0, *)
 public struct NumberBadge: View {
     public let index: Int
@@ -31,15 +29,13 @@ public struct NumberBadge: View {
 
 // MARK: - Element Overlay
 
-/// Renders an accessibility element overlay on the snapshot.
-/// Combines the shape highlight with a positioned number badge.
 @available(iOS 16.0, *)
 public struct ElementOverlay: View {
     public let index: Int
-    public let shape: AccessibilityMarker.Shape
+    public let shape: AccessibilityShape
     public let palette: ColorPalette
 
-    public init(index: Int, shape: AccessibilityMarker.Shape, palette: ColorPalette) {
+    public init(index: Int, shape: AccessibilityShape, palette: ColorPalette) {
         self.index = index
         self.shape = shape
         self.palette = palette
@@ -69,11 +65,10 @@ public struct ElementOverlay: View {
         }
     }
 
-    /// Returns bounds for frame-like shapes (frames and rectangle paths).
     private var frameBounds: CGRect? {
         switch shape {
         case let .frame(rect):
-            return rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
+            return rect.cgRect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
         case let .path(path):
             let cgPath = path.cgPath
             if BadgePlacement.isRectangle(cgPath) {
@@ -122,7 +117,6 @@ public struct ElementOverlay: View {
 
 // MARK: - CGPath Shape Wrapper
 
-/// A SwiftUI Shape that wraps a CGPath for rendering.
 @available(iOS 16.0, *)
 private struct CGPathShape: Shape {
     let path: CGPath
@@ -134,6 +128,18 @@ private struct CGPathShape: Shape {
             return Path(transformed)
         }
         return Path(path)
+    }
+}
+
+// MARK: - UIKit Bridging
+
+private extension Array where Element == AccessibilityPathElement {
+    var cgPath: CGPath {
+        let path = UIBezierPath()
+        for element in self {
+            element.apply(to: path)
+        }
+        return path.cgPath
     }
 }
 
@@ -155,22 +161,22 @@ private struct CGPathShape: Shape {
         Color.gray.opacity(0.2)
         ElementOverlay(
             index: 0,
-            shape: .frame(CGRect(x: 50, y: 30, width: 200, height: 50)),
+            shape: .frame(AccessibilityRect(x: 50, y: 30, width: 200, height: 50)),
             palette: .default
         )
         ElementOverlay(
             index: 1,
-            shape: .frame(CGRect(x: 50, y: 100, width: 200, height: 80)),
+            shape: .frame(AccessibilityRect(x: 50, y: 100, width: 200, height: 80)),
             palette: .default
         )
         ElementOverlay(
             index: 2,
-            shape: .frame(CGRect(x: 50, y: 200, width: 200, height: 50)),
+            shape: .frame(AccessibilityRect(x: 50, y: 200, width: 200, height: 50)),
             palette: .default
         )
         ElementOverlay(
             index: 3,
-            shape: .frame(CGRect(x: 50, y: 270, width: 200, height: 50)),
+            shape: .frame(AccessibilityRect(x: 50, y: 270, width: 200, height: 50)),
             palette: .default
         )
     }
