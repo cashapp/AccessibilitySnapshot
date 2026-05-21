@@ -50,6 +50,11 @@ public struct AccessibilityElement: Equatable, Codable {
         init?(from: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int) {
             guard from.isKnownRotorType else { return nil }
             name = from.displayName(locale: parentElement.accessibilityLanguage)
+            guard resultLimit > 0 else {
+                limit = .none
+                resultMarkers = []
+                return
+            }
             let collected = from.collectAllResults(nextLimit: resultLimit, previousLimit: resultLimit)
             limit = collected.limit
             resultMarkers = collected.results.compactMap { result in

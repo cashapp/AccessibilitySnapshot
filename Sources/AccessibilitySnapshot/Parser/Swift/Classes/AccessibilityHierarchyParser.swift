@@ -1,6 +1,18 @@
 import Accessibility
+import os.log
 import SwiftUI
 import UIKit
+
+/// Surfaces parser resilience events that would previously have crashed the host.
+///
+/// The parser intentionally degrades gracefully when the host's accessibility tree is in an
+/// unexpected shape (mismatched tab bar counts, containers reporting `NSNotFound` for their own
+/// children, degenerate `UIBezierPath`s, etc.). These events are logged here so they remain
+/// visible during development without bringing the process down.
+private let parserLog = OSLog(
+    subsystem: "com.cashapp.AccessibilitySnapshot",
+    category: "Parser"
+)
 
 public protocol UserInterfaceLayoutDirectionProviding {
     var userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection { get }
@@ -102,7 +114,9 @@ public final class AccessibilityHierarchyParser {
     ///
     /// - parameter root: The root view of the accessibility hierarchy. Coordinates in the returned markers will be
     /// relative to this view's coordinate space.
-    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to 10.
+    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction.
+    /// Values less than or equal to 0 include rotor names only and do not evaluate rotor result blocks.
+    /// Defaults to 10.
     /// - parameter userInterfaceLayoutDirectionProvider: The provider of the device's user interface layout direction.
     /// In most cases, this should use the default value, `UIApplication.shared`.
     @available(*, deprecated, message: "Use parseAccessibilityHierarchy(in:) and flattenToElements() instead")
@@ -137,7 +151,9 @@ public final class AccessibilityHierarchyParser {
     /// Use `flattenToElements()` on the result to get the same output as `parseAccessibilityElements`.
     ///
     /// - parameter root: The root view of the accessibility hierarchy
-    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction. Defaults to 10.
+    /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction.
+    /// Values less than or equal to 0 include rotor names only and do not evaluate rotor result blocks.
+    /// Defaults to 10.
     /// - parameter userInterfaceLayoutDirectionProvider: Provider of the device's UI layout direction
     /// - parameter userInterfaceIdiomProvider: Provider of the device's interface idiom
     /// - returns: Array of root-level hierarchy nodes with containers grouping their children
@@ -268,7 +284,13 @@ public final class AccessibilityHierarchyParser {
         case .rightToLeft:
             horizontalCompare = (>)
         @unknown default:
-            fatalError("Unknown user interface layout direction: \(userInterfaceLayoutDirection)")
+            os_log(
+                "Unknown UIUserInterfaceLayoutDirection (%{public}d); falling back to left-to-right ordering.",
+                log: parserLog,
+                type: .error,
+                userInterfaceLayoutDirection.rawValue
+            )
+            horizontalCompare = (<)
         }
 
         // Derived via experimentation, these magic numbers are the cutoff for VoiceOver to consider
@@ -330,22 +352,26 @@ public final class AccessibilityHierarchyParser {
                 let tabBarButtons = view.allUITabBarButtons()
                 let tabBarItems = tabBar.items ?? []
 
-                // This logic assumes that the UITabBar has the same number of buttons as it does items, and that they
-                // are in the same order. From testing, this seems to always be true, but there may be some cases that
-                // aren't handled properly here.
+                // An unexpected tab bar shape — no items, a button count that isn't a multiple
+                // of the item count, or a button that isn't in our list — should not crash the
+                // process. Skip context for this element instead; it will still be parsed.
                 //
-                // We use modulo instead of equality because iOS 26 tab bars have multiple sets of tab buttons at
-                // different levels in the view hierarchy, so the total count may be a multiple of the item count.
-                precondition(
-                    tabBarButtons.count % tabBarItems.count == 0,
-                    "UITabBar does not have the same number of tab views as tab items."
-                )
-
-                guard let index = tabBarButtons.firstIndex(of: element) else {
-                    fatalError("Can't find tab bar button in UITabBar")
+                // Some UIKit tab bars expose multiple button sets at different levels in the
+                // view hierarchy, so the total count may be a multiple of the item count.
+                guard !tabBarItems.isEmpty,
+                      tabBarButtons.count % tabBarItems.count == 0,
+                      let index = tabBarButtons.firstIndex(of: element)
+                else {
+                    os_log(
+                        "UITabBar has an unexpected shape (buttons=%{public}d, items=%{public}d); dropping tab-bar context for element.",
+                        log: parserLog,
+                        type: .error,
+                        tabBarButtons.count,
+                        tabBarItems.count
+                    )
+                    return nil
                 }
 
-                // Use modulo to get the tab item index since there may be multiple sets of buttons
                 let tabIndex = index % tabBarItems.count
 
                 return .tabBarItem(
@@ -374,8 +400,16 @@ public final class AccessibilityHierarchyParser {
                     viewToElementsMap[view] = accessibleElements
                 }
 
+                guard let index = accessibleElements.firstIndex(of: element) else {
+                    os_log(
+                        "Tab-bar-trait view does not contain the element being parsed; dropping tab context.",
+                        log: parserLog,
+                        type: .error
+                    )
+                    return nil
+                }
                 return .tab(
-                    index: accessibleElements.firstIndex(of: element)! + 1,
+                    index: index + 1,
                     count: accessibleElements.count
                 )
             }
@@ -383,10 +417,16 @@ public final class AccessibilityHierarchyParser {
         case let .accessibilityContainer(container):
             let elementIndex = container.index(ofAccessibilityElement: element)
 
-            assert(
-                elementIndex != NSNotFound,
-                "Element should not have a container as a context provider if it is not an element in that container"
-            )
+            // The container may not actually contain the element if its accessibility tree is in
+            // an inconsistent state. Drop context for this element rather than crashing.
+            guard elementIndex != NSNotFound else {
+                os_log(
+                    "Accessibility container reported NSNotFound for an element it advertises; dropping container context.",
+                    log: parserLog,
+                    type: .error
+                )
+                return nil
+            }
 
             if container is UISegmentedControl {
                 return .series(
@@ -558,7 +598,7 @@ extension AccessibilityHierarchyParser {
     /// Returns the shape of the accessibility element in the root view's coordinate space.
     /// VoiceOver prefers an accessibilityPath if available when drawing the bounding box, but the accessibilityFrame is always used for sort order.
     static func accessibilityShape(for element: NSObject, in root: UIView, preferPath: Bool = true) -> AccessibilityMarker.Shape {
-        if let accessibilityPath = element.accessibilityPath, preferPath {
+        if let accessibilityPath = element.accessibilityPath, preferPath, accessibilityPath.hasFiniteBounds {
             return .path(root.convert(accessibilityPath, from: nil))
 
         } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer, !element.accessibilityFrameInContainerSpace.isNull {
@@ -599,8 +639,8 @@ extension AccessibilityHierarchyParser {
             return frame
         }
 
-        if let path = element.accessibilityPath {
-            return path.bounds
+        if let path = element.accessibilityPath, path.hasFiniteBounds {
+            return path.cgPath.boundingBoxOfPath
         }
 
         return frame
@@ -660,6 +700,27 @@ private extension AccessibilityHierarchyParser {
 }
 
 // MARK: -
+
+private extension UIBezierPath {
+    /// True when the path is non-empty and its CGPath bounding box has finite
+    /// origin and size.
+    ///
+    /// `UIBezierPath.bounds` calls `CGPathGetPathBoundingBox`, which returns
+    /// `CGRect.null` (origin `.infinity`) for empty paths and may carry
+    /// non-finite values when callers feed in `.nan`/`.infinity`. Storing
+    /// such a path in `Shape.path` lets those values flow into downstream
+    /// `Int(_:)` conversions and trap with a Swift runtime SIGTRAP. Callers
+    /// gate `.path(...)` on this check and fall back to `.frame(...)`.
+    var hasFiniteBounds: Bool {
+        guard !isEmpty else { return false }
+        let rect = cgPath.boundingBoxOfPath
+        return !rect.isNull
+            && rect.origin.x.isFinite
+            && rect.origin.y.isFinite
+            && rect.size.width.isFinite
+            && rect.size.height.isFinite
+    }
+}
 
 /// Captures container information at node creation time, avoiding the need to re-derive it later.
 private struct ContainerInfo {
@@ -823,12 +884,22 @@ private extension NSObject {
 
     /// The form of context provider the object acts as for elements beneath it in the hierarchy when the elements
     /// beneath it are part of the view hierarchy and the object is not an accessibility container.
-    private func providedContextAsSuperview() -> AccessibilityHierarchyParser.ContextProvider {
+    private func providedContextAsSuperview() -> AccessibilityHierarchyParser.ContextProvider? {
         if accessibilityContainerType == .dataTable, let self = self as? UIAccessibilityContainerDataTable {
             return .dataTable(self)
         }
 
-        return .superview(self as! UIView)
+        guard let view = self as? UIView else {
+            os_log(
+                "Non-UIView object %{public}@ reports providesContext=true but cannot supply superview context; skipping.",
+                log: parserLog,
+                type: .error,
+                String(describing: type(of: self))
+            )
+            return nil
+        }
+
+        return .superview(view)
     }
 
     /// The form of context provider the object acts as for elements beneath it in the hierarchy when the object is
