@@ -72,14 +72,10 @@ public extension FBSnapshotTestCase {
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        let hostingController = UIHostingController(rootView: view)
-        // Without this, SwiftUI shifts content down by the window's safe-area inset, but
-        // the parsed accessibility frames come from the un-shifted coordinate space —
-        // overlays end up offset from their elements. UIKit-engine references already
-        // include the inset, so only scope this to the SwiftUI engine.
-        if layoutEngine == .swiftui, #available(iOS 16.4, *) {
-            hostingController.safeAreaRegions = []
-        }
+        let hostingController = makeSwiftUIHostingController(
+            for: view,
+            layoutEngine: layoutEngine
+        )
         hostingController.view.bounds.size = size ?? hostingController.sizeThatFits(in: .zero)
 
         SnapshotVerifyAccessibility(
@@ -132,4 +128,24 @@ public extension FBSnapshotTestCase {
             line: line
         )
     }
+}
+
+/// Builds a `UIHostingController` for the SwiftUI snapshot path that renders edge-to-edge,
+/// so the parsed accessibility frames (in the un-shifted coordinate space) line up with the
+/// rendered image. On iOS 16.4+ we use `safeAreaRegions = []` directly. On earlier iOS we
+/// fall back to wrapping the content in `.ignoresSafeArea()`, which keeps the same engine
+/// scoping (UIKit references are untouched).
+private func makeSwiftUIHostingController<V: SwiftUI.View>(
+    for view: V,
+    layoutEngine: LayoutEngine
+) -> UIViewController {
+    guard layoutEngine == .swiftui else {
+        return UIHostingController(rootView: view)
+    }
+    if #available(iOS 16.4, *) {
+        let host = UIHostingController(rootView: view)
+        host.safeAreaRegions = []
+        return host
+    }
+    return UIHostingController(rootView: view.ignoresSafeArea())
 }
