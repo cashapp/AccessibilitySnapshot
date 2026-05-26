@@ -11,8 +11,7 @@ public struct AccessibilitySnapshotView<Content: View>: View {
     private let renderSize: CGSize
 
     @State private var markers: [AccessibilityMarker] = []
-    @State private var snapshotImage: UIImage?
-    @State private var parseError: Error?
+    @State private var hierarchy: [AccessibilityHierarchy] = []
 
     public init(
         @ViewBuilder content: () -> Content,
@@ -36,47 +35,80 @@ public struct AccessibilitySnapshotView<Content: View>: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            if let snapshotImage = snapshotImage {
-                snapshotWithOverlays(image: snapshotImage)
-            } else if let parseError = parseError {
-                errorView(error: parseError)
-            }
+            liveContentWithOverlays
 
+            // Gray background scoped to the legend so it doesn't interfere with the live
+            // content above.
+            legend
+                .frame(width: renderSize.width)
+                .background(Color(white: 0.9))
+        }
+        .onAppear {
+            if markers.isEmpty {
+                parseAccessibility()
+            }
+        }
+    }
+
+    private var liveContentWithOverlays: some View {
+        // Show the live content directly — no UIImage capture. Overlays sit on top in the
+        // same coordinate space, since the live content and the off-screen parse both run
+        // at `renderSize`. A spinner, animation, or anything stateful in `content` keeps
+        // ticking.
+        ZStack(alignment: .topLeading) {
+            content
+                .frame(width: renderSize.width, height: renderSize.height, alignment: .topLeading)
+
+            ForEach(markers.indices, id: \.self) { index in
+                let marker = markers[index]
+                ElementOverlay(
+                    index: index,
+                    shape: marker.shape,
+                    palette: palette
+                )
+
+                if shouldShowActivationPoint(for: marker) {
+                    ActivationPointView(
+                        position: marker.activationPoint,
+                        color: palette.strokeColor(at: index)
+                    )
+                }
+            }
+        }
+        .frame(width: renderSize.width, height: renderSize.height)
+        .clipped()
+    }
+
+    private func shouldShowActivationPoint(for marker: AccessibilityMarker) -> Bool {
+        switch configuration.activationPointDisplayMode {
+        case .always:
+            return true
+        case .whenOverridden:
+            return !marker.usesDefaultActivationPoint
+        case .never:
+            return false
+        }
+    }
+
+    @ViewBuilder
+    private var legend: some View {
+        if configuration.showContainers, !hierarchy.isEmpty {
+            HierarchyLegendView(
+                hierarchy: hierarchy,
+                palette: palette,
+                showUserInputLabels: showUserInputLabels,
+                showUnspokenTraits: showUnspokenTraits
+            )
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(LegendLayoutMetrics.legendInset)
+        } else {
             LegendView(
                 markers: markers,
                 palette: palette,
                 showUserInputLabels: showUserInputLabels,
                 showUnspokenTraits: showUnspokenTraits
             )
-            .frame(width: renderSize.width)
         }
-        .onAppear {
-            if snapshotImage == nil {
-                parseAccessibility()
-            }
-        }
-        .background(Color(white: 0.9))
-    }
-
-    // MARK: - Private Views
-
-    private func snapshotWithOverlays(image: UIImage) -> some View {
-        SnapshotOverlayView(
-            snapshotImage: image,
-            markers: markers,
-            palette: palette,
-            renderSize: renderSize,
-            activationPointDisplayMode: configuration.activationPointDisplayMode
-        )
-    }
-
-    @ViewBuilder
-    private func errorView(error: Error) -> some View {
-        VStack {
-            Image(systemName: "exclamationmark.triangle.fill")
-            Text(error.localizedDescription)
-        }
-        content
     }
 
     // MARK: - Private Methods
@@ -103,19 +135,13 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             window.rootViewController = nil
         }
 
-        do {
-            snapshotImage = try hostingController.view.renderToImage(
-                configuration: configuration.rendering
-            )
-
-            let parser = AccessibilityHierarchyParser()
-            markers = parser.parseAccessibilityHierarchy(
-                in: hostingController.view,
-                rotorResultLimit: configuration.rotors.resultLimit
-            ).flattenToElements()
-        } catch {
-            parseError = error
-        }
+        let parser = AccessibilityHierarchyParser()
+        let parsedHierarchy = parser.parseAccessibilityHierarchy(
+            in: hostingController.view,
+            rotorResultLimit: configuration.rotors.resultLimit
+        )
+        hierarchy = parsedHierarchy
+        markers = parsedHierarchy.flattenToElements()
     }
 }
 
