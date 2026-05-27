@@ -528,7 +528,6 @@ public final class AccessibilityHierarchyParser {
         return nil
     }
 
-
     // MARK: - Private Hierarchy Methods
 
     private func mapNodesToHierarchy(
@@ -769,15 +768,15 @@ private extension NSObject {
         // (presumably to account for animations and/or rounding error). We use an alpha threshold of zero since that
         // should fulfill the intent.
         //
-        // Zero-frame views are pruned when they clip their bounds (children are invisible), are accessibility
-        // elements, or are explicit accessibility containers (accessibilityElements is set). Zero-frame wrapper views
-        // that don't clip and only contain subviews are allowed through, because SwiftUI bridging layers (e.g.
-        // _UIInheritedView inside _UIFloatingBarContainerView) use zero-frame wrappers whose children overflow and
-        // are visible. Pruning those hides real accessible content such as the UISearchBarTextField rendered by
-        // .searchable().
+        // Degenerate-frame views (either axis below a sub-pixel threshold) are pruned when they clip their bounds
+        // (children are invisible), are accessibility elements, or are explicit accessibility containers
+        // (accessibilityElements is set). Degenerate-frame wrapper views that don't clip and only contain subviews are
+        // allowed through, because SwiftUI bridging layers (e.g. _UIInheritedView inside _UIFloatingBarContainerView)
+        // use zero-frame wrappers whose children overflow and are visible. Pruning those hides real accessible content
+        // such as the UISearchBarTextField rendered by .searchable().
         if let `self` = self as? UIView,
            self.isHidden || self.alpha <= 0
-           || (self.frame.size == .zero && (self.clipsToBounds || self.isAccessibilityElement || self.accessibilityElements != nil))
+           || ((self.frame.width < 0.001 || self.frame.height < 0.001) && (self.clipsToBounds || self.isAccessibilityElement || self.accessibilityElements != nil))
         {
             return []
         }
