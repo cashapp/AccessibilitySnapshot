@@ -1,5 +1,6 @@
 import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser_ObjC
+import AccessibilitySnapshotPreviews
 import SnapshotTesting
 import SwiftUI
 import UIKit
@@ -83,24 +84,4 @@ public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
                 UIHostingController(rootView: view)
             }
     }
-}
-
-/// Builds a `UIHostingController` for the SwiftUI snapshot path that renders edge-to-edge,
-/// so the parsed accessibility frames (in the un-shifted coordinate space) line up with the
-/// rendered image. On iOS 16.4+ uses `safeAreaRegions = []`; on earlier iOS falls back to
-/// wrapping the content in `.ignoresSafeArea()`. Scoped to the SwiftUI engine — UIKit
-/// engine references already include the inset.
-private func makeSwiftUIHostingController<V: SwiftUI.View>(
-    for view: V,
-    layoutEngine: LayoutEngine
-) -> UIViewController {
-    guard layoutEngine == .swiftui else {
-        return UIHostingController(rootView: view)
-    }
-    if #available(iOS 16.4, *) {
-        let host = UIHostingController(rootView: view)
-        host.safeAreaRegions = []
-        return host
-    }
-    return UIHostingController(rootView: view.ignoresSafeArea())
 }

@@ -72,6 +72,7 @@ public final class SwiftUIAccessibilitySnapshotContainerView: AccessibilitySnaps
     }
 
     override public func layoutSubviews() {
+        super.layoutSubviews()
         hostingController?.view.frame = bounds
     }
 

@@ -16,7 +16,7 @@ struct DataTableContainerDemo: View {
         VStack(alignment: .leading, spacing: 16) {
             DemoSection(
                 title: "Sales by quarter",
-                description: ".dataTable(\(cells.count) × \(cells[0].count))"
+                description: ".dataTable(\(cells.count) × \(cells.first?.count ?? 0))"
             ) {
                 AccessibilityDataTable(cells: cells)
             }
