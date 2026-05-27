@@ -768,15 +768,17 @@ private extension NSObject {
         // (presumably to account for animations and/or rounding error). We use an alpha threshold of zero since that
         // should fulfill the intent.
         //
-        // Degenerate-frame views (either axis below a sub-pixel threshold) are pruned when they clip their bounds
-        // (children are invisible), are accessibility elements, or are explicit accessibility containers
-        // (accessibilityElements is set). Degenerate-frame wrapper views that don't clip and only contain subviews are
-        // allowed through, because SwiftUI bridging layers (e.g. _UIInheritedView inside _UIFloatingBarContainerView)
-        // use zero-frame wrappers whose children overflow and are visible. Pruning those hides real accessible content
-        // such as the UISearchBarTextField rendered by .searchable().
+        // Zero-frame wrappers that clip their bounds or expose explicit accessibility children are pruned, because
+        // their visible content is collapsed. Non-clipping wrapper views with a zero frame are allowed through, because
+        // SwiftUI bridging layers (e.g. _UIInheritedView inside _UIFloatingBarContainerView) use zero-frame wrappers
+        // whose children overflow and are visible. Pruning those hides real accessible content such as the
+        // UISearchBarTextField rendered by .searchable(). For accessibility elements themselves, we additionally prune
+        // anything whose frame is degenerate on either axis (below a sub-pixel threshold), since those have no visible
+        // footprint and would surface as spurious targets.
         if let `self` = self as? UIView,
            self.isHidden || self.alpha <= 0
-           || ((self.frame.width < 0.001 || self.frame.height < 0.001) && (self.clipsToBounds || self.isAccessibilityElement || self.accessibilityElements != nil))
+           || (self.frame.size == .zero && (self.clipsToBounds || self.accessibilityElements != nil))
+           || (self.isAccessibilityElement && (self.frame.width < 0.001 || self.frame.height < 0.001))
         {
             return []
         }
