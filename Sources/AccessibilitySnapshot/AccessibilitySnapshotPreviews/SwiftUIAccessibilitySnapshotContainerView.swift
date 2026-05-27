@@ -36,7 +36,7 @@ public final class SwiftUIAccessibilitySnapshotContainerView: AccessibilitySnaps
             palette.colors = snapshotConfiguration.markerColors
         }
 
-        let swiftUIView = PreParsedAccessibilitySnapshotView(
+        let swiftUIView = AccessibilitySnapshotView(
             snapshotImage: data.image,
             markers: data.markers,
             hierarchy: data.hierarchy,
