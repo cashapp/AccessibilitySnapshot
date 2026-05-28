@@ -768,17 +768,16 @@ private extension NSObject {
             // a very low alpha threshold to account for animations; zero is close enough.)
             let isInvisible = view.isHidden || view.alpha <= 0
 
-            // Zero-frame wrappers that clip or own their accessibility model are collapsed. We
-            // can't prune all zero-frame wrappers because SwiftUI bridging (e.g.
+            // Empty-frame wrappers that clip or own their accessibility model are collapsed. We
+            // can't prune all empty-frame wrappers because SwiftUI bridging (e.g.
             // _UIInheritedView in _UIFloatingBarContainerView) uses them as overflow containers
             // for real content like the UISearchBarTextField from .searchable().
-            let isCollapsedWrapper = view.frame.size == .zero
+            let isCollapsedWrapper = view.frame.isEmpty
                 && (view.clipsToBounds || view.accessibilityElements != nil)
 
-            // Leaf accessibility elements with a degenerate frame on either axis have no
-            // visible footprint and would surface as spurious VoiceOver targets.
-            let isDegenerateElement = view.isAccessibilityElement
-                && (abs(view.frame.width) <= 0.001 || abs(view.frame.height) <= 0.001)
+            // Leaf accessibility elements with an empty frame have no visible footprint and
+            // would surface as spurious VoiceOver targets.
+            let isDegenerateElement = view.isAccessibilityElement && view.frame.isEmpty
 
             if isInvisible || isCollapsedWrapper || isDegenerateElement {
                 return []
