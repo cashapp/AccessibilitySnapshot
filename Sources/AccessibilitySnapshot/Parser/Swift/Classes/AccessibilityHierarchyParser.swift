@@ -798,8 +798,13 @@ private extension NSObject {
             return nil
         }
 
+        // `accessibilityElementCount()` defaults to `NSNotFound` for objects that don't implement the
+        // dynamic container methods (its default is undocumented, but its siblings
+        // `accessibilityElement(at:)` and `index(ofAccessibilityElement:)` document `nil` / `NSNotFound`
+        // defaults, and `NSNotFound` is what UIKit returns on iOS 17+). Treating that sentinel as a real
+        // count would iterate ~`NSIntegerMax` times, so guard against it explicitly.
         let count = accessibilityElementCount()
-        guard count > 0 else {
+        guard count > 0, count != NSNotFound else {
             return nil
         }
 
