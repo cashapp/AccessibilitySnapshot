@@ -148,7 +148,7 @@ public extension AccessibilitySnapshotView where Content == UIViewWrapper {
 public struct PreParsedAccessibilitySnapshotView: View {
     private let snapshotImage: UIImage
     private let markers: [AccessibilityMarker]
-    private let colorAssignment: HierarchyColorAssignment?
+    private let hierarchy: [AccessibilityHierarchy]
     private let configuration: AccessibilitySnapshotConfiguration
     private let palette: ColorPalette
     private let renderSize: CGSize
@@ -163,12 +163,14 @@ public struct PreParsedAccessibilitySnapshotView: View {
     ) {
         self.snapshotImage = snapshotImage
         self.markers = markers
-        colorAssignment = (configuration.showContainers && !hierarchy.isEmpty)
-            ? HierarchyColorAssignment.build(from: hierarchy)
-            : nil
+        self.hierarchy = hierarchy
         self.configuration = configuration
         self.palette = palette
         self.renderSize = renderSize
+    }
+
+    private var showsHierarchyLegend: Bool {
+        configuration.showContainers && !hierarchy.isEmpty
     }
 
     private var showUserInputLabels: Bool {
@@ -209,12 +211,9 @@ public struct PreParsedAccessibilitySnapshotView: View {
         }
     }
 
-    private func hierarchyLegend(
-        _ assignment: HierarchyColorAssignment,
-        availableHeight: CGFloat? = nil
-    ) -> HierarchyLegendView {
+    private func hierarchyLegend(availableHeight: CGFloat? = nil) -> HierarchyLegendView {
         HierarchyLegendView(
-            nodes: assignment.nodes,
+            hierarchy: hierarchy,
             palette: palette,
             showUserInputLabels: showUserInputLabels,
             showUnspokenTraits: showUnspokenTraits,
@@ -224,11 +223,11 @@ public struct PreParsedAccessibilitySnapshotView: View {
 
     @ViewBuilder
     private var legendSideContent: some View {
-        if let colorAssignment {
+        if showsHierarchyLegend {
             // Side legends share vertical space with the snapshot — flow entries across
             // columns so deep hierarchies don't overflow the snapshot height.
             let availableHeight = renderSize.height - LegendLayoutMetrics.legendInset * 2
-            hierarchyLegend(colorAssignment, availableHeight: availableHeight)
+            hierarchyLegend(availableHeight: availableHeight)
                 .frame(minWidth: LegendLayoutMetrics.minimumLegendWidth, alignment: .topLeading)
                 .padding(LegendLayoutMetrics.legendInset)
         } else {
@@ -238,8 +237,8 @@ public struct PreParsedAccessibilitySnapshotView: View {
 
     @ViewBuilder
     private var legendBottomContent: some View {
-        if let colorAssignment {
-            hierarchyLegend(colorAssignment)
+        if showsHierarchyLegend {
+            hierarchyLegend()
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(LegendLayoutMetrics.legendInset)
         } else {
