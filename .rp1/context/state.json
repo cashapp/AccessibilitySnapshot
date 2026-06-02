@@ -1,0 +1,16 @@
+{
+  "strategy": "parallel-map-reduce",
+  "repo_type": "single-project",
+  "repo_root": "/Users/aodawa/Development/AccessibilitySnapshot/.conductor/stuttgart-v1",
+  "current_project_path": ".",
+  "monorepo_projects": [],
+  "generated_at": "2026-04-07T15:30:00+02:00",
+  "git_commit": "5a9399fcef23c698fabc03a36ad607ac80d03e59",
+  "files_analyzed": 148,
+  "languages": ["Swift", "Objective-C"],
+  "metrics": {
+    "modules": 6,
+    "components": 12,
+    "concepts": 16
+  }
+}
