@@ -504,8 +504,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             identifier: "test-button-id",
             hint: "Double tap to activate",
             userInputLabels: ["tap button", "press button"],
-            shape: .frame(CGRect(x: 10, y: 20, width: 100, height: 44)),
-            activationPoint: CGPoint(x: 60, y: 42),
+            shape: .frame(AccessibilityRect(x: 10, y: 20, width: 100, height: 44)),
+            activationPoint: AccessibilityPoint(x: 60, y: 42),
             usesDefaultActivationPoint: true,
             customActions: ["Delete"],
             customContent: [],
@@ -538,7 +538,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
     func testAccessibilityContainerCodable() throws {
         let container = AccessibilityContainer(
             type: .list,
-            frame: CGRect(x: 0, y: 0, width: 320, height: 200)
+            frame: AccessibilityRect(x: 0, y: 0, width: 320, height: 200)
         )
 
         let encoder = JSONEncoder()
@@ -560,8 +560,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             identifier: nil,
             hint: nil,
             userInputLabels: nil,
-            shape: .frame(CGRect(x: 0, y: 0, width: 100, height: 44)),
-            activationPoint: CGPoint(x: 50, y: 22),
+            shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
+            activationPoint: AccessibilityPoint(x: 50, y: 22),
             usesDefaultActivationPoint: true,
             customActions: [],
             customContent: [],
@@ -578,8 +578,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             identifier: nil,
             hint: nil,
             userInputLabels: nil,
-            shape: .frame(CGRect(x: 0, y: 50, width: 100, height: 44)),
-            activationPoint: CGPoint(x: 50, y: 72),
+            shape: .frame(AccessibilityRect(x: 0, y: 50, width: 100, height: 44)),
+            activationPoint: AccessibilityPoint(x: 50, y: 72),
             usesDefaultActivationPoint: true,
             customActions: [],
             customContent: [],
@@ -590,7 +590,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         let container = AccessibilityContainer(
             type: .list,
-            frame: CGRect(x: 0, y: 0, width: 100, height: 100)
+            frame: AccessibilityRect(x: 0, y: 0, width: 100, height: 100)
         )
 
         let hierarchy: [AccessibilityHierarchy] = [
@@ -632,19 +632,64 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
     func testShapeCodableWithPath() throws {
         let path = UIBezierPath(roundedRect: CGRect(x: 10, y: 20, width: 100, height: 50), cornerRadius: 8)
-        let shape = AccessibilityElement.Shape.path(path)
+        let elements = AccessibilityPathElement.elements(from: path.cgPath)
+        let shape = AccessibilityShape.path(elements)
 
         let encoder = JSONEncoder()
         let data = try encoder.encode(shape)
 
         let decoder = JSONDecoder()
-        let decoded = try decoder.decode(AccessibilityElement.Shape.self, from: data)
+        let decoded = try decoder.decode(AccessibilityShape.self, from: data)
 
         if case let .path(decodedPath) = decoded {
-            XCTAssertEqual(decodedPath.bounds, path.bounds)
+            XCTAssertEqual(decodedPath, elements)
         } else {
             XCTFail("Expected path shape")
         }
+    }
+
+    // MARK: - Wire-Format Compatibility
+
+    // The portable model types replaced CoreGraphics geometry but must keep the exact
+    // JSON wire format that the previous `CGPoint`/`CGRect`/`AccessibilityElement.Shape`
+    // Codable conformances produced, so persisted payloads keep decoding.
+
+    func testGeometryEncodesAsLegacyCGGeometryArrays() throws {
+        let encoder = JSONEncoder()
+
+        let point = try encoder.encode(AccessibilityPoint(x: 1, y: 2))
+        XCTAssertEqual(String(data: point, encoding: .utf8), "[1,2]")
+
+        let size = try encoder.encode(AccessibilitySize(width: 100, height: 44))
+        XCTAssertEqual(String(data: size, encoding: .utf8), "[100,44]")
+
+        let rect = try encoder.encode(AccessibilityRect(x: 10, y: 20, width: 100, height: 44))
+        XCTAssertEqual(String(data: rect, encoding: .utf8), "[[10,20],[100,44]]")
+    }
+
+    func testShapeDecodesLegacyFrameWireFormat() throws {
+        let legacyJSON = Data(#"{"type":"frame","frame":[[10,20],[100,44]]}"#.utf8)
+        let decoded = try JSONDecoder().decode(AccessibilityShape.self, from: legacyJSON)
+        XCTAssertEqual(decoded, .frame(AccessibilityRect(x: 10, y: 20, width: 100, height: 44)))
+    }
+
+    func testShapeDecodesLegacyPathWireFormat() throws {
+        let legacyJSON = Data(#"""
+        {"type":"path","pathElements":[{"move":{"to":[0,0]}},{"line":{"to":[100,0]}},{"closeSubpath":{}}]}
+        """#.utf8)
+        let decoded = try JSONDecoder().decode(AccessibilityShape.self, from: legacyJSON)
+        XCTAssertEqual(decoded, .path([
+            .move(to: AccessibilityPoint(x: 0, y: 0)),
+            .line(to: AccessibilityPoint(x: 100, y: 0)),
+            .closeSubpath,
+        ]))
+    }
+
+    func testShapeFrameEncodesWithTypeDiscriminator() throws {
+        let data = try JSONEncoder().encode(AccessibilityShape.frame(AccessibilityRect(x: 10, y: 20, width: 100, height: 44)))
+        let object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertEqual(object["type"] as? String, "frame")
+        XCTAssertEqual(object["frame"] as? [[Double]], [[10, 20], [100, 44]])
     }
 
     func testContainerTypeCodable() throws {
@@ -708,17 +753,18 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         path.addLine(to: CGPoint(x: 100, y: 50))
         path.close()
 
-        let shape = AccessibilityElement.Shape.path(path)
+        let elements = AccessibilityPathElement.elements(from: path.cgPath)
+        let shape = AccessibilityShape.path(elements)
 
         let encoder = JSONEncoder()
         let data = try encoder.encode(shape)
 
         // Verify round-trip works
         let decoder = JSONDecoder()
-        let decoded = try decoder.decode(AccessibilityElement.Shape.self, from: data)
+        let decoded = try decoder.decode(AccessibilityShape.self, from: data)
 
         if case let .path(decodedPath) = decoded {
-            XCTAssertEqual(decodedPath.bounds, path.bounds)
+            XCTAssertEqual(decodedPath, elements)
         } else {
             XCTFail("Expected path shape")
         }
@@ -786,7 +832,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
     func testDataTableContainerCodable() throws {
         let container = AccessibilityContainer(
             type: .dataTable(rowCount: 5, columnCount: 4),
-            frame: CGRect(x: 0, y: 0, width: 320, height: 200)
+            frame: AccessibilityRect(x: 0, y: 0, width: 320, height: 200)
         )
 
         let encoder = JSONEncoder()
@@ -806,7 +852,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
     func testSemanticGroupContainerCodable() throws {
         let container = AccessibilityContainer(
             type: .semanticGroup(label: "Group Label", value: "Group Value", identifier: "group-id"),
-            frame: CGRect(x: 0, y: 0, width: 200, height: 100)
+            frame: AccessibilityRect(x: 0, y: 0, width: 200, height: 100)
         )
 
         let encoder = JSONEncoder()
@@ -827,7 +873,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
     func testTabBarContainerCodable() throws {
         let container = AccessibilityContainer(
             type: .tabBar,
-            frame: CGRect(x: 0, y: 0, width: 320, height: 49)
+            frame: AccessibilityRect(x: 0, y: 0, width: 320, height: 49)
         )
 
         let encoder = JSONEncoder()
@@ -842,7 +888,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
     func testLandmarkContainerCodable() throws {
         let container = AccessibilityContainer(
             type: .landmark,
-            frame: CGRect(x: 0, y: 0, width: 320, height: 200)
+            frame: AccessibilityRect(x: 0, y: 0, width: 320, height: 200)
         )
 
         let encoder = JSONEncoder()
