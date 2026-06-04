@@ -781,14 +781,18 @@ private extension NSObject {
     }
 
     /// Returns the explicit accessibility elements exposed by this object. When
-    /// `accessibilityElements` is set (including to an empty array) it is used directly. When it is
-    /// `nil` and the receiver is not a `UIView`, this falls back to the `accessibilityElementCount()` /
-    /// `accessibilityElement(at:)` container APIs, mirroring how `UIAccessibilityContainer` consumers
-    /// (including VoiceOver) resolve elements. For `UIView` instances the existing subview-iteration
-    /// path is used instead — UIKit synthesizes counts from the subview tree when flags like
-    /// `shouldGroupAccessibilityChildren` are set, which would otherwise duplicate or recurse on
-    /// elements already covered by subview parsing. Returns `nil` when the object does not act as an
-    /// explicit accessibility container.
+    /// `accessibilityElements` is set (including to an empty array) it is used directly — this covers
+    /// UIKit containers such as `UISegmentedControl`, which populate `accessibilityElements` with
+    /// their internal elements. When it is `nil` and the receiver is not a `UIView`, this falls back
+    /// to the `accessibilityElementCount()` / `accessibilityElement(at:)` container APIs, mirroring
+    /// how `UIAccessibilityContainer` consumers (including VoiceOver) resolve elements. This fallback
+    /// is the case the method exists for: non-`UIView` `NSObject`s have no subviews to traverse, so
+    /// without it their index-vended elements would be invisible to the parser. `UIView`s are
+    /// deliberately excluded from the fallback so their existing subview-traversal path (with its
+    /// grouping, sorting, and pruning) is preserved; in practice no standard UIKit view needs it
+    /// regardless, since they either populate `accessibilityElements` or report `NSNotFound` from
+    /// `accessibilityElementCount()`. Returns `nil` when the object does not act as an explicit
+    /// accessibility container.
     private func resolvedAccessibilityElements() -> [NSObject]? {
         if let elements = accessibilityElements as? [NSObject] {
             return elements
@@ -811,15 +815,12 @@ private extension NSObject {
         var elements: [NSObject] = []
         elements.reserveCapacity(count)
         for index in 0 ..< count {
+            // `accessibilityElement(at:)` may return `nil` (or a non-`NSObject`) for individual indices even
+            // when `accessibilityElementCount()` reports a larger count; those are skipped rather than treated
+            // as a hard error, mirroring how a consumer iterating the container would tolerate gaps.
             if let element = accessibilityElement(at: index) as? NSObject {
                 elements.append(element)
             }
-        }
-        if elements.count != count {
-            print(
-                "[AccessibilitySnapshot] Warning: \(type(of: self)) reported accessibilityElementCount() == "
-                    + "\(count) but only \(elements.count) element(s) were returned by accessibilityElement(at:)."
-            )
         }
         return elements.isEmpty ? nil : elements
     }
