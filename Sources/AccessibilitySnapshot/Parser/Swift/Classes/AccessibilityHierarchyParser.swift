@@ -245,7 +245,8 @@ public final class AccessibilityHierarchyParser {
             customContent: object.customContent,
             customRotors: object.customRotors(in: root, context: context, resultLimit: rotorResultLimit),
             accessibilityLanguage: object.accessibilityLanguage,
-            respondsToUserInteraction: object.accessibilityRespondsToUserInteraction
+            respondsToUserInteraction: object.accessibilityRespondsToUserInteraction,
+            expandedStatus: object.expandedStatus
         )
     }
 

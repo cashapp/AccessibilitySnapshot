@@ -17,6 +17,22 @@ public struct AccessibilityElement: Equatable, Codable {
         case path(UIBezierPath)
     }
 
+    /// The expanded/collapsed state of a disclosure-style accessibility element.
+    ///
+    /// Populated by the parser's expanded-status resolver. The raw integer values mirror
+    /// `UIAccessibility.ExpandedStatus` on iOS 18 and the legacy accessibility runtime values
+    /// used by snapshot builds that opt in to private accessibility APIs.
+    public enum ExpandedStatus: Int, Equatable, Codable {
+        /// The element does not support expanded/collapsed state.
+        case unsupported = 0
+
+        /// The element is expanded.
+        case expanded = 1
+
+        /// The element is collapsed.
+        case collapsed = 2
+    }
+
     public struct CustomRotor: Equatable, CustomStringConvertible, Codable {
         public struct ResultMarker: Equatable, CustomStringConvertible, Codable {
             public let elementDescription: String
@@ -158,7 +174,29 @@ public struct AccessibilityElement: Equatable, Codable {
     /// Whether the element performs an action based on user interaction.
     public let respondsToUserInteraction: Bool
 
+    /// The expanded/collapsed state of the element, if applicable.
+    public let expandedStatus: ExpandedStatus
+
     // MARK: - Initialization
+
+    private enum CodingKeys: String, CodingKey {
+        case description
+        case label
+        case value
+        case traits
+        case identifier
+        case hint
+        case userInputLabels
+        case shape
+        case activationPoint
+        case usesDefaultActivationPoint
+        case customActions
+        case customContent
+        case customRotors
+        case accessibilityLanguage
+        case respondsToUserInteraction
+        case expandedStatus
+    }
 
     init(
         description: String,
@@ -175,7 +213,8 @@ public struct AccessibilityElement: Equatable, Codable {
         customContent: [CustomContent],
         customRotors: [CustomRotor],
         accessibilityLanguage: String?,
-        respondsToUserInteraction: Bool
+        respondsToUserInteraction: Bool,
+        expandedStatus: ExpandedStatus = .unsupported
     ) {
         self.description = description
         self.label = label
@@ -192,5 +231,48 @@ public struct AccessibilityElement: Equatable, Codable {
         self.customRotors = customRotors
         self.accessibilityLanguage = accessibilityLanguage
         self.respondsToUserInteraction = respondsToUserInteraction
+        self.expandedStatus = expandedStatus
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        description = try container.decode(String.self, forKey: .description)
+        label = try container.decodeIfPresent(String.self, forKey: .label)
+        value = try container.decodeIfPresent(String.self, forKey: .value)
+        traits = try container.decode(UIAccessibilityTraits.self, forKey: .traits)
+        identifier = try container.decodeIfPresent(String.self, forKey: .identifier)
+        hint = try container.decodeIfPresent(String.self, forKey: .hint)
+        userInputLabels = try container.decodeIfPresent([String].self, forKey: .userInputLabels)
+        shape = try container.decode(Shape.self, forKey: .shape)
+        activationPoint = try container.decode(CGPoint.self, forKey: .activationPoint)
+        usesDefaultActivationPoint = try container.decode(Bool.self, forKey: .usesDefaultActivationPoint)
+        customActions = try container.decode([CustomAction].self, forKey: .customActions)
+        customContent = try container.decode([CustomContent].self, forKey: .customContent)
+        customRotors = try container.decode([CustomRotor].self, forKey: .customRotors)
+        accessibilityLanguage = try container.decodeIfPresent(String.self, forKey: .accessibilityLanguage)
+        respondsToUserInteraction = try container.decode(Bool.self, forKey: .respondsToUserInteraction)
+        expandedStatus = try container.decodeIfPresent(ExpandedStatus.self, forKey: .expandedStatus) ?? .unsupported
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        try container.encode(description, forKey: .description)
+        try container.encodeIfPresent(label, forKey: .label)
+        try container.encodeIfPresent(value, forKey: .value)
+        try container.encode(traits, forKey: .traits)
+        try container.encodeIfPresent(identifier, forKey: .identifier)
+        try container.encodeIfPresent(hint, forKey: .hint)
+        try container.encodeIfPresent(userInputLabels, forKey: .userInputLabels)
+        try container.encode(shape, forKey: .shape)
+        try container.encode(activationPoint, forKey: .activationPoint)
+        try container.encode(usesDefaultActivationPoint, forKey: .usesDefaultActivationPoint)
+        try container.encode(customActions, forKey: .customActions)
+        try container.encode(customContent, forKey: .customContent)
+        try container.encode(customRotors, forKey: .customRotors)
+        try container.encodeIfPresent(accessibilityLanguage, forKey: .accessibilityLanguage)
+        try container.encode(respondsToUserInteraction, forKey: .respondsToUserInteraction)
+        try container.encode(expandedStatus, forKey: .expandedStatus)
     }
 }

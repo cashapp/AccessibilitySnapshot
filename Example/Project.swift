@@ -85,6 +85,29 @@ let project = Project(
             ],
             dependencies: [
                 .target(name: "AccessibilitySnapshotParser_ObjC"),
+            ],
+            settings: .settings(
+                base: [
+                    // The Example workspace drives snapshot/debug tooling, so it opts in to the
+                    // private AX resolver. Package.swift remains public-only by default.
+                    "SWIFT_ACTIVE_COMPILATION_CONDITIONS": "ACCESSIBILITY_SNAPSHOT_ENABLE_PRIVATE_AX",
+                ]
+            )
+        ),
+
+        // Verification target for the public-only parser build, matching Package.swift's default.
+        .target(
+            name: "AccessibilitySnapshotParserPublicOnly",
+            destinations: .iOS,
+            product: .framework,
+            bundleId: "com.cashapp.AccessibilitySnapshotParserPublicOnly",
+            deploymentTargets: deploymentTargets,
+            sources: ["../Sources/AccessibilitySnapshot/Parser/Swift/Classes/**/*.swift"],
+            resources: [
+                "../Sources/AccessibilitySnapshot/Parser/Swift/Assets/**/*",
+            ],
+            dependencies: [
+                .target(name: "AccessibilitySnapshotParser_ObjC"),
             ]
         ),
 

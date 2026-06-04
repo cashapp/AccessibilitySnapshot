@@ -2,8 +2,13 @@ import UIKit
 
 extension NSObject {
     /// Returns a tuple consisting of the `description` and (optionally) a `hint` that VoiceOver will read for the object.
-    func accessibilityDescription(context: AccessibilityHierarchyParser.Context?) -> (description: String, hint: String?) {
+    ///
+    /// - parameter context: Positional context (e.g. list start, tab bar item) that shapes the description.
+    func accessibilityDescription(
+        context: AccessibilityHierarchyParser.Context?
+    ) -> (description: String, hint: String?) {
         let strings = Strings(locale: accessibilityLanguage)
+        let resolvedExpandedStatus = expandedStatus
 
         var accessibilityDescription =
             accessibilityLabelOverride(for: context) ??
@@ -157,6 +162,15 @@ extension NSObject {
             traitSpecifiers.append(strings.searchFieldTraitName)
         }
 
+        switch resolvedExpandedStatus {
+        case .expanded:
+            traitSpecifiers.append(strings.expandedStatusName)
+        case .collapsed:
+            traitSpecifiers.append(strings.collapsedStatusName)
+        case .unsupported:
+            break
+        }
+
         // If the description is empty, use the hint as the description.
         if accessibilityDescription.isEmpty {
             accessibilityDescription = hintDescription ?? ""
@@ -250,6 +264,23 @@ extension NSObject {
                 hintDescription = String(format: strings.adjustableTraitHintFormat, existingHintDescription)
             } else {
                 hintDescription = strings.adjustableTraitHint
+            }
+        }
+
+        let expandedHint: (hint: String, format: String)? = {
+            switch resolvedExpandedStatus {
+            case .expanded:
+                return (strings.expandedStatusHint, strings.expandedStatusHintFormat)
+            case .collapsed:
+                return (strings.collapsedStatusHint, strings.collapsedStatusHintFormat)
+            case .unsupported: return nil
+            }
+        }()
+        if let expandedHint, !accessibilityTraits.contains(.notEnabled) {
+            if let existingHint = hintDescription?.nonEmpty()?.strippingTrailingPeriod() {
+                hintDescription = String(format: expandedHint.format, existingHint)
+            } else {
+                hintDescription = expandedHint.hint
             }
         }
 
@@ -373,6 +404,18 @@ extension NSObject {
         let textAreaTraitHint: String
 
         let isEditingTraitName: String
+
+        let expandedStatusName: String
+
+        let collapsedStatusName: String
+
+        let expandedStatusHint: String
+
+        let expandedStatusHintFormat: String
+
+        let collapsedStatusHint: String
+
+        let collapsedStatusHintFormat: String
 
         // MARK: - Life Cycle
 
@@ -553,6 +596,36 @@ extension NSObject {
             isEditingTraitName = "Is editing.".localized(
                 key: "trait.text_field_is_editing.description",
                 comment: "Description for the 'is editing' accessibility trait",
+                locale: locale
+            )
+            expandedStatusName = "Expanded.".localized(
+                key: "status.expanded.description",
+                comment: "Description for the expanded accessibility status",
+                locale: locale
+            )
+            collapsedStatusName = "Collapsed.".localized(
+                key: "status.collapsed.description",
+                comment: "Description for the collapsed accessibility status",
+                locale: locale
+            )
+            expandedStatusHint = "Double tap to collapse.".localized(
+                key: "status.expanded.hint",
+                comment: "Hint for expanded elements",
+                locale: locale
+            )
+            expandedStatusHintFormat = "%@. Double tap to collapse.".localized(
+                key: "status.expanded.hint_format",
+                comment: "Format for hint describing expanded elements; param0: the existing hint",
+                locale: locale
+            )
+            collapsedStatusHint = "Double tap to expand.".localized(
+                key: "status.collapsed.hint",
+                comment: "Hint for collapsed elements",
+                locale: locale
+            )
+            collapsedStatusHintFormat = "%@. Double tap to expand.".localized(
+                key: "status.collapsed.hint_format",
+                comment: "Format for hint describing collapsed elements; param0: the existing hint",
                 locale: locale
             )
         }
