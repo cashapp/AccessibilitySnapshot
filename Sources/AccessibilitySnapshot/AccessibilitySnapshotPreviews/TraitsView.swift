@@ -1,10 +1,10 @@
+import AccessibilitySnapshotParser
 import SwiftUI
 import UIKit
 
-/// Displays trait icons as pills matching the UserInputLabelsView style.
 @available(iOS 16.0, *)
 struct TraitsView: View {
-    let traits: UIAccessibilityTraits
+    let traits: AccessibilitySnapshotModel.AccessibilityTraits
 
     private typealias Tokens = DesignTokens.TraitPill
 
@@ -122,11 +122,11 @@ enum UnspokenTrait: Hashable {
         }
     }
 
-    /// Extracts displayable traits from a UIAccessibilityTraits value.
-    static func from(_ traits: UIAccessibilityTraits) -> [UnspokenTrait] {
-        availableCases.filter { unspokenTrait in
+    static func from(_ traits: AccessibilitySnapshotModel.AccessibilityTraits) -> [UnspokenTrait] {
+        let uiTraits = traits.uiAccessibilityTraits
+        return availableCases.filter { unspokenTrait in
             guard let uiTrait = unspokenTrait.uiTrait else { return false }
-            return traits.contains(uiTrait)
+            return uiTraits.contains(uiTrait)
         }
     }
 }
@@ -148,7 +148,7 @@ enum UnspokenTrait: Hashable {
 
 @available(iOS 17.0, *)
 #Preview("All Unspoken Traits") {
-    TraitsView(traits: [
+    TraitsView(traits: AccessibilityTraits(UIAccessibilityTraits([
         .keyboardKey,
         .allowsDirectInteraction,
         .updatesFrequently,
@@ -157,7 +157,7 @@ enum UnspokenTrait: Hashable {
         .startsMediaSession,
         .summaryElement,
         .supportsZoom,
-    ])
+    ])))
     .padding()
     .frame(width: 250)
 }

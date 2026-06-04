@@ -63,7 +63,6 @@ public struct AccessibilitySnapshotView<Content: View>: View {
 
     // MARK: - Private Views
 
-    @ViewBuilder
     private func snapshotWithOverlays(image: UIImage) -> some View {
         ZStack(alignment: .topLeading) {
             Image(uiImage: image)
@@ -71,24 +70,28 @@ public struct AccessibilitySnapshotView<Content: View>: View {
                 .frame(width: renderSize.width, height: renderSize.height)
 
             ForEach(markers.indices, id: \.self) { index in
-                let marker = markers[index]
-
-                ElementOverlay(
-                    index: index,
-                    shape: marker.shape,
-                    palette: palette
-                )
-
-                if shouldShowActivationPoint(for: marker) {
-                    ActivationPointView(
-                        position: marker.activationPoint,
-                        color: palette.strokeColor(at: index)
-                    )
-                }
+                markerOverlay(at: index)
             }
         }
         .frame(width: renderSize.width, height: renderSize.height)
         .clipped()
+    }
+
+    @ViewBuilder
+    private func markerOverlay(at index: Int) -> some View {
+        let marker = markers[index]
+        ElementOverlay(
+            index: index,
+            shape: marker.shape,
+            palette: palette
+        )
+
+        if shouldShowActivationPoint(for: marker) {
+            ActivationPointView(
+                position: marker.activationPoint.cgPoint,
+                color: palette.strokeColor(at: index)
+            )
+        }
     }
 
     @ViewBuilder
@@ -127,7 +130,7 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             window.isHidden = true
             window.rootViewController = nil
         }
-        
+
         do {
             snapshotImage = try hostingController.view.renderToImage(
                 configuration: configuration.rendering
@@ -282,23 +285,28 @@ public struct PreParsedAccessibilitySnapshotView: View {
                 .frame(width: renderSize.width, height: renderSize.height)
 
             ForEach(markers.indices, id: \.self) { index in
-                let marker = markers[index]
-                ElementOverlay(
-                    index: index,
-                    shape: marker.shape,
-                    palette: palette
-                )
-
-                if shouldShowActivationPoint(for: marker) {
-                    ActivationPointView(
-                        position: marker.activationPoint,
-                        color: palette.strokeColor(at: index)
-                    )
-                }
+                markerOverlay(at: index)
             }
         }
         .frame(width: renderSize.width, height: renderSize.height)
         .clipped()
+    }
+
+    @ViewBuilder
+    private func markerOverlay(at index: Int) -> some View {
+        let marker = markers[index]
+        ElementOverlay(
+            index: index,
+            shape: marker.shape,
+            palette: palette
+        )
+
+        if shouldShowActivationPoint(for: marker) {
+            ActivationPointView(
+                position: marker.activationPoint.cgPoint,
+                color: palette.strokeColor(at: index)
+            )
+        }
     }
 
     private func shouldShowActivationPoint(for marker: AccessibilityMarker) -> Bool {
