@@ -51,10 +51,12 @@ public struct ElementOverlay: View {
     private var strokeColor: Color { palette.strokeColor(at: index) }
 
     public var body: some View {
-        ZStack(alignment: .topLeading) {
-            shapeView
-            NumberBadge(index: index, palette: palette)
-                .position(badgeCenter)
+        if shape.isFinite {
+            ZStack(alignment: .topLeading) {
+                shapeView
+                NumberBadge(index: index, palette: palette)
+                    .position(badgeCenter)
+            }
         }
     }
 

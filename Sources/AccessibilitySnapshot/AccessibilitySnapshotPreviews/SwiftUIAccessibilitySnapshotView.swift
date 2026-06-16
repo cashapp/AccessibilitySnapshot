@@ -70,28 +70,16 @@ public struct AccessibilitySnapshotView<Content: View>: View {
                 .frame(width: renderSize.width, height: renderSize.height)
 
             ForEach(markers.indices, id: \.self) { index in
-                markerOverlay(at: index)
+                markerOverlayView(
+                    marker: markers[index],
+                    index: index,
+                    palette: palette,
+                    activationPointDisplayMode: configuration.activationPointDisplayMode
+                )
             }
         }
         .frame(width: renderSize.width, height: renderSize.height)
         .clipped()
-    }
-
-    @ViewBuilder
-    private func markerOverlay(at index: Int) -> some View {
-        let marker = markers[index]
-        ElementOverlay(
-            index: index,
-            shape: marker.shape,
-            palette: palette
-        )
-
-        if shouldShowActivationPoint(for: marker) {
-            ActivationPointView(
-                position: marker.activationPoint.cgPoint,
-                color: palette.strokeColor(at: index)
-            )
-        }
     }
 
     @ViewBuilder
@@ -143,17 +131,6 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             ).flattenToElements()
         } catch {
             parseError = error
-        }
-    }
-
-    private func shouldShowActivationPoint(for marker: AccessibilityMarker) -> Bool {
-        switch configuration.activationPointDisplayMode {
-        case .always:
-            return true
-        case .whenOverridden:
-            return !marker.usesDefaultActivationPoint
-        case .never:
-            return false
         }
     }
 }
@@ -285,39 +262,54 @@ public struct PreParsedAccessibilitySnapshotView: View {
                 .frame(width: renderSize.width, height: renderSize.height)
 
             ForEach(markers.indices, id: \.self) { index in
-                markerOverlay(at: index)
+                markerOverlayView(
+                    marker: markers[index],
+                    index: index,
+                    palette: palette,
+                    activationPointDisplayMode: configuration.activationPointDisplayMode
+                )
             }
         }
         .frame(width: renderSize.width, height: renderSize.height)
         .clipped()
     }
+}
 
-    @ViewBuilder
-    private func markerOverlay(at index: Int) -> some View {
-        let marker = markers[index]
-        ElementOverlay(
-            index: index,
-            shape: marker.shape,
-            palette: palette
+// MARK: - Shared Overlay Helpers
+
+@available(iOS 16.0, *)
+@ViewBuilder
+func markerOverlayView(
+    marker: AccessibilityMarker,
+    index: Int,
+    palette: ColorPalette,
+    activationPointDisplayMode: AccessibilityContentDisplayMode
+) -> some View {
+    ElementOverlay(
+        index: index,
+        shape: marker.shape,
+        palette: palette
+    )
+
+    if shouldShowActivationPoint(for: marker, displayMode: activationPointDisplayMode) {
+        ActivationPointView(
+            position: marker.activationPoint.cgPoint,
+            color: palette.strokeColor(at: index)
         )
-
-        if shouldShowActivationPoint(for: marker) {
-            ActivationPointView(
-                position: marker.activationPoint.cgPoint,
-                color: palette.strokeColor(at: index)
-            )
-        }
     }
+}
 
-    private func shouldShowActivationPoint(for marker: AccessibilityMarker) -> Bool {
-        switch configuration.activationPointDisplayMode {
-        case .always:
-            return true
-        case .whenOverridden:
-            return !marker.usesDefaultActivationPoint
-        case .never:
-            return false
-        }
+private func shouldShowActivationPoint(
+    for marker: AccessibilityMarker,
+    displayMode: AccessibilityContentDisplayMode
+) -> Bool {
+    switch displayMode {
+    case .always:
+        return true
+    case .whenOverridden:
+        return !marker.usesDefaultActivationPoint
+    case .never:
+        return false
     }
 }
 

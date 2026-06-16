@@ -79,6 +79,23 @@ public enum AccessibilityPathElement: Hashable, Codable, Sendable {
 public enum AccessibilityShape: Hashable, Codable, Sendable {
     case frame(AccessibilityRect)
     case path([AccessibilityPathElement])
+
+    public var isFinite: Bool {
+        switch self {
+        case let .frame(rect):
+            return rect.isFinite
+        case let .path(elements):
+            return elements.allSatisfy { element in
+                switch element {
+                case let .move(to): return to.isFinite
+                case let .line(to): return to.isFinite
+                case let .quadCurve(to, control): return to.isFinite && control.isFinite
+                case let .curve(to, control1, control2): return to.isFinite && control1.isFinite && control2.isFinite
+                case .closeSubpath: return true
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Wire-Compatible Codable
