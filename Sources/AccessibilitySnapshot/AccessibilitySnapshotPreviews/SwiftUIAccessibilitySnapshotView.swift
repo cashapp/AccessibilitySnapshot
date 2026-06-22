@@ -63,7 +63,6 @@ public struct AccessibilitySnapshotView<Content: View>: View {
 
     // MARK: - Private Views
 
-    @ViewBuilder
     private func snapshotWithOverlays(image: UIImage) -> some View {
         ZStack(alignment: .topLeading) {
             Image(uiImage: image)
@@ -71,20 +70,12 @@ public struct AccessibilitySnapshotView<Content: View>: View {
                 .frame(width: renderSize.width, height: renderSize.height)
 
             ForEach(markers.indices, id: \.self) { index in
-                let marker = markers[index]
-
-                ElementOverlay(
+                markerOverlayView(
+                    marker: markers[index],
                     index: index,
-                    shape: marker.shape,
-                    palette: palette
+                    palette: palette,
+                    activationPointDisplayMode: configuration.activationPointDisplayMode
                 )
-
-                if shouldShowActivationPoint(for: marker) {
-                    ActivationPointView(
-                        position: marker.activationPoint,
-                        color: palette.strokeColor(at: index)
-                    )
-                }
             }
         }
         .frame(width: renderSize.width, height: renderSize.height)
@@ -127,7 +118,7 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             window.isHidden = true
             window.rootViewController = nil
         }
-        
+
         do {
             snapshotImage = try hostingController.view.renderToImage(
                 configuration: configuration.rendering
@@ -140,17 +131,6 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             ).flattenToElements()
         } catch {
             parseError = error
-        }
-    }
-
-    private func shouldShowActivationPoint(for marker: AccessibilityMarker) -> Bool {
-        switch configuration.activationPointDisplayMode {
-        case .always:
-            return true
-        case .whenOverridden:
-            return !marker.usesDefaultActivationPoint
-        case .never:
-            return false
         }
     }
 }
@@ -282,34 +262,54 @@ public struct PreParsedAccessibilitySnapshotView: View {
                 .frame(width: renderSize.width, height: renderSize.height)
 
             ForEach(markers.indices, id: \.self) { index in
-                let marker = markers[index]
-                ElementOverlay(
+                markerOverlayView(
+                    marker: markers[index],
                     index: index,
-                    shape: marker.shape,
-                    palette: palette
+                    palette: palette,
+                    activationPointDisplayMode: configuration.activationPointDisplayMode
                 )
-
-                if shouldShowActivationPoint(for: marker) {
-                    ActivationPointView(
-                        position: marker.activationPoint,
-                        color: palette.strokeColor(at: index)
-                    )
-                }
             }
         }
         .frame(width: renderSize.width, height: renderSize.height)
         .clipped()
     }
+}
 
-    private func shouldShowActivationPoint(for marker: AccessibilityMarker) -> Bool {
-        switch configuration.activationPointDisplayMode {
-        case .always:
-            return true
-        case .whenOverridden:
-            return !marker.usesDefaultActivationPoint
-        case .never:
-            return false
-        }
+// MARK: - Shared Overlay Helpers
+
+@available(iOS 16.0, *)
+@ViewBuilder
+func markerOverlayView(
+    marker: AccessibilityMarker,
+    index: Int,
+    palette: ColorPalette,
+    activationPointDisplayMode: AccessibilityContentDisplayMode
+) -> some View {
+    ElementOverlay(
+        index: index,
+        shape: marker.shape,
+        palette: palette
+    )
+
+    if shouldShowActivationPoint(for: marker, displayMode: activationPointDisplayMode) {
+        ActivationPointView(
+            position: marker.activationPoint.cgPoint,
+            color: palette.strokeColor(at: index)
+        )
+    }
+}
+
+private func shouldShowActivationPoint(
+    for marker: AccessibilityMarker,
+    displayMode: AccessibilityContentDisplayMode
+) -> Bool {
+    switch displayMode {
+    case .always:
+        return true
+    case .whenOverridden:
+        return !marker.usesDefaultActivationPoint
+    case .never:
+        return false
     }
 }
 

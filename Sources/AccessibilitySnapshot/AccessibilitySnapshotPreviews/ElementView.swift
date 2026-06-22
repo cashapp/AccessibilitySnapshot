@@ -36,10 +36,10 @@ public struct NumberBadge: View {
 @available(iOS 16.0, *)
 public struct ElementOverlay: View {
     public let index: Int
-    public let shape: AccessibilityMarker.Shape
+    public let shape: AccessibilityShape
     public let palette: ColorPalette
 
-    public init(index: Int, shape: AccessibilityMarker.Shape, palette: ColorPalette) {
+    public init(index: Int, shape: AccessibilityShape, palette: ColorPalette) {
         self.index = index
         self.shape = shape
         self.palette = palette
@@ -73,7 +73,7 @@ public struct ElementOverlay: View {
     private var frameBounds: CGRect? {
         switch shape {
         case let .frame(rect):
-            return rect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
+            return rect.cgRect.insetBy(dx: -Tokens.overlayOutset, dy: -Tokens.overlayOutset)
         case let .path(path):
             let cgPath = path.cgPath
             if BadgePlacement.isRectangle(cgPath) {
@@ -155,22 +155,22 @@ private struct CGPathShape: Shape {
         Color.gray.opacity(0.2)
         ElementOverlay(
             index: 0,
-            shape: .frame(CGRect(x: 50, y: 30, width: 200, height: 50)),
+            shape: .frame(AccessibilityRect(x: 50, y: 30, width: 200, height: 50)),
             palette: .default
         )
         ElementOverlay(
             index: 1,
-            shape: .frame(CGRect(x: 50, y: 100, width: 200, height: 80)),
+            shape: .frame(AccessibilityRect(x: 50, y: 100, width: 200, height: 80)),
             palette: .default
         )
         ElementOverlay(
             index: 2,
-            shape: .frame(CGRect(x: 50, y: 200, width: 200, height: 50)),
+            shape: .frame(AccessibilityRect(x: 50, y: 200, width: 200, height: 50)),
             palette: .default
         )
         ElementOverlay(
             index: 3,
-            shape: .frame(CGRect(x: 50, y: 270, width: 200, height: 50)),
+            shape: .frame(AccessibilityRect(x: 50, y: 270, width: 200, height: 50)),
             palette: .default
         )
     }
