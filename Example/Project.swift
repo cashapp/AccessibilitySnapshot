@@ -60,7 +60,7 @@ let project = Project(
             product: .framework,
             bundleId: "com.cashapp.AccessibilitySnapshotModel",
             deploymentTargets: deploymentTargets,
-            sources: ["../Sources/AccessibilitySnapshot/Model/**/*.swift"]
+            sources: ["../AccessibilitySnapshotModel/Sources/AccessibilitySnapshotModel/**/*.swift"]
         ),
 
         .target(

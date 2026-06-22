@@ -28,10 +28,6 @@ let package = Package(
             targets: ["AccessibilitySnapshotCore"]
         ),
         .library(
-            name: "AccessibilitySnapshotModel",
-            targets: ["AccessibilitySnapshotModel"]
-        ),
-        .library(
             name: "AccessibilitySnapshotParser",
             targets: ["AccessibilitySnapshotParser"]
         ),
@@ -41,6 +37,7 @@ let package = Package(
         ),
     ],
     dependencies: [
+        .package(path: "AccessibilitySnapshotModel"),
         .package(
             name: "iOSSnapshotTestCase",
             url: "https://github.com/uber/ios-snapshot-test-case.git",
@@ -54,16 +51,15 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "AccessibilitySnapshotModel",
-            path: "Sources/AccessibilitySnapshot/Model"
-        ),
-        .target(
             name: "AccessibilitySnapshotParser-ObjC",
             path: "Sources/AccessibilitySnapshot/Parser/ObjC"
         ),
         .target(
             name: "AccessibilitySnapshotParser",
-            dependencies: ["AccessibilitySnapshotModel", "AccessibilitySnapshotParser-ObjC"],
+            dependencies: [
+                .product(name: "AccessibilitySnapshotModel", package: "AccessibilitySnapshotModel"),
+                "AccessibilitySnapshotParser-ObjC",
+            ],
             path: "Sources/AccessibilitySnapshot/Parser/Swift",
             resources: [.process("Assets")]
         ),
