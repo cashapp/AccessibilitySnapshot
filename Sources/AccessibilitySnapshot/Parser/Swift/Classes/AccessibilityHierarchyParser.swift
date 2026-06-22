@@ -528,7 +528,6 @@ public final class AccessibilityHierarchyParser {
         return nil
     }
 
-
     // MARK: - Private Hierarchy Methods
 
     private func mapNodesToHierarchy(
@@ -603,11 +602,18 @@ extension AccessibilityHierarchyParser {
             return .path(AccessibilityPathElement.elements(from: converted.cgPath))
 
         } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer, !element.accessibilityFrameInContainerSpace.isNull {
-            return .frame(AccessibilityRect(container.convert(element.accessibilityFrameInContainerSpace, to: root)))
+            return .frame(finiteRect(container.convert(element.accessibilityFrameInContainerSpace, to: root)))
 
         } else {
-            return .frame(AccessibilityRect(root.convert(element.accessibilityFrame, from: nil)))
+            return .frame(finiteRect(root.convert(element.accessibilityFrame, from: nil)))
         }
+    }
+
+    /// Maps a CoreGraphics rect into the portable model, substituting a zero rect when the value is
+    /// non-finite. JSON cannot represent NaN/±Infinity, so guarding here keeps every produced shape
+    /// encodable without the model needing to police its own geometry.
+    private static func finiteRect(_ rect: CGRect) -> AccessibilityRect {
+        rect.isFinite ? AccessibilityRect(rect) : .zero
     }
 
     /// Determines whether an element is using its default activation point.
@@ -702,24 +708,31 @@ private extension AccessibilityHierarchyParser {
 
 // MARK: -
 
-private extension UIBezierPath {
-    /// True when the path is non-empty and its CGPath bounding box has finite
-    /// origin and size.
+extension UIBezierPath {
+    /// True when the path is non-empty and its CGPath bounding box is finite.
     ///
     /// `UIBezierPath.bounds` calls `CGPathGetPathBoundingBox`, which returns
     /// `CGRect.null` (origin `.infinity`) for empty paths and may carry
     /// non-finite values when callers feed in `.nan`/`.infinity`. Storing
-    /// such a path in `Shape.path` lets those values flow into downstream
-    /// `Int(_:)` conversions and trap with a Swift runtime SIGTRAP. Callers
-    /// gate `.path(...)` on this check and fall back to `.frame(...)`.
+    /// such a path in `.path` lets those values flow into downstream
+    /// `Int(_:)` conversions and trap with a Swift runtime SIGTRAP, so every
+    /// site that builds `.path(...)` from a `UIBezierPath` gates on this and
+    /// falls back to a `.frame(...)`.
     var hasFiniteBounds: Bool {
         guard !isEmpty else { return false }
-        let rect = cgPath.boundingBoxOfPath
-        return !rect.isNull
-            && rect.origin.x.isFinite
-            && rect.origin.y.isFinite
-            && rect.size.width.isFinite
-            && rect.size.height.isFinite
+        return cgPath.boundingBoxOfPath.isFinite
+    }
+}
+
+private extension CGRect {
+    /// True when the rect is non-null and every component is finite. Non-finite geometry cannot be
+    /// JSON-encoded, so it is rejected at the UIKit → model boundary.
+    var isFinite: Bool {
+        !isNull
+            && origin.x.isFinite
+            && origin.y.isFinite
+            && size.width.isFinite
+            && size.height.isFinite
     }
 }
 

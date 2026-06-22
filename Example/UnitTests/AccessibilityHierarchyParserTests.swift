@@ -942,6 +942,22 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(elements, ["emptyPath"], "Element with empty accessibility path should still be parsed")
     }
 
+    /// A non-finite `accessibilityFrame` must not produce a non-finite shape: JSON cannot represent
+    /// NaN/±Infinity, so an unguarded shape would make `JSONEncoder` throw. The parser sanitizes the
+    /// geometry at the UIKit → model boundary, falling back to a zero frame.
+    func testParserProducesEncodableShapeForNonFiniteFrame() throws {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let element = ActivationPointTestView(frame: CGRect(x: 10, y: 10, width: 50, height: 50))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "nonFinite"
+        element.overriddenFrame = CGRect(x: .nan, y: 0, width: .infinity, height: 50)
+        root.addSubview(element)
+
+        let marker = try XCTUnwrap(parseMarkers(in: root).first)
+        XCTAssertEqual(marker.shape, .frame(.zero), "A non-finite frame should fall back to a zero frame")
+        XCTAssertNoThrow(try JSONEncoder().encode(marker.shape), "The produced shape must be JSON-encodable")
+    }
+
     // MARK: - Private Helpers
 
     private func parseMarkers(in view: UIView) -> [AccessibilityMarker] {

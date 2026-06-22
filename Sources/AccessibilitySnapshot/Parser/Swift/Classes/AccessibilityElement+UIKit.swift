@@ -25,7 +25,7 @@ extension AccessibilityElement.CustomRotor {
             if let range = result.targetRange,
                let input = element as? UITextInput
             {
-                if let path = input.accessibilityPath(for: range) {
+                if let path = input.accessibilityPath(for: range), path.hasFiniteBounds {
                     let converted = root.convert(path, from: input as? UIView)
                     shape = .path(AccessibilityPathElement.elements(from: converted.cgPath))
                 }

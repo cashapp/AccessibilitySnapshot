@@ -10,10 +10,6 @@ public struct AccessibilityPoint: Hashable, Codable, Sendable {
     }
 
     public static let zero = AccessibilityPoint(x: 0, y: 0)
-
-    public var isFinite: Bool {
-        x.isFinite && y.isFinite
-    }
 }
 
 public struct AccessibilitySize: Hashable, Codable, Sendable {
@@ -26,10 +22,6 @@ public struct AccessibilitySize: Hashable, Codable, Sendable {
     }
 
     public static let zero = AccessibilitySize(width: 0, height: 0)
-
-    public var isFinite: Bool {
-        width.isFinite && height.isFinite
-    }
 }
 
 public struct AccessibilityRect: Hashable, Codable, Sendable {
@@ -58,10 +50,6 @@ public struct AccessibilityRect: Hashable, Codable, Sendable {
     public var midY: Double { origin.y + size.height / 2 }
     public var width: Double { size.width }
     public var height: Double { size.height }
-
-    public var isFinite: Bool {
-        origin.isFinite && size.isFinite
-    }
 }
 
 // MARK: - Path Element
@@ -79,23 +67,6 @@ public enum AccessibilityPathElement: Hashable, Codable, Sendable {
 public enum AccessibilityShape: Hashable, Codable, Sendable {
     case frame(AccessibilityRect)
     case path([AccessibilityPathElement])
-
-    public var isFinite: Bool {
-        switch self {
-        case let .frame(rect):
-            return rect.isFinite
-        case let .path(elements):
-            return elements.allSatisfy { element in
-                switch element {
-                case let .move(to): return to.isFinite
-                case let .line(to): return to.isFinite
-                case let .quadCurve(to, control): return to.isFinite && control.isFinite
-                case let .curve(to, control1, control2): return to.isFinite && control1.isFinite && control2.isFinite
-                case .closeSubpath: return true
-                }
-            }
-        }
-    }
 }
 
 // MARK: - Wire-Compatible Codable
