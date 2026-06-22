@@ -22,6 +22,15 @@ jobs:
       - name: Build
         run: Scripts/build.swift spm ${{ matrix.platform }}
 
+  model-tests:
+    name: Model Tests (macOS)
+    runs-on: macOS-14
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - name: Swift Test
+        run: swift test --package-path AccessibilitySnapshotModel
+
   validate-strings:
     name: Validate Localized Strings
     runs-on: macOS-14
