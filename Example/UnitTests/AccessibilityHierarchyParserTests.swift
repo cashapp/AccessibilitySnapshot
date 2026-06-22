@@ -950,7 +950,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let element = ActivationPointTestView(frame: CGRect(x: 10, y: 10, width: 50, height: 50))
         element.isAccessibilityElement = true
         element.accessibilityLabel = "nonFinite"
-        element.overriddenFrame = CGRect(x: .nan, y: 0, width: .infinity, height: 50)
+        element.overriddenFrame = CGRect(x: CGFloat.nan, y: 0, width: CGFloat.infinity, height: 50)
         root.addSubview(element)
 
         let marker = try XCTUnwrap(parseMarkers(in: root).first)
