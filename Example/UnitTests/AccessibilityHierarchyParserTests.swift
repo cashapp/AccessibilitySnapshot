@@ -942,9 +942,6 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(elements, ["emptyPath"], "Element with empty accessibility path should still be parsed")
     }
 
-    /// A non-finite `accessibilityFrame` must not produce a non-finite shape: JSON cannot represent
-    /// NaN/±Infinity, so an unguarded shape would make `JSONEncoder` throw. The parser sanitizes the
-    /// geometry at the UIKit → model boundary, falling back to a zero frame.
     func testParserProducesEncodableShapeForNonFiniteFrame() throws {
         let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         let element = ActivationPointTestView(frame: CGRect(x: 10, y: 10, width: 50, height: 50))
@@ -956,6 +953,44 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let marker = try XCTUnwrap(parseMarkers(in: root).first)
         XCTAssertEqual(marker.shape, .frame(.zero), "A non-finite frame should fall back to a zero frame")
         XCTAssertNoThrow(try JSONEncoder().encode(marker.shape), "The produced shape must be JSON-encodable")
+    }
+
+    // MARK: - Generic Fold Tests
+
+    func testGenericFoldPassesSourceObjects() {
+        let rootView = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+
+        let container = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+        container.accessibilityContainerType = .list
+        rootView.addSubview(container)
+
+        let element = UIView(frame: .init(x: 10, y: 10, width: 30, height: 30))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "Item"
+        element.accessibilityFrame = CGRect(x: 10, y: 10, width: 30, height: 30)
+        container.addSubview(element)
+
+        typealias FoldNode = (label: String, source: NSObject, container: AccessibilityContainer?)
+
+        let parser = AccessibilityHierarchyParser()
+        let nodes: [FoldNode] = parser.parseAccessibilityHierarchy(
+            in: rootView,
+            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(
+                userInterfaceLayoutDirection: .leftToRight
+            ),
+            userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone),
+            makeElement: { elem, index, source in
+                (label: elem.description, source: source, container: nil)
+            },
+            makeContainer: { cont, children, source in
+                (label: "container", source: source, container: cont)
+            }
+        )
+
+        XCTAssertEqual(nodes.count, 1)
+        let listNode = nodes[0]
+        XCTAssertTrue(listNode.source === container)
+        XCTAssertNotNil(listNode.container)
     }
 
     // MARK: - Private Helpers

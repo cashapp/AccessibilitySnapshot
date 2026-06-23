@@ -163,6 +163,26 @@ public final class AccessibilityHierarchyParser {
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
         userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
     ) -> [AccessibilityHierarchy] {
+        parseAccessibilityHierarchy(
+            in: root,
+            rotorResultLimit: rotorResultLimit,
+            userInterfaceLayoutDirectionProvider: userInterfaceLayoutDirectionProvider,
+            userInterfaceIdiomProvider: userInterfaceIdiomProvider,
+            makeElement: { element, traversalIndex, _ in .element(element, traversalIndex: traversalIndex) },
+            makeContainer: { container, children, _ in .container(container, children: children) }
+        )
+    }
+
+    /// Folds the parsed accessibility tree into a caller-defined node type in a single traversal.
+    /// `source` exposes the live accessibility object that produced each element or container.
+    public func parseAccessibilityHierarchy<Node>(
+        in root: UIView,
+        rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
+        userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current,
+        makeElement: (AccessibilityElement, _ traversalIndex: Int, _ source: NSObject) -> Node,
+        makeContainer: (AccessibilityContainer, _ children: [Node], _ source: NSObject) -> Node
+    ) -> [Node] {
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
         let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
 
@@ -194,7 +214,14 @@ public final class AccessibilityHierarchyParser {
             buildElement(from: element.object, context: element.context, in: root, rotorResultLimit: rotorResultLimit)
         }
 
-        return mapNodesToHierarchy(accessibilityNodes, sortedElements: uncontextualizedElements, elements: elements, in: root)
+        return foldNodes(
+            accessibilityNodes,
+            sortedElements: uncontextualizedElements,
+            elements: elements,
+            in: root,
+            makeElement: makeElement,
+            makeContainer: makeContainer
+        )
     }
 
     // MARK: - Private Types
@@ -530,23 +557,25 @@ public final class AccessibilityHierarchyParser {
 
     // MARK: - Private Hierarchy Methods
 
-    private func mapNodesToHierarchy(
+    private func foldNodes<Node>(
         _ nodes: [AccessibilityNode],
         sortedElements: [(object: NSObject, contextProvider: ContextProvider?)],
         elements: [AccessibilityElement],
-        in root: UIView
-    ) -> [AccessibilityHierarchy] {
+        in root: UIView,
+        makeElement: (AccessibilityElement, _ traversalIndex: Int, _ source: NSObject) -> Node,
+        makeContainer: (AccessibilityContainer, _ children: [Node], _ source: NSObject) -> Node
+    ) -> [Node] {
         var indexLookup: [ObjectIdentifier: Int] = [:]
         for (index, element) in sortedElements.enumerated() {
             indexLookup[ObjectIdentifier(element.object)] = index
         }
 
-        func mapNode(_ node: AccessibilityNode) -> [AccessibilityHierarchy] {
+        func mapNode(_ node: AccessibilityNode) -> [(node: Node, sortIndex: Int)] {
             switch node {
             case let .element(object, _):
                 guard let index = indexLookup[ObjectIdentifier(object)],
                       index < elements.count else { return [] }
-                return [.element(elements[index], traversalIndex: index)]
+                return [(makeElement(elements[index], index, object), index)]
 
             case let .group(children, _, _, containerInfo):
                 let mappedChildren = children.flatMap { mapNode($0) }.sorted { lhs, rhs in
@@ -580,14 +609,15 @@ public final class AccessibilityHierarchyParser {
                         type: containerType,
                         frame: frame
                     )
-                    return [.container(container, children: mappedChildren)]
+                    let sortIndex = mappedChildren.map { $0.sortIndex }.min() ?? Int.max
+                    return [(makeContainer(container, mappedChildren.map { $0.node }, info.view), sortIndex)]
                 }
 
                 return mappedChildren
             }
         }
 
-        return nodes.flatMap { mapNode($0) }
+        return nodes.flatMap { mapNode($0) }.map { $0.node }
     }
 }
 
