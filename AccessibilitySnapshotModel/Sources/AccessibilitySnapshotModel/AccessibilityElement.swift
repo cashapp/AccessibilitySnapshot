@@ -52,7 +52,13 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         }
     }
 
-    public typealias CustomAction = String
+    public struct CustomAction: Hashable, Codable, Sendable {
+        public var name: String
+
+        public init(name: String) {
+            self.name = name
+        }
+    }
 
     // MARK: - Public Properties
 

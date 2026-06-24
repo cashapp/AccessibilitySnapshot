@@ -268,7 +268,7 @@ public final class AccessibilityHierarchyParser {
                 activationPoint: activationPoint,
                 screenScale: (root.window?.screen ?? UIScreen.main).scale
             ),
-            customActions: object.accessibilityCustomActions?.map(\.name) ?? [],
+            customActions: (object.accessibilityCustomActions ?? []).map { .init(name: $0.name) },
             customContent: object.customContent,
             customRotors: object.customRotors(in: root, context: context, resultLimit: rotorResultLimit),
             accessibilityLanguage: object.accessibilityLanguage,

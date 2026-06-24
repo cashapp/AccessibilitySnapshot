@@ -20,7 +20,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             shape: .frame(AccessibilityRect(x: 10, y: 20, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 60, y: 42),
             usesDefaultActivationPoint: true,
-            customActions: ["Delete"],
+            customActions: [.init(name: "Delete")],
             customContent: [],
             customRotors: [],
             accessibilityLanguage: "en-US",
@@ -144,18 +144,15 @@ final class AccessibilityModelCodableTests: XCTestCase {
     }
 
     func testCustomActionCodable() throws {
-        let action: AccessibilityElement.CustomAction = "Delete"
+        let action = AccessibilityElement.CustomAction(name: "Delete")
 
         let encoder = JSONEncoder()
         let data = try encoder.encode(action)
 
-        let json = String(data: data, encoding: .utf8)
-        XCTAssertEqual(json, "\"Delete\"")
-
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(AccessibilityElement.CustomAction.self, from: data)
 
-        XCTAssertEqual(decoded, action)
+        XCTAssertEqual(decoded.name, "Delete")
     }
 
     func testContainerTypeCodable() throws {

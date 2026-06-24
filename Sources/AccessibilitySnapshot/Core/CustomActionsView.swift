@@ -14,7 +14,7 @@ extension AccessibilitySnapshotView {
                 iconLabel.numberOfLines = 0
 
                 let actionDescriptionLabel = UILabel()
-                actionDescriptionLabel.text = $0
+                actionDescriptionLabel.text = $0.name
                 actionDescriptionLabel.font = Metrics.font
                 actionDescriptionLabel.textColor = .black
                 actionDescriptionLabel.numberOfLines = 0

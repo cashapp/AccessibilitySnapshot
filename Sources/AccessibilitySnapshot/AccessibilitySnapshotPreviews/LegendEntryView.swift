@@ -35,7 +35,7 @@ struct LegendEntryView: View {
 
                 if !marker.customActions.isEmpty {
                     CustomActionsView(
-                        actions: marker.customActions,
+                        actions: marker.customActions.map { $0.name },
                         locale: marker.accessibilityLanguage
                     )
                 }
