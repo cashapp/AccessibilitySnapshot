@@ -1,5 +1,4 @@
 // swift-tools-version:5.3
-// The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
@@ -11,7 +10,6 @@ let package = Package(
         .macOS(.v10_15),
     ],
     products: [
-        // Core + SnapshotTesting for image comparison
         .library(
             name: "AccessibilitySnapshot",
             targets: ["AccessibilitySnapshot"]
@@ -28,6 +26,10 @@ let package = Package(
             targets: ["AccessibilitySnapshotCore"]
         ),
         .library(
+            name: "AccessibilitySnapshotModel",
+            targets: ["AccessibilitySnapshotModel"]
+        ),
+        .library(
             name: "AccessibilitySnapshotParser",
             targets: ["AccessibilitySnapshotParser"]
         ),
@@ -37,7 +39,6 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(path: "AccessibilitySnapshotModel"),
         .package(
             name: "iOSSnapshotTestCase",
             url: "https://github.com/uber/ios-snapshot-test-case.git",
@@ -51,15 +52,16 @@ let package = Package(
     ],
     targets: [
         .target(
+            name: "AccessibilitySnapshotModel",
+            path: "AccessibilitySnapshotModel/Sources/AccessibilitySnapshotModel"
+        ),
+        .target(
             name: "AccessibilitySnapshotParser-ObjC",
             path: "Sources/AccessibilitySnapshot/Parser/ObjC"
         ),
         .target(
             name: "AccessibilitySnapshotParser",
-            dependencies: [
-                .product(name: "AccessibilitySnapshotModel", package: "AccessibilitySnapshotModel"),
-                "AccessibilitySnapshotParser-ObjC",
-            ],
+            dependencies: ["AccessibilitySnapshotModel", "AccessibilitySnapshotParser-ObjC"],
             path: "Sources/AccessibilitySnapshot/Parser/Swift",
             resources: [.process("Assets")]
         ),
