@@ -10,6 +10,10 @@ public struct AccessibilityPoint: Hashable, Codable, Sendable {
     }
 
     public static let zero = AccessibilityPoint(x: 0, y: 0)
+
+    public var isFinite: Bool {
+        x.isFinite && y.isFinite
+    }
 }
 
 public struct AccessibilitySize: Hashable, Codable, Sendable {
@@ -22,6 +26,10 @@ public struct AccessibilitySize: Hashable, Codable, Sendable {
     }
 
     public static let zero = AccessibilitySize(width: 0, height: 0)
+
+    public var isFinite: Bool {
+        width.isFinite && height.isFinite
+    }
 }
 
 public struct AccessibilityRect: Hashable, Codable, Sendable {
@@ -50,6 +58,10 @@ public struct AccessibilityRect: Hashable, Codable, Sendable {
     public var midY: Double { origin.y + size.height / 2 }
     public var width: Double { size.width }
     public var height: Double { size.height }
+
+    public var isFinite: Bool {
+        origin.isFinite && size.isFinite
+    }
 }
 
 // MARK: - Path Element
@@ -192,6 +204,7 @@ public struct AccessibilityTraits: OptionSet, Hashable, Codable, Sendable {
     public static let tabBarItem = AccessibilityTraits(rawValue: 1 << 28)
     public static let textArea = AccessibilityTraits(rawValue: 1 << 47)
     public static let switchButton = AccessibilityTraits(rawValue: 1 << 53)
+    public static let alert = AccessibilityTraits(rawValue: 1 << 56)
 
     public static let knownTraits: [(trait: AccessibilityTraits, name: String)] = [
         (.button, "button"),
@@ -218,6 +231,7 @@ public struct AccessibilityTraits: OptionSet, Hashable, Codable, Sendable {
         (.tabBarItem, "tabBarItem"),
         (.textArea, "textArea"),
         (.switchButton, "switchButton"),
+        (.alert, "alert"),
     ]
 
     public var traitNames: [String] {
