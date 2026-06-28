@@ -1,3 +1,4 @@
+import SwiftUI
 import UIKit
 import XCTest
 @testable import AccessibilitySnapshotCore
@@ -253,6 +254,23 @@ final class SPIComparisonHarness: XCTestCase {
         wrapper.addSubview(child)
 
         compare(view: root, name: "Zero-frame non-clipping wrapper")
+    }
+
+    @available(iOS 16.0, *)
+    func testSwiftUISearchable() {
+        let view = SwiftUISearchableView()
+        let host = UIHostingController(rootView: view)
+        host.view.frame = CGRect(x: 0, y: 0, width: 375, height: 600)
+
+        let window = UIWindow(frame: host.view.frame)
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        host.view.layoutIfNeeded()
+
+        compare(view: host.view, name: "SwiftUI .searchable()")
+
+        window.isHidden = true
+        window.rootViewController = nil
     }
 }
 
