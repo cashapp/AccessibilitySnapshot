@@ -679,6 +679,71 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         window.isHidden = true
     }
 
+    func testAccessibilityFrameGatesVisibilityForZeroFrameView() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+
+        let element = AccessibilityFrameOverrideView(frame: .zero)
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "visible element"
+        element.accessibilityFrameOverride = CGRect(x: 0, y: 0, width: 120, height: 44)
+        root.addSubview(element)
+
+        let elements = parseMarkers(in: root).map(\.description)
+
+        XCTAssertEqual(elements, ["visible element"])
+    }
+
+    func testSubpixelAccessibilityFrameIsPruned() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+
+        let element = AccessibilityFrameOverrideView(frame: CGRect(x: 0, y: 0, width: 120, height: 44))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "hidden element"
+        element.accessibilityFrameOverride = CGRect(x: 0, y: 0, width: 0.5, height: 0.5)
+        root.addSubview(element)
+
+        let elements = parseMarkers(in: root).map(\.description)
+
+        XCTAssertEqual(elements, [])
+    }
+
+    func testNSObjectAccessibilityContainerUsesIndexedChildren() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+        root.accessibilityElements = [
+            IndexedNSObjectAccessibilityContainer(labels: ["first", "second"]),
+        ]
+
+        let elements = parseMarkers(in: root).map(\.description)
+
+        XCTAssertEqual(elements, ["first", "second"])
+    }
+
+    func testScrollableWrapperUsesChildScrollViewContentSize() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+
+        let wrapper = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        wrapper.accessibilityContainerType = .semanticGroup
+        wrapper.accessibilityLabel = "wrapper"
+        root.addSubview(wrapper)
+
+        let scrollView = UIScrollView(frame: wrapper.bounds)
+        scrollView.contentSize = CGSize(width: 100, height: 250)
+        wrapper.addSubview(scrollView)
+
+        let child = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 44))
+        child.isAccessibilityElement = true
+        child.accessibilityLabel = "row"
+        child.accessibilityFrame = CGRect(x: 0, y: 0, width: 100, height: 44)
+        scrollView.addSubview(child)
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: root)
+
+        guard case let .container(container, _) = hierarchy.first else {
+            return XCTFail("Expected scrollable container")
+        }
+        XCTAssertEqual(container.type, .scrollable(contentSize: AccessibilitySize(scrollView.contentSize)))
+    }
+
     // MARK: - Sort Order Tests
 
     /// When accessibilityElements contains only subgroups, the explicit array order
@@ -878,7 +943,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         }
     }
 
-    func testParserReturnsContextlessElementWhenContainerReportsNotFound() {
+    func testExplicitContainerElementsUseCapturedContext() {
         let root = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
         let container = InconsistentListContainer(frame: root.bounds)
         root.addSubview(container)
@@ -890,7 +955,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
         ).flattenToElements().map { $0.description }
 
-        XCTAssertEqual(elements, ["child"], "Element should still be parsed even when its container drops it")
+        XCTAssertEqual(elements, ["child. List Start."], "Explicit accessibilityElements should keep their captured list context")
     }
 
     /// A `UITabBar` with no items previously triggered a modulo-by-zero `precondition` inside
@@ -1025,6 +1090,50 @@ private final class ActivationPointTestView: UIView {
     override var accessibilityPath: UIBezierPath? {
         get { overriddenPath ?? super.accessibilityPath }
         set { overriddenPath = newValue }
+    }
+}
+
+// MARK: -
+
+private final class AccessibilityFrameOverrideView: UIView {
+    var accessibilityFrameOverride: CGRect?
+
+    override var accessibilityFrame: CGRect {
+        get { accessibilityFrameOverride ?? super.accessibilityFrame }
+        set { accessibilityFrameOverride = newValue }
+    }
+}
+
+private final class IndexedNSObjectAccessibilityContainer: NSObject {
+    private let elements: [UIAccessibilityElement]
+
+    init(labels: [String]) {
+        elements = labels.enumerated().map { index, label in
+            let element = UIAccessibilityElement(accessibilityContainer: NSNull())
+            element.accessibilityLabel = label
+            element.accessibilityFrame = CGRect(x: 0, y: index * 50, width: 100, height: 44)
+            return element
+        }
+        super.init()
+        elements.forEach { $0.accessibilityContainer = self }
+    }
+
+    override func accessibilityElementCount() -> Int {
+        elements.count
+    }
+
+    override func accessibilityElement(at index: Int) -> Any? {
+        guard elements.indices.contains(index) else { return nil }
+        return elements[index]
+    }
+
+    override func index(ofAccessibilityElement element: Any) -> Int {
+        guard let object = element as? UIAccessibilityElement,
+              let index = elements.firstIndex(of: object)
+        else {
+            return NSNotFound
+        }
+        return index
     }
 }
 

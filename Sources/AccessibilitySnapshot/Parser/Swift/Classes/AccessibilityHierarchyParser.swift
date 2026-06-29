@@ -8,19 +8,6 @@ private let parserLog = OSLog(
     category: "Parser"
 )
 
-// MARK: - Accessibility SPI
-
-extension NSObject {
-    var accessibilityIsScrollable: Bool {
-        let sel = NSSelectorFromString("_accessibilityIsScrollable")
-        guard responds(to: sel) else { return false }
-        typealias BoolIMP = @convention(c) (NSObject, Selector) -> Bool
-        let imp = method(for: sel)
-        let fn = unsafeBitCast(imp, to: BoolIMP.self)
-        return fn(self, sel)
-    }
-}
-
 public protocol UserInterfaceLayoutDirectionProviding {
     var userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection { get }
 }
@@ -208,7 +195,7 @@ public final class AccessibilityHierarchyParser {
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
         let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
 
-        let accessibilityNodes = root.recursiveAccessibilityHierarchy()
+        let accessibilityNodes = root.recursiveAccessibilityHierarchy(isRoot: true)
 
         let uncontextualizedElements = sortedElements(
             for: accessibilityNodes,
@@ -438,7 +425,7 @@ public final class AccessibilityHierarchyParser {
                 if let elements = tabBarCache[view] {
                     accessibleElements = elements
                 } else {
-                    let hierarchy = view.recursiveAccessibilityHierarchy()
+                    let hierarchy = view.recursiveAccessibilityHierarchy(isRoot: true)
                     accessibleElements = sortedElements(
                         for: hierarchy,
                         explicitlyOrdered: false,
@@ -669,10 +656,10 @@ extension AccessibilityHierarchyParser {
             return .path(AccessibilityPathElement.elements(from: converted.cgPath))
 
         } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer, !element.accessibilityFrameInContainerSpace.isNull {
-            return .frame(AccessibilityRect(container.convert(element.accessibilityFrameInContainerSpace, to: root)))
+            return .frame(finiteAccessibilityRect(container.convert(element.accessibilityFrameInContainerSpace, to: root)))
 
         } else {
-            return .frame(AccessibilityRect(root.convert(element.accessibilityFrame, from: nil)))
+            return .frame(finiteAccessibilityRect(root.convert(element.accessibilityFrame, from: nil)))
         }
     }
 
@@ -702,7 +689,7 @@ extension AccessibilityHierarchyParser {
     /// In those cases, the path bounds (which are already in screen coordinates) are used instead.
     static func effectiveAccessibilityFrame(for element: NSObject) -> CGRect {
         let frame = element.accessibilityFrame
-        if !frame.isEmpty {
+        if frame.hasFiniteGeometry, !frame.isEmpty {
             return frame
         }
 
@@ -710,7 +697,19 @@ extension AccessibilityHierarchyParser {
             return path.cgPath.boundingBoxOfPath
         }
 
-        return frame
+        if let view = element as? UIView,
+           view.window == nil,
+           view.frame.hasFiniteGeometry,
+           !view.frame.isEmpty
+        {
+            return view.frame
+        }
+
+        return frame.hasFiniteGeometry ? frame : .zero
+    }
+
+    static func finiteAccessibilityRect(_ rect: CGRect) -> AccessibilityRect {
+        rect.hasFiniteGeometry ? AccessibilityRect(rect) : .zero
     }
 
     /// Returns the default value for an element's `accessibilityActivationPoint`.
@@ -804,6 +803,16 @@ private extension CGSize {
     }
 }
 
+private extension CGRect {
+    var hasFiniteGeometry: Bool {
+        !isNull
+            && origin.x.isFinite
+            && origin.y.isFinite
+            && size.width.isFinite
+            && size.height.isFinite
+    }
+}
+
 /// Captures container information at node creation time, avoiding the need to re-derive it later.
 private struct ContainerInfo {
     let view: UIView
@@ -843,7 +852,8 @@ private extension NSObject {
     /// Note that the order the nodes are returned in does not reflect the order that VoiceOver will iterate through
     /// them.
     func recursiveAccessibilityHierarchy(
-        contextProvider: AccessibilityHierarchyParser.ContextProvider? = nil
+        contextProvider: AccessibilityHierarchyParser.ContextProvider? = nil,
+        isRoot: Bool = false
     ) -> [AccessibilityNode] {
         guard !accessibilityElementsHidden else {
             return []
@@ -853,11 +863,19 @@ private extension NSObject {
             allowContainerFallback: shouldUseAccessibilityContainerElements
         )
 
-        if let `self` = self as? UIView,
-           self.isHidden || self.alpha <= 0
-           || (self.frame.size == .zero && (self.clipsToBounds || self.isAccessibilityElement || self.accessibilityElements != nil))
-        {
-            return []
+        if let `self` = self as? UIView {
+            if self.isHidden || self.alpha <= 0 {
+                return []
+            }
+
+            if !isRoot, self.frame.size == .zero, self.clipsToBounds {
+                return []
+            }
+
+            let accessibilityFrame = AccessibilityHierarchyParser.effectiveAccessibilityFrame(for: self)
+            if !isRoot, shouldGateOnAccessibilityFrame, accessibilityFrame.width < 1, accessibilityFrame.height < 1 {
+                return []
+            }
         }
 
         var recursiveAccessibilityHierarchy: [AccessibilityNode] = []
@@ -878,7 +896,8 @@ private extension NSObject {
                 )
                 accessibilityHierarchyOfElements.append(
                     contentsOf: element.recursiveAccessibilityHierarchy(
-                        contextProvider: childContextProvider
+                        contextProvider: childContextProvider,
+                        isRoot: false
                     )
                 )
             }
@@ -908,7 +927,8 @@ private extension NSObject {
             for subview in subviewsToParse {
                 accessibilityHierarchyOfSubviews.append(
                     contentsOf: subview.recursiveAccessibilityHierarchy(
-                        contextProvider: contextProvider ?? (providesContext ? providedContextAsSuperview() : nil)
+                        contextProvider: contextProvider ?? (providesContext ? providedContextAsSuperview() : nil),
+                        isRoot: false
                     )
                 )
             }
@@ -952,39 +972,17 @@ private extension NSObject {
     }
 
     private var shouldUseAccessibilityContainerElements: Bool {
-        if isAppleFrameworkObject {
-            return false
-        }
-        if type(of: self) == NSObject.self {
-            return false
-        }
         if self is UIView {
             return false
         }
-        return overridesAccessibilityContainerIndexing
-    }
-
-    private var isAppleFrameworkObject: Bool {
-        let bundleIdentifier = Bundle(for: type(of: self)).bundleIdentifier ?? ""
-        return bundleIdentifier == "com.apple.UIKitCore"
-            || bundleIdentifier == "com.apple.SwiftUI"
-            || bundleIdentifier == "com.apple.Foundation"
-    }
-
-    private var overridesAccessibilityContainerIndexing: Bool {
-        let selectors = [
-            #selector(NSObject.accessibilityElementCount),
-            #selector(NSObject.accessibilityElement(at:)),
-        ]
-        return selectors.contains { selector in
-            guard let objectMethod = class_getInstanceMethod(type(of: self), selector) else {
-                return false
-            }
-            guard let baseMethod = class_getInstanceMethod(NSObject.self, selector) else {
-                return true
-            }
-            return method_getImplementation(objectMethod) != method_getImplementation(baseMethod)
+        if isAccessibilityElement {
+            return false
         }
+        return accessibilityElementCount() != NSNotFound
+    }
+
+    private var shouldGateOnAccessibilityFrame: Bool {
+        isAccessibilityElement || accessibilityElements != nil
     }
 
     private func containerInfo(for view: UIView) -> ContainerInfo? {
@@ -1004,10 +1002,6 @@ private extension NSObject {
             return (dataTable.accessibilityRowCount(), dataTable.accessibilityColumnCount())
         }()
 
-        // Non-UIScrollView containers that wrap a UIScrollView child (SwiftUI's
-        // PlatformContainer wraps HostingScrollView). Only match if the view
-        // actually has a UIScrollView child — _accessibilityIsScrollable alone
-        // is too broad (returns YES for every view inside a scrollable context).
         let scrollableContentSize = scrollableContentSize(for: view)
         let isSemanticGroup = containerType == .semanticGroup
             && (label != nil || value != nil || identifier != nil)
@@ -1046,28 +1040,21 @@ private extension NSObject {
     /// their content cannot move. Treating those wrappers as transparent preserves their children
     /// without creating duplicate scrollable containers for the same visual frame.
     private func scrollableContentSize(for view: UIView) -> CGSize? {
-        let contentSize: CGSize
         if let scrollView = view as? UIScrollView {
             guard scrollView.isScrollEnabled else {
                 return nil
             }
-            contentSize = scrollView.contentSize
-        } else {
-            guard view.accessibilityIsScrollable,
-                  view.subviews.contains(where: { $0 is UIScrollView })
-            else {
-                return nil
-            }
-
-            // Derive content size from children (e.g. PlatformGroupContainer
-            // inside PlatformContainer has the full content frame).
-            let contentFrame = view.subviews.reduce(CGRect.zero) { union, child in
-                union.union(child.frame)
-            }
-            contentSize = contentFrame.size
+            return scrollView.contentSize.isScrollableContentSize(for: view.bounds.size) ? scrollView.contentSize : nil
         }
 
-        return contentSize.isScrollableContentSize(for: view.bounds.size) ? contentSize : nil
+        guard let scrollView = view.subviews.first(where: { $0 is UIScrollView }) as? UIScrollView else {
+            return nil
+        }
+        guard scrollView.isScrollEnabled else {
+            return nil
+        }
+
+        return scrollView.contentSize.isScrollableContentSize(for: view.bounds.size) ? scrollView.contentSize : nil
     }
 
     /// Whether or not the object provides context to elements beneath it in the hierarchy.
