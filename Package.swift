@@ -17,13 +17,6 @@ let package = Package(
             targets: ["AccessibilitySnapshot"]
         ),
         .library(
-            name: "FBSnapshotTestCase-Accessibility",
-            targets: [
-                "FBSnapshotTestCase-Accessibility",
-                "FBSnapshotTestCase-Accessibility-ObjC",
-            ]
-        ),
-        .library(
             name: "AccessibilitySnapshotCore",
             targets: ["AccessibilitySnapshotCore"]
         ),
@@ -38,11 +31,6 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "AccessibilitySnapshotModel"),
-        .package(
-            name: "iOSSnapshotTestCase",
-            url: "https://github.com/uber/ios-snapshot-test-case.git",
-            .upToNextMajor(from: "8.0.0")
-        ),
         .package(
             name: "SnapshotTesting",
             url: "https://github.com/pointfreeco/swift-snapshot-testing.git",
@@ -83,21 +71,6 @@ let package = Package(
                 "SnapshotTesting",
             ],
             path: "Sources/AccessibilitySnapshot/SnapshotTesting"
-        ),
-        .target(
-            name: "FBSnapshotTestCase-Accessibility",
-            dependencies: [
-                "AccessibilitySnapshotCore",
-                "AccessibilitySnapshotParser-ObjC",
-                "AccessibilitySnapshotPreviews",
-                "iOSSnapshotTestCase",
-            ],
-            path: "Sources/AccessibilitySnapshot/iOSSnapshotTestCase/Swift"
-        ),
-        .target(
-            name: "FBSnapshotTestCase-Accessibility-ObjC",
-            dependencies: ["AccessibilitySnapshotCore", "iOSSnapshotTestCase", "FBSnapshotTestCase-Accessibility"],
-            path: "Sources/AccessibilitySnapshot/iOSSnapshotTestCase/ObjC"
         ),
     ]
 )
