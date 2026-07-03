@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "AccessibilitySnapshot",
+    name: "AccessibilitySnapshotBH",
     defaultLocalization: "en",
     platforms: [
         .iOS(.v13),
