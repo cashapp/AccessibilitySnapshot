@@ -909,6 +909,18 @@ private extension NSObject {
         var recursiveAccessibilityHierarchy: [AccessibilityNode] = []
 
         if isAccessibilityElement {
+            if !(self is UIView), !options.includeOffScreenElements {
+                let frame = accessibilityFrame
+                if frame.width > 0, frame.height > 0,
+                   let containerView = nearestContainerView(for: self),
+                   containerView.window != nil
+                {
+                    let clipped = clipFrameAgainstAncestors(frame, startingFrom: containerView)
+                    if clipped.isNull || clipped.width <= visibleFrameMinDimension || clipped.height <= visibleFrameMinDimension {
+                        return []
+                    }
+                }
+            }
             recursiveAccessibilityHierarchy.append(.element(self, contextProvider: contextProvider))
 
         } else if let accessibilityElements = resolvedAccessibilityElements(
@@ -1285,14 +1297,52 @@ private extension UIHostingController {
 
 private let visibleFrameMinDimension: CGFloat = 2.0
 
+/// Clips `frame` (in screen coordinates) against each scrollable ancestor's
+/// visible content rect and the window bounds, starting from `startView` and
+/// walking up the superview chain. Returns the clipped rect, or `.null` if
+/// fully occluded.
+private func clipFrameAgainstAncestors(_ frame: CGRect, startingFrom startView: UIView) -> CGRect {
+    var visibleRect = frame
+    var ancestor: UIView? = startView
+    while let view = ancestor {
+        if let scrollView = view as? UIScrollView,
+           scrollView.contentSize.isScrollableContentSize(for: scrollView.bounds.size)
+        {
+            let insets = scrollView.adjustedContentInset
+            let contentRect = CGRect(
+                x: scrollView.contentOffset.x + insets.left,
+                y: scrollView.contentOffset.y + insets.top,
+                width: scrollView.bounds.width - insets.left - insets.right,
+                height: scrollView.bounds.height - insets.top - insets.bottom
+            )
+            let scrollScreenRect = UIAccessibility.convertToScreenCoordinates(contentRect, in: scrollView)
+            visibleRect = visibleRect.intersection(scrollScreenRect)
+            guard !visibleRect.isNull else { return .null }
+        }
+        ancestor = view.superview
+    }
+
+    return visibleRect
+}
+
+/// Walks the `accessibilityContainer` chain to find the nearest UIView.
+private func nearestContainerView(for object: NSObject) -> UIView? {
+    let containerSel = NSSelectorFromString("accessibilityContainer")
+    var current: AnyObject? = object
+    while let obj = current {
+        if let view = obj as? UIView {
+            return view
+        }
+        if let nsObj = obj as? NSObject, nsObj.responds(to: containerSel) {
+            current = nsObj.perform(containerSel)?.takeUnretainedValue()
+        } else {
+            break
+        }
+    }
+    return nil
+}
+
 private extension UIView {
-    /// Returns `true` when the view's accessibility frame visibly intersects
-    /// the viewport, mirroring the SPI's `_accessibilityHasVisibleFrame` check.
-    ///
-    /// Clips the element's screen-space accessibility frame through three
-    /// stages: (1) the element's window frame, (2) keyboard subtraction, and
-    /// (3) each scroll-view ancestor's visible content rect. The result must
-    /// exceed 2 pt in both dimensions to count as visible.
     func hasVisibleFrame() -> Bool {
         guard window != nil else {
             return true
@@ -1300,37 +1350,41 @@ private extension UIView {
 
         let frame = AccessibilityHierarchyParser.effectiveAccessibilityFrame(for: self)
         guard frame.width > 0, frame.height > 0 else {
-            // Zero-frame non-clipping containers can have visible children that
-            // overflow — let the existing clipsToBounds guard handle pruning.
             if !isAccessibilityElement, !clipsToBounds {
                 return true
             }
             return false
         }
 
-        // Clip against each scrollable ancestor's visible content rect. Only
-        // clip against scroll views whose content actually exceeds their bounds
-        // — SwiftUI wraps content in internal UIScrollView subclasses that don't
-        // scroll, and clipping against those drops visible elements.
-        var visibleRect = frame
-        var ancestor = superview
-        while let view = ancestor {
-            if let scrollView = view as? UIScrollView,
-               scrollView.contentSize.isScrollableContentSize(for: scrollView.bounds.size)
-            {
-                let contentRect = CGRect(
-                    origin: scrollView.contentOffset,
-                    size: scrollView.bounds.size
-                )
-                let scrollScreenRect = UIAccessibility.convertToScreenCoordinates(contentRect, in: scrollView)
-                visibleRect = visibleRect.intersection(scrollScreenRect)
-                guard !visibleRect.isNull else { return false }
-            }
-            ancestor = view.superview
+        let clipped = clipFrameAgainstAncestors(frame, startingFrom: self)
+        guard !clipped.isNull else { return false }
+        return clipped.width > visibleFrameMinDimension
+            && clipped.height > visibleFrameMinDimension
+    }
+}
+
+private extension NSObject {
+    func hasVisibleAccessibilityFrame() -> Bool {
+        if let view = self as? UIView {
+            return view.hasVisibleFrame()
         }
 
-        return visibleRect.width > visibleFrameMinDimension
-            && visibleRect.height > visibleFrameMinDimension
+        let frame = accessibilityFrame
+        guard frame.width > 0, frame.height > 0 else {
+            return false
+        }
+
+        guard let containerView = nearestContainerView(for: self) else {
+            return true
+        }
+        guard containerView.window != nil else {
+            return true
+        }
+
+        let clipped = clipFrameAgainstAncestors(frame, startingFrom: containerView)
+        guard !clipped.isNull else { return false }
+        return clipped.width > visibleFrameMinDimension
+            && clipped.height > visibleFrameMinDimension
     }
 }
 

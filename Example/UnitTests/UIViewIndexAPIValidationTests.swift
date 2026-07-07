@@ -398,6 +398,181 @@ final class UIViewIndexAPIValidationTests: XCTestCase {
         return options
     }
 
+    // MARK: - Parser vs SPI Comparison
+
+    func testParserMatchesSPI_tableView_top() {
+        assertParserMatchesSPIVisibleFrame(
+            makeVC: { ScrollViewAccessibilityViewController(scrollPosition: .top) },
+            label: "TableView top"
+        )
+    }
+
+    func testParserMatchesSPI_tableView_middle() {
+        assertParserMatchesSPIVisibleFrame(
+            makeVC: { ScrollViewAccessibilityViewController(scrollPosition: .middle) },
+            label: "TableView middle"
+        )
+    }
+
+    func testParserMatchesSPI_tableView_bottom() {
+        assertParserMatchesSPIVisibleFrame(
+            makeVC: { ScrollViewAccessibilityViewController(scrollPosition: .bottom) },
+            label: "TableView bottom"
+        )
+    }
+
+    func testParserMatchesSPI_collectionView_top() {
+        assertParserMatchesSPIVisibleFrame(
+            makeVC: { CollectionViewAccessibilityViewController(scrollPosition: .top) },
+            label: "CollectionView top"
+        )
+    }
+
+    func testParserMatchesSPI_collectionView_middle() {
+        assertParserMatchesSPIVisibleFrame(
+            makeVC: { CollectionViewAccessibilityViewController(scrollPosition: .middle) },
+            label: "CollectionView middle"
+        )
+    }
+
+    func testParserMatchesSPI_collectionView_bottom() {
+        assertParserMatchesSPIVisibleFrame(
+            makeVC: { CollectionViewAccessibilityViewController(scrollPosition: .bottom) },
+            label: "CollectionView bottom"
+        )
+    }
+
+    @available(iOS 15.0, *)
+    func testParserMatchesSPI_lazyVStack_top() {
+        assertParserMatchesSPIVisibleFrame(
+            makeHosted: { SwiftUILazyScrollView(scrollPosition: .top) },
+            settleTime: 0.3,
+            label: "LazyVStack top"
+        )
+    }
+
+    @available(iOS 15.0, *)
+    func testParserMatchesSPI_lazyVStack_middle() {
+        assertParserMatchesSPIVisibleFrame(
+            makeHosted: { SwiftUILazyScrollView(scrollPosition: .middle) },
+            settleTime: 0.3,
+            label: "LazyVStack middle"
+        )
+    }
+
+    @available(iOS 15.0, *)
+    func testParserMatchesSPI_lazyVStack_bottom() {
+        assertParserMatchesSPIVisibleFrame(
+            makeHosted: { SwiftUILazyScrollView(scrollPosition: .bottom) },
+            settleTime: 0.3,
+            label: "LazyVStack bottom"
+        )
+    }
+
+    @available(iOS 15.0, *)
+    func testParserMatchesSPI_swiftUIList_top() {
+        assertParserMatchesSPIVisibleFrame(
+            makeHosted: { SwiftUIScrollView(scrollPosition: .top) },
+            settleTime: 0.3,
+            label: "SwiftUI List top"
+        )
+    }
+
+    @available(iOS 15.0, *)
+    func testParserMatchesSPI_swiftUIList_middle() {
+        assertParserMatchesSPIVisibleFrame(
+            makeHosted: { SwiftUIScrollView(scrollPosition: .middle) },
+            settleTime: 0.3,
+            label: "SwiftUI List middle"
+        )
+    }
+
+    @available(iOS 15.0, *)
+    func testParserMatchesSPI_swiftUIList_bottom() {
+        assertParserMatchesSPIVisibleFrame(
+            makeHosted: { SwiftUIScrollView(scrollPosition: .bottom) },
+            settleTime: 0.3,
+            label: "SwiftUI List bottom"
+        )
+    }
+
+    private func assertParserMatchesSPIVisibleFrame(
+        makeVC: () -> UIViewController,
+        settleTime: TimeInterval = 0.1,
+        label: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        let sel = NSSelectorFromString("_accessibilityLeafDescendantsWithOptions:")
+        guard UIView().responds(to: sel) else {
+            XCTFail("SPI not available", file: file, line: line)
+            return
+        }
+
+        let vc = makeVC()
+        vc.view.frame = CGRect(x: 0, y: 0, width: 375, height: 400)
+
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 400))
+        window.rootViewController = vc
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+        RunLoop.current.run(until: Date().addingTimeInterval(settleTime))
+
+        let optionsClass: AnyClass? = NSClassFromString("UIAccessibilityElementTraversalOptions")
+        guard let optionsClass else {
+            XCTFail("UIAccessibilityElementTraversalOptions not available", file: file, line: line)
+            window.isHidden = true
+            return
+        }
+
+        let options = Self.makeOptions(optionsClass, visibleFrameOnly: true)
+        let spiResult = vc.view.perform(sel, with: options)?.takeUnretainedValue() as? [NSObject] ?? []
+        let spiLabels = spiResult.compactMap { $0.accessibilityLabel }.sorted()
+
+        let parser = AccessibilityHierarchyParser()
+        let parserElements = parser.parseAccessibilityHierarchy(in: vc.view).flattenToElements()
+        let parserLabels = parserElements.compactMap { $0.label }.sorted()
+
+        print("\(label) — SPI: \(spiLabels.count), Parser: \(parserLabels.count)")
+
+        XCTAssertEqual(
+            parserLabels.count,
+            spiLabels.count,
+            "\(label) count mismatch — Parser: \(parserLabels.count) [\(parserLabels)], SPI: \(spiLabels.count) [\(spiLabels)]",
+            file: file,
+            line: line
+        )
+        XCTAssertEqual(
+            parserLabels,
+            spiLabels,
+            "\(label) label mismatch — Parser: \(parserLabels), SPI: \(spiLabels)",
+            file: file,
+            line: line
+        )
+
+        window.isHidden = true
+    }
+
+    @available(iOS 15.0, *)
+    private func assertParserMatchesSPIVisibleFrame<V: View>(
+        makeHosted: () -> V,
+        settleTime: TimeInterval = 0.1,
+        label: String,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) {
+        assertParserMatchesSPIVisibleFrame(
+            makeVC: {
+                let host = UIHostingController(rootView: makeHosted())
+                return host
+            },
+            settleTime: settleTime,
+            label: label,
+            file: file,
+            line: line
+        )
+    }
+
     func testRealUIKitViewsIndexAPIBehavior() {
         let views: [(String, UIView)] = [
             ("UITableView", UITableView()),
