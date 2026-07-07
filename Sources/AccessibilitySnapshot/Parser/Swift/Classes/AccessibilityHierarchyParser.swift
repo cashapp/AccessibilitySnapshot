@@ -825,8 +825,7 @@ private extension NSObject {
 
         let isElement = isAccessibilityElement
         let containerCandidate = isElement ? nil : captureContainerInfo(in: root, parentDataTable: dataTable)
-        let vendedElements = isElement ? nil : accessibilityElements
-        let childSources = vendedElements as? [NSObject]
+        let childSources = isElement ? nil : resolvedAccessibilityElements()
         let capturedContainer = containerCandidate?.withChildOrdering(vendsChildren: childSources != nil)
         guard isElement || self is UIView || childSources != nil else {
             return []
@@ -839,7 +838,7 @@ private extension NSObject {
 
         if let `self` = self as? UIView {
             let accessibilityFrame = AccessibilityHierarchyParser.effectiveAccessibilityFrame(for: self)
-            if !isRoot, isElement || vendedElements != nil, accessibilityFrame.width < 1, accessibilityFrame.height < 1 {
+            if !isRoot, isElement || childSources != nil, accessibilityFrame.width < 1, accessibilityFrame.height < 1 {
                 return []
             }
 
@@ -1194,6 +1193,23 @@ private extension UIHostingController {
         set {
             view.accessibilityIdentifier = newValue
         }
+    }
+}
+
+// MARK: - Container Elements
+
+private extension NSObject {
+    /// The children VoiceOver reads from this container: `accessibilityElements`, else the index APIs.
+    func resolvedAccessibilityElements() -> [NSObject]? {
+        if let elements = accessibilityElements as? [NSObject] {
+            return elements
+        }
+        // Any count other than `NSNotFound` makes the object a container, even a count of 0.
+        let count = accessibilityElementCount()
+        guard count != NSNotFound else {
+            return nil
+        }
+        return (0 ..< count).compactMap { accessibilityElement(at: $0) as? NSObject }
     }
 }
 
