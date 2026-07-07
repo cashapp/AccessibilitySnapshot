@@ -22,6 +22,22 @@ extension UIDevice: UserInterfaceIdiomProviding {}
 
 // MARK: -
 
+public struct ParserOptions {
+    /// When `false` (the default), elements whose accessibility frame does not
+    /// visibly intersect the viewport are pruned during the tree walk — mirroring
+    /// the SPI's `shouldOnlyIncludeElementsWithVisibleFrame` behavior. Set to
+    /// `true` to capture every element that exists in the subview hierarchy,
+    /// including off-screen prefetched cells and lazily-loaded SwiftUI content.
+    public var includeOffScreenElements: Bool
+
+    public init(includeOffScreenElements: Bool = false) {
+        self.includeOffScreenElements = includeOffScreenElements
+    }
+
+    public static let `default` = ParserOptions()
+    public static let fullTree = ParserOptions(includeOffScreenElements: true)
+}
+
 public final class AccessibilityHierarchyParser {
     // MARK: - Public Types
 
@@ -93,7 +109,11 @@ public final class AccessibilityHierarchyParser {
 
     // MARK: - Life Cycle
 
-    public init() {}
+    public let options: ParserOptions
+
+    public init(options: ParserOptions = .default) {
+        self.options = options
+    }
 
     // MARK: - Public Methods
 
@@ -195,7 +215,10 @@ public final class AccessibilityHierarchyParser {
         let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
         let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
 
-        let accessibilityNodes = root.recursiveAccessibilityHierarchy(isRoot: true)
+        let accessibilityNodes = root.recursiveAccessibilityHierarchy(
+            isRoot: true,
+            options: options
+        )
 
         let uncontextualizedElements = sortedElements(
             for: accessibilityNodes,
@@ -425,7 +448,7 @@ public final class AccessibilityHierarchyParser {
                 if let elements = tabBarCache[view] {
                     accessibleElements = elements
                 } else {
-                    let hierarchy = view.recursiveAccessibilityHierarchy(isRoot: true)
+                    let hierarchy = view.recursiveAccessibilityHierarchy(isRoot: true, options: options)
                     accessibleElements = sortedElements(
                         for: hierarchy,
                         explicitlyOrdered: false,
@@ -853,7 +876,8 @@ private extension NSObject {
     /// them.
     func recursiveAccessibilityHierarchy(
         contextProvider: AccessibilityHierarchyParser.ContextProvider? = nil,
-        isRoot: Bool = false
+        isRoot: Bool = false,
+        options: ParserOptions = .default
     ) -> [AccessibilityNode] {
         guard !accessibilityElementsHidden else {
             return []
@@ -874,6 +898,10 @@ private extension NSObject {
 
             let accessibilityFrame = AccessibilityHierarchyParser.effectiveAccessibilityFrame(for: self)
             if !isRoot, shouldGateOnAccessibilityFrame, accessibilityFrame.width < 1, accessibilityFrame.height < 1 {
+                return []
+            }
+
+            if !isRoot, !options.includeOffScreenElements, !self.hasVisibleFrame() {
                 return []
             }
         }
@@ -897,7 +925,8 @@ private extension NSObject {
                 accessibilityHierarchyOfElements.append(
                     contentsOf: element.recursiveAccessibilityHierarchy(
                         contextProvider: childContextProvider,
-                        isRoot: false
+                        isRoot: false,
+                        options: options
                     )
                 )
             }
@@ -928,7 +957,8 @@ private extension NSObject {
                 accessibilityHierarchyOfSubviews.append(
                     contentsOf: subview.recursiveAccessibilityHierarchy(
                         contextProvider: contextProvider ?? (providesContext ? providedContextAsSuperview() : nil),
-                        isRoot: false
+                        isRoot: false,
+                        options: options
                     )
                 )
             }
@@ -1248,6 +1278,59 @@ private extension UIHostingController {
         set {
             view.accessibilityIdentifier = newValue
         }
+    }
+}
+
+// MARK: - Visible Frame
+
+private let visibleFrameMinDimension: CGFloat = 2.0
+
+private extension UIView {
+    /// Returns `true` when the view's accessibility frame visibly intersects
+    /// the viewport, mirroring the SPI's `_accessibilityHasVisibleFrame` check.
+    ///
+    /// Clips the element's screen-space accessibility frame through three
+    /// stages: (1) the element's window frame, (2) keyboard subtraction, and
+    /// (3) each scroll-view ancestor's visible content rect. The result must
+    /// exceed 2 pt in both dimensions to count as visible.
+    func hasVisibleFrame() -> Bool {
+        guard window != nil else {
+            return true
+        }
+
+        let frame = AccessibilityHierarchyParser.effectiveAccessibilityFrame(for: self)
+        guard frame.width > 0, frame.height > 0 else {
+            // Zero-frame non-clipping containers can have visible children that
+            // overflow — let the existing clipsToBounds guard handle pruning.
+            if !isAccessibilityElement, !clipsToBounds {
+                return true
+            }
+            return false
+        }
+
+        // Clip against each scrollable ancestor's visible content rect. Only
+        // clip against scroll views whose content actually exceeds their bounds
+        // — SwiftUI wraps content in internal UIScrollView subclasses that don't
+        // scroll, and clipping against those drops visible elements.
+        var visibleRect = frame
+        var ancestor = superview
+        while let view = ancestor {
+            if let scrollView = view as? UIScrollView,
+               scrollView.contentSize.isScrollableContentSize(for: scrollView.bounds.size)
+            {
+                let contentRect = CGRect(
+                    origin: scrollView.contentOffset,
+                    size: scrollView.bounds.size
+                )
+                let scrollScreenRect = UIAccessibility.convertToScreenCoordinates(contentRect, in: scrollView)
+                visibleRect = visibleRect.intersection(scrollScreenRect)
+                guard !visibleRect.isNull else { return false }
+            }
+            ancestor = view.superview
+        }
+
+        return visibleRect.width > visibleFrameMinDimension
+            && visibleRect.height > visibleFrameMinDimension
     }
 }
 
