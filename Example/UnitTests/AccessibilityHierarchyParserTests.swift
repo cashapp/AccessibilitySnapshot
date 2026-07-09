@@ -205,7 +205,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         // Verify it's a container with correct label
         if case let .container(containerInfo, children) = hierarchy.first {
-            if case let .semanticGroup(label, _, _) = containerInfo.type {
+            if case let .semanticGroup(label, _) = containerInfo.type {
                 XCTAssertEqual(label, "Group Label")
             } else {
                 XCTFail("Expected semanticGroup container type")
@@ -256,6 +256,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         let listContainer = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
         listContainer.accessibilityContainerType = .list
+        listContainer.accessibilityIdentifier = "primary-list"
         // No label - but should still be preserved
         rootView.addSubview(listContainer)
 
@@ -279,6 +280,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         if case let .container(containerInfo, children) = hierarchy.first {
             XCTAssertEqual(containerInfo.type, .list)
+            XCTAssertEqual(containerInfo.identifier, "primary-list")
             XCTAssertEqual(children.count, 2)
         } else {
             XCTFail("Expected list container at root level")
@@ -290,6 +292,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         let landmarkContainer = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
         landmarkContainer.accessibilityContainerType = .landmark
+        landmarkContainer.accessibilityIdentifier = "primary-landmark"
         rootView.addSubview(landmarkContainer)
 
         let element = UIView(frame: .init(x: 10, y: 10, width: 30, height: 30))
@@ -305,6 +308,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         if case let .container(containerInfo, _) = hierarchy.first {
             XCTAssertEqual(containerInfo.type, .landmark)
+            XCTAssertEqual(containerInfo.identifier, "primary-landmark")
         } else {
             XCTFail("Expected landmark container at root level")
         }
@@ -321,7 +325,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(hierarchy.count, 1)
 
         if case let .container(outerInfo, outerChildren) = hierarchy.first {
-            if case let .semanticGroup(label, _, _) = outerInfo.type {
+            if case let .semanticGroup(label, _) = outerInfo.type {
                 XCTAssertEqual(label, "Outer Container")
             } else {
                 XCTFail("Expected semanticGroup container type for outer")
@@ -345,7 +349,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             }
             XCTAssertEqual(innerContainers.count, 1)
             if let innerContainer = innerContainers.first?.0,
-               case let .semanticGroup(label, _, _) = innerContainer.type
+               case let .semanticGroup(label, _) = innerContainer.type
             {
                 XCTAssertEqual(label, "Inner Container")
             } else {
@@ -373,7 +377,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let containers = hierarchy.flattenToContainers()
         XCTAssertEqual(containers.count, 2)
         let containerLabels = containers.compactMap { container -> String? in
-            if case let .semanticGroup(label, _, _) = container.type { return label }
+            if case let .semanticGroup(label, _) = container.type { return label }
             return nil
         }
         XCTAssertEqual(Set(containerLabels), ["Outer Container", "Inner Container"])
@@ -724,6 +728,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let wrapper = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         wrapper.accessibilityContainerType = .semanticGroup
         wrapper.accessibilityLabel = "wrapper"
+        wrapper.accessibilityIdentifier = "wrapper-scroll"
         root.addSubview(wrapper)
 
         let scrollView = UIScrollView(frame: wrapper.bounds)
@@ -741,7 +746,9 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         guard case let .container(container, _) = hierarchy.first else {
             return XCTFail("Expected scrollable container")
         }
-        XCTAssertEqual(container.type, .scrollable(contentSize: AccessibilitySize(scrollView.contentSize)))
+        XCTAssertEqual(container.type, .semanticGroup(label: "wrapper", value: nil))
+        XCTAssertEqual(container.identifier, "wrapper-scroll")
+        XCTAssertEqual(container.scrollableContentSize, AccessibilitySize(scrollView.contentSize))
     }
 
     // MARK: - Sort Order Tests

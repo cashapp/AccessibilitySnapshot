@@ -629,14 +629,12 @@ public final class AccessibilityHierarchyParser {
                     let frame = AccessibilityRect(root.convert(info.view.bounds, from: info.view))
 
                     let containerType: AccessibilityContainer.ContainerType
-                    if let contentSize = info.scrollableContentSize {
-                        containerType = .scrollable(contentSize: AccessibilitySize(contentSize))
-                    } else if info.traits.contains(.tabBar) {
+                    if info.traits.contains(.tabBar) {
                         containerType = .tabBar
                     } else {
                         switch info.type {
                         case .semanticGroup:
-                            containerType = .semanticGroup(label: info.label, value: info.value, identifier: info.identifier)
+                            containerType = .semanticGroup(label: info.label, value: info.value)
                         case .list:
                             containerType = .list
                         case .landmark:
@@ -644,14 +642,16 @@ public final class AccessibilityHierarchyParser {
                         case .dataTable:
                             containerType = .dataTable(rowCount: info.rowCount ?? 0, columnCount: info.columnCount ?? 0)
                         case .none:
-                            containerType = .semanticGroup(label: info.label, value: info.value, identifier: info.identifier)
+                            containerType = .none
                         @unknown default:
-                            containerType = .semanticGroup(label: info.label, value: info.value, identifier: info.identifier)
+                            containerType = .none
                         }
                     }
 
                     let container = AccessibilityContainer(
                         type: containerType,
+                        identifier: info.identifier,
+                        scrollableContentSize: info.scrollableContentSize.map(AccessibilitySize.init),
                         frame: frame,
                         isModalBoundary: info.isModalBoundary,
                         customActions: info.customActions
@@ -1053,6 +1053,7 @@ private extension NSObject {
             || containerType == .landmark
             || containerType == .dataTable
             || isSemanticGroup
+            || identifier != nil
             || scrollableContentSize != nil
             || isModalBoundary
             || !customActions.isEmpty

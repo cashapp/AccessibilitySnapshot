@@ -51,6 +51,8 @@ final class AccessibilityModelCodableTests: XCTestCase {
     func testAccessibilityContainerCodable() throws {
         let container = AccessibilityContainer(
             type: .list,
+            identifier: "saved-items-list",
+            scrollableContentSize: AccessibilitySize(width: 320, height: 1200),
             frame: AccessibilityRect(x: 0, y: 0, width: 320, height: 200)
         )
 
@@ -61,6 +63,8 @@ final class AccessibilityModelCodableTests: XCTestCase {
         let decoded = try decoder.decode(AccessibilityContainer.self, from: data)
 
         XCTAssertEqual(decoded.type, .list)
+        XCTAssertEqual(decoded.identifier, "saved-items-list")
+        XCTAssertEqual(decoded.scrollableContentSize, AccessibilitySize(width: 320, height: 1200))
         XCTAssertEqual(decoded.frame, container.frame)
     }
 
@@ -157,10 +161,11 @@ final class AccessibilityModelCodableTests: XCTestCase {
 
     func testContainerTypeCodable() throws {
         let types: [AccessibilityContainer.ContainerType] = [
+            .none,
             .list,
             .landmark,
             .tabBar,
-            .semanticGroup(label: "Test", value: nil, identifier: "test-id"),
+            .semanticGroup(label: "Test", value: nil),
             .dataTable(rowCount: 3, columnCount: 4),
         ]
 
@@ -197,7 +202,8 @@ final class AccessibilityModelCodableTests: XCTestCase {
 
     func testSemanticGroupContainerCodable() throws {
         let container = AccessibilityContainer(
-            type: .semanticGroup(label: "Group Label", value: "Group Value", identifier: "group-id"),
+            type: .semanticGroup(label: "Group Label", value: "Group Value"),
+            identifier: "group-id",
             frame: AccessibilityRect(x: 0, y: 0, width: 200, height: 100)
         )
 
@@ -207,13 +213,8 @@ final class AccessibilityModelCodableTests: XCTestCase {
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(AccessibilityContainer.self, from: data)
 
-        if case let .semanticGroup(label, value, identifier) = decoded.type {
-            XCTAssertEqual(label, "Group Label")
-            XCTAssertEqual(value, "Group Value")
-            XCTAssertEqual(identifier, "group-id")
-        } else {
-            XCTFail("Expected semanticGroup type")
-        }
+        XCTAssertEqual(decoded.type, .semanticGroup(label: "Group Label", value: "Group Value"))
+        XCTAssertEqual(decoded.identifier, "group-id")
     }
 
     func testTabBarContainerCodable() throws {
