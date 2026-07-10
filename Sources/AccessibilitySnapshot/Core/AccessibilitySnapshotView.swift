@@ -53,7 +53,7 @@ public final class AccessibilitySnapshotView: AccessibilitySnapshotBaseView {
     // MARK: - SnapshotAndLegendView
 
     override public var legendViews: [UIView] {
-        return displayMarkers.map { $0.legendView }
+        return displayMarkers.map { $0.legendView } + offscreenCountsLegendViews
     }
 
     override public var minimumLegendWidth: CGFloat {
@@ -64,6 +64,8 @@ public final class AccessibilitySnapshotView: AccessibilitySnapshotBaseView {
 
     private var displayMarkers: [DisplayMarker] = []
 
+    private var offscreenCountsLegendViews: [OffscreenCountsLegendView] = []
+
     // MARK: - AccessibilitySnapshotBaseView Overrides
 
     override public func cleanup() {
@@ -73,6 +75,9 @@ public final class AccessibilitySnapshotView: AccessibilitySnapshotBaseView {
             $0.activationPointView?.removeFromSuperview()
         }
         displayMarkers = []
+
+        offscreenCountsLegendViews.forEach { $0.removeFromSuperview() }
+        offscreenCountsLegendViews = []
     }
 
     override public func render(data: ParsedAccessibilityData) {
@@ -136,6 +141,16 @@ public final class AccessibilitySnapshotView: AccessibilitySnapshotBaseView {
             displayMarkers.append(displayMarker)
         }
         self.displayMarkers = displayMarkers
+
+        var offscreenCountsLegendViews: [OffscreenCountsLegendView] = []
+        if snapshotConfiguration.showsOffscreenElementCounts {
+            for summary in data.containerSummaries where !summary.isEmpty {
+                let legendView = OffscreenCountsLegendView(summary: summary)
+                addSubview(legendView)
+                offscreenCountsLegendViews.append(legendView)
+            }
+        }
+        self.offscreenCountsLegendViews = offscreenCountsLegendViews
     }
 
     // MARK: - Private Types

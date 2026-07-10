@@ -13,6 +13,22 @@ public struct ParsedAccessibilityData {
 
     /// The bounds size of the contained view.
     public let containedViewBounds: CGSize
+
+    /// Per-scroll-container summaries of off-screen elements trimmed during delivery. Empty when the
+    /// configuration's `includesOffscreenElements` is `true` (nothing is trimmed, so nothing to tally).
+    public let containerSummaries: [ScrollContainerSummary]
+
+    public init(
+        image: UIImage,
+        markers: [AccessibilityMarker],
+        containedViewBounds: CGSize,
+        containerSummaries: [ScrollContainerSummary] = []
+    ) {
+        self.image = image
+        self.markers = markers
+        self.containedViewBounds = containedViewBounds
+        self.containerSummaries = containerSummaries
+    }
 }
 
 // MARK: - Base View
@@ -97,15 +113,18 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
         containedView.layoutIfNeeded()
 
         let parser = AccessibilityHierarchyParser()
-        let markers = parser.parseAccessibilityHierarchy(
+        let hierarchy = parser.parseAccessibilityHierarchy(
             in: containedView,
             rotorResultLimit: snapshotConfiguration.rotors.resultLimit
-        ).flattenToElements()
+        )
+        let includesOffscreen = snapshotConfiguration.includesOffscreenElements
 
         let parsedData = ParsedAccessibilityData(
             image: image,
-            markers: markers,
-            containedViewBounds: containedView.bounds.size
+            markers: (includesOffscreen ? hierarchy : hierarchy.onscreen()).flattenToElements(),
+            containedViewBounds: containedView.bounds.size,
+            // Off-screen elements only get trimmed (and thus summarized) when they aren't included.
+            containerSummaries: includesOffscreen ? [] : hierarchy.scrollContainerSummaries()
         )
 
         render(data: parsedData)

@@ -1,3 +1,10 @@
+# Private context repos (cloned via /setup-context, never committed)
+.context/
+.rp1/
+
+# Coverage artifacts
+*.profraw
+
 # macOS
 .DS_Store
 

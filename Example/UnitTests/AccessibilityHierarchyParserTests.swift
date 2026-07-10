@@ -223,12 +223,11 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         }
     }
 
-    func testSemanticGroupWithoutLabelIsFlattened() {
+    func testSemanticGroupWithoutLabelIsPreserved() {
         let rootView = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
 
         let container = UIView(frame: .init(x: 0, y: 0, width: 100, height: 50))
         container.accessibilityContainerType = .semanticGroup
-        // No label, value, or identifier
         rootView.addSubview(container)
 
         let element = UIView(frame: .init(x: 10, y: 10, width: 30, height: 30))
@@ -240,15 +239,40 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let parser = AccessibilityHierarchyParser()
         let hierarchy = parser.parseAccessibilityHierarchy(in: rootView)
 
-        // Should have one element at root level (container flattened)
+        // A declared container role is preserved even without semantic properties.
         XCTAssertEqual(hierarchy.count, 1)
 
-        // Verify it's an element, not a container
-        if case let .element(elementInfo, _) = hierarchy.first {
-            XCTAssertEqual(elementInfo.description, "Element")
+        if case let .container(containerInfo, children) = hierarchy.first {
+            XCTAssertEqual(containerInfo.type, .semanticGroup(label: nil, value: nil))
+            XCTAssertEqual(children.count, 1)
+            if case let .element(elementInfo, _) = children.first {
+                XCTAssertEqual(elementInfo.description, "Element")
+            } else {
+                XCTFail("Expected element child")
+            }
         } else {
-            XCTFail("Expected element at root level (container should be flattened)")
+            XCTFail("Expected semantic group container at root level")
         }
+    }
+
+    func testViewWithoutContainerFactsIsFlattened() {
+        let rootView = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+
+        let wrapper = UIView(frame: rootView.bounds)
+        rootView.addSubview(wrapper)
+
+        let element = UIView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "Element"
+        element.accessibilityFrame = element.frame
+        wrapper.addSubview(element)
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: rootView)
+
+        guard case let .element(elementInfo, _) = hierarchy.first else {
+            return XCTFail("Expected a neutral wrapper without facts to be transparent")
+        }
+        XCTAssertEqual(elementInfo.description, "Element")
     }
 
     func testListContainerIsAlwaysPreserved() {
@@ -312,6 +336,70 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         } else {
             XCTFail("Expected landmark container at root level")
         }
+    }
+
+    func testIdentifierOnlyViewWithAccessibleDescendantsIsPreservedAsContainer() {
+        let rootView = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+
+        let container = UIView(frame: rootView.bounds)
+        container.accessibilityIdentifier = "screen-root"
+        rootView.addSubview(container)
+
+        let element = UIView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "Content"
+        element.accessibilityFrame = element.frame
+        container.addSubview(element)
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: rootView)
+
+        guard case let .container(containerInfo, children) = hierarchy.first else {
+            return XCTFail("Expected identifier-bearing view to be emitted as a container")
+        }
+        guard case .none = containerInfo.type else {
+            return XCTFail("Expected identifier-bearing view to use neutral container facts")
+        }
+
+        XCTAssertEqual(containerInfo.identifier, "screen-root")
+        XCTAssertNil(containerInfo.scrollableContentSize)
+        XCTAssertFalse(containerInfo.isModalBoundary)
+        XCTAssertTrue(containerInfo.customActions.isEmpty)
+        XCTAssertEqual(children.count, 1)
+        guard case let .element(child, _) = children.first else {
+            return XCTFail("Expected the accessible descendant to remain a child element")
+        }
+        XCTAssertEqual(child.label, "Content")
+    }
+
+    func testIdentifierOnlyViewWithoutAccessibleDescendantsIsNotEmittedAsContainer() {
+        let rootView = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+
+        let view = UIView(frame: rootView.bounds)
+        view.accessibilityIdentifier = "empty-root"
+        rootView.addSubview(view)
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: rootView)
+
+        let matchingContainers = hierarchy.flattenToContainers().filter { $0.identifier == "empty-root" }
+        XCTAssertTrue(matchingContainers.isEmpty)
+    }
+
+    func testEmptyIdentifierViewIsNotEmittedAsContainer() {
+        let rootView = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+
+        let container = UIView(frame: rootView.bounds)
+        container.accessibilityIdentifier = ""
+        rootView.addSubview(container)
+
+        let element = UIView(frame: CGRect(x: 10, y: 10, width: 30, height: 30))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "Content"
+        element.accessibilityFrame = element.frame
+        container.addSubview(element)
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: rootView)
+
+        XCTAssertFalse(hierarchy.flattenToContainers().contains { $0.identifier == "" })
     }
 
     func testNestedContainersPreserveHierarchy() {
@@ -607,7 +695,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(hierarchy.count, 1)
 
         if case let .container(container, children) = hierarchy.first {
-            if case let .dataTable(rowCount, columnCount) = container.type {
+            if case let .dataTable(rowCount, columnCount, _) = container.type {
                 XCTAssertEqual(rowCount, 5)
                 XCTAssertEqual(columnCount, 4)
             } else {
@@ -1063,6 +1151,40 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let listNode = nodes[0]
         XCTAssertTrue(listNode.source === container)
         XCTAssertNotNil(listNode.container)
+    }
+
+    // MARK: - User Input Labels
+
+    /// An element whose only accessibility property is its label reports a Voice Control input-label
+    /// echo (`[accessibilityLabel]`) that UIKit synthesizes as a fallback. That echo is redundant for
+    /// targeting (you can already invoke the element by speaking its label), so the parser must not
+    /// surface it as an authored input label.
+    func testDerivedUserInputLabelEchoIsSuppressed() {
+        let container = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+        let element = UIView(frame: .init(x: 0, y: 0, width: 100, height: 44))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "Submit"
+        element.accessibilityFrame = element.frame
+        container.addSubview(element)
+
+        let marker = parseMarkers(in: container).first
+        XCTAssertEqual(marker?.label, "Submit")
+        XCTAssertNil(marker?.userInputLabels, "A user-input-label echo of the accessibility label should be suppressed.")
+    }
+
+    /// Input labels that genuinely differ from the accessibility label (alternative phrasings the app
+    /// authored for Voice Control) must be preserved.
+    func testAuthoredUserInputLabelsArePreserved() {
+        let container = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+        let element = UIView(frame: .init(x: 0, y: 0, width: 100, height: 44))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "Submit"
+        element.accessibilityUserInputLabels = ["Send", "Go"]
+        element.accessibilityFrame = element.frame
+        container.addSubview(element)
+
+        let marker = parseMarkers(in: container).first
+        XCTAssertEqual(marker?.userInputLabels, ["Send", "Go"])
     }
 
     // MARK: - Private Helpers

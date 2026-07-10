@@ -183,3 +183,9 @@
 
 /* Format for description of an unknown rotor type; param0: the raw value */
 "rotor.unknown.description_format" = "Unbekannter Rotor-Typ, Rohwert: %lld";
+
+/* Format for the count of trimmed off-screen elements above a scroll container's viewport; param0: the count */
+"offscreen_counts.above.format" = "%@ Elemente oberhalb";
+
+/* Format for the count of trimmed off-screen elements below a scroll container's viewport; param0: the count */
+"offscreen_counts.below.format" = "%@ Elemente unterhalb";

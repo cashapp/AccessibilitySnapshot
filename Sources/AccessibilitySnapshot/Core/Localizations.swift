@@ -64,6 +64,30 @@ public enum Strings {
         String(format: maxLimitText(for: locale), String(max))
     }
 
+    public static func offscreenElementsAboveText(count: Int, for locale: String?) -> String {
+        String(format: offscreenElementsAboveFormat(for: locale), String(count))
+    }
+
+    private static func offscreenElementsAboveFormat(for locale: String?) -> String {
+        return "%@ elements above".as_localized(
+            key: "offscreen_counts.above.format",
+            comment: "Format for the count of trimmed off-screen elements above a scroll container's viewport; the placeholder is the count.",
+            locale: locale
+        )
+    }
+
+    public static func offscreenElementsBelowText(count: Int, for locale: String?) -> String {
+        String(format: offscreenElementsBelowFormat(for: locale), String(count))
+    }
+
+    private static func offscreenElementsBelowFormat(for locale: String?) -> String {
+        return "%@ elements below".as_localized(
+            key: "offscreen_counts.below.format",
+            comment: "Format for the count of trimmed off-screen elements below a scroll container's viewport; the placeholder is the count.",
+            locale: locale
+        )
+    }
+
     static func maxLimitText(for locale: String?) -> String {
         return "+ Many More (%@+) Results...".as_localized(
             key: "custom_rotors.max_limit",

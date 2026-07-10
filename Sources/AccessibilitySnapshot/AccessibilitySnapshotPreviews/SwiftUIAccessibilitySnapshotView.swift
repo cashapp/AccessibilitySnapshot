@@ -13,6 +13,7 @@ public struct AccessibilitySnapshotView<Content: View>: View {
     private let renderSize: CGSize
 
     @State private var markers: [AccessibilityMarker] = []
+    @State private var containerSummaries: [ScrollContainerSummary] = []
     @State private var snapshotImage: UIImage?
     @State private var parseError: Error?
 
@@ -125,10 +126,14 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             )
 
             let parser = AccessibilityHierarchyParser()
-            markers = parser.parseAccessibilityHierarchy(
+            let hierarchy = parser.parseAccessibilityHierarchy(
                 in: hostingController.view,
                 rotorResultLimit: configuration.rotors.resultLimit
-            ).flattenToElements()
+            )
+            // (identical trim + summary policy as AccessibilitySnapshotBaseView)
+            let includesOffscreen = configuration.includesOffscreenElements
+            markers = (includesOffscreen ? hierarchy : hierarchy.onscreen()).flattenToElements()
+            containerSummaries = includesOffscreen ? [] : hierarchy.scrollContainerSummaries()
         } catch {
             parseError = error
         }

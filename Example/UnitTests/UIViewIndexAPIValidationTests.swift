@@ -383,7 +383,118 @@ final class UIViewIndexAPIValidationTests: XCTestCase {
         window.isHidden = true
     }
 
+    func testTableEnumerationProducesCorrectVisibleSet() {
+        let sel = NSSelectorFromString("_accessibilityLeafDescendantsWithOptions:")
+        guard UIView().responds(to: sel) else { return }
+
+        let vc = ScrollViewAccessibilityViewController(scrollPosition: .bottom)
+        vc.view.frame = CGRect(x: 0, y: 0, width: 375, height: 400)
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 400))
+        window.rootViewController = vc
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: vc.view)
+        func rowLabels(_ elements: [AccessibilityElement]) -> [String] {
+            elements.compactMap { $0.label }.filter { $0.hasPrefix("Row ") }
+        }
+        let all = rowLabels(hierarchy.flattenToElements())
+        let visible = rowLabels(hierarchy.onscreen().flattenToElements())
+
+        // The parser enumerates every row via the index API (device-independent: the fixture has 30).
+        XCTAssertEqual(Set(all).count, 30, "index API should enumerate all 30 rows")
+
+        // The trimmed set must match VoiceOver's own visible-frame filtering exactly — comparing
+        // against the SPI rather than a hardcoded count keeps this robust across OS/device metrics.
+        let optionsClass: AnyClass? = NSClassFromString("UIAccessibilityElementTraversalOptions")
+        guard let optionsClass else { return }
+        let spiVisible = (vc.view.perform(sel, with: Self.makeOptions(optionsClass, visibleFrameOnly: true))?
+            .takeUnretainedValue() as? [NSObject] ?? [])
+            .compactMap { $0.accessibilityLabel }
+            .filter { $0.hasPrefix("Row ") }
+
+        XCTAssertEqual(visible, spiVisible, "onscreen() rows should match the SPI's visible-frame rows")
+        window.isHidden = true
+    }
+
     // MARK: - Helpers
+
+    private static func makeSemanticGroupVC() -> UIViewController {
+        let vc = UIViewController()
+        let root = vc.view!
+        root.backgroundColor = .white
+
+        // Group A: shouldGroupAccessibilityChildren = true, containerType = .semanticGroup
+        let groupA = UIView(frame: CGRect(x: 0, y: 50, width: 375, height: 80))
+        groupA.shouldGroupAccessibilityChildren = true
+        groupA.accessibilityContainerType = .semanticGroup
+        groupA.accessibilityLabel = "Card A"
+        let a1 = UILabel(frame: CGRect(x: 10, y: 5, width: 100, height: 30))
+        a1.text = "Title A"
+        a1.isAccessibilityElement = true
+        let a2 = UILabel(frame: CGRect(x: 10, y: 40, width: 100, height: 30))
+        a2.text = "Subtitle A"
+        a2.isAccessibilityElement = true
+        groupA.addSubview(a1)
+        groupA.addSubview(a2)
+        root.addSubview(groupA)
+
+        // Group B: shouldGroupAccessibilityChildren = true, containerType = .list
+        let groupB = UIView(frame: CGRect(x: 0, y: 140, width: 375, height: 80))
+        groupB.shouldGroupAccessibilityChildren = true
+        groupB.accessibilityContainerType = .list
+        let b1 = UILabel(frame: CGRect(x: 10, y: 5, width: 100, height: 30))
+        b1.text = "Item B1"
+        b1.isAccessibilityElement = true
+        let b2 = UILabel(frame: CGRect(x: 10, y: 40, width: 100, height: 30))
+        b2.text = "Item B2"
+        b2.isAccessibilityElement = true
+        groupB.addSubview(b1)
+        groupB.addSubview(b2)
+        root.addSubview(groupB)
+
+        // Group C: shouldGroupAccessibilityChildren = false (no grouping)
+        let groupC = UIView(frame: CGRect(x: 0, y: 230, width: 375, height: 80))
+        groupC.shouldGroupAccessibilityChildren = false
+        let c1 = UILabel(frame: CGRect(x: 10, y: 5, width: 100, height: 30))
+        c1.text = "Ungrouped C1"
+        c1.isAccessibilityElement = true
+        let c2 = UILabel(frame: CGRect(x: 10, y: 40, width: 100, height: 30))
+        c2.text = "Ungrouped C2"
+        c2.isAccessibilityElement = true
+        groupC.addSubview(c1)
+        groupC.addSubview(c2)
+        root.addSubview(groupC)
+
+        // Standalone element between groups
+        let standalone = UILabel(frame: CGRect(x: 10, y: 320, width: 200, height: 30))
+        standalone.text = "Standalone"
+        standalone.isAccessibilityElement = true
+        root.addSubview(standalone)
+
+        // Group D: nested groups
+        let groupD = UIView(frame: CGRect(x: 0, y: 360, width: 375, height: 80))
+        groupD.shouldGroupAccessibilityChildren = true
+        groupD.accessibilityContainerType = .semanticGroup
+        groupD.accessibilityLabel = "Outer"
+        let inner = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 40))
+        inner.shouldGroupAccessibilityChildren = true
+        inner.accessibilityContainerType = .semanticGroup
+        inner.accessibilityLabel = "Inner"
+        let d1 = UILabel(frame: CGRect(x: 10, y: 5, width: 100, height: 30))
+        d1.text = "Nested D1"
+        d1.isAccessibilityElement = true
+        inner.addSubview(d1)
+        groupD.addSubview(inner)
+        let d2 = UILabel(frame: CGRect(x: 10, y: 45, width: 100, height: 30))
+        d2.text = "Sibling D2"
+        d2.isAccessibilityElement = true
+        groupD.addSubview(d2)
+        root.addSubview(groupD)
+
+        return vc
+    }
 
     private static func makeOptions(_ optionsClass: AnyClass, visibleFrameOnly: Bool) -> NSObject {
         let options = (optionsClass as! NSObject.Type)
@@ -398,45 +509,45 @@ final class UIViewIndexAPIValidationTests: XCTestCase {
         return options
     }
 
-    // MARK: - Parser vs SPI Comparison
+    // MARK: - Parser vs SPI Comparison (Both Configurations)
 
     func testParserMatchesSPI_tableView_top() {
-        assertParserMatchesSPIVisibleFrame(
+        assertParserMatchesSPI(
             makeVC: { ScrollViewAccessibilityViewController(scrollPosition: .top) },
             label: "TableView top"
         )
     }
 
     func testParserMatchesSPI_tableView_middle() {
-        assertParserMatchesSPIVisibleFrame(
+        assertParserMatchesSPI(
             makeVC: { ScrollViewAccessibilityViewController(scrollPosition: .middle) },
             label: "TableView middle"
         )
     }
 
     func testParserMatchesSPI_tableView_bottom() {
-        assertParserMatchesSPIVisibleFrame(
+        assertParserMatchesSPI(
             makeVC: { ScrollViewAccessibilityViewController(scrollPosition: .bottom) },
             label: "TableView bottom"
         )
     }
 
     func testParserMatchesSPI_collectionView_top() {
-        assertParserMatchesSPIVisibleFrame(
+        assertParserMatchesSPI(
             makeVC: { CollectionViewAccessibilityViewController(scrollPosition: .top) },
             label: "CollectionView top"
         )
     }
 
     func testParserMatchesSPI_collectionView_middle() {
-        assertParserMatchesSPIVisibleFrame(
+        assertParserMatchesSPI(
             makeVC: { CollectionViewAccessibilityViewController(scrollPosition: .middle) },
             label: "CollectionView middle"
         )
     }
 
     func testParserMatchesSPI_collectionView_bottom() {
-        assertParserMatchesSPIVisibleFrame(
+        assertParserMatchesSPI(
             makeVC: { CollectionViewAccessibilityViewController(scrollPosition: .bottom) },
             label: "CollectionView bottom"
         )
@@ -444,8 +555,8 @@ final class UIViewIndexAPIValidationTests: XCTestCase {
 
     @available(iOS 15.0, *)
     func testParserMatchesSPI_lazyVStack_top() {
-        assertParserMatchesSPIVisibleFrame(
-            makeHosted: { SwiftUILazyScrollView(scrollPosition: .top) },
+        assertParserMatchesSPI(
+            makeVC: { UIHostingController(rootView: SwiftUILazyScrollView(scrollPosition: .top)) },
             settleTime: 0.3,
             label: "LazyVStack top"
         )
@@ -453,8 +564,8 @@ final class UIViewIndexAPIValidationTests: XCTestCase {
 
     @available(iOS 15.0, *)
     func testParserMatchesSPI_lazyVStack_middle() {
-        assertParserMatchesSPIVisibleFrame(
-            makeHosted: { SwiftUILazyScrollView(scrollPosition: .middle) },
+        assertParserMatchesSPI(
+            makeVC: { UIHostingController(rootView: SwiftUILazyScrollView(scrollPosition: .middle)) },
             settleTime: 0.3,
             label: "LazyVStack middle"
         )
@@ -462,8 +573,8 @@ final class UIViewIndexAPIValidationTests: XCTestCase {
 
     @available(iOS 15.0, *)
     func testParserMatchesSPI_lazyVStack_bottom() {
-        assertParserMatchesSPIVisibleFrame(
-            makeHosted: { SwiftUILazyScrollView(scrollPosition: .bottom) },
+        assertParserMatchesSPI(
+            makeVC: { UIHostingController(rootView: SwiftUILazyScrollView(scrollPosition: .bottom)) },
             settleTime: 0.3,
             label: "LazyVStack bottom"
         )
@@ -471,8 +582,8 @@ final class UIViewIndexAPIValidationTests: XCTestCase {
 
     @available(iOS 15.0, *)
     func testParserMatchesSPI_swiftUIList_top() {
-        assertParserMatchesSPIVisibleFrame(
-            makeHosted: { SwiftUIScrollView(scrollPosition: .top) },
+        assertParserMatchesSPI(
+            makeVC: { UIHostingController(rootView: SwiftUIScrollView(scrollPosition: .top)) },
             settleTime: 0.3,
             label: "SwiftUI List top"
         )
@@ -480,8 +591,8 @@ final class UIViewIndexAPIValidationTests: XCTestCase {
 
     @available(iOS 15.0, *)
     func testParserMatchesSPI_swiftUIList_middle() {
-        assertParserMatchesSPIVisibleFrame(
-            makeHosted: { SwiftUIScrollView(scrollPosition: .middle) },
+        assertParserMatchesSPI(
+            makeVC: { UIHostingController(rootView: SwiftUIScrollView(scrollPosition: .middle)) },
             settleTime: 0.3,
             label: "SwiftUI List middle"
         )
@@ -489,16 +600,41 @@ final class UIViewIndexAPIValidationTests: XCTestCase {
 
     @available(iOS 15.0, *)
     func testParserMatchesSPI_swiftUIList_bottom() {
-        assertParserMatchesSPIVisibleFrame(
-            makeHosted: { SwiftUIScrollView(scrollPosition: .bottom) },
+        assertParserMatchesSPI(
+            makeVC: { UIHostingController(rootView: SwiftUIScrollView(scrollPosition: .bottom)) },
             settleTime: 0.3,
             label: "SwiftUI List bottom"
         )
     }
 
-    private func assertParserMatchesSPIVisibleFrame(
+    // MARK: - Comparison Helpers
+
+    private struct ElementIdentity: Equatable, CustomStringConvertible {
+        let label: String?
+        let traits: UIAccessibilityTraits
+
+        init(from obj: NSObject) {
+            label = obj.accessibilityLabel
+            traits = obj.accessibilityTraits
+        }
+
+        init(from element: AccessibilityElement) {
+            label = element.label
+            traits = UIAccessibilityTraits(rawValue: element.traits.rawValue)
+        }
+
+        var description: String {
+            var parts: [String] = []
+            if let label { parts.append("label=\"\(label)\"") }
+            if !traits.isEmpty { parts.append("traits=\(traits.rawValue)") }
+            return "(\(parts.joined(separator: ", ")))"
+        }
+    }
+
+    private func assertParserMatchesSPI(
         makeVC: () -> UIViewController,
         settleTime: TimeInterval = 0.1,
+        skipFullTree: Bool = false,
         label: String,
         file: StaticString = #filePath,
         line: UInt = #line
@@ -525,52 +661,570 @@ final class UIViewIndexAPIValidationTests: XCTestCase {
             return
         }
 
-        let options = Self.makeOptions(optionsClass, visibleFrameOnly: true)
-        let spiResult = vc.view.perform(sel, with: options)?.takeUnretainedValue() as? [NSObject] ?? []
-        let spiLabels = spiResult.compactMap { $0.accessibilityLabel }.sorted()
+        // --- Configuration 1: visible-frame filtering (pruning on) ---
+        // The parser now always produces the full tree; trimming off-screen elements is a delivery
+        // transform. `onscreen()` is the analog of the SPI's `visibleFrameOnly` pruning.
+        do {
+            let spiResult = vc.view.perform(
+                sel, with: Self.makeOptions(optionsClass, visibleFrameOnly: true)
+            )?.takeUnretainedValue() as? [NSObject] ?? []
+            let spiIdentities = spiResult.map { ElementIdentity(from: $0) }
 
-        let parser = AccessibilityHierarchyParser()
-        let parserElements = parser.parseAccessibilityHierarchy(in: vc.view).flattenToElements()
-        let parserLabels = parserElements.compactMap { $0.label }.sorted()
+            let parserIdentities = AccessibilityHierarchyParser()
+                .parseAccessibilityHierarchy(in: vc.view)
+                .onscreen()
+                .flattenToElements()
+                .map { ElementIdentity(from: $0) }
 
-        print("\(label) — SPI: \(spiLabels.count), Parser: \(parserLabels.count)")
+            print("\(label) [pruned] — SPI: \(spiIdentities.count), Parser: \(parserIdentities.count)")
 
-        XCTAssertEqual(
-            parserLabels.count,
-            spiLabels.count,
-            "\(label) count mismatch — Parser: \(parserLabels.count) [\(parserLabels)], SPI: \(spiLabels.count) [\(spiLabels)]",
-            file: file,
-            line: line
-        )
-        XCTAssertEqual(
-            parserLabels,
-            spiLabels,
-            "\(label) label mismatch — Parser: \(parserLabels), SPI: \(spiLabels)",
-            file: file,
-            line: line
-        )
+            XCTAssertEqual(
+                parserIdentities.count, spiIdentities.count,
+                "\(label) [pruned] count mismatch — Parser: \(parserIdentities.count), SPI: \(spiIdentities.count)",
+                file: file, line: line
+            )
+            for (i, (p, s)) in zip(parserIdentities, spiIdentities).enumerated() {
+                XCTAssertEqual(p, s, "\(label) [pruned] element \(i) — Parser: \(p), SPI: \(s)", file: file, line: line)
+            }
+        }
+
+        // --- Configuration 2: no visible-frame filtering (pruning off) ---
+        // UITableView's SPI walker uses the index API to enumerate all rows via the data source,
+        // while our parser only walks instantiated subviews. Skip for UITableView.
+        if !skipFullTree {
+            do {
+                let spiResult = vc.view.perform(
+                    sel, with: Self.makeOptions(optionsClass, visibleFrameOnly: false)
+                )?.takeUnretainedValue() as? [NSObject] ?? []
+                let spiIdentities = spiResult.map { ElementIdentity(from: $0) }
+
+                let parserIdentities = AccessibilityHierarchyParser()
+                    .parseAccessibilityHierarchy(in: vc.view)
+                    .flattenToElements()
+                    .map { ElementIdentity(from: $0) }
+
+                print("\(label) [full] — SPI: \(spiIdentities.count), Parser: \(parserIdentities.count)")
+
+                XCTAssertEqual(
+                    parserIdentities.count, spiIdentities.count,
+                    "\(label) [full] count mismatch — Parser: \(parserIdentities.count), SPI: \(spiIdentities.count)",
+                    file: file, line: line
+                )
+                for (i, (p, s)) in zip(parserIdentities, spiIdentities).enumerated() {
+                    XCTAssertEqual(p, s, "\(label) [full] element \(i) — Parser: \(p), SPI: \(s)", file: file, line: line)
+                }
+            }
+
+            // --- Configuration 3: SPI with honoring groups (no visibleFrameOnly) ---
+            let voGroupSel = NSSelectorFromString("defaultVoiceOverOptionsHonoringGroups")
+            if optionsClass.responds(to: voGroupSel) {
+                let voGroupOptions = (optionsClass as AnyObject).perform(voGroupSel)?.takeUnretainedValue()
+                let spiResult = vc.view.perform(sel, with: voGroupOptions)?.takeUnretainedValue() as? [NSObject] ?? []
+                let spiIdentities = spiResult.map { ElementIdentity(from: $0) }
+
+                let parserIdentities = AccessibilityHierarchyParser()
+                    .parseAccessibilityHierarchy(in: vc.view)
+                    .flattenToElements()
+                    .map { ElementIdentity(from: $0) }
+
+                print("\(label) [grouped] — SPI: \(spiIdentities.count), Parser: \(parserIdentities.count)")
+
+                XCTAssertEqual(
+                    parserIdentities.count, spiIdentities.count,
+                    "\(label) [grouped] count mismatch — Parser: \(parserIdentities.count), SPI: \(spiIdentities.count)",
+                    file: file, line: line
+                )
+                for (i, (p, s)) in zip(parserIdentities, spiIdentities).enumerated() {
+                    XCTAssertEqual(p, s, "\(label) [grouped] element \(i) — Parser: \(p), SPI: \(s)", file: file, line: line)
+                }
+            }
+        }
 
         window.isHidden = true
     }
 
-    @available(iOS 15.0, *)
-    private func assertParserMatchesSPIVisibleFrame<V: View>(
-        makeHosted: () -> V,
-        settleTime: TimeInterval = 0.1,
-        label: String,
-        file: StaticString = #filePath,
-        line: UInt = #line
-    ) {
-        assertParserMatchesSPIVisibleFrame(
-            makeVC: {
-                let host = UIHostingController(rootView: makeHosted())
-                return host
-            },
-            settleTime: settleTime,
-            label: label,
-            file: file,
-            line: line
-        )
+    func testDiagnostic_groupedSPIStructure() {
+        let sel = NSSelectorFromString("_accessibilityLeafDescendantsWithOptions:")
+        guard UIView().responds(to: sel) else { return }
+
+        let optionsClass: AnyClass? = NSClassFromString("UIAccessibilityElementTraversalOptions")
+        guard let optionsClass else { return }
+
+        let voGroupSel = NSSelectorFromString("defaultVoiceOverOptionsHonoringGroups")
+        guard optionsClass.responds(to: voGroupSel) else {
+            print("defaultVoiceOverOptionsHonoringGroups not available")
+            return
+        }
+
+        var viewControllers: [(String, UIViewController, TimeInterval)] = [
+            ("SemanticGroups", Self.makeSemanticGroupVC(), 0.1),
+        ]
+        if #available(iOS 15.0, *) {
+            viewControllers.append(("LazyVStack", UIHostingController(rootView: SwiftUILazyScrollView(scrollPosition: .top)), 0.3))
+        }
+
+        for (name, vc, settle) in viewControllers {
+            vc.view.frame = CGRect(x: 0, y: 0, width: 375, height: 400)
+            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 400))
+            window.rootViewController = vc
+            window.makeKeyAndVisible()
+            window.layoutIfNeeded()
+            RunLoop.current.run(until: Date().addingTimeInterval(settle))
+
+            let voGroupOptions = (optionsClass as AnyObject).perform(voGroupSel)?.takeUnretainedValue()
+            let grouped = vc.view.perform(sel, with: voGroupOptions)?.takeUnretainedValue() as? [NSObject] ?? []
+            let pruned = vc.view.perform(sel, with: Self.makeOptions(optionsClass, visibleFrameOnly: true))?.takeUnretainedValue() as? [NSObject] ?? []
+            let full = vc.view.perform(sel, with: Self.makeOptions(optionsClass, visibleFrameOnly: false))?.takeUnretainedValue() as? [NSObject] ?? []
+
+            print("\n===== \(name) =====")
+            print("  Grouped: \(grouped.count)  Pruned: \(pruned.count)  Full: \(full.count)")
+
+            print("\n  --- GROUPED (with container chain) ---")
+            for (i, obj) in grouped.enumerated() {
+                let cls = "\(type(of: obj))"
+                let label = obj.accessibilityLabel ?? "(nil)"
+                let traits = obj.accessibilityTraits.rawValue
+                let frame = obj.accessibilityFrame
+                let cType = obj.accessibilityContainerType.rawValue
+                let frameStr = frame.width == 0 && frame.height == 0 ? "ZERO" : "\(Int(frame.minX)),\(Int(frame.minY)) \(Int(frame.width))x\(Int(frame.height))"
+                print("  [\(i)] \(cls) label=\"\(label)\" traits=\(traits) frame=\(frameStr) cType=\(cType)")
+
+                // Walk the full container chain
+                var current: AnyObject? = obj
+                var depth = 0
+                while let c = (current as? NSObject)?.perform(NSSelectorFromString("accessibilityContainer"))?.takeUnretainedValue() {
+                    depth += 1
+                    let cObj = c as! NSObject
+                    let cCls = "\(type(of: cObj))"
+                    let cLabel = cObj.accessibilityLabel ?? "(nil)"
+                    let cCType = cObj.accessibilityContainerType.rawValue
+                    let cIsElem = cObj.isAccessibilityElement
+                    let cGrouped = (cObj as? UIView)?.shouldGroupAccessibilityChildren ?? false
+                    let cFrame = cObj.accessibilityFrame
+                    let cFrameStr = cFrame.width == 0 && cFrame.height == 0 ? "ZERO" : "\(Int(cFrame.minX)),\(Int(cFrame.minY)) \(Int(cFrame.width))x\(Int(cFrame.height))"
+                    let indent = String(repeating: "  ", count: depth)
+                    print("       \(indent)↑ \(cCls) label=\"\(cLabel)\" cType=\(cCType) isElem=\(cIsElem) grouped=\(cGrouped) frame=\(cFrameStr)")
+                    current = c
+                    if depth > 10 { print("       \(indent)  (truncated)"); break }
+                }
+            }
+
+            print("\n  --- PRUNED ---")
+            for (i, obj) in pruned.enumerated() {
+                let label = obj.accessibilityLabel ?? "(nil)"
+                let traits = obj.accessibilityTraits.rawValue
+                print("  [\(i)] \(type(of: obj)) label=\"\(label)\" traits=\(traits)")
+
+                var current: AnyObject? = obj
+                var depth = 0
+                while let c = (current as? NSObject)?.perform(NSSelectorFromString("accessibilityContainer"))?.takeUnretainedValue() {
+                    depth += 1
+                    let cObj = c as! NSObject
+                    let cCls = "\(type(of: cObj))"
+                    let cLabel = cObj.accessibilityLabel ?? "(nil)"
+                    let cCType = cObj.accessibilityContainerType.rawValue
+                    let indent = String(repeating: "  ", count: depth)
+                    print("       \(indent)↑ \(cCls) label=\"\(cLabel)\" cType=\(cCType)")
+                    current = c
+                    if depth > 10 { print("       \(indent)  (truncated)"); break }
+                }
+            }
+
+            window.isHidden = true
+        }
+    }
+
+    /// Introspects UIAccessibilityElementTraversalOptions to find every option axis,
+    /// then diffs the three known factory configurations against each other.
+    func testDiagnostic_traversalOptionsIntrospection() {
+        let optionsClass: AnyClass? = NSClassFromString("UIAccessibilityElementTraversalOptions")
+        guard let optionsClass else { return }
+
+        print("=== INSTANCE METHODS ===")
+        var count: UInt32 = 0
+        if let methods = class_copyMethodList(optionsClass, &count) {
+            for i in 0 ..< Int(count) {
+                let selName = NSStringFromSelector(method_getName(methods[i]))
+                let enc = method_getTypeEncoding(methods[i]).map { String(cString: $0) } ?? "?"
+                print("  \(selName)  [\(enc)]")
+            }
+            free(methods)
+        }
+
+        print("\n=== CLASS METHODS ===")
+        if let meta = object_getClass(optionsClass) {
+            var classCount: UInt32 = 0
+            if let methods = class_copyMethodList(meta, &classCount) {
+                for i in 0 ..< Int(classCount) {
+                    print("  +\(NSStringFromSelector(method_getName(methods[i])))")
+                }
+                free(methods)
+            }
+        }
+
+        // Build the three configurations we know about and diff every BOOL getter.
+        func makeInstance(_ factory: String?) -> NSObject? {
+            if let factory {
+                let sel = NSSelectorFromString(factory)
+                guard optionsClass.responds(to: sel) else { return nil }
+                return (optionsClass as AnyObject).perform(sel)?.takeUnretainedValue() as? NSObject
+            }
+            return (optionsClass as! NSObject.Type)
+                .perform(NSSelectorFromString("alloc"))!.takeUnretainedValue()
+                .perform(NSSelectorFromString("init"))!.takeUnretainedValue() as? NSObject
+        }
+
+        let instances: [(String, NSObject)] = [
+            ("plainInit", makeInstance(nil)),
+            ("defaultVoiceOverOptions", makeInstance("defaultVoiceOverOptions")),
+            ("voHonoringGroups", makeInstance("defaultVoiceOverOptionsHonoringGroups")),
+            ("defaultSwitchControlOptions", makeInstance("defaultSwitchControlOptions")),
+        ].compactMap { name, obj in obj.map { (name, $0) } }
+
+        typealias BoolGetter = @convention(c) (AnyObject, Selector) -> Bool
+        var boolGetters: [String] = []
+        var getterCount: UInt32 = 0
+        if let methods = class_copyMethodList(optionsClass, &getterCount) {
+            for i in 0 ..< Int(getterCount) {
+                let m = methods[i]
+                let selName = NSStringFromSelector(method_getName(m))
+                let enc = method_getTypeEncoding(m).map { String(cString: $0) } ?? ""
+                // BOOL getter with no arguments: encoding like "B16@0:8"
+                if enc.hasPrefix("B"), method_getNumberOfArguments(m) == 2, !selName.hasPrefix("set") {
+                    boolGetters.append(selName)
+                }
+            }
+            free(methods)
+        }
+        boolGetters.sort()
+
+        print("\n=== BOOL GETTER VALUES ===")
+        let header = "getter".padding(toLength: 52, withPad: " ", startingAt: 0)
+            + instances.map { $0.0.padding(toLength: 30, withPad: " ", startingAt: 0) }.joined()
+        print(header)
+        for getter in boolGetters {
+            var row = getter.padding(toLength: 52, withPad: " ", startingAt: 0)
+            for (_, instance) in instances {
+                let sel = NSSelectorFromString(getter)
+                guard let m = class_getInstanceMethod(type(of: instance), sel) else {
+                    row += "n/a".padding(toLength: 30, withPad: " ", startingAt: 0)
+                    continue
+                }
+                let value = unsafeBitCast(method_getImplementation(m), to: BoolGetter.self)(instance, sel)
+                row += "\(value)".padding(toLength: 30, withPad: " ", startingAt: 0)
+            }
+            print(row)
+        }
+    }
+
+    /// Maps exactly which container configurations the grouped walker collapses.
+    /// One container + two labeled children per trial; vary the container's
+    /// grouping flag, container type, label, element-ness, and class.
+    func testDiagnostic_groupCollapseMatrix() {
+        let sel = NSSelectorFromString("_accessibilityLeafDescendantsWithOptions:")
+        guard UIView().responds(to: sel) else { return }
+        let optionsClass: AnyClass? = NSClassFromString("UIAccessibilityElementTraversalOptions")
+        guard let optionsClass else { return }
+        let voGroupSel = NSSelectorFromString("defaultVoiceOverOptionsHonoringGroups")
+        guard optionsClass.responds(to: voGroupSel) else { return }
+
+        struct Trial {
+            let name: String
+            let make: () -> (root: UIView, container: UIView)
+        }
+
+        func standardChildren(in container: UIView) {
+            let c1 = UILabel(frame: CGRect(x: 10, y: 5, width: 100, height: 30))
+            c1.text = "A"
+            c1.isAccessibilityElement = true
+            let c2 = UILabel(frame: CGRect(x: 10, y: 40, width: 100, height: 30))
+            c2.text = "B"
+            c2.isAccessibilityElement = true
+            container.addSubview(c1)
+            container.addSubview(c2)
+        }
+
+        func makeTrial(
+            name: String,
+            grouped: Bool,
+            cType: UIAccessibilityContainerType,
+            label: String?,
+            isElement: Bool = false,
+            containerClass: UIView.Type = UIView.self,
+            customize: ((UIView) -> Void)? = nil
+        ) -> Trial {
+            Trial(name: name) {
+                let root = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 400))
+                let container = containerClass.init(frame: CGRect(x: 0, y: 50, width: 375, height: 80))
+                container.shouldGroupAccessibilityChildren = grouped
+                container.accessibilityContainerType = cType
+                container.accessibilityLabel = label
+                container.isAccessibilityElement = isElement
+                standardChildren(in: container)
+                customize?(container)
+                root.addSubview(container)
+                return (root, container)
+            }
+        }
+
+        var trials: [Trial] = []
+
+        // Full matrix: grouped × containerType × label
+        let cTypes: [(String, UIAccessibilityContainerType)] = [
+            ("none", .none),
+            ("dataTable", .dataTable),
+            ("list", .list),
+            ("landmark", .landmark),
+            ("semanticGroup", .semanticGroup),
+        ]
+        for grouped in [false, true] {
+            for (ctName, ct) in cTypes {
+                for label in [nil, "L"] as [String?] {
+                    trials.append(makeTrial(
+                        name: "grouped=\(grouped ? "Y" : "n") cType=\(ctName.padding(toLength: 13, withPad: " ", startingAt: 0)) label=\(label ?? "nil")",
+                        grouped: grouped, cType: ct, label: label
+                    ))
+                }
+            }
+        }
+
+        // Edge cases
+        trials.append(makeTrial(
+            name: "container isElement=true (label=L)",
+            grouped: false, cType: .none, label: "L", isElement: true
+        ))
+        trials.append(makeTrial(
+            name: "UIStackView grouped=Y cType=none",
+            grouped: true, cType: .none, label: nil, containerClass: UIStackView.self
+        ))
+        trials.append(makeTrial(
+            name: "grouped=Y semanticGroup + explicit a11yElements",
+            grouped: true, cType: .semanticGroup, label: "L",
+            customize: { container in
+                container.accessibilityElements = container.subviews
+            }
+        ))
+        trials.append(makeTrial(
+            name: "grouped=Y semanticGroup + a11yValue only",
+            grouped: true, cType: .semanticGroup, label: nil,
+            customize: { $0.accessibilityValue = "V" }
+        ))
+        trials.append(Trial(name: "grouped=Y semanticGroup, 0 accessible children") {
+            let root = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 400))
+            let container = UIView(frame: CGRect(x: 0, y: 50, width: 375, height: 80))
+            container.shouldGroupAccessibilityChildren = true
+            container.accessibilityContainerType = .semanticGroup
+            container.accessibilityLabel = "L"
+            root.addSubview(container)
+            return (root, container)
+        })
+        trials.append(Trial(name: "grouped=Y semanticGroup, grandchildren only") {
+            let root = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 400))
+            let container = UIView(frame: CGRect(x: 0, y: 50, width: 375, height: 80))
+            container.shouldGroupAccessibilityChildren = true
+            container.accessibilityContainerType = .semanticGroup
+            let middle = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 80))
+            standardChildren(in: middle)
+            container.addSubview(middle)
+            root.addSubview(container)
+            return (root, container)
+        })
+        trials.append(Trial(name: "nested grouped: outer semanticGroup > inner semanticGroup") {
+            let root = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 400))
+            let outer = UIView(frame: CGRect(x: 0, y: 50, width: 375, height: 80))
+            outer.shouldGroupAccessibilityChildren = true
+            outer.accessibilityContainerType = .semanticGroup
+            outer.accessibilityLabel = "Outer"
+            let inner = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 40))
+            inner.shouldGroupAccessibilityChildren = true
+            inner.accessibilityContainerType = .semanticGroup
+            inner.accessibilityLabel = "Inner"
+            standardChildren(in: inner)
+            outer.addSubview(inner)
+            root.addSubview(outer)
+            return (root, outer)
+        })
+        trials.append(Trial(name: "grouped=n outer > grouped=Y inner semanticGroup") {
+            let root = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 400))
+            let outer = UIView(frame: CGRect(x: 0, y: 50, width: 375, height: 80))
+            let inner = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 40))
+            inner.shouldGroupAccessibilityChildren = true
+            inner.accessibilityContainerType = .semanticGroup
+            inner.accessibilityLabel = "Inner"
+            standardChildren(in: inner)
+            outer.addSubview(inner)
+            root.addSubview(outer)
+            return (root, inner)
+        })
+
+        // Sweep raw containerType values beyond the public enum (HostingScrollView
+        // reported cType=12), with and without a label.
+        typealias SetIntFn = @convention(c) (AnyObject, Selector, Int) -> Void
+        let setCTypeSel = NSSelectorFromString("setAccessibilityContainerType:")
+        for rawType in 0 ... 15 {
+            for label in [nil, "L"] as [String?] {
+                trials.append(Trial(name: "rawCType=\(String(rawType).padding(toLength: 2, withPad: " ", startingAt: 0)) label=\(label ?? "nil")") {
+                    let root = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 400))
+                    let container = UIView(frame: CGRect(x: 0, y: 50, width: 375, height: 80))
+                    let imp = container.method(for: setCTypeSel)
+                    unsafeBitCast(imp, to: SetIntFn.self)(container, setCTypeSel, rawType)
+                    container.accessibilityLabel = label
+                    standardChildren(in: container)
+                    root.addSubview(container)
+                    return (root, container)
+                })
+            }
+        }
+
+        // Which semanticGroup properties qualify it for collapse?
+        for (propName, customize) in [
+            ("identifier", { (v: UIView) in v.accessibilityIdentifier = "id" }),
+            ("hint", { (v: UIView) in v.accessibilityHint = "hint" }),
+            ("attributedLabel", { (v: UIView) in v.accessibilityAttributedLabel = NSAttributedString(string: "AL") }),
+            ("userInputLabels", { (v: UIView) in v.accessibilityUserInputLabels = ["UIL"] }),
+        ] as [(String, (UIView) -> Void)] {
+            trials.append(makeTrial(
+                name: "semanticGroup + \(propName) only",
+                grouped: false, cType: .semanticGroup, label: nil,
+                customize: customize
+            ))
+        }
+
+        print("=== GROUP COLLAPSE MATRIX (grouped SPI vs pruned SPI) ===")
+        for trial in trials {
+            let (root, container) = trial.make()
+            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 400))
+            window.addSubview(root)
+            window.makeKeyAndVisible()
+            window.layoutIfNeeded()
+
+            let voGroupOptions = (optionsClass as AnyObject).perform(voGroupSel)?.takeUnretainedValue()
+            let grouped = root.perform(sel, with: voGroupOptions)?.takeUnretainedValue() as? [NSObject] ?? []
+            let pruned = root.perform(sel, with: Self.makeOptions(optionsClass, visibleFrameOnly: true))?.takeUnretainedValue() as? [NSObject] ?? []
+
+            func describe(_ result: [NSObject]) -> String {
+                if result.isEmpty { return "EMPTY" }
+                let parts = result.map { obj -> String in
+                    if obj === container { return "«CONTAINER»" }
+                    return obj.accessibilityLabel ?? "(\(type(of: obj)))"
+                }
+                return parts.joined(separator: ", ")
+            }
+
+            let verdict: String
+            if grouped.count == 1, grouped[0] === container {
+                verdict = "COLLAPSED"
+            } else if grouped.contains(where: { $0 === container }) {
+                verdict = "MIXED"
+            } else if grouped.isEmpty {
+                verdict = "EMPTY"
+            } else {
+                verdict = "DRILLED"
+            }
+
+            print("\(trial.name.padding(toLength: 56, withPad: " ", startingAt: 0)) → \(verdict.padding(toLength: 10, withPad: " ", startingAt: 0)) grouped=[\(describe(grouped))] pruned=[\(describe(pruned))]")
+
+            window.isHidden = true
+        }
+    }
+
+    /// Demonstrates where walk-path context derivation loses list/landmark context that the
+    /// element's own `accessibilityContainer` chain still carries.
+    func testDiagnostic_contextGapViaContainerChain() {
+        let containerSel = NSSelectorFromString("accessibilityContainer")
+        print("bare NSObject responds to accessibilityContainer: \(NSObject().responds(to: containerSel))")
+        print("bare NSObject accessibilityContainer value: \(String(describing: NSObject().perform(containerSel)?.takeUnretainedValue()))")
+
+        func makeListFixture(explicitArray: Bool) -> UIView {
+            let root = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 400))
+            let list = UIView(frame: CGRect(x: 0, y: 50, width: 375, height: 80))
+            list.accessibilityContainerType = .list
+            let l1 = UILabel(frame: CGRect(x: 10, y: 5, width: 100, height: 30))
+            l1.text = "First"
+            l1.isAccessibilityElement = true
+            let l2 = UILabel(frame: CGRect(x: 10, y: 40, width: 100, height: 30))
+            l2.text = "Last"
+            l2.isAccessibilityElement = true
+            list.addSubview(l1)
+            list.addSubview(l2)
+            if explicitArray {
+                list.accessibilityElements = [l1, l2]
+            }
+            root.addSubview(list)
+            return root
+        }
+
+        let fixtures: [(String, UIView, UIViewController?)] = {
+            let tableVC = ScrollViewAccessibilityViewController(scrollPosition: .top)
+            return [
+                ("list via explicit a11yElements array", makeListFixture(explicitArray: true), nil),
+                ("list via plain subviews", makeListFixture(explicitArray: false), nil),
+                ("UITableView", tableVC.view, tableVC),
+            ]
+        }()
+
+        for (name, rootView, vc) in fixtures {
+            let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 400))
+            if let vc {
+                vc.view.frame = CGRect(x: 0, y: 0, width: 375, height: 400)
+                window.rootViewController = vc
+            } else {
+                window.addSubview(rootView)
+            }
+            window.makeKeyAndVisible()
+            window.layoutIfNeeded()
+            RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+
+            print("\n===== \(name) =====")
+
+            // What the parser says (descriptions carry "List Start."/"List End.")
+            let elements = AccessibilityHierarchyParser()
+                .parseAccessibilityHierarchy(in: vc?.view ?? rootView)
+                .flattenToElements()
+            print("  PARSER:")
+            for e in elements.prefix(4) {
+                print("    \"\(e.description)\"")
+            }
+            if elements.count > 4 { print("    … (\(elements.count - 4) more)") }
+            if let last = elements.last, elements.count > 4 {
+                print("    last: \"\(last.description)\"")
+            }
+
+            // What the element's own container chain says
+            let sel = NSSelectorFromString("_accessibilityLeafDescendantsWithOptions:")
+            let optionsClass: AnyClass? = NSClassFromString("UIAccessibilityElementTraversalOptions")
+            guard let optionsClass else { continue }
+            let leaves = (vc?.view ?? rootView).perform(
+                sel, with: Self.makeOptions(optionsClass, visibleFrameOnly: true)
+            )?.takeUnretainedValue() as? [NSObject] ?? []
+
+            print("  CHAIN (per SPI leaf):")
+            for leaf in [leaves.first, leaves.last].compactMap({ $0 }) {
+                var child: NSObject = leaf
+                var chainDesc = "    \"\(leaf.accessibilityLabel ?? "?")\""
+                var depth = 0
+                while depth < 15 {
+                    depth += 1
+                    guard child.responds(to: containerSel),
+                          let parent = child.perform(containerSel)?.takeUnretainedValue() as? NSObject
+                    else { break }
+                    let cType = parent.accessibilityContainerType
+                    if cType != .none {
+                        let index = parent.index(ofAccessibilityElement: child)
+                        let count = parent.accessibilityElementCount()
+                        chainDesc += " → ancestor \(type(of: parent)) cType=\(cType.rawValue), index(directChild)=\(index == NSNotFound ? "NSNotFound" : "\(index)"), count=\(count == NSNotFound ? "NSNotFound" : "\(count)")"
+                        break
+                    }
+                    child = parent
+                }
+                if depth >= 15 || !chainDesc.contains("ancestor") {
+                    chainDesc += " → no typed ancestor found"
+                }
+                print(chainDesc)
+            }
+
+            window.isHidden = true
+        }
     }
 
     func testRealUIKitViewsIndexAPIBehavior() {

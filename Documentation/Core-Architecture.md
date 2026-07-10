@@ -1,5 +1,7 @@
 The core accessibility parsing and presentation logic lives in the `Core` subspec. In most cases, consumers will interact with an integration layer built on top of the core parser that performs the actual snapshot recording and comparison. The following are the primary classes in the public API of the core parser with which the integration layer will interact.
 
+> **Note:** As of 0.22.0 the parser always produces the full tree with per-element visibility, context is derived from graph position, and trimming happens at delivery. See [Refactor-Containers-and-Delivery.md](Refactor-Containers-and-Delivery.md) for the new `DeliveryOptions` / `ScrollContainerSummary` API and the removal of `ParserOptions`.
+
 * `AnimationSnapshotView` - This is a container view around the view being snapshotted. It contains a snapshot of the view and the views that make up the highlights and legend.
 
 The `AnimationSnapshotView` is the only class the integration layer needs to interact with to output snapshot images of the accessibility hierarchy. For non-view-based integrations, the `AccessibilityHierarchyParser` is the main integration point.

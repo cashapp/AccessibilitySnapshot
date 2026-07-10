@@ -18,6 +18,7 @@ func makeLanguageScheme(language: String, languageCode: String) -> Scheme {
             [
                 .testableTarget(target: .target("SnapshotTests")),
                 .testableTarget(target: .target("UnitTests")),
+                .testableTarget(target: .target("AccessibilitySnapshotModelTests")),
             ],
             expandVariableFromTarget: .target("AccessibilitySnapshotDemo"),
             skippedTests: [
@@ -309,6 +310,18 @@ let project = Project(
         ),
 
         // MARK: - Unit Tests
+
+        .target(
+            name: "AccessibilitySnapshotModelTests",
+            destinations: .iOS,
+            product: .unitTests,
+            bundleId: "com.cashapp.AccessibilitySnapshotModelTests",
+            deploymentTargets: deploymentTargets,
+            sources: ["../AccessibilitySnapshotModel/Tests/AccessibilitySnapshotModelTests/**/*.swift"],
+            dependencies: [
+                .target(name: "AccessibilitySnapshotModel"),
+            ]
+        ),
 
         .target(
             name: "UnitTests",
