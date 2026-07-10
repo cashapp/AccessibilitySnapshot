@@ -993,6 +993,40 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertNotNil(listNode.container)
     }
 
+    // MARK: - User Input Labels
+
+    /// An element whose only accessibility property is its label reports a Voice Control input-label
+    /// echo (`[accessibilityLabel]`) that UIKit synthesizes as a fallback. That echo is redundant for
+    /// targeting (you can already invoke the element by speaking its label), so the parser must not
+    /// surface it as an authored input label.
+    func testDerivedUserInputLabelEchoIsSuppressed() {
+        let container = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+        let element = UIView(frame: .init(x: 0, y: 0, width: 100, height: 44))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "Submit"
+        element.accessibilityFrame = element.frame
+        container.addSubview(element)
+
+        let marker = parseMarkers(in: container).first
+        XCTAssertEqual(marker?.label, "Submit")
+        XCTAssertNil(marker?.userInputLabels, "A user-input-label echo of the accessibility label should be suppressed.")
+    }
+
+    /// Input labels that genuinely differ from the accessibility label (alternative phrasings the app
+    /// authored for Voice Control) must be preserved.
+    func testAuthoredUserInputLabelsArePreserved() {
+        let container = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+        let element = UIView(frame: .init(x: 0, y: 0, width: 100, height: 44))
+        element.isAccessibilityElement = true
+        element.accessibilityLabel = "Submit"
+        element.accessibilityUserInputLabels = ["Send", "Go"]
+        element.accessibilityFrame = element.frame
+        container.addSubview(element)
+
+        let marker = parseMarkers(in: container).first
+        XCTAssertEqual(marker?.userInputLabels, ["Send", "Go"])
+    }
+
     // MARK: - Private Helpers
 
     private func parseMarkers(in view: UIView) -> [AccessibilityMarker] {

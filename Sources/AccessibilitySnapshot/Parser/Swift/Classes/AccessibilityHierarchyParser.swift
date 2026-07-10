@@ -260,7 +260,7 @@ public final class AccessibilityHierarchyParser {
             traits: AccessibilityTraits(object.accessibilityTraits),
             identifier: object.identifier,
             hint: hint,
-            userInputLabels: object.accessibilityUserInputLabels,
+            userInputLabels: object.authoredUserInputLabels,
             shape: Self.accessibilityShape(for: object, in: root),
             activationPoint: AccessibilityPoint(root.convert(activationPoint, from: nil)),
             usesDefaultActivationPoint: Self.usesDefaultActivationPoint(
@@ -1046,6 +1046,25 @@ private extension NSObject {
         accessibilityCustomRotors?.compactMap {
             .init(from: $0, parentElement: self, root: root, context: context, resultLimit: resultLimit)
         } ?? []
+    }
+
+    /// The Voice Control input labels the app *authored*, excluding UIKit's derived label echo.
+    ///
+    /// When an element has no explicitly-set input labels, UIKit's Voice Control fallback synthesizes
+    /// `[accessibilityLabel]` — an echo that is byte-identical, for targeting purposes, to setting
+    /// nothing (you can already target the element by speaking its label). Some classes (e.g.
+    /// `UITableViewCell` via its axbundle) surface this echo even through the private "raw" attributed
+    /// getter, so the only reliable signal that input labels are a real authorial override is that
+    /// they differ from the label itself. Suppress the single-element `[label]` echo; keep anything
+    /// that adds alternative phrasings.
+    var authoredUserInputLabels: [String]? {
+        guard let labels = accessibilityUserInputLabels, !labels.isEmpty else {
+            return nil
+        }
+        if labels.count == 1, labels.first == accessibilityLabel {
+            return nil
+        }
+        return labels
     }
 
     var identifier: String? {
