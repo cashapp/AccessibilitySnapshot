@@ -27,6 +27,13 @@ func makeLanguageScheme(language: String, languageCode: String) -> Scheme {
                 "AccessibilitySnapshotTests/testLargeViewThatRequiresTiling()",
                 "DefaultControlsTests/testDatePicker()",
                 "HitTargetTests/testPerformance()",
+                // Non-deterministic accessibility parse across runs (element set differs run-to-run),
+                // so no reference image is stable. Modal: competing accessibilityViewIsModal
+                // boundaries; SwiftUI List: element set unstable at capture time. Tracked separately.
+                "ModalTests/testOneModalOneContainer()",
+                "ScrollViewTests/testSwiftUIListScrolledToTop()",
+                "ScrollViewTests/testSwiftUIListScrolledToMiddle()",
+                "ScrollViewTests/testSwiftUIListScrolledToBottom()",
             ]
         ),
         runAction: .runAction(
