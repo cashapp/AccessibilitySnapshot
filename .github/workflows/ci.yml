@@ -97,4 +97,6 @@ jobs:
         if: failure()
         with:
           name: Reference Images-(${{ matrix.platform }})
-          path: Example/SnapshotTests/ReferenceImages
+          path: |
+            Example/SnapshotTests/ReferenceImages
+            Example/AccessibilitySnapshotPreviewsTests/ReferenceImages

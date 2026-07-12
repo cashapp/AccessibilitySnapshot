@@ -11,6 +11,7 @@ import PackageDescription
 // targets and fails to build on macOS with `'UIKit/UIKit.h' file not found`.
 let package = Package(
     name: "AccessibilitySnapshotModel",
+    defaultLocalization: "en",
     products: [
         .library(
             name: "AccessibilitySnapshotModel",
@@ -20,7 +21,8 @@ let package = Package(
     targets: [
         .target(
             name: "AccessibilitySnapshotModel",
-            path: "Sources/AccessibilitySnapshotModel"
+            path: "Sources/AccessibilitySnapshotModel",
+            resources: [.process("Assets")]
         ),
         .testTarget(
             name: "AccessibilitySnapshotModelTests",

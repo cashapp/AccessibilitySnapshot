@@ -1,6 +1,6 @@
 import Foundation
 
-extension String {
+public extension String {
     func localized(key: String, comment: String, locale: String?, file: StaticString = #file) -> String {
         let bundle = StringLocalization.preferredBundle(for: locale)
 
@@ -28,7 +28,9 @@ public enum StringLocalization {
             return cachedBundle
         }
 
-        guard let availableLocalizationBundles = resourceBundle.urls(forResourcesWithExtension: "lproj", subdirectory: "Assets") else {
+        // `.process("Assets")` flattens `.lproj` folders to the resource bundle root (the `Assets/`
+        // directory does not survive into the built bundle), so look there — not under a subdirectory.
+        guard let availableLocalizationBundles = resourceBundle.urls(forResourcesWithExtension: "lproj", subdirectory: nil) else {
             return resourceBundle
         }
 

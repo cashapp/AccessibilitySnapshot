@@ -30,9 +30,12 @@ public extension Array where Element == AccessibilityHierarchy {
     /// and any container left with no surviving children dropped (an empty container is not an
     /// accessibility element — VoiceOver never stops on it — so it must not remain in the tree).
     ///
-    /// This is a tree-to-tree transform. Flatten the result to get the rendered element list:
+    /// This is a tree-to-tree transform. Note that flattening materializes descriptions from
+    /// graph-derived context, so for rendering prefer flattening the FULL tree and pruning the flat
+    /// array by `visibility` — pruning the tree first would derive "X of N" counts and data-table
+    /// headers from an incomplete child set:
     ///
-    ///     hierarchy.onscreen().flattenToElements()
+    ///     hierarchy.flattenToElements().filter { $0.visibility == .onscreen }
     ///
     /// The full tree (`self`) still carries the off-screen elements; read `scrollContainerSummaries()`
     /// off it — not off the pruned result — to tally what was dropped.

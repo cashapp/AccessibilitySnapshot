@@ -182,4 +182,34 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         try container.encode(respondsToUserInteraction, forKey: .respondsToUserInteraction)
         try container.encode(visibility, forKey: .visibility)
     }
+
+    // MARK: - Copying
+
+    /// Returns a copy with `description` and `hint` replaced. Used at delivery to write the
+    /// materialized spoken string (composed from context + verbosity) onto an element the parser
+    /// captured with only raw facts.
+    ///
+    /// The result is a terminal, render-ready projection: its `hint` holds the COMPOSED hint, so it
+    /// must never be fed back through `description(context:verbosity:)` (which reads `hint` as a raw
+    /// fact) — always re-compose from the original element instead.
+    public func withDescription(_ description: String, hint: String?) -> AccessibilityElement {
+        AccessibilityElement(
+            description: description,
+            label: label,
+            value: value,
+            traits: traits,
+            identifier: identifier,
+            hint: hint,
+            userInputLabels: userInputLabels,
+            shape: shape,
+            activationPoint: activationPoint,
+            usesDefaultActivationPoint: usesDefaultActivationPoint,
+            customActions: customActions,
+            customContent: customContent,
+            customRotors: customRotors,
+            accessibilityLanguage: accessibilityLanguage,
+            respondsToUserInteraction: respondsToUserInteraction,
+            visibility: visibility
+        )
+    }
 }

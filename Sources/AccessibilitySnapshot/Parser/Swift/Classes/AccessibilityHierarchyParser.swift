@@ -287,7 +287,7 @@ public final class AccessibilityHierarchyParser {
         rotorResultLimit: Int,
         visibility: AccessibilityVisibility
     ) -> AccessibilityElement {
-        let (description, hint) = object.accessibilityDescription(context: context)
+        let (description, _) = object.accessibilityDescription(context: context)
         let activationPoint = object.accessibilityActivationPoint
 
         return AccessibilityElement(
@@ -296,7 +296,10 @@ public final class AccessibilityHierarchyParser {
             value: object.accessibilityValue,
             traits: AccessibilityTraits(object.accessibilityTraits),
             identifier: object.identifier,
-            hint: hint,
+            // Store the RAW author hint, not the parse-time-composed one. The trait-derived hint suffix
+            // ("Double tap to toggle setting.", "Text field.", "Adjustable. …") is composed at delivery
+            // by `description(context:verbosity:)`; baking it here too would double it when materialized.
+            hint: object.accessibilityHint?.nonEmpty(),
             userInputLabels: object.authoredUserInputLabels,
             shape: Self.accessibilityShape(for: object, in: root),
             activationPoint: AccessibilityPoint(root.convert(activationPoint, from: nil)),
@@ -665,9 +668,25 @@ public final class AccessibilityHierarchyParser {
                 if let info = containerInfo {
                     let frame = AccessibilityRect(root.convert(info.view.bounds, from: info.view))
 
+                    let childSources = mappedChildren.compactMap(\.source)
+                    let hasTabBarItemChildren = childSources.contains {
+                        $0.accessibilityTraits.contains(.tabBarItemTrait)
+                    }
+
                     let containerType: AccessibilityContainer.ContainerType
-                    if info.traits.contains(.tabBar) {
+                    if info.traits.contains(.tabBar) || hasTabBarItemChildren {
+                        // A tab bar is identified class-free as a container whose children carry the
+                        // private `.tabBarItem` trait (bit 28) — no `is UITabBar` check. A real
+                        // `UITabBar` reports `accessibilityContainerType == .semanticGroup` and lacks
+                        // the `.tabBar` trait, so the children-trait rule is what recognizes it; custom
+                        // `.tabBar`-trait views are still matched by the trait.
                         containerType = .tabBar
+                    } else if info.type == .segmentedControlContainerType {
+                        // A `UISegmentedControl` reports the private container type 11 (outside the
+                        // public 0–4 enum), read here via the public `accessibilityContainerType`
+                        // property — no `is UISegmentedControl` class check. Its segments render as a
+                        // `.series` ("Segment A. Button. 1 of 3."), keeping the Button trait.
+                        containerType = .series
                     } else {
                         switch info.type {
                         case .semanticGroup:
@@ -1329,6 +1348,23 @@ private extension NSObject {
 }
 
 // MARK: -
+
+extension UIAccessibilityTraits {
+    /// The private trait bit (1 << 28) UIKit sets on tab bar buttons (`UITabBarButton` / `_UITabButton`).
+    /// A container whose children carry this trait is a tab bar — a class-free signal that identifies a
+    /// real `UITabBar` (which reports `accessibilityContainerType == .semanticGroup` and no `.tabBar`
+    /// trait). Confirmed live byte-identical on iOS 18.5 and 26.3.
+    static let tabBarItemTrait = UIAccessibilityTraits(rawValue: 1 << 28)
+}
+
+extension UIAccessibilityContainerType {
+    /// The private `accessibilityContainerType` value a `UISegmentedControl` reports (outside the
+    /// public `.none`…`.semanticGroup` range, 0–4). Read via the public property, this is a
+    /// class-free discriminator for segmented controls — the same private-value idiom the model uses
+    /// for private trait bits. Confirmed live on plain and SwiftUI-backed segmented controls
+    /// (iOS 18.5, 26.3); UIStepper/UISlider/UIDatePicker return 0, so this does not over-match.
+    static let segmentedControlContainerType = UIAccessibilityContainerType(rawValue: 11)!
+}
 
 extension UIView {
     func convert(_ path: UIBezierPath, from source: UIView?) -> UIBezierPath {

@@ -18,16 +18,22 @@ public struct ParsedAccessibilityData {
     /// configuration's `includesOffscreenElements` is `true` (nothing is trimmed, so nothing to tally).
     public let containerSummaries: [ScrollContainerSummary]
 
+    /// The full parsed hierarchy the markers were flattened from. Renderers that visualize container
+    /// structure (the SwiftUI hierarchical legend) read this; the UIKit renderer ignores it.
+    public let hierarchy: [AccessibilityHierarchy]
+
     public init(
         image: UIImage,
         markers: [AccessibilityMarker],
         containedViewBounds: CGSize,
-        containerSummaries: [ScrollContainerSummary] = []
+        containerSummaries: [ScrollContainerSummary] = [],
+        hierarchy: [AccessibilityHierarchy] = []
     ) {
         self.image = image
         self.markers = markers
         self.containedViewBounds = containedViewBounds
         self.containerSummaries = containerSummaries
+        self.hierarchy = hierarchy
     }
 }
 
@@ -119,12 +125,18 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
         )
         let includesOffscreen = snapshotConfiguration.includesOffscreenElements
 
+        // Flatten over the full (unpruned) tree — flattening materializes each element's spoken
+        // description from its graph-derived container context, so counts and data-table header text
+        // must derive from the complete child set. Prune the flat array by visibility afterwards.
+        let elements = hierarchy.flattenToElements(verbosity: snapshotConfiguration.verbosity)
+
         let parsedData = ParsedAccessibilityData(
             image: image,
-            markers: (includesOffscreen ? hierarchy : hierarchy.onscreen()).flattenToElements(),
+            markers: includesOffscreen ? elements : elements.filter { $0.visibility == .onscreen },
             containedViewBounds: containedView.bounds.size,
             // Off-screen elements only get trimmed (and thus summarized) when they aren't included.
-            containerSummaries: includesOffscreen ? [] : hierarchy.scrollContainerSummaries()
+            containerSummaries: includesOffscreen ? [] : hierarchy.scrollContainerSummaries(),
+            hierarchy: hierarchy
         )
 
         render(data: parsedData)

@@ -68,7 +68,10 @@ let project = Project(
             product: .framework,
             bundleId: "com.cashapp.AccessibilitySnapshotModel",
             deploymentTargets: deploymentTargets,
-            sources: ["../AccessibilitySnapshotModel/Sources/AccessibilitySnapshotModel/**/*.swift"]
+            sources: ["../AccessibilitySnapshotModel/Sources/AccessibilitySnapshotModel/**/*.swift"],
+            resources: [
+                "../AccessibilitySnapshotModel/Sources/AccessibilitySnapshotModel/Assets/**/*",
+            ]
         ),
 
         .target(
@@ -97,9 +100,6 @@ let project = Project(
             bundleId: "com.cashapp.AccessibilitySnapshotParser",
             deploymentTargets: deploymentTargets,
             sources: ["../Sources/AccessibilitySnapshot/Parser/Swift/Classes/**/*.swift"],
-            resources: [
-                "../Sources/AccessibilitySnapshot/Parser/Swift/Assets/**/*",
-            ],
             dependencies: [
                 .target(name: "AccessibilitySnapshotModel"),
                 .target(name: "AccessibilitySnapshotParser_ObjC"),

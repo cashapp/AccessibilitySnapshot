@@ -1,3 +1,4 @@
+import AccessibilitySnapshotCore
 import FBSnapshotTestCase_Accessibility
 import iOSSnapshotTestCase
 
@@ -30,22 +31,37 @@ class AccessibilitySnapshotPreviewsTestCase: FBSnapshotTestCase {
     /// - Parameters:
     ///   - view: The SwiftUI view to snapshot.
     ///   - identifier: Optional identifier for multiple snapshots in one test.
+    ///   - configuration: Optional snapshot configuration; defaults to the standard configuration.
     ///   - file: Source file (auto-captured).
     ///   - line: Source line (auto-captured).
     func snapshotVerifyAccessibility<V: View>(
         _ view: V,
         identifier: String = "",
+        configuration: AccessibilitySnapshotConfiguration? = nil,
         file: StaticString = #file,
         line: UInt = #line
     ) {
-        SnapshotVerifyAccessibility(
-            view,
-            size: UIScreen.main.bounds.size,
-            identifier: identifier,
-            layoutEngine: .swiftui,
-            file: file,
-            line: line
-        )
+        if let configuration {
+            SnapshotVerifyAccessibility(
+                view,
+                size: UIScreen.main.bounds.size,
+                identifier: identifier,
+                layoutEngine: .swiftui,
+                snapshotConfiguration: configuration,
+                file: file,
+                line: line
+            )
+        } else {
+            // No configuration: keep the historical overload (and its defaults) untouched.
+            SnapshotVerifyAccessibility(
+                view,
+                size: UIScreen.main.bounds.size,
+                identifier: identifier,
+                layoutEngine: .swiftui,
+                file: file,
+                line: line
+            )
+        }
     }
 
     // MARK: - Configuration
