@@ -995,17 +995,21 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
     // MARK: - User Input Labels
 
-    /// An element whose only accessibility property is its label reports a Voice Control input-label
-    /// echo (`[accessibilityLabel]`) that UIKit synthesizes as a fallback. That echo is redundant for
+    /// An element with no explicitly-set input labels reports a Voice Control input-label echo
+    /// (`[accessibilityLabel]`) that UIKit synthesizes as a fallback. That echo is redundant for
     /// targeting (you can already invoke the element by speaking its label), so the parser must not
-    /// surface it as an authored input label.
+    /// surface it as an authored input label. Whether UIKit surfaces the echo through the public
+    /// getter varies by class and OS version, so `InputLabelEchoingView` reproduces it
+    /// deterministically.
     func testDerivedUserInputLabelEchoIsSuppressed() {
         let container = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
-        let element = UIView(frame: .init(x: 0, y: 0, width: 100, height: 44))
+        let element = InputLabelEchoingView(frame: .init(x: 0, y: 0, width: 100, height: 44))
         element.isAccessibilityElement = true
         element.accessibilityLabel = "Submit"
         element.accessibilityFrame = element.frame
         container.addSubview(element)
+
+        XCTAssertEqual(element.accessibilityUserInputLabels, ["Submit"], "The element must report the derived echo for this test to be meaningful.")
 
         let marker = parseMarkers(in: container).first
         XCTAssertEqual(marker?.label, "Submit")
@@ -1040,6 +1044,17 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 }
 
 // MARK: -
+
+/// Mimics UIKit's Voice Control fallback, which synthesizes `[accessibilityLabel]` when no input
+/// labels are explicitly set. Some classes surface this echo through the public getter (plain views
+/// on iOS 18, `UITableViewCell` via its axbundle) while others don't (plain views on iOS 26), so the
+/// echo is reproduced here deterministically.
+private final class InputLabelEchoingView: UIView {
+    override var accessibilityUserInputLabels: [String]! {
+        get { [accessibilityLabel].compactMap { $0 } }
+        set {}
+    }
+}
 
 private final class ActivationPointTestView: UIView {
     var overriddenFrame: CGRect?

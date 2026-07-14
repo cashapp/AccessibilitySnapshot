@@ -8,7 +8,7 @@ struct LegendEntryView: View {
     let index: Int
     let marker: AccessibilityMarker
     let palette: ColorPalette
-    let showUserInputLabels: Bool
+    let inputLabelDisplayMode: AccessibilityContentDisplayMode
     let showUnspokenTraits: Bool
 
     var body: some View {
@@ -48,7 +48,7 @@ struct LegendEntryView: View {
                     )
                 }
 
-                if showUserInputLabels, let labels = marker.userInputLabels, !labels.isEmpty {
+                if let labels = marker.displayUserInputLabels(inputLabelDisplayMode), !labels.isEmpty {
                     UserInputLabelsView(labels: labels)
                 }
             }

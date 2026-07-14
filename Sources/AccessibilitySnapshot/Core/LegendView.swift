@@ -53,45 +53,9 @@ extension AccessibilitySnapshotView {
                 locale: marker.accessibilityLanguage
             )
 
-            userInputLabelsView = {
-                let userInputLabels: [String]? = {
-                    switch configuration.inputLabelDisplayMode {
-                    case .always:
-                        guard let labels = marker.userInputLabels, !labels.isEmpty else {
-                            /// If no labels are provided the accessibility label will be used, split on spaces.
-                            var labels = marker.label?.split(separator: " ").map(String.init) ?? []
-
-                            /// The button trait precedes the adjustable trait if both are present.
-                            if marker.traits.contains(.button) {
-                                labels.append(Strings.buttonInputLabelText(for: marker.accessibilityLanguage))
-                            }
-                            if marker.traits.contains(.adjustable) {
-                                labels.append(Strings.adjustableInputLabelText(for: marker.accessibilityLanguage))
-                            }
-
-                            return labels
-                        }
-                        return marker.userInputLabels
-
-                    case .whenOverridden:
-                        guard
-                            marker.respondsToUserInteraction,
-                            let userInputLabels = marker.userInputLabels,
-                            !userInputLabels.isEmpty
-                        else {
-                            return nil
-                        }
-                        return userInputLabels
-
-                    case .never:
-                        return nil
-                    }
-                }()
-
-                guard let userInputLabels else { return nil }
-
-                return .init(titles: userInputLabels, color: fillColor)
-            }()
+            userInputLabelsView = marker.displayUserInputLabels(configuration.inputLabelDisplayMode).map {
+                .init(titles: $0, color: fillColor)
+            }
 
             super.init(frame: .zero)
 
@@ -289,6 +253,42 @@ extension AccessibilityMarker {
             return customRotors.filter { !$0.resultMarkers.isEmpty }
         case .never:
             return []
+        }
+    }
+
+    /// The Voice Control input labels to display for the given `mode`, or `nil` if none should be shown.
+    public func displayUserInputLabels(_ mode: AccessibilityContentDisplayMode) -> [String]? {
+        switch mode {
+        case .always:
+            if let labels = userInputLabels, !labels.isEmpty {
+                return labels
+            }
+
+            /// If no labels are provided the accessibility label will be used, split on spaces.
+            var labels = label?.split(separator: " ").map(String.init) ?? []
+
+            /// The button trait precedes the adjustable trait if both are present.
+            if traits.contains(.button) {
+                labels.append(Strings.buttonInputLabelText(for: accessibilityLanguage))
+            }
+            if traits.contains(.adjustable) {
+                labels.append(Strings.adjustableInputLabelText(for: accessibilityLanguage))
+            }
+
+            return labels
+
+        case .whenOverridden:
+            guard
+                respondsToUserInteraction,
+                let labels = userInputLabels,
+                !labels.isEmpty
+            else {
+                return nil
+            }
+            return labels
+
+        case .never:
+            return nil
         }
     }
 }
