@@ -75,6 +75,21 @@ public extension FBSnapshotTestCase {
         let hostingController = UIHostingController(rootView: view)
         hostingController.view.bounds.size = size ?? hostingController.sizeThatFits(in: .zero)
 
+        // Host the view as a direct window subview for the duration of the snapshot. iOS only
+        // exposes SwiftUI navigation bar content (e.g. `.searchable` fields) to the accessibility
+        // tree under this topology — nested under an intermediate view, the content renders but is
+        // stripped from the tree, so the parse would miss elements production VoiceOver speaks.
+        // `parseAccessibility()` detects the pre-hosted view and parses it in place.
+        let hostingWindow = UIWindow(frame: UIScreen.main.bounds)
+        hostingWindow.makeKeyAndVisible()
+        hostingController.view.center = hostingWindow.center
+        hostingWindow.addSubview(hostingController.view)
+        hostingWindow.layoutIfNeeded()
+        defer {
+            hostingController.view.removeFromSuperview()
+            hostingWindow.isHidden = true
+        }
+
         SnapshotVerifyAccessibility(
             hostingController.view,
             identifier: identifier,

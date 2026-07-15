@@ -87,27 +87,42 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
     public func parseAccessibility() throws {
         cleanup()
 
-        let viewController = containedView.next as? UIViewController
-        let originalParent = viewController?.parent
-        let originalSuperviewAndIndex = containedView.superviewWithSubviewIndex()
+        // When the caller has already hosted the contained view in a window, parse it in place.
+        // Reparenting matters for SwiftUI: iOS strips navigation bar content (e.g. `.searchable`
+        // fields) from the accessibility tree unless the hosting view is a direct window subview
+        // or its controller is seated in the view controller hierarchy, so moving the view into
+        // this container would parse a tree production VoiceOver never sees.
+        let requiresTemporaryHosting = (containedView.window == nil)
 
-        viewController?.removeFromParent()
-        addSubview(containedView)
+        let viewController = requiresTemporaryHosting ? containedView.next as? UIViewController : nil
+        let originalParent = viewController?.parent
+        let originalSuperviewAndIndex = requiresTemporaryHosting ? containedView.superviewWithSubviewIndex() : nil
+
+        if requiresTemporaryHosting {
+            viewController?.removeFromParent()
+            addSubview(containedView)
+        }
 
         defer {
-            containedView.removeFromSuperview()
+            if requiresTemporaryHosting {
+                containedView.removeFromSuperview()
 
-            if let (originalSuperview, originalSubviewIndex) = originalSuperviewAndIndex {
-                originalSuperview.insertSubview(containedView, at: originalSubviewIndex)
-            }
+                if let (originalSuperview, originalSubviewIndex) = originalSuperviewAndIndex {
+                    originalSuperview.insertSubview(containedView, at: originalSubviewIndex)
+                }
 
-            if let viewController = viewController, let originalParent = originalParent {
-                originalParent.addChild(viewController)
+                if let viewController = viewController, let originalParent = originalParent {
+                    originalParent.addChild(viewController)
+                }
             }
         }
 
         containedView.setNeedsLayout()
         containedView.layoutIfNeeded()
+
+        if !requiresTemporaryHosting {
+            waitForAccessibilityTreeToSettle()
+        }
 
         let image = try containedView.renderToImage(
             configuration: snapshotConfiguration.rendering
@@ -140,6 +155,27 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
         )
 
         render(data: parsedData)
+    }
+
+    // MARK: - Private Methods
+
+    /// Spins the run loop until two consecutive parses of the contained view produce an identical
+    /// hierarchy, so asynchronous accessibility updates settle before the real parse. SwiftUI's
+    /// collection-backed containers (`List`) publish their final accessibility frames on a batch
+    /// update completion that runs one run loop turn after layout; parsing before it lands captures
+    /// transient text-tight frames nondeterministically.
+    private func waitForAccessibilityTreeToSettle() {
+        let parser = AccessibilityHierarchyParser()
+        // Rotor evaluation is expensive and irrelevant to settling; skip it while polling.
+        var previous = parser.parseAccessibilityHierarchy(in: containedView, rotorResultLimit: 0)
+        for _ in 0 ..< 10 {
+            RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.02))
+            let current = parser.parseAccessibilityHierarchy(in: containedView, rotorResultLimit: 0)
+            if current == previous {
+                return
+            }
+            previous = current
+        }
     }
 
     // MARK: - Methods for Subclasses to Override
