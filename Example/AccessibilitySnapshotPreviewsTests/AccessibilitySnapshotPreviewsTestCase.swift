@@ -87,6 +87,6 @@ class AccessibilitySnapshotPreviewsTestCase: FBSnapshotTestCase {
         }
 
         fileNameOptions = [.OS, .screenSize, .screenScale]
-        recordMode = true
+        recordMode = false
     }
 }
