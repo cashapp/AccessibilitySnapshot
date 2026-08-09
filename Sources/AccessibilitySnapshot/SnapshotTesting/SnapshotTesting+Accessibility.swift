@@ -1,8 +1,13 @@
+// swift-snapshot-testing only vends its UIKit image strategies on iOS and tvOS, so the strategies built on top of them
+// are unavailable on visionOS. The parsing and rendering layers (AccessibilitySnapshotParser, -Core, -Previews) are
+// available on visionOS and can be used directly there.
+#if os(iOS) || os(tvOS)
+
 import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser
 import AccessibilitySnapshotParser_ObjC
-import SnapshotTesting
 import AccessibilitySnapshotPreviews
+import SnapshotTesting
 import UIKit
 
 public extension Snapshotting where Value == UIView, Format == UIImage {
@@ -79,7 +84,7 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
                     )
                 }
 
-                let window = UIWindow(frame: UIScreen.main.bounds)
+                let window = UIWindow(frame: SnapshotPlatformDefaults.hostWindowFrame)
                 window.makeKeyAndVisible()
                 containerView.center = window.center
                 window.addSubview(containerView)
@@ -138,7 +143,7 @@ public extension Snapshotting where Value == UIView, Format == UIImage {
             let requiresWindow = (view.window == nil && !(view is UIWindow))
 
             if requiresWindow {
-                let window = UIApplication.shared.firstKeyWindow ?? UIWindow(frame: UIScreen.main.bounds)
+                let window = UIApplication.shared.firstKeyWindow ?? UIWindow(frame: SnapshotPlatformDefaults.hostWindowFrame)
                 window.addSubview(view)
             }
 
@@ -383,3 +388,5 @@ public extension Snapshotting where Value == UIViewController, Format == UIImage
             }
     }
 }
+
+#endif
