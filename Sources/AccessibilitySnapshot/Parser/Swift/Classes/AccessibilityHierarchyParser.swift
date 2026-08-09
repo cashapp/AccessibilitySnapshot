@@ -266,7 +266,7 @@ public final class AccessibilityHierarchyParser {
             usesDefaultActivationPoint: Self.usesDefaultActivationPoint(
                 element: object,
                 activationPoint: activationPoint,
-                screenScale: (root.window?.screen ?? UIScreen.main).scale
+                screenScale: root.effectiveDisplayScale
             ),
             customActions: object.accessibilityCustomActions?.map(\.name) ?? [],
             customContent: object.customContent,

@@ -1,3 +1,4 @@
+import AccessibilitySnapshotParser
 import CoreImage
 import UIKit
 
@@ -61,7 +62,7 @@ public enum HitTargetSnapshotUtility {
             viewImage.draw(in: bounds)
 
             var viewToColorMap: [UIView: UIColor] = [:]
-            let pixelWidth: CGFloat = 1 / UIScreen.main.scale
+            let pixelWidth: CGFloat = 1 / view.effectiveDisplayScale
 
             let maxPermissibleMissedRegionWidth = max(pixelWidth, floor(maxPermissibleMissedRegionWidth))
             let maxPermissibleMissedRegionHeight = max(pixelWidth, floor(maxPermissibleMissedRegionHeight))
