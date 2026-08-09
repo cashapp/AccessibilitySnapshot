@@ -8,15 +8,23 @@ on:
 
 jobs:
   spm:
-    name: SPM Build
-    runs-on: macOS-14
+    name: SPM Build (${{ matrix.platform }})
+    runs-on: ${{ matrix.runner }}
     strategy:
       matrix:
-        platform: ['iOS_17']
+        include:
+          - platform: iOS_17
+            runner: macOS-14
+          - platform: visionOS_26
+            runner: macOS-15
+            xcode-version: '26.2'
       fail-fast: false
     steps:
       - name: Checkout Repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
+      - name: Select Xcode Version
+        if: matrix.xcode-version
+        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode-version }}.app
       - name: Prepare Simulator Runtimes
         run: Scripts/github/prepare-simulators.sh ${{ matrix.platform }}
       - name: Build

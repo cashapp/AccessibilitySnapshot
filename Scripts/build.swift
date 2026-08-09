@@ -49,6 +49,7 @@ enum Platform: String, CustomStringConvertible {
     case iOS_17
     case iOS_18
     case iOS_26
+    case visionOS_26
 
     var destination: String {
         switch self {
@@ -58,6 +59,18 @@ enum Platform: String, CustomStringConvertible {
             return "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
         case .iOS_26:
             return "platform=iOS Simulator,OS=26.2,name=iPhone 17 Pro"
+        case .visionOS_26:
+            // The visionOS destination is build-only, so it doesn't pin a specific simulator device.
+            return "generic/platform=visionOS Simulator"
+        }
+    }
+
+    var sdk: String {
+        switch self {
+        case .iOS_17, .iOS_18, .iOS_26:
+            return "iphonesimulator"
+        case .visionOS_26:
+            return "xrsimulator"
         }
     }
 
@@ -146,7 +159,7 @@ if let workspace = task.workspace {
 xcodeBuildArguments.append(
     contentsOf: [
         "-scheme", task.scheme,
-        "-sdk", "iphonesimulator",
+        "-sdk", platform.sdk,
         "-PBXBuildsContinueAfterErrors=0",
         "-destination", platform.destination,
         "-derivedDataPath", platform.derivedDataPath,
