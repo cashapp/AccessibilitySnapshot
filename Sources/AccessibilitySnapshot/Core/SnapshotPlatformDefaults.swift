@@ -8,10 +8,10 @@ public enum SnapshotPlatformDefaults {
     /// The frame to use for a host window when there is no existing key window to install a view in.
     public static var hostWindowFrame: CGRect {
         #if os(visionOS)
-        // The default size visionOS gives a plain window, in points.
-        return CGRect(origin: .zero, size: CGSize(width: 1280, height: 720))
+            // The default size visionOS gives a plain window, in points.
+            return CGRect(origin: .zero, size: CGSize(width: 1280, height: 720))
         #else
-        return UIScreen.main.bounds
+            return UIScreen.main.bounds
         #endif
     }
 

@@ -1018,13 +1018,13 @@ private extension NSObject {
             if let provider = self as? AXCustomContentProvider {
                 // Swift 5.9 ships with Xcode 15 and the iOS 17 SDK.
                 #if swift(>=5.9)
-                if #available(iOS 17.0, *) {
-                    if let customContentBlock = provider.accessibilityCustomContentBlock {
-                        if let content = customContentBlock?() {
-                            return content.map { .init(from: $0) }
+                    if #available(iOS 17.0, *) {
+                        if let customContentBlock = provider.accessibilityCustomContentBlock {
+                            if let content = customContentBlock?() {
+                                return content.map { .init(from: $0) }
+                            }
                         }
                     }
-                }
                 #endif // swift(>=5.9)
                 if let content = provider.accessibilityCustomContent {
                     return content.map { .init(from: $0) }
