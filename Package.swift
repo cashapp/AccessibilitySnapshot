@@ -37,7 +37,6 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(path: "AccessibilitySnapshotModel"),
         .package(
             name: "iOSSnapshotTestCase",
             url: "https://github.com/uber/ios-snapshot-test-case.git",
@@ -51,13 +50,17 @@ let package = Package(
     ],
     targets: [
         .target(
+            name: "AccessibilitySnapshotModel",
+            path: "AccessibilitySnapshotModel/Sources/AccessibilitySnapshotModel"
+        ),
+        .target(
             name: "AccessibilitySnapshotParser-ObjC",
             path: "Sources/AccessibilitySnapshot/Parser/ObjC"
         ),
         .target(
             name: "AccessibilitySnapshotParser",
             dependencies: [
-                .product(name: "AccessibilitySnapshotModel", package: "AccessibilitySnapshotModel"),
+                "AccessibilitySnapshotModel",
                 "AccessibilitySnapshotParser-ObjC",
             ],
             path: "Sources/AccessibilitySnapshot/Parser/Swift",
