@@ -20,6 +20,19 @@ public enum ImageRenderingError: Swift.Error {
 
     /// An error indicating the `containedView` has an invalid size due to the `width` and/or `height` being zero.
     case containedViewHasZeroSize(viewSize: CGSize)
+
+    /// An error indicating that the `containedView`'s safe area could not be preserved while rendering the snapshot
+    /// in tiles, so the tiled snapshot would not match the view's original appearance.
+    ///
+    /// Rendering a view large enough to require tiling temporarily restructures the view hierarchy around it. If the
+    /// view's safe area cannot be restored to its original value in the temporary hierarchy, any layout driven by the
+    /// safe area would shift relative to where the view's accessibility elements were parsed, producing misaligned
+    /// overlays. This error is thrown instead of silently rendering the shifted content. To avoid this error, try
+    /// using the `.renderLayerInContext` view rendering mode, which does not require tiling.
+    case containedViewSafeAreaCouldNotBePreserved(
+        originalSafeAreaInsets: UIEdgeInsets,
+        currentSafeAreaInsets: UIEdgeInsets
+    )
 }
 
 extension UIView {
@@ -125,7 +138,33 @@ extension UIView {
             return
         }
 
-        let originalSafeArea = bounds.inset(by: safeAreaInsets)
+        let originalSafeAreaInsets = safeAreaInsets
+
+        // A view's safe area is governed by the nearest view controller in its responder chain: changes to a plain
+        // view's geometry or ancestry do not reliably invalidate its safe area, and a view controller's
+        // `additionalSafeAreaInsets` only affect the views it manages. Capture the view's own view controller if it
+        // has one, or adopt the view into a temporary view controller otherwise, so that the safe area can be
+        // restored below through a controller that actually governs this view.
+        let adoptingViewController: UIViewController?
+        let governingViewController: UIViewController
+        if let owningViewController = next as? UIViewController {
+            adoptingViewController = nil
+            governingViewController = owningViewController
+        } else {
+            let viewController = UIViewController()
+            viewController.view = self
+            adoptingViewController = viewController
+            governingViewController = viewController
+        }
+
+        let originalAdditionalSafeAreaInsets = governingViewController.additionalSafeAreaInsets
+        defer {
+            governingViewController.additionalSafeAreaInsets = originalAdditionalSafeAreaInsets
+
+            // Detach the view from the temporary view controller by giving the controller a new view, restoring the
+            // view's original responder chain.
+            adoptingViewController?.view = UIView()
+        }
 
         let originalSuperview = superview
         let originalOrigin = frame.origin
@@ -145,24 +184,48 @@ extension UIView {
         autoresizingMask = []
         frame.origin = .zero
 
-        let containerViewController = UIViewController()
-        let containerView = containerViewController.view!
-        containerView.frame = frame
+        let containerView = UIView(frame: frame)
         containerView.autoresizingMask = []
         containerView.addSubview(self)
         frameView.addSubview(containerView)
 
-        // Run the run loop for one cycle so that the safe area changes caused by restructuring the view hierarhcy are
-        // propogated. Then calculate the required additional safe area insets to create the equivalent original safe
-        // area. This new change will be propogated automatically when we draw the hierarchy for the first time.
+        // Run the run loop for one cycle so that the layout changes caused by restructuring the view hierarchy are
+        // propagated.
         RunLoop.current.run(until: Date())
-        let currentSafeArea = containerView.convert(bounds.inset(by: safeAreaInsets), from: self)
-        containerViewController.additionalSafeAreaInsets = UIEdgeInsets(
-            top: originalSafeArea.minY - currentSafeArea.minY,
-            left: originalSafeArea.minX - currentSafeArea.minX,
-            bottom: currentSafeArea.maxY - originalSafeArea.maxY,
-            right: currentSafeArea.maxX - originalSafeArea.maxX
-        )
+
+        // Reparenting the view can leave its safe area stale: UIKit zeroes the safe area when the view is removed
+        // from its superview and does not recompute it in the new hierarchy until something invalidates it. Toggling
+        // the governing view controller's additional safe area insets forces that recomputation, after which the safe
+        // area generally resolves to its original value on its own.
+        var nudgedSafeAreaInsets = originalAdditionalSafeAreaInsets
+        nudgedSafeAreaInsets.top += 1
+        governingViewController.additionalSafeAreaInsets = nudgedSafeAreaInsets
+        governingViewController.additionalSafeAreaInsets = originalAdditionalSafeAreaInsets
+        RunLoop.current.run(until: Date())
+
+        // If the recomputed safe area still differs from the original, make up the difference through the governing
+        // view controller's additional safe area insets.
+        let recomputedSafeAreaInsets = safeAreaInsets
+        if recomputedSafeAreaInsets != originalSafeAreaInsets {
+            governingViewController.additionalSafeAreaInsets = UIEdgeInsets(
+                top: originalAdditionalSafeAreaInsets.top + originalSafeAreaInsets.top - recomputedSafeAreaInsets.top,
+                left: originalAdditionalSafeAreaInsets.left + originalSafeAreaInsets.left - recomputedSafeAreaInsets.left,
+                bottom: originalAdditionalSafeAreaInsets.bottom + originalSafeAreaInsets.bottom - recomputedSafeAreaInsets.bottom,
+                right: originalAdditionalSafeAreaInsets.right + originalSafeAreaInsets.right - recomputedSafeAreaInsets.right
+            )
+            RunLoop.current.run(until: Date())
+        }
+
+        // If the safe area could not be restored, any safe-area-driven layout in the view would render shifted
+        // relative to the accessibility elements parsed from the original hierarchy. Fail loudly rather than
+        // producing a snapshot with misaligned content.
+        guard safeAreaInsets == originalSafeAreaInsets else {
+            error = ImageRenderingError.containedViewSafeAreaCouldNotBePreserved(
+                originalSafeAreaInsets: originalSafeAreaInsets,
+                currentSafeAreaInsets: safeAreaInsets
+            )
+            return
+        }
 
         let bounds = self.bounds
         var tileRect: CGRect = .zero
