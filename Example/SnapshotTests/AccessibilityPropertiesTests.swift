@@ -219,6 +219,26 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         }
     }
 
+    /// Renders a view tall enough to require several vertical tiles, whose content is laid out relative to its top
+    /// safe area inset. The tiled rendering path must preserve the safe area so that the rendered content lines up
+    /// with the parsed accessibility markers.
+    ///
+    /// Unlike the tests above, only the contained view's rendering uses `.drawHierarchyInRect` (the mode that tiles);
+    /// the outer snapshot comparison uses the default layer rendering, so this is not affected by the
+    /// iOSSnapshotTestCase bug described in cashapp/AccessibilitySnapshot#75.
+    func testTallViewInViewControllerThatRequiresTiling() {
+        let view = SafeAreaAnchoredTallView(frame: CGRect(x: 0, y: 0, width: 390, height: 3280))
+
+        let viewController = UIViewController()
+        viewController.view = view
+        viewController.additionalSafeAreaInsets = .init(top: 100, left: 0, bottom: 0, right: 0)
+
+        SnapshotVerifyAccessibility(
+            view,
+            snapshotConfiguration: .init(viewRenderingMode: .drawHierarchyInRect, colorRenderingMode: .fullColor)
+        )
+    }
+
     // MARK: - Private Methods
 
     private func usingDrawViewHierarchyInRect(_ test: () -> Void) {
@@ -229,6 +249,76 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
     }
 
     // MARK: - Private Types
+
+    /// A tall view whose content is anchored to its top safe area inset: the region above the safe area is filled
+    /// with a red band, a header sits at the safe area boundary, and numbered rows follow at fixed offsets below it.
+    /// If the safe area is lost while rendering, every element shifts up by the full inset height.
+    private final class SafeAreaAnchoredTallView: UIView {
+        // MARK: - Life Cycle
+
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+
+            backgroundColor = .white
+
+            unsafeAreaBand.backgroundColor = .systemRed
+            unsafeAreaBand.isAccessibilityElement = false
+            addSubview(unsafeAreaBand)
+
+            header.text = "Header"
+            header.textAlignment = .center
+            header.textColor = .white
+            header.backgroundColor = .black
+            addSubview(header)
+
+            for index in 0 ..< 8 {
+                let row = UILabel()
+                row.text = "Row \(index + 1)"
+                row.textAlignment = .center
+                row.textColor = .white
+                row.backgroundColor = .systemBlue
+                rows.append(row)
+                addSubview(row)
+            }
+        }
+
+        @available(*, unavailable)
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        // MARK: - Private Properties
+
+        private let unsafeAreaBand: UIView = .init()
+
+        private let header: UILabel = .init()
+
+        private var rows: [UILabel] = []
+
+        // MARK: - UIView
+
+        override func safeAreaInsetsDidChange() {
+            super.safeAreaInsetsDidChange()
+            setNeedsLayout()
+        }
+
+        override func layoutSubviews() {
+            super.layoutSubviews()
+
+            let safeAreaTop = safeAreaInsets.top
+            unsafeAreaBand.frame = CGRect(x: 0, y: 0, width: bounds.width, height: safeAreaTop)
+            header.frame = CGRect(x: 0, y: safeAreaTop, width: bounds.width, height: 44)
+
+            for (index, row) in rows.enumerated() {
+                row.frame = CGRect(
+                    x: 16,
+                    y: safeAreaTop + 100 + CGFloat(index) * 380,
+                    width: bounds.width - 32,
+                    height: 44
+                )
+            }
+        }
+    }
 
     private final class GradientBackgroundView: UIView {
         // MARK: - Life Cycle
