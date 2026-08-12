@@ -196,25 +196,12 @@ extension UIView {
         // Reparenting the view can leave its safe area stale: UIKit zeroes the safe area when the view is removed
         // from its superview and does not recompute it in the new hierarchy until something invalidates it. Toggling
         // the governing view controller's additional safe area insets forces that recomputation, after which the safe
-        // area generally resolves to its original value on its own.
+        // area resolves to its original value on its own.
         var nudgedSafeAreaInsets = originalAdditionalSafeAreaInsets
         nudgedSafeAreaInsets.top += 1
         governingViewController.additionalSafeAreaInsets = nudgedSafeAreaInsets
         governingViewController.additionalSafeAreaInsets = originalAdditionalSafeAreaInsets
         RunLoop.current.run(until: Date())
-
-        // If the recomputed safe area still differs from the original, make up the difference through the governing
-        // view controller's additional safe area insets.
-        let recomputedSafeAreaInsets = safeAreaInsets
-        if recomputedSafeAreaInsets != originalSafeAreaInsets {
-            governingViewController.additionalSafeAreaInsets = UIEdgeInsets(
-                top: originalAdditionalSafeAreaInsets.top + originalSafeAreaInsets.top - recomputedSafeAreaInsets.top,
-                left: originalAdditionalSafeAreaInsets.left + originalSafeAreaInsets.left - recomputedSafeAreaInsets.left,
-                bottom: originalAdditionalSafeAreaInsets.bottom + originalSafeAreaInsets.bottom - recomputedSafeAreaInsets.bottom,
-                right: originalAdditionalSafeAreaInsets.right + originalSafeAreaInsets.right - recomputedSafeAreaInsets.right
-            )
-            RunLoop.current.run(until: Date())
-        }
 
         // If the safe area could not be restored, any safe-area-driven layout in the view would render shifted
         // relative to the accessibility elements parsed from the original hierarchy. Fail loudly rather than
