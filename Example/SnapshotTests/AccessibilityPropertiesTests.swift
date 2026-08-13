@@ -239,6 +239,20 @@ final class AccessibilitySnapshotTests: SnapshotTestCase {
         )
     }
 
+    /// Renders a tall view that requires tiling but has no owning view controller, exercising the temporary view
+    /// controller adoption in the tiled rendering path. Detaching the view from the temporary controller removes it
+    /// from its superview as a side effect; if the view is not restored to the hierarchy, the accessibility parse
+    /// that follows runs on a windowless view where every accessibility frame resolves to zero, so the snapshot
+    /// renders without any overlay markers.
+    func testTallViewWithoutViewControllerThatRequiresTiling() {
+        let view = SafeAreaAnchoredTallView(frame: CGRect(x: 0, y: 0, width: 390, height: 3280))
+
+        SnapshotVerifyAccessibility(
+            view,
+            snapshotConfiguration: .init(viewRenderingMode: .drawHierarchyInRect, colorRenderingMode: .fullColor)
+        )
+    }
+
     // MARK: - Private Methods
 
     private func usingDrawViewHierarchyInRect(_ test: () -> Void) {
