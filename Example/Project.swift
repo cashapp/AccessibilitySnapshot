@@ -289,6 +289,10 @@ let project = Project(
             deploymentTargets: .iOS("18.0"),
             sources: ["AccessibilitySnapshotPreviewsTests/**/*.swift"],
             dependencies: [
+                .target(name: "AccessibilitySnapshotCore"),
+                .target(name: "AccessibilitySnapshotModel"),
+                .target(name: "AccessibilitySnapshotParser"),
+                .target(name: "AccessibilitySnapshotPreviews"),
                 .target(name: "AccessibilitySnapshotPreviewsDemo"),
                 .target(name: "FBSnapshotTestCase_Accessibility"),
                 .external(name: "iOSSnapshotTestCase"),
