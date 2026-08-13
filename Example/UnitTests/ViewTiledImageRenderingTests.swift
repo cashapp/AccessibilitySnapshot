@@ -25,6 +25,11 @@ final class ViewTiledImageRenderingTests: XCTestCase {
 
         try assertTiledRenderMatchesOriginalLayout(of: view)
 
+        // The view must be restored to its original hierarchy. Detaching the temporary view controller removes the
+        // view from its superview as a side effect, and the safe area assertion above cannot catch this: a detached
+        // view retains its cached safe area insets until something invalidates them.
+        XCTAssertIdentical(view.superview, window)
+
         // The temporary view controller used during rendering must not remain in the responder chain.
         XCTAssertFalse(view.next is UIViewController)
     }

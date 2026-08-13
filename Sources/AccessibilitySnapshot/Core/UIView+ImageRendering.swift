@@ -162,8 +162,17 @@ extension UIView {
             governingViewController.additionalSafeAreaInsets = originalAdditionalSafeAreaInsets
 
             // Detach the view from the temporary view controller by giving the controller a new view, restoring the
-            // view's original responder chain.
-            adoptingViewController?.view = UIView()
+            // view's original responder chain. Installing the controller's new root view also removes this view from
+            // its superview, and this defer runs after the superview restoration below, so re-add the view to keep
+            // the restored hierarchy intact. Otherwise the accessibility parse that follows would run on a windowless
+            // view, where every accessibility frame resolves to zero and the overlay markers collapse to nothing.
+            if let adoptingViewController {
+                let superviewBeforeDetach = superview
+                adoptingViewController.view = UIView()
+                if superview == nil, let superviewBeforeDetach {
+                    superviewBeforeDetach.addSubview(self)
+                }
+            }
         }
 
         let originalSuperview = superview
