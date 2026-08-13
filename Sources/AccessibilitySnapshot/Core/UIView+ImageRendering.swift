@@ -139,20 +139,53 @@ extension UIView {
         }
 
         let originalSafeAreaInsets = safeAreaInsets
+        let originalSuperview = superview
+        let originalOrigin = frame.origin
+        let originalAutoresizingMask = autoresizingMask
+        let presentationViewController = sequence(first: originalSuperview?.next, next: { $0?.next })
+            .first { $0 is UIViewController } as? UIViewController
 
-        // A view's safe area is governed by the nearest view controller in its responder chain: changes to a plain
-        // view's geometry or ancestry do not reliably invalidate its safe area, and a view controller's
-        // `additionalSafeAreaInsets` only affect the views it manages. Capture the view's own view controller if it
-        // has one, or adopt the view into a temporary view controller otherwise, so that the safe area can be
-        // restored below through a controller that actually governs this view.
+        let responderOwnedViewControllers = owningViewControllers()
+        let parentedViewControllers = presentationViewController?.children.filter {
+            $0.view === self || $0.view.isDescendant(of: self)
+        } ?? []
+        let containedViewControllers = (responderOwnedViewControllers + parentedViewControllers)
+            .reduce(into: [UIViewController]()) { result, viewController in
+                if !result.contains(where: { $0 === viewController }) {
+                    result.append(viewController)
+                }
+            }
+        let containedViewControllerSet = Set(containedViewControllers.map(ObjectIdentifier.init))
+        let rootViewControllers = containedViewControllers.filter { viewController in
+            viewController.parent.map { !containedViewControllerSet.contains(ObjectIdentifier($0)) } ?? true
+        }
+        let originalParents = rootViewControllers.map { ($0, $0.parent) }
+
+        // A view's safe area is governed by its view controller: changes to a plain view's geometry or ancestry do
+        // not reliably invalidate its safe area, and a view controller's `additionalSafeAreaInsets` only affect the
+        // views it manages. Capture the view's own view controller if it has one, or adopt the view and any nested
+        // child controllers into a temporary controller otherwise, so that the safe area can be restored below
+        // through a controller that actually governs this view.
         let adoptingViewController: UIViewController?
         let governingViewController: UIViewController
         if let owningViewController = next as? UIViewController {
             adoptingViewController = nil
             governingViewController = owningViewController
         } else {
+            for viewController in rootViewControllers {
+                viewController.willMove(toParent: nil)
+                viewController.removeFromParent()
+            }
             let viewController = UIViewController()
             viewController.view = self
+            for childViewController in rootViewControllers {
+                viewController.addChild(childViewController)
+                childViewController.didMove(toParent: viewController)
+            }
+            if let presentationViewController {
+                presentationViewController.addChild(viewController)
+                viewController.didMove(toParent: presentationViewController)
+            }
             adoptingViewController = viewController
             governingViewController = viewController
         }
@@ -161,18 +194,26 @@ extension UIView {
         defer {
             governingViewController.additionalSafeAreaInsets = originalAdditionalSafeAreaInsets
 
-            // Detach the view from the temporary view controller by giving the controller a new view, restoring the
-            // view's original responder chain.
-            adoptingViewController?.view = UIView()
-        }
-
-        let originalSuperview = superview
-        let originalOrigin = frame.origin
-        let originalAutoresizingMask = autoresizingMask
-        defer {
+            if let adoptingViewController {
+                for viewController in rootViewControllers {
+                    viewController.willMove(toParent: nil)
+                    viewController.removeFromParent()
+                }
+                adoptingViewController.willMove(toParent: nil)
+                adoptingViewController.removeFromParent()
+                // Detach the view from the temporary view controller by giving the controller a new view, restoring
+                // the view's original responder chain.
+                adoptingViewController.view = UIView()
+            }
             originalSuperview?.addSubview(self)
             frame.origin = originalOrigin
             autoresizingMask = originalAutoresizingMask
+            if adoptingViewController != nil {
+                for case let (viewController, originalParent?) in originalParents {
+                    originalParent.addChild(viewController)
+                    viewController.didMove(toParent: originalParent)
+                }
+            }
         }
 
         let frameView = UIView(frame: frame)

@@ -65,22 +65,42 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
     public func parseAccessibility() throws {
         cleanup()
 
-        let viewController = containedView.next as? UIViewController
-        let originalParent = viewController?.parent
+        let containedViewControllers = containedView.owningViewControllers()
+        let containedViewControllerSet = Set(containedViewControllers.map(ObjectIdentifier.init))
+        let rootViewControllers = containedViewControllers.filter { viewController in
+            viewController.parent.map { !containedViewControllerSet.contains(ObjectIdentifier($0)) } ?? true
+        }
+        let originalParents = rootViewControllers.map { ($0, $0.parent) }
         let originalSuperviewAndIndex = containedView.superviewWithSubviewIndex()
+        let snapshotParent = sequence(first: next, next: { $0?.next })
+            .first { $0 is UIViewController } as? UIViewController
 
-        viewController?.removeFromParent()
+        for viewController in rootViewControllers {
+            viewController.willMove(toParent: nil)
+            viewController.removeFromParent()
+        }
         addSubview(containedView)
+        if let snapshotParent {
+            for viewController in rootViewControllers {
+                snapshotParent.addChild(viewController)
+                viewController.didMove(toParent: snapshotParent)
+            }
+        }
 
         defer {
+            for viewController in rootViewControllers {
+                viewController.willMove(toParent: nil)
+                viewController.removeFromParent()
+            }
             containedView.removeFromSuperview()
 
             if let (originalSuperview, originalSubviewIndex) = originalSuperviewAndIndex {
                 originalSuperview.insertSubview(containedView, at: originalSubviewIndex)
             }
 
-            if let viewController = viewController, let originalParent = originalParent {
+            for case let (viewController, originalParent?) in originalParents {
                 originalParent.addChild(viewController)
+                viewController.didMove(toParent: originalParent)
             }
         }
 
@@ -127,6 +147,24 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
 // MARK: - Helper Extension
 
 extension UIView {
+    func owningViewControllers() -> [UIViewController] {
+        var result: [UIViewController] = []
+        var seen: Set<ObjectIdentifier> = []
+
+        func visit(_ view: UIView) {
+            if let viewController = view.next as? UIViewController,
+               viewController.view === view,
+               seen.insert(ObjectIdentifier(viewController)).inserted
+            {
+                result.append(viewController)
+            }
+            view.subviews.forEach(visit)
+        }
+
+        visit(self)
+        return result
+    }
+
     /// Returns the superview and the index of this view within the superview's subviews array.
     func superviewWithSubviewIndex() -> (UIView, Int)? {
         guard let superview = superview else {
