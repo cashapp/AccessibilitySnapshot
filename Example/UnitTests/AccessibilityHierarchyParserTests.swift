@@ -205,7 +205,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         // Verify it's a container with correct label
         if case let .container(containerInfo, children) = hierarchy.first {
-            if case let .semanticGroup(label, _, _) = containerInfo.type {
+            if case let .semanticGroup(label, _) = containerInfo.type {
                 XCTAssertEqual(label, "Group Label")
             } else {
                 XCTFail("Expected semanticGroup container type")
@@ -321,7 +321,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(hierarchy.count, 1)
 
         if case let .container(outerInfo, outerChildren) = hierarchy.first {
-            if case let .semanticGroup(label, _, _) = outerInfo.type {
+            if case let .semanticGroup(label, _) = outerInfo.type {
                 XCTAssertEqual(label, "Outer Container")
             } else {
                 XCTFail("Expected semanticGroup container type for outer")
@@ -345,7 +345,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             }
             XCTAssertEqual(innerContainers.count, 1)
             if let innerContainer = innerContainers.first?.0,
-               case let .semanticGroup(label, _, _) = innerContainer.type
+               case let .semanticGroup(label, _) = innerContainer.type
             {
                 XCTAssertEqual(label, "Inner Container")
             } else {
@@ -373,7 +373,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let containers = hierarchy.flattenToContainers()
         XCTAssertEqual(containers.count, 2)
         let containerLabels = containers.compactMap { container -> String? in
-            if case let .semanticGroup(label, _, _) = container.type { return label }
+            if case let .semanticGroup(label, _) = container.type { return label }
             return nil
         }
         XCTAssertEqual(Set(containerLabels), ["Outer Container", "Inner Container"])
@@ -603,7 +603,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(hierarchy.count, 1)
 
         if case let .container(container, children) = hierarchy.first {
-            if case let .dataTable(rowCount, columnCount) = container.type {
+            if case let .dataTable(rowCount, columnCount, _) = container.type {
                 XCTAssertEqual(rowCount, 5)
                 XCTAssertEqual(columnCount, 4)
             } else {
