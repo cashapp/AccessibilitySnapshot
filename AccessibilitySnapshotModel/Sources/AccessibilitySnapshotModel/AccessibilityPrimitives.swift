@@ -10,6 +10,10 @@ public struct AccessibilityPoint: Hashable, Codable, Sendable {
     }
 
     public static let zero = AccessibilityPoint(x: 0, y: 0)
+
+    public var isFinite: Bool {
+        x.isFinite && y.isFinite
+    }
 }
 
 public struct AccessibilitySize: Hashable, Codable, Sendable {
@@ -22,6 +26,10 @@ public struct AccessibilitySize: Hashable, Codable, Sendable {
     }
 
     public static let zero = AccessibilitySize(width: 0, height: 0)
+
+    public var isFinite: Bool {
+        width.isFinite && height.isFinite
+    }
 }
 
 public struct AccessibilityRect: Hashable, Codable, Sendable {
@@ -50,6 +58,10 @@ public struct AccessibilityRect: Hashable, Codable, Sendable {
     public var midY: Double { origin.y + size.height / 2 }
     public var width: Double { size.width }
     public var height: Double { size.height }
+
+    public var isFinite: Bool {
+        origin.isFinite && size.isFinite
+    }
 }
 
 // MARK: - Path Element
@@ -67,6 +79,50 @@ public enum AccessibilityPathElement: Hashable, Codable, Sendable {
 public enum AccessibilityShape: Hashable, Codable, Sendable {
     case frame(AccessibilityRect)
     case path([AccessibilityPathElement])
+
+    /// The axis-aligned bounding rectangle of the shape. For a `.frame` shape this is the frame
+    /// itself; for a `.path` shape it is the box enclosing every point the path references
+    /// (including curve control points), which is adequate for above/below trim classification.
+    /// Returns `.zero` for an empty path.
+    public var boundingRect: AccessibilityRect {
+        switch self {
+        case let .frame(rect):
+            return rect
+
+        case let .path(elements):
+            var points: [AccessibilityPoint] = []
+            for element in elements {
+                switch element {
+                case let .move(to):
+                    points.append(to)
+                case let .line(to):
+                    points.append(to)
+                case let .quadCurve(to, control):
+                    points.append(to)
+                    points.append(control)
+                case let .curve(to, control1, control2):
+                    points.append(to)
+                    points.append(control1)
+                    points.append(control2)
+                case .closeSubpath:
+                    break
+                }
+            }
+
+            guard let first = points.first else {
+                return .zero
+            }
+
+            var minX = first.x, minY = first.y, maxX = first.x, maxY = first.y
+            for point in points.dropFirst() {
+                minX = Swift.min(minX, point.x)
+                minY = Swift.min(minY, point.y)
+                maxX = Swift.max(maxX, point.x)
+                maxY = Swift.max(maxY, point.y)
+            }
+            return AccessibilityRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
+        }
+    }
 }
 
 // MARK: - Wire-Compatible Codable
@@ -192,6 +248,7 @@ public struct AccessibilityTraits: OptionSet, Hashable, Codable, Sendable {
     public static let tabBarItem = AccessibilityTraits(rawValue: 1 << 28)
     public static let textArea = AccessibilityTraits(rawValue: 1 << 47)
     public static let switchButton = AccessibilityTraits(rawValue: 1 << 53)
+    public static let alert = AccessibilityTraits(rawValue: 1 << 56)
 
     public static let knownTraits: [(trait: AccessibilityTraits, name: String)] = [
         (.button, "button"),
@@ -218,6 +275,7 @@ public struct AccessibilityTraits: OptionSet, Hashable, Codable, Sendable {
         (.tabBarItem, "tabBarItem"),
         (.textArea, "textArea"),
         (.switchButton, "switchButton"),
+        (.alert, "alert"),
     ]
 
     public var traitNames: [String] {
