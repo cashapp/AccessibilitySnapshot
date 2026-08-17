@@ -223,7 +223,11 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         }
     }
 
-    func testSemanticGroupWithoutLabelIsFlattened() {
+    func testSemanticGroupWithoutLabelIsPreserved() {
+        // Container-aware parsing preserves the container node from the graph regardless of whether
+        // it carries a label. (Previously an unlabeled semantic group was flattened away; that made
+        // it the special case against `testListContainerIsAlwaysPreserved`. The graph-derived model
+        // treats all container types consistently.)
         let rootView = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
 
         let container = UIView(frame: .init(x: 0, y: 0, width: 100, height: 50))
@@ -240,14 +244,21 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let parser = AccessibilityHierarchyParser()
         let hierarchy = parser.parseAccessibilityHierarchy(in: rootView)
 
-        // Should have one element at root level (container flattened)
+        // One semantic-group container at root, holding the element.
         XCTAssertEqual(hierarchy.count, 1)
 
-        // Verify it's an element, not a container
-        if case let .element(elementInfo, _) = hierarchy.first {
-            XCTAssertEqual(elementInfo.description, "Element")
+        if case let .container(containerInfo, children) = hierarchy.first {
+            guard case .semanticGroup = containerInfo.type else {
+                return XCTFail("Expected a semantic-group container")
+            }
+            XCTAssertEqual(children.count, 1)
+            if case let .element(elementInfo, _) = children.first {
+                XCTAssertEqual(elementInfo.description, "Element")
+            } else {
+                XCTFail("Expected the element inside the preserved container")
+            }
         } else {
-            XCTFail("Expected element at root level (container should be flattened)")
+            XCTFail("Expected a container at root level (should be preserved)")
         }
     }
 
@@ -878,7 +889,10 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         }
     }
 
-    func testParserReturnsContextlessElementWhenContainerReportsNotFound() {
+    func testParserDerivesContextFromGraphWhenContainerReportsNotFound() {
+        // A container that lies about its children (drops one on `index(of:)`) no longer strips that
+        // element's context. Graph-derived parsing reads the element's position from the tree it
+        // actually walked, not from the container's self-report, so list context still applies.
         let root = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
         let container = InconsistentListContainer(frame: root.bounds)
         root.addSubview(container)
@@ -890,7 +904,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
         ).flattenToElements().map { $0.description }
 
-        XCTAssertEqual(elements, ["child"], "Element should still be parsed even when its container drops it")
+        XCTAssertEqual(elements, ["child. List Start."], "Element keeps its graph-derived list context even when its container drops it")
     }
 
     /// A `UITabBar` with no items previously triggered a modulo-by-zero `precondition` inside
