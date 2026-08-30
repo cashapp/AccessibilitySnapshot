@@ -14,7 +14,7 @@ public final class HitTargetSnapshotView: SnapshotAndLegendView {
         // Some implementations of hit testing rely on the window, so install the view in a window if needed.
         let requiresWindow = (baseView.window == nil && !(baseView is UIWindow))
         if requiresWindow {
-            let window = UIApplication.shared.firstKeyWindow ?? UIWindow(frame: UIScreen.main.bounds)
+            let window = UIApplication.shared.firstKeyWindow ?? UIWindow(frame: SnapshotPlatformDefaults.hostWindowFrame)
             window.addSubview(baseView)
         }
 
