@@ -21,9 +21,15 @@ public struct PillFlowLayout: Layout {
         for (index, position) in arrangement.positions.enumerated() {
             subviews[index].place(
                 at: CGPoint(x: bounds.minX + position.x, y: bounds.minY + position.y),
-                proposal: .unspecified
+                proposal: pillProposal(for: proposal)
             )
         }
+    }
+
+    /// Constrains each pill to the available width so that a pill too wide for one line wraps its
+    /// text over multiple lines instead of being truncated or clipped.
+    private func pillProposal(for proposal: ProposedViewSize) -> ProposedViewSize {
+        return .init(width: proposal.width, height: nil)
     }
 
     private func arrangeSubviews(proposal: ProposedViewSize, subviews: Subviews) -> (size: CGSize, positions: [CGPoint]) {
@@ -35,7 +41,7 @@ public struct PillFlowLayout: Layout {
         var maxX: CGFloat = 0
 
         for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
+            let size = subview.sizeThatFits(pillProposal(for: proposal))
 
             if currentX + size.width > maxWidth, currentX > 0 {
                 currentX = 0

@@ -38,6 +38,9 @@ public struct LegendView: View {
                     )
                 }
             }
+            // Text in the legend must always wrap rather than truncate, even when the enclosing
+            // layout proposes less height than the entries need.
+            .fixedSize(horizontal: false, vertical: true)
             .padding(LegendLayoutMetrics.legendInset)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
