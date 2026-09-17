@@ -59,7 +59,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         elementA.accessibilityFrame = elementA.frame
         gridView.addSubview(elementA)
 
-        let elementB = UIView(frame: .init(x: 10, y: 0, width: 0, height: 10))
+        let elementB = UIView(frame: .init(x: 10, y: 0, width: 10, height: 10))
         elementB.isAccessibilityElement = true
         elementB.accessibilityLabel = "B"
         elementB.accessibilityFrame = elementB.frame
@@ -100,7 +100,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let padMagicNumber = 25
 
         elementA.accessibilityFrame = .init(x: 0, y: padMagicNumber, width: 10, height: 10)
-        elementB.accessibilityFrame = .init(x: 10, y: 0, width: 0, height: 10)
+        elementB.accessibilityFrame = .init(x: 10, y: 0, width: 10, height: 10)
         elementC.accessibilityFrame = .init(x: 20, y: -padMagicNumber, width: 10, height: 10)
         elementD.accessibilityFrame = .init(x: 30, y: -padMagicNumber, width: 10, height: 10)
 

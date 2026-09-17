@@ -808,22 +808,25 @@ private extension NSObject {
             return []
         }
 
-        // Ignore elements that are views if they are not visible on the screen, either due to visibility, size, or
-        // alpha. VoiceOver actually has some very low alpha threshold at which it will still display an element
-        // (presumably to account for animations and/or rounding error). We use an alpha threshold of zero since that
-        // should fulfill the intent.
-        //
-        // Zero-frame views are pruned when they clip their bounds (children are invisible), are accessibility
-        // elements, or are explicit accessibility containers (accessibilityElements is set). Zero-frame wrapper views
-        // that don't clip and only contain subviews are allowed through, because SwiftUI bridging layers (e.g.
-        // _UIInheritedView inside _UIFloatingBarContainerView) use zero-frame wrappers whose children overflow and
-        // are visible. Pruning those hides real accessible content such as the UISearchBarTextField rendered by
-        // .searchable().
-        if let `self` = self as? UIView,
-           self.isHidden || self.alpha <= 0
-           || (self.frame.size == .zero && (self.clipsToBounds || self.isAccessibilityElement || self.accessibilityElements != nil))
-        {
-            return []
+        if let view = self as? UIView {
+            // VoiceOver hides elements that are invisible or fully transparent. (VoiceOver uses
+            // a very low alpha threshold to account for animations; zero is close enough.)
+            let isInvisible = view.isHidden || view.alpha <= 0
+
+            // Empty-frame wrappers that clip or own their accessibility model are collapsed. We
+            // can't prune all empty-frame wrappers because SwiftUI bridging (e.g.
+            // _UIInheritedView in _UIFloatingBarContainerView) uses them as overflow containers
+            // for real content like the UISearchBarTextField from .searchable().
+            let isCollapsedWrapper = view.frame.isEmpty
+                && (view.clipsToBounds || view.accessibilityElements != nil)
+
+            // Leaf accessibility elements with an empty frame have no visible footprint and
+            // would surface as spurious VoiceOver targets.
+            let isDegenerateElement = view.isAccessibilityElement && view.frame.isEmpty
+
+            if isInvisible || isCollapsedWrapper || isDegenerateElement {
+                return []
+            }
         }
 
         var recursiveAccessibilityHierarchy: [AccessibilityNode] = []
