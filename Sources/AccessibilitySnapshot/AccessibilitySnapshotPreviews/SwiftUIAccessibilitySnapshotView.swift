@@ -206,7 +206,11 @@ public struct PreParsedAccessibilitySnapshotView: View {
     }
 
     public var body: some View {
-        if legendOnRight {
+        if markers.isEmpty {
+            // Without a legend there is nothing to reserve `minimumWidth` for.
+            snapshotWithOverlays
+                .background(Color(white: 0.9))
+        } else if legendOnRight {
             // Tall view: snapshot on left, legend on right (may span multiple columns)
             HStack(alignment: .top, spacing: 0) {
                 snapshotWithOverlays
