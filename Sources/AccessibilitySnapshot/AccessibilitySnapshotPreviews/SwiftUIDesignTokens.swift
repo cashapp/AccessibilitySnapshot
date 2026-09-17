@@ -19,6 +19,10 @@ enum DesignTokens {
 
         /// Background color for pill-shaped labels.
         public static let pillBackground = Color(white: 0.85)
+
+        /// Background color behind the snapshot and its legend. Matches the UIKit engine's
+        /// `AccessibilitySnapshotBaseView`.
+        public static let snapshotBackground = Color(white: 0.9)
     }
 
     // MARK: - Typography

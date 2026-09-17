@@ -48,7 +48,7 @@ public final class SwiftUIAccessibilitySnapshotContainerView: AccessibilitySnaps
         if #available(iOS 16.4, *) {
             hosting.safeAreaRegions = []
         }
-        hosting.view.backgroundColor = UIColor(white: 0.9, alpha: 1.0)
+        hosting.view.backgroundColor = UIColor(DesignTokens.Colors.snapshotBackground)
 
         let targetSize = CGSize(
             width: data.containedViewBounds.width,
@@ -59,7 +59,7 @@ public final class SwiftUIAccessibilitySnapshotContainerView: AccessibilitySnaps
 
         addSubview(hosting.view)
         snapshotView.isHidden = true
-        backgroundColor = UIColor(white: 0.9, alpha: 1.0)
+        backgroundColor = UIColor(DesignTokens.Colors.snapshotBackground)
 
         hostingController = hosting
     }
