@@ -819,9 +819,11 @@ private extension NSObject {
         // _UIInheritedView inside _UIFloatingBarContainerView) use zero-frame wrappers whose children overflow and
         // are visible. Pruning those hides real accessible content such as the UISearchBarTextField rendered by
         // .searchable().
+        let explicitAccessibilityElements = resolvedAccessibilityElements()
+
         if let `self` = self as? UIView,
            self.isHidden || self.alpha <= 0
-           || (self.frame.size == .zero && (self.clipsToBounds || self.isAccessibilityElement || self.accessibilityElements != nil))
+           || (self.frame.size == .zero && (self.clipsToBounds || self.isAccessibilityElement || explicitAccessibilityElements != nil))
         {
             return []
         }
@@ -831,7 +833,7 @@ private extension NSObject {
         if isAccessibilityElement {
             recursiveAccessibilityHierarchy.append(.element(self, contextProvider: contextProvider))
 
-        } else if let accessibilityElements = accessibilityElements as? [NSObject] {
+        } else if let accessibilityElements = explicitAccessibilityElements {
             var accessibilityHierarchyOfElements: [AccessibilityNode] = []
             for element in accessibilityElements {
                 accessibilityHierarchyOfElements.append(
@@ -880,6 +882,45 @@ private extension NSObject {
         }
 
         return recursiveAccessibilityHierarchy
+    }
+
+    /// Returns the explicit accessibility elements exposed by this object. When
+    /// `accessibilityElements` is set (including to an empty array) it is used directly — this covers
+    /// UIKit containers such as `UISegmentedControl`, which populate `accessibilityElements` with
+    /// their internal elements. When it is `nil`, this falls back to the `accessibilityElementCount()`
+    /// / `accessibilityElement(at:)` container APIs, mirroring how `UIAccessibilityContainer`
+    /// consumers resolve elements — so an object whose children are exposed only through those APIs
+    /// is captured rather than treated as a leaf. The `NSNotFound` sentinel and a non-positive count
+    /// are filtered below, which is what keeps objects that don't implement the dynamic container
+    /// methods on the caller's existing traversal path: they report `NSNotFound` from
+    /// `accessibilityElementCount()`. Returns `nil` when the object does not act as an explicit
+    /// accessibility container.
+    private func resolvedAccessibilityElements() -> [NSObject]? {
+        if let elements = accessibilityElements as? [NSObject] {
+            return elements
+        }
+
+        // `accessibilityElementCount()` defaults to `NSNotFound` for objects that don't implement the
+        // dynamic container methods (its default is undocumented, but its siblings
+        // `accessibilityElement(at:)` and `index(ofAccessibilityElement:)` document `nil` / `NSNotFound`
+        // defaults, and `NSNotFound` is what UIKit returns on iOS 17+). Treating that sentinel as a real
+        // count would iterate ~`NSIntegerMax` times, so guard against it explicitly.
+        let count = accessibilityElementCount()
+        guard count > 0, count != NSNotFound else {
+            return nil
+        }
+
+        var elements: [NSObject] = []
+        elements.reserveCapacity(count)
+        for index in 0 ..< count {
+            // `accessibilityElement(at:)` may return `nil` (or a non-`NSObject`) for individual indices even
+            // when `accessibilityElementCount()` reports a larger count; those are skipped rather than treated
+            // as a hard error, mirroring how a consumer iterating the container would tolerate gaps.
+            if let element = accessibilityElement(at: index) as? NSObject {
+                elements.append(element)
+            }
+        }
+        return elements.isEmpty ? nil : elements
     }
 
     private func containerInfo(for view: UIView) -> ContainerInfo? {
