@@ -13,11 +13,11 @@ enum BadgePlacement {
     }
 
     /// Returns the badge center for a rectangular bounds (frame-based shapes).
-    /// Badge is positioned at the top-leading corner, fully inside the bounds.
+    /// Badge is positioned at the top-trailing corner, fully inside the bounds.
     /// Time complexity: O(1)
     static func badgeCenter(in rect: CGRect) -> CGPoint {
         let halfBadge = DesignTokens.Badge.size / 2
-        return cornerPoint(in: rect, corner: .topLeading, halfBadge: halfBadge)
+        return cornerPoint(in: rect, corner: .topTrailing, halfBadge: halfBadge)
     }
 
     /// Returns the badge center for a path-based shape.
@@ -33,16 +33,16 @@ enum BadgePlacement {
 
         let halfBadge = DesignTokens.Badge.size / 2
 
-        // Tier 1: Check top-leading corner (most paths pass here)
-        let topLeading = cornerPoint(in: bounds, corner: .topLeading, halfBadge: halfBadge)
-        if path.contains(topLeading) {
-            return topLeading
-        }
-
-        // Tier 2: Check top-trailing corner
+        // Tier 1: Check top-trailing corner (most paths pass here)
         let topTrailing = cornerPoint(in: bounds, corner: .topTrailing, halfBadge: halfBadge)
         if path.contains(topTrailing) {
             return topTrailing
+        }
+
+        // Tier 2: Check top-leading corner
+        let topLeading = cornerPoint(in: bounds, corner: .topLeading, halfBadge: halfBadge)
+        if path.contains(topLeading) {
+            return topLeading
         }
 
         // Tier 3: Scan top edge to find first interior point
@@ -50,8 +50,8 @@ enum BadgePlacement {
             return edgePoint
         }
 
-        // Tier 4: Fallback to bounding box top-leading (original behavior)
-        return topLeading
+        // Tier 4: Fallback to bounding box top-trailing
+        return topTrailing
     }
 
     /// Maximum corner radius to treat a rounded rect as a simple rectangle.
@@ -188,7 +188,8 @@ enum BadgePlacement {
         }
     }
 
-    /// Scans the top edge of the bounding box to find the first point inside the path.
+    /// Scans the top edge of the bounding box, trailing to leading, to find the first point inside
+    /// the path.
     /// Uses sparse sampling for performance (5 sample points).
     /// Returns nil if no interior point found on top edge.
     private static func scanTopEdge(
@@ -202,7 +203,7 @@ enum BadgePlacement {
         let endX = bounds.maxX - halfBadge
         let step = (endX - startX) / CGFloat(sampleCount - 1)
 
-        for i in 0 ..< sampleCount {
+        for i in (0 ..< sampleCount).reversed() {
             let x = startX + (step * CGFloat(i))
             let point = CGPoint(x: x, y: y)
             if path.contains(point) {
@@ -213,4 +214,3 @@ enum BadgePlacement {
         return nil
     }
 }
-
