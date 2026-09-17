@@ -290,6 +290,8 @@ let project = Project(
             sources: ["AccessibilitySnapshotPreviewsTests/**/*.swift"],
             dependencies: [
                 .target(name: "AccessibilitySnapshotPreviewsDemo"),
+                .target(name: "AccessibilitySnapshotPreviews"),
+                .target(name: "AccessibilitySnapshotCore"),
                 .target(name: "FBSnapshotTestCase_Accessibility"),
                 .external(name: "iOSSnapshotTestCase"),
                 .xctest,

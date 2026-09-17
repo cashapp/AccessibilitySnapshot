@@ -10,6 +10,7 @@ struct DescriptionView: View {
             .font(DesignTokens.Typography.description)
             .foregroundColor(DesignTokens.Colors.primaryText)
             .lineLimit(nil)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
 
