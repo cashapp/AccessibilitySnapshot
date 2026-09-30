@@ -8,12 +8,16 @@ import PackageDescription
 
     let iOSProducts = ["iOSSnapshotTestCase", "iOSSnapshotTestCaseCore", "Paralayout"]
 
+    // Xcode 27 rejects iOS deployment targets below 15.0, which these packages still declare.
+    let deploymentTargetSetting: SettingsDictionary = ["IPHONEOS_DEPLOYMENT_TARGET": "15.0"]
+
     let packageSettings = PackageSettings(
         productDestinations: Dictionary(uniqueKeysWithValues: iOSProducts.map { ($0, Destinations.iOS) }),
         targetSettings: [
-            "iOSSnapshotTestCase": [
-                "ENABLE_TESTING_SEARCH_PATHS": "YES",
-            ],
+            "iOSSnapshotTestCase": deploymentTargetSetting.merging(["ENABLE_TESTING_SEARCH_PATHS": "YES"]) { $1 },
+            "iOSSnapshotTestCaseCore": deploymentTargetSetting,
+            "Paralayout": deploymentTargetSetting,
+            "SnapshotTesting": deploymentTargetSetting,
         ]
     )
 #endif

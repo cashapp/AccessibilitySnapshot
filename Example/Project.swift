@@ -2,7 +2,8 @@ import ProjectDescription
 
 // MARK: - Constants
 
-let deploymentTargets: DeploymentTargets = .iOS("13.0")
+// Xcode 27 rejects iOS deployment targets below 15.0.
+let deploymentTargets: DeploymentTargets = .iOS("15.0")
 
 // MARK: - Helpers
 
@@ -202,7 +203,14 @@ let project = Project(
                 "UIMainStoryboardFile": "",
                 "UIApplicationSceneManifest": [
                     "UIApplicationSupportsMultipleScenes": false,
-                    "UISceneConfigurations": [:],
+                    "UISceneConfigurations": [
+                        "UIWindowSceneSessionRoleApplication": [
+                            [
+                                "UISceneConfigurationName": "Default Configuration",
+                                "UISceneDelegateClassName": "$(PRODUCT_MODULE_NAME).SceneDelegate",
+                            ],
+                        ],
+                    ],
                 ],
             ]),
             sources: ["AccessibilitySnapshot/**/*.swift"],
