@@ -15,9 +15,9 @@ jobs:
         include:
           - platform: iOS_17
             runner: macOS-14
-          - platform: visionOS_26
-            runner: macOS-15
-            xcode-version: '26.2'
+          - platform: visionOS_27
+            runner: xcode-27
+            xcode-version: '27'
       fail-fast: false
     steps:
       - name: Checkout Repo
@@ -32,7 +32,7 @@ jobs:
 
   model-tests:
     name: Model Tests (macOS)
-    runs-on: macOS-14
+    runs-on: xcode-27
     steps:
       - name: Checkout Repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
@@ -41,7 +41,7 @@ jobs:
 
   validate-strings:
     name: Validate Localized Strings
-    runs-on: macOS-14
+    runs-on: xcode-27
     steps:
       - name: Checkout Repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
@@ -62,11 +62,11 @@ jobs:
             runner: macOS-15
             device: "iPhone 16 Pro"
             os: "18.5"
-          - platform: iOS_26
-            runner: macOS-15
-            device: "iPhone 17 Pro"
-            os: "26.2"
-            xcode-version: '26.2'
+          - platform: iOS_27
+            runner: xcode-27
+            device: "iPhone 18 Pro"
+            os: "27.0"
+            xcode-version: '27'
       fail-fast: false
     steps:
       - name: Checkout Repo

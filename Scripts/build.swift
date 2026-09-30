@@ -49,7 +49,9 @@ enum Platform: String, CustomStringConvertible {
     case iOS_17
     case iOS_18
     case iOS_26
+    case iOS_27
     case visionOS_26
+    case visionOS_27
 
     var destination: String {
         switch self {
@@ -59,17 +61,20 @@ enum Platform: String, CustomStringConvertible {
             return "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
         case .iOS_26:
             return "platform=iOS Simulator,OS=26.2,name=iPhone 17 Pro"
+        case .iOS_27:
+            return "platform=iOS Simulator,OS=27.0,name=iPhone 18 Pro"
         case .visionOS_26:
-            // The visionOS destination is build-only, so it doesn't pin a specific simulator device.
-            return "generic/platform=visionOS Simulator"
+            return "platform=visionOS Simulator,OS=26.2,name=Apple Vision Pro"
+        case .visionOS_27:
+            return "platform=visionOS Simulator,OS=27.0,name=Apple Vision Pro"
         }
     }
 
     var sdk: String {
         switch self {
-        case .iOS_17, .iOS_18, .iOS_26:
+        case .iOS_17, .iOS_18, .iOS_26, .iOS_27:
             return "iphonesimulator"
-        case .visionOS_26:
+        case .visionOS_26, .visionOS_27:
             return "xrsimulator"
         }
     }
