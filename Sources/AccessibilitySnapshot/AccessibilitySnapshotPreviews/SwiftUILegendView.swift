@@ -23,18 +23,26 @@ public struct LegendView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: LegendLayoutMetrics.legendVerticalSpacing) {
-            ForEach(markers.indices, id: \.self) { index in
-                LegendEntryView(
-                    index: index,
-                    marker: markers[index],
-                    palette: palette,
-                    showUserInputLabels: showUserInputLabels,
-                    showUnspokenTraits: showUnspokenTraits
-                )
+        if markers.isEmpty {
+            // An empty legend would still lay out `legendInset` on every edge.
+            EmptyView()
+        } else {
+            VStack(alignment: .leading, spacing: LegendLayoutMetrics.legendVerticalSpacing) {
+                ForEach(markers.indices, id: \.self) { index in
+                    LegendEntryView(
+                        index: index,
+                        marker: markers[index],
+                        palette: palette,
+                        showUserInputLabels: showUserInputLabels,
+                        showUnspokenTraits: showUnspokenTraits
+                    )
+                }
             }
+            // Text in the legend must always wrap rather than truncate, even when the enclosing
+            // layout proposes less height than the entries need.
+            .fixedSize(horizontal: false, vertical: true)
+            .padding(LegendLayoutMetrics.legendInset)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(LegendLayoutMetrics.legendInset)
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
