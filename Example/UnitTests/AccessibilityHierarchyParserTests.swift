@@ -1093,18 +1093,23 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
                 leaf.accessibilityFrame = leaf.frame
                 parent.addSubview(leaf)
             }
-            var callbackLabels: [String?] = []
+            var callbackEvents: [String] = []
             let hierarchy: [AccessibilityHierarchy] = AccessibilityHierarchyParser().parseAccessibilityHierarchy(
                 in: root,
                 makeElement: { element, index, _ in
-                    callbackLabels.append(element.label)
+                    callbackEvents.append("element:\(element.label ?? ""):\(index)")
                     return .element(element, traversalIndex: index)
                 },
-                makeContainer: { container, children, _ in .container(container, children: children) }
+                makeContainer: { container, children, source in
+                    if source === wrapper {
+                        callbackEvents.append("container:Wrapper")
+                    }
+                    return .container(container, children: children)
+                }
             )
             let expected = ["A1", "B", "A2"]
             XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, expected)
-            XCTAssertEqual(callbackLabels, expected)
+            XCTAssertEqual(callbackEvents, ["element:A1:0", "element:A2:2", "container:Wrapper", "element:B:1"])
             XCTAssertEqual(hierarchy.flattenToElements().map { $0.context }, [nil, nil, nil])
             guard case let .container(_, children) = hierarchy.first else {
                 XCTFail("Expected retained metadata container for configuration \(index)")

@@ -108,9 +108,8 @@ public final class AccessibilityHierarchyParser {
 
     /// Parses the accessibility hierarchy and folds it into a caller-defined node type.
     ///
-    /// `makeElement` builds leaves in VoiceOver traversal order. `makeContainer` then builds
-    /// containers bottom-up from their already-built children. Structural ownership is retained
-    /// even when a container's leaves interleave with sibling leaves in navigation order.
+    /// Recursively builds each subtree, calling `makeContainer` with its completed child nodes.
+    /// `traversalIndex` records each element's position in VoiceOver reading order.
     ///
     /// The `source` parameters expose the originating accessibility object so callers can correlate
     /// parsed markers back to their source views — useful for test harnesses, debugging overlays,
@@ -119,7 +118,7 @@ public final class AccessibilityHierarchyParser {
     ///
     /// Both closures are invoked synchronously after capture and description assembly, on the caller's thread.
     ///
-    /// - parameter makeElement: Builds a leaf node. Called once per element, in traversal order.
+    /// - parameter makeElement: Builds a leaf node. Called once per captured element occurrence.
     /// - parameter makeContainer: Builds an interior node from its children. Called once per container.
     public func parseAccessibilityHierarchy<Node>(
         in root: UIView,
@@ -157,7 +156,6 @@ public final class AccessibilityHierarchyParser {
 
         return foldNodes(
             preparedNodes,
-            capturedElements: capturedElements,
             elements: elements,
             makeElement: makeElement,
             makeContainer: makeContainer
@@ -364,18 +362,15 @@ public final class AccessibilityHierarchyParser {
     /// Folds the prepared tree without querying its source objects again.
     private func foldNodes<Node>(
         _ nodes: [AccessibilityNode],
-        capturedElements: [CapturedElement],
         elements: [AccessibilityElement],
         makeElement: (AccessibilityElement, _ traversalIndex: Int, _ source: NSObject) -> Node,
         makeContainer: (AccessibilityContainer, _ children: [Node], _ source: NSObject) -> Node
     ) -> [Node] {
-        let elementNodes = capturedElements.enumerated().map { index, element in
-            makeElement(elements[index], index, element.object)
-        }
         func mapNode(_ node: AccessibilityNode) -> [Node] {
             switch node {
             case let .element(element):
-                return [elementNodes[element.traversalIndex]]
+                let index = element.traversalIndex
+                return [makeElement(elements[index], index, element.object)]
             case let .group(children, _, _, info):
                 let mappedChildren = children.flatMap { mapNode($0) }
                 if let info, let container = info.container {
