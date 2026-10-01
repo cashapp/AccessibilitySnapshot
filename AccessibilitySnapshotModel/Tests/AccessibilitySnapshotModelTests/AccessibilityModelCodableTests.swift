@@ -48,6 +48,38 @@ final class AccessibilityModelCodableTests: XCTestCase {
         XCTAssertEqual(decoded.respondsToUserInteraction, element.respondsToUserInteraction)
     }
 
+    func testAccessibilityElementVisibilityCodableDefaultsToOnscreen() throws {
+        let element = AccessibilityElement(
+            description: "Offscreen Button",
+            label: "Offscreen Button",
+            value: nil,
+            traits: [.button],
+            identifier: nil,
+            hint: nil,
+            userInputLabels: nil,
+            shape: .frame(AccessibilityRect(x: 0, y: 200, width: 100, height: 44)),
+            activationPoint: AccessibilityPoint(x: 50, y: 222),
+            usesDefaultActivationPoint: true,
+            customActions: [],
+            customContent: [],
+            customRotors: [],
+            accessibilityLanguage: nil,
+            respondsToUserInteraction: true,
+            visibility: ScreenVisibility.offscreen
+        )
+
+        let data = try JSONEncoder().encode(element)
+        let decoded = try JSONDecoder().decode(AccessibilityElement.self, from: data)
+        XCTAssertEqual(decoded, element)
+        XCTAssertEqual(decoded.visibility, .offscreen)
+
+        var object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertEqual(object.removeValue(forKey: "visibility") as? String, "offscreen")
+        let legacyData = try JSONSerialization.data(withJSONObject: object)
+        let legacyDecoded = try JSONDecoder().decode(AccessibilityElement.self, from: legacyData)
+        XCTAssertEqual(legacyDecoded.visibility, .onscreen)
+    }
+
     func testAccessibilityContainerCodable() throws {
         let container = AccessibilityContainer(
             type: .list,
@@ -163,8 +195,8 @@ final class AccessibilityModelCodableTests: XCTestCase {
             .list,
             .landmark,
             .tabBar,
-            .semanticGroup(label: "Test", value: nil, identifier: "test-id"),
-            .dataTable(rowCount: 3, columnCount: 4),
+            .semanticGroup(label: "Test", value: nil),
+            .dataTable(rowCount: 3, columnCount: 4, cells: []),
         ]
 
         for type in types {
@@ -180,7 +212,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
 
     func testDataTableContainerCodable() throws {
         let container = AccessibilityContainer(
-            type: .dataTable(rowCount: 5, columnCount: 4),
+            type: .dataTable(rowCount: 5, columnCount: 4, cells: []),
             frame: AccessibilityRect(x: 0, y: 0, width: 320, height: 200)
         )
 
@@ -190,17 +222,23 @@ final class AccessibilityModelCodableTests: XCTestCase {
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(AccessibilityContainer.self, from: data)
 
-        if case let .dataTable(rowCount, columnCount) = decoded.type {
+        if case let .dataTable(rowCount, columnCount, cells) = decoded.type {
             XCTAssertEqual(rowCount, 5)
             XCTAssertEqual(columnCount, 4)
+            XCTAssertEqual(cells, [])
         } else {
             XCTFail("Expected dataTable type")
         }
+
+        let legacyData = Data(#"{"dataTable":{"rowCount":5,"columnCount":4}}"#.utf8)
+        let legacyDecoded = try decoder.decode(AccessibilityContainer.ContainerType.self, from: legacyData)
+        XCTAssertEqual(legacyDecoded, .dataTable(rowCount: 5, columnCount: 4, cells: []))
     }
 
     func testSemanticGroupContainerCodable() throws {
         let container = AccessibilityContainer(
-            type: .semanticGroup(label: "Group Label", value: "Group Value", identifier: "group-id"),
+            type: .semanticGroup(label: "Group Label", value: "Group Value"),
+            identifier: "group-id",
             frame: AccessibilityRect(x: 0, y: 0, width: 200, height: 100)
         )
 
@@ -210,10 +248,10 @@ final class AccessibilityModelCodableTests: XCTestCase {
         let decoder = JSONDecoder()
         let decoded = try decoder.decode(AccessibilityContainer.self, from: data)
 
-        if case let .semanticGroup(label, value, identifier) = decoded.type {
+        XCTAssertEqual(decoded.identifier, "group-id")
+        if case let .semanticGroup(label, value) = decoded.type {
             XCTAssertEqual(label, "Group Label")
             XCTAssertEqual(value, "Group Value")
-            XCTAssertEqual(identifier, "group-id")
         } else {
             XCTFail("Expected semanticGroup type")
         }

@@ -74,7 +74,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
 
     /// Whether the element was on screen at parse time. Defaults to `.onscreen`, which is also the
     /// value used when decoding payloads written before this field existed.
-    public let visibility: AccessibilityVisibility
+    public let visibility: ScreenVisibility
 
     // MARK: - Initialization
 
@@ -94,7 +94,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         customRotors: [CustomRotor],
         accessibilityLanguage: String?,
         respondsToUserInteraction: Bool,
-        visibility: AccessibilityVisibility = .onscreen
+        visibility: ScreenVisibility = .onscreen
     ) {
         self.description = description
         self.label = label
@@ -152,9 +152,8 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         customRotors = try container.decode([CustomRotor].self, forKey: .customRotors)
         accessibilityLanguage = try container.decodeIfPresent(String.self, forKey: .accessibilityLanguage)
         respondsToUserInteraction = try container.decode(Bool.self, forKey: .respondsToUserInteraction)
-        // `visibility` is a field this fork adds. Decode leniently so payloads produced before it
-        // existed don't crash — they simply default to `.onscreen`.
-        visibility = try container.decodeIfPresent(AccessibilityVisibility.self, forKey: .visibility) ?? .onscreen
+        // Payloads written before visibility was recorded default to `.onscreen`.
+        visibility = try container.decodeIfPresent(ScreenVisibility.self, forKey: .visibility) ?? .onscreen
     }
 
     public func encode(to encoder: Encoder) throws {

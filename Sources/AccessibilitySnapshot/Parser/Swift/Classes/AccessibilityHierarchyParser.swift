@@ -285,7 +285,7 @@ public final class AccessibilityHierarchyParser {
         context: Context?,
         in root: UIView,
         rotorResultLimit: Int,
-        visibility: AccessibilityVisibility
+        visibility: ScreenVisibility
     ) -> AccessibilityElement {
         let (description, _) = object.accessibilityDescription(context: context)
         let activationPoint = object.accessibilityActivationPoint
@@ -331,7 +331,7 @@ public final class AccessibilityHierarchyParser {
         in root: UIView,
         userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection,
         userInterfaceIdiom: UIUserInterfaceIdiom = UIDevice.current.userInterfaceIdiom
-    ) -> [(object: NSObject, contextParent: ContextParent?, visibility: AccessibilityVisibility)] {
+    ) -> [(object: NSObject, contextParent: ContextParent?, visibility: ScreenVisibility)] {
         // VoiceOver flick navigation iterates through elements in a horizontal, then vertical order. The horizontal
         // ordering matches the application's user interface layout direction. The vertical ordering is always
         // top-to-bottom. There are a couple exceptions to the order of iteration:
@@ -379,7 +379,7 @@ public final class AccessibilityHierarchyParser {
             }
             .map { $0.0 }
 
-        var sortedElements: [(object: NSObject, contextParent: ContextParent?, visibility: AccessibilityVisibility)] = []
+        var sortedElements: [(object: NSObject, contextParent: ContextParent?, visibility: ScreenVisibility)] = []
 
         for node in sortedNodes {
             switch node {
@@ -414,7 +414,7 @@ public final class AccessibilityHierarchyParser {
     /// reflects VoiceOver's flick order, so an element's index within its tab-bar group is simply its
     /// rank among the contiguous siblings sharing that parent — no re-walk of the view subtree.
     private func tabTraitPositions(
-        in elements: [(object: NSObject, contextParent: ContextParent?, visibility: AccessibilityVisibility)]
+        in elements: [(object: NSObject, contextParent: ContextParent?, visibility: ScreenVisibility)]
     ) -> [ObjectIdentifier: TabTraitPosition] {
         // Group tab-trait elements by their providing view, preserving sorted order.
         var groups: [ObjectIdentifier: [NSObject]] = [:]
@@ -642,7 +642,7 @@ public final class AccessibilityHierarchyParser {
     /// the minimum sort key among its children.
     private func foldNodes<Node>(
         _ nodes: [AccessibilityNode],
-        sortedElements: [(object: NSObject, contextParent: ContextParent?, visibility: AccessibilityVisibility)],
+        sortedElements: [(object: NSObject, contextParent: ContextParent?, visibility: ScreenVisibility)],
         elements: [AccessibilityElement],
         in root: UIView,
         makeElement: (AccessibilityElement, _ traversalIndex: Int, _ source: NSObject) -> Node,
@@ -1019,7 +1019,7 @@ private enum AccessibilityNode {
     /// `visibility` records whether the element's frame intersects the visible region of its
     /// scrollable ancestors at parse time. The parser always walks the full tree and stamps this
     /// flag rather than pruning off-screen elements, so trimming becomes a delivery-time decision.
-    case element(NSObject, contextParent: AccessibilityHierarchyParser.ContextParent?, visibility: AccessibilityVisibility)
+    case element(NSObject, contextParent: AccessibilityHierarchyParser.ContextParent?, visibility: ScreenVisibility)
 
     /// Represents a group of accessibility elements (or nested groups) that should be iterated through together,
     /// without interspersing other elements.
