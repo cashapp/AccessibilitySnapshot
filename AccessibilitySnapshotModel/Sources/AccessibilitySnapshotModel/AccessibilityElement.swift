@@ -71,6 +71,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
     public let customRotors: [CustomRotor]
     public let accessibilityLanguage: String?
     public let respondsToUserInteraction: Bool
+    public let context: AccessibilityContext?
 
     /// Whether the element was on screen at parse time. Defaults to `.onscreen`, which is also the
     /// value used when decoding payloads written before this field existed.
@@ -94,7 +95,8 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         customRotors: [CustomRotor],
         accessibilityLanguage: String?,
         respondsToUserInteraction: Bool,
-        visibility: ScreenVisibility = .onscreen
+        visibility: ScreenVisibility = .onscreen,
+        context: AccessibilityContext? = nil
     ) {
         self.description = description
         self.label = label
@@ -112,6 +114,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         self.accessibilityLanguage = accessibilityLanguage
         self.respondsToUserInteraction = respondsToUserInteraction
         self.visibility = visibility
+        self.context = context
     }
 
     // MARK: - Codable
@@ -133,6 +136,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         case accessibilityLanguage
         case respondsToUserInteraction
         case visibility
+        case context
     }
 
     public init(from decoder: Decoder) throws {
@@ -154,6 +158,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         respondsToUserInteraction = try container.decode(Bool.self, forKey: .respondsToUserInteraction)
         // Payloads written before visibility was recorded default to `.onscreen`.
         visibility = try container.decodeIfPresent(ScreenVisibility.self, forKey: .visibility) ?? .onscreen
+        context = try container.decodeIfPresent(AccessibilityContext.self, forKey: .context)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -174,17 +179,12 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         try container.encodeIfPresent(accessibilityLanguage, forKey: .accessibilityLanguage)
         try container.encode(respondsToUserInteraction, forKey: .respondsToUserInteraction)
         try container.encode(visibility, forKey: .visibility)
+        try container.encodeIfPresent(context, forKey: .context)
     }
 
     // MARK: - Copying
 
-    /// Returns a copy with `description` and `hint` replaced. Used at delivery to write the
-    /// materialized spoken string (composed from context + verbosity) onto an element the parser
-    /// captured with only raw facts.
-    ///
-    /// The result is a terminal, render-ready projection: its `hint` holds the COMPOSED hint, so it
-    /// must never be fed back through `description(context:verbosity:)` (which reads `hint` as a raw
-    /// fact) — always re-compose from the original element instead.
+    /// Returns a copy with `description` and `hint` replaced, retaining all captured facts.
     public func withDescription(_ description: String, hint: String?) -> AccessibilityElement {
         AccessibilityElement(
             description: description,
@@ -202,7 +202,8 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
             customRotors: customRotors,
             accessibilityLanguage: accessibilityLanguage,
             respondsToUserInteraction: respondsToUserInteraction,
-            visibility: visibility
+            visibility: visibility,
+            context: context
         )
     }
 }

@@ -80,6 +80,55 @@ final class AccessibilityModelCodableTests: XCTestCase {
         XCTAssertEqual(legacyDecoded.visibility, .onscreen)
     }
 
+    func testAccessibilityElementContextCodableAndCopying() throws {
+        let context = AccessibilityContext.dataTableCell(
+            row: 2,
+            column: 3,
+            width: 2,
+            height: 3,
+            isFirstInRow: true,
+            rowHeaders: [.init(label: "Quarter", value: "Q1")],
+            columnHeaders: [
+                .init(label: "Revenue", value: nil),
+                .init(label: nil, value: "USD"),
+            ]
+        )
+        let element = AccessibilityElement(
+            description: "Cell",
+            label: "Cell",
+            value: "42",
+            traits: [],
+            identifier: nil,
+            hint: "Raw hint",
+            userInputLabels: nil,
+            shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
+            activationPoint: AccessibilityPoint(x: 50, y: 22),
+            usesDefaultActivationPoint: true,
+            customActions: [],
+            customContent: [],
+            customRotors: [],
+            accessibilityLanguage: "en-US",
+            respondsToUserInteraction: false,
+            context: context
+        )
+
+        let data = try JSONEncoder().encode(element)
+        let decoded = try JSONDecoder().decode(AccessibilityElement.self, from: data)
+        XCTAssertEqual(decoded, element)
+        XCTAssertEqual(decoded.context, context)
+
+        var object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertNotNil(object.removeValue(forKey: "context"))
+        let legacyData = try JSONSerialization.data(withJSONObject: object)
+        let legacyDecoded = try JSONDecoder().decode(AccessibilityElement.self, from: legacyData)
+        XCTAssertNil(legacyDecoded.context)
+
+        let copy = decoded.withDescription("Composed description", hint: "Composed hint")
+        XCTAssertEqual(copy.description, "Composed description")
+        XCTAssertEqual(copy.hint, "Composed hint")
+        XCTAssertEqual(copy.context, context)
+    }
+
     func testAccessibilityContainerCodable() throws {
         let container = AccessibilityContainer(
             type: .list,
