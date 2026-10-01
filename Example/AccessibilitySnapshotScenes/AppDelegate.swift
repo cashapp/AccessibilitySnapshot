@@ -1,20 +1,10 @@
 import UIKit
 
+// The scene-based counterpart of `AccessibilitySnapshot/AppDelegate.swift`. Apps built with the iOS 27 SDK must adopt
+// the scene life cycle, so this variant leaves window setup to `SceneDelegate`.
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    var window: UIWindow?
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        let window = UIWindow(frame: UIScreen.main.bounds)
-        self.window = window
-
-        let rootViewController = RootViewController()
-
-        let navigationController = UINavigationController(rootViewController: rootViewController)
-        window.rootViewController = navigationController
-
-        window.makeKeyAndVisible()
-
         return true
     }
 
