@@ -914,6 +914,9 @@ private extension NSObject {
     ) -> ContainerInfo? {
         let type = accessibilityContainerType
         let traits = accessibilityTraits
+        // UIKit's container text getters can settle descendant layout.
+        let label = accessibilityLabel
+        let value = accessibilityValue
         let view = self as? UIView
         let scrollableContentSize = view.flatMap { self.scrollableContentSize(for: $0) }
         let customActions = accessibilityCustomActions?.map { $0.name } ?? []
@@ -929,7 +932,7 @@ private extension NSObject {
         } else {
             switch type {
             case .semanticGroup:
-                role = .semanticGroup(label: accessibilityLabel, value: accessibilityValue)
+                role = .semanticGroup(label: label, value: value)
             case .list:
                 role = .list
             case .landmark:
@@ -981,7 +984,7 @@ private extension NSObject {
             lendsContext: lendsContext,
             formsNavigationBoundary: vendsChildren || shouldGroupAccessibilityChildren
                 || traits.contains(.tabBar) || type == .list || type == .landmark || type == .dataTable
-                || (type == .semanticGroup && (accessibilityLabel != nil || accessibilityValue != nil || identifier != nil)),
+                || (type == .semanticGroup && (label != nil || value != nil || identifier != nil)),
             usesFlattenedTabPositions: !vendsChildren && actualTabBar == nil && traits.contains(.tabBar),
             anchorsVendedGroups: !vendsChildren && traits.contains(.tabBar),
             tabBarItemContexts: actualTabBar.map { captureTabBarItems(in: $0) },
