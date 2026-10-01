@@ -1,84 +1,90 @@
-import AccessibilitySnapshotCore
-import AccessibilitySnapshotParser_ObjC
-import SnapshotTesting
-import SwiftUI
-import UIKit
+// See the note in SnapshotTesting+Accessibility.swift: swift-snapshot-testing's UIKit image strategies are iOS/tvOS
+// only, so these strategies are as well.
+#if os(iOS) || os(tvOS)
 
-public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
-    /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
-    /// approximation of the description that VoiceOver will read for each element.
-    static var accessibilityImage: Snapshotting {
-        return .accessibilityImage()
+    import AccessibilitySnapshotCore
+    import AccessibilitySnapshotParser_ObjC
+    import SnapshotTesting
+    import SwiftUI
+    import UIKit
+
+    public extension Snapshotting where Value: SwiftUI.View, Format == UIImage {
+        /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
+        /// approximation of the description that VoiceOver will read for each element.
+        static var accessibilityImage: Snapshotting {
+            return .accessibilityImage()
+        }
+
+        /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
+        /// approximation of the description that VoiceOver will read for each element.
+        ///
+        /// - parameter size: The size of the snapshotted view. Note this size does not include the legend. Pass `nil` to
+        /// use the view's size that fits.
+        /// - parameter showActivationPoints: When to show indicators for elements' accessibility activation points.
+        /// Defaults to showing activation points only when they are different than the default activation point for that
+        /// element.
+        /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the view should be monochrome. Using a
+        /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
+        /// read certain views. Defaults to `true`.
+        /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
+        /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
+        /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays.
+        /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
+        /// Control).
+        /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+        /// while a value of `0.95` means that 95% of pixels must match.
+        /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+        /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
+        static func accessibilityImage(
+            size: CGSize? = nil,
+            showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
+            useMonochromeSnapshot: Bool = true,
+            drawHierarchyInKeyWindow: Bool = false,
+            markerColors: [UIColor] = [],
+            showUserInputLabels: Bool = true,
+            shouldRunInHostApplication: Bool = true,
+            precision: Float = 1,
+            perceptualPrecision: Float = 1
+        ) -> Snapshotting {
+            return Snapshotting<UIViewController, UIImage>
+                .accessibilityImage(
+                    showActivationPoints: activationPointDisplayMode,
+                    useMonochromeSnapshot: useMonochromeSnapshot,
+                    drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
+                    markerColors: markerColors,
+                    showUserInputLabels: showUserInputLabels,
+                    shouldRunInHostApplication: shouldRunInHostApplication,
+                    precision: precision,
+                    perceptualPrecision: perceptualPrecision
+                )
+                .pullback { (view: Value) in
+                    let hostingController = UIHostingController(rootView: view)
+                    hostingController.view.bounds.size = size ?? hostingController.sizeThatFits(in: .zero)
+                    return hostingController
+                }
+        }
+
+        /// Snapshots the view simulating the way it will appear with Smart Invert Colors enabled.
+        static var imageWithSmartInvert: Snapshotting {
+            return .imageWithSmartInvert()
+        }
+
+        /// Snapshots the view simulating the way it will appear with Smart Invert Colors enabled.
+        ///
+        /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
+        /// while a value of `0.95` means that 95% of pixels must match.
+        /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
+        /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
+        static func imageWithSmartInvert(
+            precision: Float = 1,
+            perceptualPrecision: Float = 1
+        ) -> Snapshotting {
+            return Snapshotting<UIViewController, UIImage>
+                .imageWithSmartInvert(precision: precision, perceptualPrecision: perceptualPrecision)
+                .pullback { (view: Value) in
+                    UIHostingController(rootView: view)
+                }
+        }
     }
 
-    /// Snapshots the current view with colored overlays of each accessibility element it contains, as well as an
-    /// approximation of the description that VoiceOver will read for each element.
-    ///
-    /// - parameter size: The size of the snapshotted view. Note this size does not include the legend. Pass `nil` to
-    /// use the view's size that fits.
-    /// - parameter showActivationPoints: When to show indicators for elements' accessibility activation points.
-    /// Defaults to showing activation points only when they are different than the default activation point for that
-    /// element.
-    /// - parameter useMonochromeSnapshot: Whether or not the snapshot of the view should be monochrome. Using a
-    /// monochrome snapshot makes it more clear where the highlighted elements are, but may make it difficult to
-    /// read certain views. Defaults to `true`.
-    /// - parameter drawHierarchyInKeyWindow: Whether or not to draw the view hierachy in the key window, rather than
-    /// rendering the view's layer. This enables the rendering of `UIAppearance` and `UIVisualEffect`s.
-    /// - parameter markerColors: The array of colors which will be chosen from when creating the overlays.
-    /// - parameter showUserInputLabels: Controls when to show elements' accessibility user input labels (used by Voice
-    /// Control).
-    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
-    /// while a value of `0.95` means that 95% of pixels must match.
-    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
-    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
-    static func accessibilityImage(
-        size: CGSize? = nil,
-        showActivationPoints activationPointDisplayMode: AccessibilityContentDisplayMode = .whenOverridden,
-        useMonochromeSnapshot: Bool = true,
-        drawHierarchyInKeyWindow: Bool = false,
-        markerColors: [UIColor] = [],
-        showUserInputLabels: Bool = true,
-        shouldRunInHostApplication: Bool = true,
-        precision: Float = 1,
-        perceptualPrecision: Float = 1
-    ) -> Snapshotting {
-        return Snapshotting<UIViewController, UIImage>
-            .accessibilityImage(
-                showActivationPoints: activationPointDisplayMode,
-                useMonochromeSnapshot: useMonochromeSnapshot,
-                drawHierarchyInKeyWindow: drawHierarchyInKeyWindow,
-                markerColors: markerColors,
-                showUserInputLabels: showUserInputLabels,
-                shouldRunInHostApplication: shouldRunInHostApplication,
-                precision: precision,
-                perceptualPrecision: perceptualPrecision
-            )
-            .pullback { (view: Value) in
-                let hostingController = UIHostingController(rootView: view)
-                hostingController.view.bounds.size = size ?? hostingController.sizeThatFits(in: .zero)
-                return hostingController
-            }
-    }
-
-    /// Snapshots the view simulating the way it will appear with Smart Invert Colors enabled.
-    static var imageWithSmartInvert: Snapshotting {
-        return .imageWithSmartInvert()
-    }
-
-    /// Snapshots the view simulating the way it will appear with Smart Invert Colors enabled.
-    ///
-    /// - parameter precision: The percentage of pixels that must match. A value of `1` means all pixels must match,
-    /// while a value of `0.95` means that 95% of pixels must match.
-    /// - parameter perceptualPrecision: The percentage a pixel must match the source pixel to be considered a match.
-    /// `1` means the pixel must match exactly, while `0.98` means the pixel must be within 2% of the source pixel.
-    static func imageWithSmartInvert(
-        precision: Float = 1,
-        perceptualPrecision: Float = 1
-    ) -> Snapshotting {
-        return Snapshotting<UIViewController, UIImage>
-            .imageWithSmartInvert(precision: precision, perceptualPrecision: perceptualPrecision)
-            .pullback { (view: Value) in
-                UIHostingController(rootView: view)
-            }
-    }
-}
+#endif

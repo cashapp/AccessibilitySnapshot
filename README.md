@@ -137,8 +137,17 @@ You can also run accessibility snapshot tests from Objective-C:
 
 ## Requirements
 
-* Xcode 13.2.1 or later
+* Xcode 15.0 or later (the package requires Swift tools 5.9)
 * iOS 13.0 or later
+
+The `AccessibilitySnapshotParser`, `AccessibilitySnapshotCore`, and
+`AccessibilitySnapshotPreviews` products also build for visionOS 1.0 or later, so the
+hierarchy parsing and legend rendering can be used there directly. The
+`AccessibilitySnapshot` product's `Snapshotting` strategies are available on iOS only, since
+[swift-snapshot-testing](https://github.com/pointfreeco/swift-snapshot-testing) vends its
+UIKit image strategies on iOS and tvOS only. The `FBSnapshotTestCase-Accessibility` products
+are iOS only, as
+[ios-snapshot-test-case](https://github.com/uber/ios-snapshot-test-case) supports iOS only.
 
 ## Contributing
 
