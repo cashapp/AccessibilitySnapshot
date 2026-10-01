@@ -36,6 +36,8 @@ public final class AccessibilityHierarchyParser {
 
     /// Parses the accessibility hierarchy starting from the `root` view and returns markers for each element in the
     /// hierarchy, in the order VoiceOver will iterate through them when using flick navigation.
+    /// Offscreen elements are omitted for snapshot compatibility. Use `parseAccessibilityHierarchy`
+    /// to capture the full hierarchy, including visibility metadata.
     ///
     /// The returned `AccessibilityElement` objects include user input labels that are displayed based on the
     /// `AccessibilityContentDisplayMode` configuration set in the snapshot testing methods:
@@ -62,7 +64,7 @@ public final class AccessibilityHierarchyParser {
             rotorResultLimit: rotorResultLimit,
             userInterfaceLayoutDirectionProvider: userInterfaceLayoutDirectionProvider,
             userInterfaceIdiomProvider: userInterfaceIdiomProvider
-        ).flattenToElements()
+        ).flattenToElements().filter { $0.visibility == .onscreen }
     }
 
     /// Parses the accessibility hierarchy starting from the `root` view and returns a tree structure
@@ -72,14 +74,14 @@ public final class AccessibilityHierarchyParser {
     /// tracks containers (semanticGroup, list, landmark, dataTable, tabBar) and nests elements within them.
     ///
     /// Container inclusion rules based on captured facts:
-    /// - A container must have at least one accessible descendant to form a navigable boundary.
+    /// - A container must have at least one accessible descendant to be included.
     /// - Any non-`.none` container role is included when it has descendants.
     /// - A `.none` container is included when it has descendants and an identifier, scrollable
     ///   content, a modal boundary, custom actions, or a tab-bar trait.
     /// - A `.none` container without any captured facts is transparent.
     ///
     /// Each element node includes a `traversalIndex` indicating its position in VoiceOver's navigation order.
-    /// Use `flattenToElements()` on the result to get the same output as `parseAccessibilityElements`.
+    /// `flattenToElements()` includes offscreen elements; filter by `.onscreen` visibility for snapshot delivery.
     ///
     /// - parameter root: The root view of the accessibility hierarchy
     /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction.
@@ -106,11 +108,9 @@ public final class AccessibilityHierarchyParser {
 
     /// Parses the accessibility hierarchy and folds it into a caller-defined node type.
     ///
-    /// Walks the accessibility tree once in VoiceOver traversal order and builds a tree of `Node`
-    /// values bottom-up. `makeElement` constructs a leaf from its parsed `AccessibilityElement`, its
-    /// `traversalIndex`, and the live accessibility object that produced it. `makeContainer`
-    /// constructs an interior node from its `AccessibilityContainer`, its already-built child nodes
-    /// in traversal order, and the source object backing the container.
+    /// `makeElement` builds leaves in VoiceOver traversal order. `makeContainer` then builds
+    /// containers bottom-up from their already-built children. Structural ownership is retained
+    /// even when a container's leaves interleave with sibling leaves in navigation order.
     ///
     /// The `source` parameters expose the originating accessibility object so callers can correlate
     /// parsed markers back to their source views — useful for test harnesses, debugging overlays,
@@ -133,18 +133,31 @@ public final class AccessibilityHierarchyParser {
         let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
 
         let capturedNodes = root.recursiveAccessibilityHierarchy(in: root, isRoot: true)
-        let orderedNodes = sortedNodes(
+        let navigationNodes = sortedNodes(
             capturedNodes,
             explicitlyOrdered: false,
             in: root,
             userInterfaceLayoutDirection: userInterfaceLayoutDirection,
             userInterfaceIdiom: userInterfaceIdiom
         )
-        let preparedNodes = prepareNodes(orderedNodes)
-        let elements = buildElements(for: preparedNodes, in: root, rotorResultLimit: rotorResultLimit)
+        let capturedElements = navigationNodes.flatMap { $0.capturedElements }
+        for (index, element) in capturedElements.enumerated() {
+            element.traversalIndex = index
+        }
+        let preparedNodes = prepareNodes(orderedOutputNodes(capturedNodes))
+        let elements = capturedElements.map { element in
+            buildElement(
+                from: element.object,
+                context: element.context,
+                in: root,
+                rotorResultLimit: rotorResultLimit,
+                visibility: element.visibility
+            )
+        }
 
         return foldNodes(
             preparedNodes,
+            capturedElements: capturedElements,
             elements: elements,
             makeElement: makeElement,
             makeContainer: makeContainer
@@ -170,7 +183,7 @@ public final class AccessibilityHierarchyParser {
             traits: AccessibilityTraits(object.accessibilityTraits),
             identifier: object.identifier,
             hint: hint,
-            userInputLabels: object.authoredUserInputLabels,
+            userInputLabels: object.accessibilityUserInputLabels,
             shape: Self.accessibilityShape(for: object, in: root),
             activationPoint: AccessibilityPoint(root.convert(activationPoint, from: nil)),
             usesDefaultActivationPoint: Self.usesDefaultActivationPoint(
@@ -188,7 +201,7 @@ public final class AccessibilityHierarchyParser {
         )
     }
 
-    /// Orders the captured tree without flattening vended-child boundaries.
+    /// Orders navigation groups, projecting through metadata-only containers.
     private func sortedNodes(
         _ nodes: [AccessibilityNode],
         explicitlyOrdered: Bool,
@@ -213,7 +226,8 @@ public final class AccessibilityHierarchyParser {
             horizontalCompare = (<)
         }
         let minimumVerticalSeparation = userInterfaceIdiom == .phone ? 8.0 : 13.0
-        let ordered = explicitlyOrdered ? nodes : nodes
+        let navigationNodes = nodes.flatMap { $0.navigationNodes }
+        let ordered = explicitlyOrdered ? navigationNodes : navigationNodes
             .map { ($0, Self.accessibilitySortFrame(
                 for: $0,
                 in: root,
@@ -251,34 +265,61 @@ public final class AccessibilityHierarchyParser {
         }
     }
 
+    private func orderedOutputNodes(_ nodes: [AccessibilityNode], explicitlyOrdered: Bool = false) -> [AccessibilityNode] {
+        let ordered = nodes.map { node -> AccessibilityNode in
+            guard case let .group(children, explicitlyOrdered, frameProvider, info) = node else {
+                return node
+            }
+            return .group(
+                orderedOutputNodes(children, explicitlyOrdered: explicitlyOrdered),
+                explicitlyOrdered: explicitlyOrdered,
+                frameOverrideProvider: frameProvider,
+                container: info
+            )
+        }
+        return explicitlyOrdered ? ordered : ordered.sorted { $0.firstTraversalIndex < $1.firstTraversalIndex }
+    }
+
     /// Derives context and resolves container payloads from ordered tree children.
     private func prepareNodes(
         _ nodes: [AccessibilityNode],
         provider: ContainerInfo? = nil,
-        context: Context? = nil
+        context: Context? = nil,
+        tabContexts: [ObjectIdentifier: Context]? = nil
     ) -> [AccessibilityNode] {
         nodes.map { node in
             switch node {
-            case let .element(object, traits, visibility, _):
-                let capturedContext: Context?
+            case let .element(element):
+                let identity = ObjectIdentifier(element.object)
                 if let cells = provider?.dataTableCells {
-                    capturedContext = cells[ObjectIdentifier(object)]?.context
+                    element.context = cells[identity]?.context
                 } else if let tabs = provider?.tabBarItemContexts {
-                    capturedContext = tabs[ObjectIdentifier(object)]
+                    element.context = tabs[identity]
+                } else if provider?.usesFlattenedTabPositions == true {
+                    element.context = tabContexts?[ObjectIdentifier(element)]
                 } else {
-                    capturedContext = context
+                    element.context = context
                 }
-                return .element(object, traits: traits, visibility: visibility, context: capturedContext)
+                return node
 
             case let .group(children, explicitlyOrdered, frameProvider, capturedInfo):
                 var info = capturedInfo
                 let ownsContext = provider == nil && info?.lendsContext == true
                 let childProvider = provider ?? info.flatMap { $0.lendsContext ? $0 : nil }
+                var childTabContexts = tabContexts
+                if ownsContext, info?.usesFlattenedTabPositions == true {
+                    let tabs = children.flatMap { $0.capturedElements }.sorted { $0.traversalIndex < $1.traversalIndex }
+                    childTabContexts = [:]
+                    for (index, tab) in tabs.enumerated() where tab.object is UIView {
+                        childTabContexts?[ObjectIdentifier(tab)] = .tab(index: index + 1, count: tabs.count)
+                    }
+                }
                 let preparedChildren = children.enumerated().flatMap { index, child in
                     prepareNodes(
                         [child],
                         provider: childProvider,
-                        context: ownsContext ? info?.context(at: index, count: children.count) : context
+                        context: ownsContext ? info?.context(at: index, count: children.count) : context,
+                        tabContexts: childTabContexts
                     )
                 }
                 if let captured = info,
@@ -320,35 +361,21 @@ public final class AccessibilityHierarchyParser {
         }
     }
 
-    private func buildElements(
-        for nodes: [AccessibilityNode],
-        in root: UIView,
-        rotorResultLimit: Int
-    ) -> [AccessibilityElement] {
-        nodes.flatMap { node in
-            switch node {
-            case let .element(object, _, visibility, context):
-                return [buildElement(from: object, context: context, in: root, rotorResultLimit: rotorResultLimit, visibility: visibility)]
-            case let .group(children, _, _, _):
-                return buildElements(for: children, in: root, rotorResultLimit: rotorResultLimit)
-            }
-        }
-    }
-
     /// Folds the prepared tree without querying its source objects again.
     private func foldNodes<Node>(
         _ nodes: [AccessibilityNode],
+        capturedElements: [CapturedElement],
         elements: [AccessibilityElement],
         makeElement: (AccessibilityElement, _ traversalIndex: Int, _ source: NSObject) -> Node,
         makeContainer: (AccessibilityContainer, _ children: [Node], _ source: NSObject) -> Node
     ) -> [Node] {
-        var traversalIndex = 0
+        let elementNodes = capturedElements.enumerated().map { index, element in
+            makeElement(elements[index], index, element.object)
+        }
         func mapNode(_ node: AccessibilityNode) -> [Node] {
             switch node {
-            case let .element(object, _, _, _):
-                let index = traversalIndex
-                traversalIndex += 1
-                return [makeElement(elements[index], index, object)]
+            case let .element(element):
+                return [elementNodes[element.traversalIndex]]
             case let .group(children, _, _, info):
                 let mappedChildren = children.flatMap { mapNode($0) }
                 if let info, let container = info.container {
@@ -458,8 +485,8 @@ private extension AccessibilityHierarchyParser {
         provider: ContainerInfo? = nil
     ) -> CGRect {
         switch node {
-        case let .element(object, _, _, _):
-            return sortFrame(for: object, in: root)
+        case let .element(element):
+            return sortFrame(for: element.object, in: root)
         case let .group(children, _, frameProvider, info):
             if let frameProvider, provider?.anchorsVendedGroups == true {
                 return sortFrame(for: frameProvider, in: root)
@@ -546,6 +573,8 @@ private struct ContainerInfo {
     let role: AccessibilityContainer.ContainerType
     let traits: UIAccessibilityTraits
     let lendsContext: Bool
+    let formsNavigationBoundary: Bool
+    let usesFlattenedTabPositions: Bool
     let anchorsVendedGroups: Bool
     let tabBarItemContexts: [ObjectIdentifier: AccessibilityContext]?
     let dataTableCells: [ObjectIdentifier: CapturedDataTableCell]?
@@ -573,12 +602,45 @@ private struct CapturedDataTableCell {
     let columnHeaderSources: [ObjectIdentifier]
 }
 
-private enum AccessibilityNode {
-    /// An accessibility element with its screen visibility captured at parse time.
-    case element(NSObject, traits: UIAccessibilityTraits, visibility: ScreenVisibility, context: AccessibilityContext?)
+private final class CapturedElement {
+    let object: NSObject
+    let traits: UIAccessibilityTraits
+    let visibility: ScreenVisibility
+    var context: AccessibilityContext?
+    var traversalIndex = 0
 
-    /// A traversal group. Transparent vended-child groups also retain empty child positions.
+    init(object: NSObject, traits: UIAccessibilityTraits, visibility: ScreenVisibility) {
+        self.object = object
+        self.traits = traits
+        self.visibility = visibility
+    }
+}
+
+private enum AccessibilityNode {
+    case element(CapturedElement)
+
+    /// Structural groups retain output ownership even when transparent to navigation.
     case group([AccessibilityNode], explicitlyOrdered: Bool, frameOverrideProvider: NSObject?, container: ContainerInfo?)
+
+    var navigationNodes: [AccessibilityNode] {
+        if case let .group(children, _, _, info) = self, info?.formsNavigationBoundary == false {
+            return children.flatMap { $0.navigationNodes }
+        }
+        return [self]
+    }
+
+    var capturedElements: [CapturedElement] {
+        switch self {
+        case let .element(element):
+            return [element]
+        case let .group(children, _, _, _):
+            return children.flatMap { $0.capturedElements }
+        }
+    }
+
+    var firstTraversalIndex: Int {
+        capturedElements.map { $0.traversalIndex }.min() ?? Int.max
+    }
 
     var containsAccessibleElement: Bool {
         switch self {
@@ -591,8 +653,8 @@ private enum AccessibilityNode {
 
     var emittedSources: [NSObject] {
         switch self {
-        case let .element(object, _, _, _):
-            return [object]
+        case let .element(element):
+            return [element.object]
         case let .group(children, _, _, info):
             if let info, info.container != nil {
                 return [info.source]
@@ -603,8 +665,8 @@ private enum AccessibilityNode {
 
     var capturedSources: [NSObject] {
         switch self {
-        case let .element(object, _, _, _):
-            return [object]
+        case let .element(element):
+            return [element.object]
         case let .group(children, _, _, info):
             return (info.map { [$0.source] } ?? []) + children.flatMap { $0.capturedSources }
         }
@@ -612,8 +674,8 @@ private enum AccessibilityNode {
 
     var emittedTabBarItem: Bool {
         switch self {
-        case let .element(_, traits, _, _):
-            return traits.contains(.tabBarItemTrait)
+        case let .element(element):
+            return element.traits.contains(.tabBarItemTrait)
         case let .group(children, _, _, info):
             if let info, info.container != nil {
                 return info.traits.contains(.tabBarItemTrait)
@@ -690,7 +752,7 @@ private extension NSObject {
                 }
             }
             recursiveAccessibilityHierarchy.append(
-                .element(self, traits: accessibilityTraits, visibility: isOffscreen ? .offscreen : .onscreen, context: nil)
+                .element(CapturedElement(object: self, traits: accessibilityTraits, visibility: isOffscreen ? .offscreen : .onscreen))
             )
 
         } else if let accessibilityElements = resolvedAccessibilityElements(
@@ -753,14 +815,9 @@ private extension NSObject {
             ))
 
         } else if let `self` = self as? UIView {
-            // If there is at least one modal subview, parse from the last modal
-            // subview forward. UIKit popovers can expose an empty modal dismiss
-            // region as a sibling before the actual popover controls; limiting
-            // traversal to only that dismiss region drops the presented content.
-            // Siblings before the modal marker remain background content.
             let subviewsToParse: [UIView]
-            if let lastModalIndex = self.subviews.lastIndex(where: { $0.accessibilityViewIsModal }) {
-                subviewsToParse = Array(self.subviews[lastModalIndex...])
+            if let lastModalView = self.subviews.last(where: { $0.accessibilityViewIsModal }) {
+                subviewsToParse = [lastModalView]
             } else {
                 subviewsToParse = self.subviews
             }
@@ -865,7 +922,7 @@ private extension NSObject {
         let dataTable = type == .dataTable ? self as? UIAccessibilityContainerDataTable : nil
         let actualTabBar = self as? UITabBar
         let role: AccessibilityContainer.ContainerType
-        if traits.contains(.tabBar) || children.contains(where: { $0.emittedTabBarItem }) {
+        if traits.contains(.tabBar) || actualTabBar != nil {
             role = .tabBar
         } else if type == .segmentedControlContainerType || self is UISegmentedControl {
             role = .series
@@ -884,7 +941,7 @@ private extension NSObject {
                     cells: []
                 )
             case .none:
-                role = actualTabBar == nil ? .none : .tabBar
+                role = actualTabBar != nil || children.contains(where: { $0.emittedTabBarItem }) ? .tabBar : .none
             @unknown default:
                 role = .none
             }
@@ -922,7 +979,11 @@ private extension NSObject {
             role: role,
             traits: traits,
             lendsContext: lendsContext,
-            anchorsVendedGroups: traits.contains(.tabBar),
+            formsNavigationBoundary: vendsChildren || shouldGroupAccessibilityChildren
+                || traits.contains(.tabBar) || type == .list || type == .landmark || type == .dataTable
+                || (type == .semanticGroup && (accessibilityLabel != nil || accessibilityValue != nil || identifier != nil)),
+            usesFlattenedTabPositions: !vendsChildren && actualTabBar == nil && traits.contains(.tabBar),
+            anchorsVendedGroups: !vendsChildren && traits.contains(.tabBar),
             tabBarItemContexts: actualTabBar.map { captureTabBarItems(in: $0) },
             dataTableCells: dataTable.map { captureDataTableCells(in: $0, sources: children.flatMap { $0.capturedSources }) },
             container: container
@@ -1133,25 +1194,6 @@ private extension NSObject {
         accessibilityCustomRotors?.compactMap {
             .init(from: $0, parentElement: self, root: root, context: context, resultLimit: resultLimit)
         } ?? []
-    }
-
-    /// The Voice Control input labels the app *authored*, excluding UIKit's derived label echo.
-    ///
-    /// When an element has no explicitly-set input labels, UIKit's Voice Control fallback synthesizes
-    /// `[accessibilityLabel]` — an echo that is byte-identical, for targeting purposes, to setting
-    /// nothing (you can already target the element by speaking its label). Some classes (e.g.
-    /// `UITableViewCell` via its axbundle) surface this echo even through the private "raw" attributed
-    /// getter, so the only reliable signal that input labels are a real authorial override is that
-    /// they differ from the label itself. Suppress the single-element `[label]` echo; keep anything
-    /// that adds alternative phrasings.
-    var authoredUserInputLabels: [String]? {
-        guard let labels = accessibilityUserInputLabels, !labels.isEmpty else {
-            return nil
-        }
-        if labels.count == 1, labels.first == accessibilityLabel {
-            return nil
-        }
-        return labels
     }
 
     var identifier: String? {

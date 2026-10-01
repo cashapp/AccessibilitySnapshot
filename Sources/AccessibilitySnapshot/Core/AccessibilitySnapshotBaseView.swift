@@ -100,7 +100,7 @@ open class AccessibilitySnapshotBaseView: SnapshotAndLegendView {
         let markers = parser.parseAccessibilityHierarchy(
             in: containedView,
             rotorResultLimit: snapshotConfiguration.rotors.resultLimit
-        ).flattenToElements()
+        ).flattenToElements().filter { $0.visibility == .onscreen }
 
         let parsedData = ParsedAccessibilityData(
             image: image,
