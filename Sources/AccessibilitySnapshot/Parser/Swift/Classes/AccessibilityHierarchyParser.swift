@@ -224,7 +224,7 @@ public final class AccessibilityHierarchyParser {
             horizontalCompare = (<)
         }
         let minimumVerticalSeparation = userInterfaceIdiom == .phone ? 8.0 : 13.0
-        let navigationNodes = nodes.flatMap { $0.navigationNodes }
+        let navigationNodes = explicitlyOrdered ? nodes : nodes.flatMap { $0.navigationNodes }
         let ordered = explicitlyOrdered ? navigationNodes : navigationNodes
             .map { ($0, Self.accessibilitySortFrame(
                 for: $0,

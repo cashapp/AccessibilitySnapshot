@@ -1,4 +1,4 @@
-@testable import AccessibilitySnapshotCore
+@_spi(Rendering) @testable import AccessibilitySnapshotCore
 @testable import AccessibilitySnapshotParser
 import UIKit
 import XCTest
@@ -1069,6 +1069,141 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             .tab(index: 1, count: 2), .tab(index: 1, count: 2),
             .tab(index: 2, count: 2), .tab(index: 2, count: 2),
         ])
+    }
+
+    func testVendedMetadataGroupSortsItsSubviews() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 200))
+        let group = UIView(frame: root.bounds)
+        group.accessibilityContainerType = .semanticGroup
+        root.addSubview(group)
+        for (label, y) in [("Bottom", 100), ("Top", 0)] {
+            let leaf = UIView(frame: CGRect(x: 0, y: y, width: 100, height: 30))
+            leaf.isAccessibilityElement = true
+            leaf.accessibilityLabel = label
+            leaf.accessibilityFrame = leaf.frame
+            group.addSubview(leaf)
+        }
+        root.accessibilityElements = [group]
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: root)
+        XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, ["Top", "Bottom"])
+    }
+
+    func testVendedMetadataGroupsKeepParentOrderAndSortNestedSubviews() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 300))
+        var groups: [UIView] = []
+        for (name, top, bottom) in [("First", 100, 200), ("Last", 0, 250)] {
+            let group = UIView(frame: root.bounds)
+            group.accessibilityContainerType = .semanticGroup
+            let nested = UIView(frame: root.bounds)
+            nested.accessibilityContainerType = .semanticGroup
+            group.addSubview(nested)
+            root.addSubview(group)
+            for (parent, label, y) in [(nested, "\(name) Bottom", bottom), (group, "\(name) Top", top)] {
+                let leaf = UIView(frame: CGRect(x: 0, y: y, width: 100, height: 30))
+                leaf.isAccessibilityElement = true
+                leaf.accessibilityLabel = label
+                leaf.accessibilityFrame = leaf.frame
+                parent.addSubview(leaf)
+            }
+            groups.append(group)
+        }
+        let middle = UIView(frame: CGRect(x: 0, y: 50, width: 100, height: 30))
+        middle.isAccessibilityElement = true
+        middle.accessibilityLabel = "Middle"
+        middle.accessibilityFrame = middle.frame
+        root.addSubview(middle)
+        root.accessibilityElements = [groups[0], middle, groups[1]]
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: root)
+        XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, [
+            "First Top", "First Bottom", "Middle", "Last Top", "Last Bottom",
+        ])
+    }
+
+    func testDefaultTableCellInputLabelEchoIsHiddenWhenOverridden() throws {
+        let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
+        cell.frame = CGRect(x: 0, y: 0, width: 200, height: 44)
+        cell.isAccessibilityElement = true
+        cell.accessibilityLabel = "Row label"
+        let marker = try XCTUnwrap(AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: cell).flattenToElements().first)
+        XCTAssertEqual(marker.userInputLabels, ["Row label"])
+        let legend = AccessibilitySnapshotView.LegendView(
+            marker: marker,
+            fillColor: .red,
+            configuration: .init(viewRenderingMode: .renderLayerInContext, includesInputLabels: .whenOverridden)
+        )
+        XCTAssertFalse(legend.subviews.contains { $0 is AccessibilitySnapshotView.PillsView })
+    }
+
+    func testInputLabelDisplayModes() throws {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 30))
+        view.isAccessibilityElement = true
+        view.accessibilityLabel = "Row label"
+        view.accessibilityRespondsToUserInteraction = true
+        for (labels, expectedOverrides) in [
+            (["Row label"], []),
+            (["Select row"], ["Select row"]),
+            (["Row label", "Select row"], ["Row label", "Select row"]),
+        ] {
+            view.accessibilityUserInputLabels = labels
+            let marker = try XCTUnwrap(AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: view).flattenToElements().first)
+            XCTAssertEqual(marker.userInputLabels, labels)
+            XCTAssertEqual(marker.displayInputLabels(.always), labels)
+            XCTAssertEqual(marker.displayInputLabels(.whenOverridden), expectedOverrides)
+            XCTAssertEqual(marker.displayInputLabels(.never), [])
+        }
+        view.accessibilityRespondsToUserInteraction = false
+        view.accessibilityUserInputLabels = ["Select row"]
+        let noninteractive = try XCTUnwrap(AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: view).flattenToElements().first)
+        XCTAssertEqual(noninteractive.displayInputLabels(.whenOverridden), [])
+        XCTAssertEqual(noninteractive.displayInputLabels(.always), ["Select row"])
+    }
+
+    func testAlwaysInputLabelsUsesDefaultWordsAndTraits() throws {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 30))
+        view.isAccessibilityElement = true
+        view.accessibilityLabel = "Volume control"
+        view.accessibilityTraits = [.button, .adjustable]
+        view.accessibilityLanguage = "en-US"
+        for labels: [String]? in [nil, []] {
+            view.accessibilityUserInputLabels = labels
+            let marker = try XCTUnwrap(AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: view).flattenToElements().first)
+            XCTAssertEqual(marker.displayInputLabels(.always), ["Volume", "control", "Button.", "Adjustable."])
+            XCTAssertEqual(marker.displayInputLabels(.whenOverridden), [])
+            XCTAssertEqual(marker.displayInputLabels(.never), [])
+        }
+    }
+
+    func testUIKitLegendInputLabelDisplayModes() throws {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 30))
+        view.isAccessibilityElement = true
+        view.accessibilityLabel = "Label"
+        view.accessibilityRespondsToUserInteraction = true
+        for (labels, mode, showsPills) in [
+            (["Label"], AccessibilityContentDisplayMode.whenOverridden, false),
+            (["Label"], .always, true),
+            (["Custom"], .whenOverridden, true),
+            (["Custom"], .never, false),
+        ] {
+            view.accessibilityUserInputLabels = labels
+            let marker = try XCTUnwrap(AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: view).flattenToElements().first)
+            let legend = AccessibilitySnapshotView.LegendView(
+                marker: marker,
+                fillColor: .red,
+                configuration: .init(viewRenderingMode: .renderLayerInContext, includesInputLabels: mode)
+            )
+            XCTAssertEqual(legend.subviews.contains { $0 is AccessibilitySnapshotView.PillsView }, showsPills)
+        }
+    }
+
+    func testAuthoredInputLabelEchoIsPreservedByParser() throws {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 30))
+        view.isAccessibilityElement = true
+        view.accessibilityLabel = "Label"
+        view.accessibilityUserInputLabels = ["Label"]
+        let marker = try XCTUnwrap(AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: view).flattenToElements().first)
+        XCTAssertEqual(marker.userInputLabels, ["Label"])
     }
 
     func testMetadataContainersPreserveInterleavedNavigationOrder() {
