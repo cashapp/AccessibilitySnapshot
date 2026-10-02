@@ -28,14 +28,6 @@ public struct AccessibilitySnapshotView<Content: View>: View {
         self.renderSize = renderSize ?? UIScreen.main.bounds.size
     }
 
-    private var showUserInputLabels: Bool {
-        configuration.inputLabelDisplayMode != .never
-    }
-
-    private var showUnspokenTraits: Bool {
-        configuration.showsUnspokenTraits
-    }
-
     public var body: some View {
         VStack(spacing: 0) {
             if let snapshotImage = snapshotImage {
@@ -47,8 +39,7 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             LegendView(
                 markers: markers,
                 palette: palette,
-                showUserInputLabels: showUserInputLabels,
-                showUnspokenTraits: showUnspokenTraits
+                configuration: configuration
             )
             .frame(width: renderSize.width)
         }
@@ -183,14 +174,6 @@ public struct PreParsedAccessibilitySnapshotView: View {
         self.renderSize = renderSize
     }
 
-    private var showUserInputLabels: Bool {
-        configuration.inputLabelDisplayMode != .never
-    }
-
-    private var showUnspokenTraits: Bool {
-        configuration.showsUnspokenTraits
-    }
-
     private var legendOnRight: Bool {
         let aspectRatio = renderSize.width / renderSize.height
         // Match UIKit's legendLocation logic exactly:
@@ -225,8 +208,7 @@ public struct PreParsedAccessibilitySnapshotView: View {
                 LegendView(
                     markers: markers,
                     palette: palette,
-                    showUserInputLabels: showUserInputLabels,
-                    showUnspokenTraits: showUnspokenTraits
+                    configuration: configuration
                 )
                 .frame(width: contentWidth)
             }
@@ -251,8 +233,7 @@ public struct PreParsedAccessibilitySnapshotView: View {
                     index: index,
                     marker: markers[index],
                     palette: palette,
-                    showUserInputLabels: showUserInputLabels,
-                    showUnspokenTraits: showUnspokenTraits
+                    configuration: configuration
                 )
             }
         }

@@ -34,6 +34,7 @@ private struct LongLegendTextDemo: View {
 
             row(label: "Mark 4", value: "$20")
                 .accessibilityInputLabels(["A really long user input label that needs to wrap", "Mark four"])
+                .accessibilityRespondsToUserInteraction(true)
         }
         .padding()
     }
