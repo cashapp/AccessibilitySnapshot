@@ -7,19 +7,28 @@ import XCTest
 
 @available(iOS 16.0, *)
 final class SwiftUIInputLabelTests: XCTestCase {
-    func testLegendEntryUsesInputLabelDisplayMode() throws {
-        let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 30))
-        view.isAccessibilityElement = true
-        view.accessibilityLabel = "Label"
-        view.accessibilityRespondsToUserInteraction = true
-        for (labels, mode, expected) in [
-            (["Label"], AccessibilityContentDisplayMode.whenOverridden, []),
-            (["Label"], .always, ["Label"]),
-            (["Custom"], .whenOverridden, ["Custom"]),
-            (["Custom"], .never, []),
+    func testLegendEntryHidesInputLabelEchoWhenOverridden() {
+        let marker = AccessibilityMarker(
+            description: "Label",
+            label: "Label",
+            value: nil,
+            traits: [],
+            identifier: nil,
+            hint: nil,
+            userInputLabels: ["Label"],
+            shape: .frame(.zero),
+            activationPoint: .zero,
+            usesDefaultActivationPoint: true,
+            customActions: [],
+            customContent: [],
+            customRotors: [],
+            accessibilityLanguage: "en-US",
+            respondsToUserInteraction: true
+        )
+        for (mode, expected) in [
+            (AccessibilityContentDisplayMode.whenOverridden, []),
+            (.always, ["Label"]),
         ] {
-            view.accessibilityUserInputLabels = labels
-            let marker = try XCTUnwrap(AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: view).flattenToElements().first)
             let entry = LegendEntryView(
                 index: 0,
                 marker: marker,
@@ -31,21 +40,38 @@ final class SwiftUIInputLabelTests: XCTestCase {
         }
     }
 
-    func testLegendPreservesInputLabelDisplayMode() {
-        for mode in [AccessibilityContentDisplayMode.always, .whenOverridden, .never] {
-            let configuration = AccessibilitySnapshotConfiguration(
-                viewRenderingMode: .renderLayerInContext,
-                includesInputLabels: mode,
-                showsUnspokenTraits: false
+    @MainActor
+    func testSnapshotRendersFallbackInputLabelsOnlyWhenAlways() {
+        let marker = AccessibilityMarker(
+            description: "Volume control. Button. Adjustable.",
+            label: "Volume control",
+            value: nil,
+            traits: [.button, .adjustable],
+            identifier: nil,
+            hint: nil,
+            userInputLabels: nil,
+            shape: .frame(.zero),
+            activationPoint: .zero,
+            usesDefaultActivationPoint: true,
+            customActions: [],
+            customContent: [],
+            customRotors: [],
+            accessibilityLanguage: "en-US",
+            respondsToUserInteraction: true
+        )
+        let renderSize = CGSize(width: 400, height: 40)
+        let image = UIGraphicsImageRenderer(size: renderSize).image { _ in }
+        let heights = [AccessibilityContentDisplayMode.always, .whenOverridden].map { mode in
+            let snapshot = PreParsedAccessibilitySnapshotView(
+                snapshotImage: image,
+                markers: [marker],
+                configuration: .init(viewRenderingMode: .renderLayerInContext, includesInputLabels: mode, showsUnspokenTraits: false),
+                renderSize: renderSize
             )
-            let configuredLegend = LegendView(markers: [], palette: .default, configuration: configuration)
-            XCTAssertEqual(configuredLegend.inputLabelDisplayMode, mode)
-            XCTAssertFalse(configuredLegend.showUnspokenTraits)
-
-            let legend = LegendView(markers: [], palette: .default, inputLabelDisplayMode: mode)
-            XCTAssertEqual(legend.inputLabelDisplayMode, mode)
-            XCTAssertTrue(legend.showUnspokenTraits)
+            let hosting = UIHostingController(rootView: snapshot)
+            return hosting.sizeThatFits(in: CGSize(width: renderSize.width, height: UIView.layoutFittingExpandedSize.height)).height
         }
+        XCTAssertGreaterThan(heights[0], heights[1])
     }
 }
 
