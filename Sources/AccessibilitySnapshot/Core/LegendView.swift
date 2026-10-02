@@ -245,7 +245,7 @@ extension AccessibilitySnapshotView {
     }
 }
 
-extension AccessibilityMarker {
+extension AccessibilityElement {
     func displayInputLabels(_ mode: AccessibilityContentDisplayMode) -> [String] {
         switch mode {
         case .always:
@@ -272,7 +272,7 @@ extension AccessibilityMarker {
         }
     }
 
-    func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityMarker.CustomRotor] {
+    func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityElement.CustomRotor] {
         switch mode {
         case .always:
             return customRotors
