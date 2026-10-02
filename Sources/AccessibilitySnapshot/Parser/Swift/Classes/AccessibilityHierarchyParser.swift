@@ -834,11 +834,15 @@ private extension NSObject {
         } else if let accessibilityElements = accessibilityElements as? [NSObject] {
             var accessibilityHierarchyOfElements: [AccessibilityNode] = []
             for element in accessibilityElements {
-                accessibilityHierarchyOfElements.append(
-                    contentsOf: element.recursiveAccessibilityHierarchy(
-                        contextProvider: contextProvider ?? (providesContext ? providedContextAsContainer() : nil)
-                    )
+                let children = element.recursiveAccessibilityHierarchy(
+                    contextProvider: contextProvider ?? (providesContext ? providedContextAsContainer() : nil)
                 )
+                accessibilityHierarchyOfElements.append(.group(
+                    children,
+                    explicitlyOrdered: false,
+                    frameOverrideProvider: nil,
+                    container: nil
+                ))
             }
             let container = (self as? UIView).flatMap { containerInfo(for: $0) }
 
