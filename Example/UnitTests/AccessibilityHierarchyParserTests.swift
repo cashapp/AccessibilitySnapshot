@@ -731,6 +731,76 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(elements, ["Cell 1", "Cell 2", "Header"])
     }
 
+    func testAccessibilityElementsSortUngroupedDescendantsWithinParentSlots() {
+        for containerType in [UIAccessibilityContainerType.none, .semanticGroup] {
+            let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 300))
+            let first = UIView(frame: root.bounds)
+            let last = UIView(frame: root.bounds)
+            first.accessibilityContainerType = containerType
+            last.accessibilityContainerType = containerType
+            root.addSubview(first)
+            root.addSubview(last)
+
+            for (parent, label, y) in [
+                (first, "First Bottom", 200), (first, "First Top", 100),
+                (last, "Last Bottom", 250), (last, "Last Top", 0),
+            ] {
+                let leaf = UIView(frame: CGRect(x: 0, y: y, width: 100, height: 30))
+                leaf.isAccessibilityElement = true
+                leaf.accessibilityLabel = label
+                leaf.accessibilityFrame = leaf.frame
+                parent.addSubview(leaf)
+            }
+            let middle = UIView(frame: CGRect(x: 0, y: 50, width: 100, height: 30))
+            middle.isAccessibilityElement = true
+            middle.accessibilityLabel = "Middle"
+            middle.accessibilityFrame = middle.frame
+            root.addSubview(middle)
+            root.accessibilityElements = [first, middle, last]
+
+            XCTAssertEqual(parseMarkers(in: root).map { $0.label }, [
+                "First Top", "First Bottom", "Middle", "Last Top", "Last Bottom",
+            ])
+
+            first.accessibilityElements = first.subviews
+            XCTAssertEqual(parseMarkers(in: root).map { $0.label }, [
+                "First Bottom", "First Top", "Middle", "Last Top", "Last Bottom",
+            ])
+        }
+    }
+
+    func testCollectionViewSectionSubviewsSortWithinExplicitParentSlot() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 300))
+        let collection = UICollectionView(frame: root.bounds, collectionViewLayout: UICollectionViewFlowLayout())
+        collection.isAccessibilityElement = false
+        collection.accessibilityContainerType = .semanticGroup
+        root.addSubview(collection)
+        root.accessibilityElements = [collection]
+
+        // Collection views insert row cells before section supplementary views.
+        for (label, y) in [("First Row", 40), ("Second Row", 160), ("First Header", 0),
+                           ("First Footer", 80), ("Second Header", 120), ("Second Footer", 200)]
+        {
+            let cell = UICollectionViewCell(frame: CGRect(x: 0, y: y, width: 200, height: 30))
+            cell.isAccessibilityElement = false
+            cell.shouldGroupAccessibilityChildren = true
+            let host = UIView(frame: cell.bounds)
+            cell.contentView.addSubview(host)
+            let leaf = UIAccessibilityElement(accessibilityContainer: host)
+            leaf.accessibilityLabel = label
+            leaf.accessibilityFrame = cell.frame
+            host.accessibilityElements = [leaf]
+            collection.addSubview(cell)
+        }
+        XCTAssertNil(collection.accessibilityElements)
+        XCTAssertNil(collection.accessibilityLabel)
+        XCTAssertFalse(collection.shouldGroupAccessibilityChildren)
+
+        XCTAssertEqual(parseMarkers(in: root).map { $0.label }, [
+            "First Header", "First Row", "First Footer", "Second Header", "Second Row", "Second Footer",
+        ])
+    }
+
     /// When accessibilityElements contains direct accessibility elements (not just containers),
     /// the explicit array order should be preserved.
     func testMixedAccessibilityElementsPreserveExplicitOrder() {
