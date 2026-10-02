@@ -22,7 +22,7 @@ extension NSObject {
             switch context {
             case let .dataTableCell(row: row, column: column, width: width, height: height, isFirstInRow: isFirstInRow, rowHeaders: rowHeaders, columnHeaders: columnHeaders):
                 let headersDescription = (rowHeaders + columnHeaders).map { header -> String in
-                    switch (header.accessibilityLabel?.nonEmpty(), header.accessibilityValue?.nonEmpty()) {
+                    switch (header.label?.nonEmpty(), header.value?.nonEmpty()) {
                     case (nil, nil):
                         return ""
                     case let (.some(label), nil):
@@ -176,7 +176,7 @@ extension NSObject {
         if let context = context {
             switch context {
             case let .series(index: index, count: count),
-                 let .tabBarItem(index: index, count: count, item: _),
+                 let .tabBarItem(index: index, count: count),
                  let .tab(index: index, count: count):
                 accessibilityDescription = String(format:
                     strings.seriesContextFormat,
@@ -264,7 +264,7 @@ extension NSObject {
         }
 
         switch context {
-        case .tabBarItem(index: _, count: _, item: _):
+        case .tabBarItem(index: _, count: _):
             return nil
 
         case .series, .tab, .dataTableCell, .listStart, .listEnd, .landmarkStart, .landmarkEnd:
@@ -282,7 +282,7 @@ extension NSObject {
         }
 
         switch context {
-        case .tabBarItem(index: _, count: _, item: _):
+        case .tabBarItem(index: _, count: _):
             return false
 
         case .series, .tab, .dataTableCell, .listStart, .listEnd, .landmarkStart, .landmarkEnd:

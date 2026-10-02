@@ -71,6 +71,11 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
     public let customRotors: [CustomRotor]
     public let accessibilityLanguage: String?
     public let respondsToUserInteraction: Bool
+    public let context: AccessibilityContext?
+
+    /// Whether the element was on screen at parse time. Defaults to `.onscreen`, which is also the
+    /// value used when decoding payloads written before this field existed.
+    public let visibility: ScreenVisibility
 
     // MARK: - Initialization
 
@@ -89,7 +94,9 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         customContent: [CustomContent],
         customRotors: [CustomRotor],
         accessibilityLanguage: String?,
-        respondsToUserInteraction: Bool
+        respondsToUserInteraction: Bool,
+        visibility: ScreenVisibility = .onscreen,
+        context: AccessibilityContext? = nil
     ) {
         self.description = description
         self.label = label
@@ -106,5 +113,97 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         self.customRotors = customRotors
         self.accessibilityLanguage = accessibilityLanguage
         self.respondsToUserInteraction = respondsToUserInteraction
+        self.visibility = visibility
+        self.context = context
+    }
+
+    // MARK: - Codable
+
+    private enum CodingKeys: String, CodingKey {
+        case description
+        case label
+        case value
+        case traits
+        case identifier
+        case hint
+        case userInputLabels
+        case shape
+        case activationPoint
+        case usesDefaultActivationPoint
+        case customActions
+        case customContent
+        case customRotors
+        case accessibilityLanguage
+        case respondsToUserInteraction
+        case visibility
+        case context
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        description = try container.decode(String.self, forKey: .description)
+        label = try container.decodeIfPresent(String.self, forKey: .label)
+        value = try container.decodeIfPresent(String.self, forKey: .value)
+        traits = try container.decode(AccessibilityTraits.self, forKey: .traits)
+        identifier = try container.decodeIfPresent(String.self, forKey: .identifier)
+        hint = try container.decodeIfPresent(String.self, forKey: .hint)
+        userInputLabels = try container.decodeIfPresent([String].self, forKey: .userInputLabels)
+        shape = try container.decode(AccessibilityShape.self, forKey: .shape)
+        activationPoint = try container.decode(AccessibilityPoint.self, forKey: .activationPoint)
+        usesDefaultActivationPoint = try container.decode(Bool.self, forKey: .usesDefaultActivationPoint)
+        customActions = try container.decode([CustomAction].self, forKey: .customActions)
+        customContent = try container.decode([CustomContent].self, forKey: .customContent)
+        customRotors = try container.decode([CustomRotor].self, forKey: .customRotors)
+        accessibilityLanguage = try container.decodeIfPresent(String.self, forKey: .accessibilityLanguage)
+        respondsToUserInteraction = try container.decode(Bool.self, forKey: .respondsToUserInteraction)
+        // Payloads written before visibility was recorded default to `.onscreen`.
+        visibility = try container.decodeIfPresent(ScreenVisibility.self, forKey: .visibility) ?? .onscreen
+        context = try container.decodeIfPresent(AccessibilityContext.self, forKey: .context)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(description, forKey: .description)
+        try container.encodeIfPresent(label, forKey: .label)
+        try container.encodeIfPresent(value, forKey: .value)
+        try container.encode(traits, forKey: .traits)
+        try container.encodeIfPresent(identifier, forKey: .identifier)
+        try container.encodeIfPresent(hint, forKey: .hint)
+        try container.encodeIfPresent(userInputLabels, forKey: .userInputLabels)
+        try container.encode(shape, forKey: .shape)
+        try container.encode(activationPoint, forKey: .activationPoint)
+        try container.encode(usesDefaultActivationPoint, forKey: .usesDefaultActivationPoint)
+        try container.encode(customActions, forKey: .customActions)
+        try container.encode(customContent, forKey: .customContent)
+        try container.encode(customRotors, forKey: .customRotors)
+        try container.encodeIfPresent(accessibilityLanguage, forKey: .accessibilityLanguage)
+        try container.encode(respondsToUserInteraction, forKey: .respondsToUserInteraction)
+        try container.encode(visibility, forKey: .visibility)
+        try container.encodeIfPresent(context, forKey: .context)
+    }
+
+    // MARK: - Copying
+
+    /// Returns a copy with `description` and `hint` replaced, retaining all captured facts.
+    public func withDescription(_ description: String, hint: String?) -> AccessibilityElement {
+        AccessibilityElement(
+            description: description,
+            label: label,
+            value: value,
+            traits: traits,
+            identifier: identifier,
+            hint: hint,
+            userInputLabels: userInputLabels,
+            shape: shape,
+            activationPoint: activationPoint,
+            usesDefaultActivationPoint: usesDefaultActivationPoint,
+            customActions: customActions,
+            customContent: customContent,
+            customRotors: customRotors,
+            accessibilityLanguage: accessibilityLanguage,
+            respondsToUserInteraction: respondsToUserInteraction,
+            visibility: visibility,
+            context: context
+        )
     }
 }

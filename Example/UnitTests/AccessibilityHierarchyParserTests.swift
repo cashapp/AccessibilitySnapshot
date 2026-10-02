@@ -156,6 +156,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let element = ActivationPointTestView(frame: frame)
         element.isAccessibilityElement = true
         element.accessibilityLabel = "Centered"
+        element.accessibilityTraits = .adjustable
+        element.accessibilityHint = "Change the amount"
         element.overriddenFrame = frame
         element.overriddenActivationPoint = CGPoint(x: frame.midX, y: frame.midY)
         container.addSubview(element)
@@ -163,6 +165,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let markers = parseMarkers(in: container)
         XCTAssertEqual(markers.count, 1)
         XCTAssertTrue(markers[0].usesDefaultActivationPoint)
+        XCTAssertEqual(markers[0].hint, element.accessibilityDescription(context: nil).hint)
     }
 
     func testNormalFrameWithCustomActivationPointIsNotDefault() {
@@ -205,7 +208,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         // Verify it's a container with correct label
         if case let .container(containerInfo, children) = hierarchy.first {
-            if case let .semanticGroup(label, _, _) = containerInfo.type {
+            if case let .semanticGroup(label, _) = containerInfo.type {
                 XCTAssertEqual(label, "Group Label")
             } else {
                 XCTFail("Expected semanticGroup container type")
@@ -223,7 +226,11 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         }
     }
 
-    func testSemanticGroupWithoutLabelIsFlattened() {
+    func testSemanticGroupWithoutLabelIsPreserved() {
+        // Container-aware parsing preserves the container node from the graph regardless of whether
+        // it carries a label. (Previously an unlabeled semantic group was flattened away; that made
+        // it the special case against `testListContainerIsAlwaysPreserved`. The graph-derived model
+        // treats all container types consistently.)
         let rootView = UIView(frame: .init(x: 0, y: 0, width: 100, height: 100))
 
         let container = UIView(frame: .init(x: 0, y: 0, width: 100, height: 50))
@@ -240,14 +247,21 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let parser = AccessibilityHierarchyParser()
         let hierarchy = parser.parseAccessibilityHierarchy(in: rootView)
 
-        // Should have one element at root level (container flattened)
+        // One semantic-group container at root, holding the element.
         XCTAssertEqual(hierarchy.count, 1)
 
-        // Verify it's an element, not a container
-        if case let .element(elementInfo, _) = hierarchy.first {
-            XCTAssertEqual(elementInfo.description, "Element")
+        if case let .container(containerInfo, children) = hierarchy.first {
+            guard case .semanticGroup = containerInfo.type else {
+                return XCTFail("Expected a semantic-group container")
+            }
+            XCTAssertEqual(children.count, 1)
+            if case let .element(elementInfo, _) = children.first {
+                XCTAssertEqual(elementInfo.description, "Element")
+            } else {
+                XCTFail("Expected the element inside the preserved container")
+            }
         } else {
-            XCTFail("Expected element at root level (container should be flattened)")
+            XCTFail("Expected a container at root level (should be preserved)")
         }
     }
 
@@ -280,6 +294,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         if case let .container(containerInfo, children) = hierarchy.first {
             XCTAssertEqual(containerInfo.type, .list)
             XCTAssertEqual(children.count, 2)
+            XCTAssertEqual(children.flattenToElements().map { $0.context }, [nil, nil])
         } else {
             XCTFail("Expected list container at root level")
         }
@@ -321,7 +336,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(hierarchy.count, 1)
 
         if case let .container(outerInfo, outerChildren) = hierarchy.first {
-            if case let .semanticGroup(label, _, _) = outerInfo.type {
+            if case let .semanticGroup(label, _) = outerInfo.type {
                 XCTAssertEqual(label, "Outer Container")
             } else {
                 XCTFail("Expected semanticGroup container type for outer")
@@ -345,7 +360,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             }
             XCTAssertEqual(innerContainers.count, 1)
             if let innerContainer = innerContainers.first?.0,
-               case let .semanticGroup(label, _, _) = innerContainer.type
+               case let .semanticGroup(label, _) = innerContainer.type
             {
                 XCTAssertEqual(label, "Inner Container")
             } else {
@@ -373,7 +388,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let containers = hierarchy.flattenToContainers()
         XCTAssertEqual(containers.count, 2)
         let containerLabels = containers.compactMap { container -> String? in
-            if case let .semanticGroup(label, _, _) = container.type { return label }
+            if case let .semanticGroup(label, _) = container.type { return label }
             return nil
         }
         XCTAssertEqual(Set(containerLabels), ["Outer Container", "Inner Container"])
@@ -603,7 +618,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(hierarchy.count, 1)
 
         if case let .container(container, children) = hierarchy.first {
-            if case let .dataTable(rowCount, columnCount) = container.type {
+            if case let .dataTable(rowCount, columnCount, _) = container.type {
                 XCTAssertEqual(rowCount, 5)
                 XCTAssertEqual(columnCount, 4)
             } else {
@@ -613,6 +628,93 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         } else {
             XCTFail("Expected dataTable container")
         }
+    }
+
+    func testDataTableContextCapturesSpansAndNonEmittedHeadersBeforeCallbacks() throws {
+        let table = TestDataTableView(
+            frame: CGRect(x: 0, y: 0, width: 200, height: 100),
+            rows: 4,
+            columns: 5
+        )
+        let first = TestDataTableCell(row: 2, column: 0, label: "First", rowSpan: 2, columnSpan: 2)
+        let second = TestDataTableCell(row: 2, column: 2, label: "Second")
+        for (index, cell) in [first, second].enumerated() {
+            cell.frame = CGRect(x: index * 100, y: 0, width: 90, height: 40)
+            cell.accessibilityFrame = cell.frame
+            table.addSubview(cell)
+            table.cells[CellIndex(row: cell.row, column: cell.column)] = cell
+        }
+        table.accessibilityElements = [first, second]
+
+        let rowHeader = TestDataTableCell(row: 2, column: 4, label: "Region")
+        rowHeader.accessibilityValue = "North"
+        let columnHeader = TestDataTableCell(row: 0, column: 0, label: "Revenue")
+        columnHeader.accessibilityValue = "USD"
+        let precedingHeader = TestDataTableCell(row: 1, column: 0, label: "Immediately preceding")
+        let invalidRowHeader = TestDataTableCell(row: 2, column: 3, label: "Not a table cell")
+        table.cells[CellIndex(row: 2, column: 4)] = rowHeader
+        table.rowHeaders[2] = [first, rowHeader, invalidRowHeader]
+        table.columnHeaders[0] = [first, precedingHeader, columnHeader]
+        table.columnHeaders[2] = [second, columnHeader]
+
+        let queriedCells = [first, second, rowHeader, columnHeader, precedingHeader, invalidRowHeader]
+        var countsAtFirstCallback: [Int]?
+        let hierarchy: [AccessibilityHierarchy] = AccessibilityHierarchyParser().parseAccessibilityHierarchy(
+            in: table,
+            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight),
+            userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone),
+            makeElement: { element, index, _ in
+                if countsAtFirstCallback == nil {
+                    countsAtFirstCallback = [table.queryCount] + queriedCells.map { $0.queryCount }
+                    table.allowsQueries = false
+                    for cell in queriedCells {
+                        cell.allowsQueries = false
+                    }
+                    rowHeader.accessibilityLabel = "Changed region"
+                    rowHeader.accessibilityValue = "South"
+                    columnHeader.accessibilityLabel = "Changed revenue"
+                    columnHeader.accessibilityValue = "EUR"
+                }
+                return .element(element, traversalIndex: index)
+            },
+            makeContainer: { container, children, _ in
+                .container(container, children: children)
+            }
+        )
+
+        let capturedCounts = try XCTUnwrap(countsAtFirstCallback)
+        XCTAssertGreaterThan(capturedCounts[0], 0)
+        XCTAssertEqual([table.queryCount] + queriedCells.map { $0.queryCount }, capturedCounts)
+
+        let elements = hierarchy.flattenToElements()
+        XCTAssertEqual(elements.map { $0.context }, [
+            .dataTableCell(
+                row: 2, column: 0, width: 2, height: 2, isFirstInRow: true,
+                rowHeaders: [.init(label: "Region", value: "North")],
+                columnHeaders: [.init(label: "Revenue", value: "USD")]
+            ),
+            .dataTableCell(
+                row: 2, column: 2, width: 1, height: 1, isFirstInRow: false,
+                rowHeaders: [],
+                columnHeaders: [.init(label: "Revenue", value: "USD")]
+            ),
+        ])
+        XCTAssertEqual(elements.map { $0.description }, [
+            "Region: North. Revenue: USD. First. Spans 2 rows. Spans 2 columns. Row 3. Column 1.",
+            "Revenue: USD. Second. Column 3.",
+        ])
+        XCTAssertEqual(hierarchy.flattenToContainers().map { $0.type }, [
+            .dataTable(rowCount: 4, columnCount: 5, cells: [
+                .init(
+                    row: 2, column: 0, rowSpan: 2, columnSpan: 2, isFirstInRow: true,
+                    rowHeaderChildIndices: [], columnHeaderChildIndices: []
+                ),
+                .init(
+                    row: 2, column: 2, rowSpan: 1, columnSpan: 1, isFirstInRow: false,
+                    rowHeaderChildIndices: [], columnHeaderChildIndices: []
+                ),
+            ]),
+        ])
     }
 
     // MARK: - Zero-Frame Wrapper Views
@@ -853,6 +955,391 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(elements, ["B1", "A1"])
     }
 
+    // MARK: - Captured Context
+
+    func testTabTraitContextUsesSortedGraphOrder() {
+        let tabBar = UIView(frame: CGRect(x: 0, y: 0, width: 180, height: 40))
+        tabBar.accessibilityTraits = .tabBar
+
+        for (label, x) in [("Third", 120), ("First", 0), ("Second", 60)] {
+            let tab = UIView(frame: CGRect(x: x, y: 0, width: 50, height: 40))
+            tab.isAccessibilityElement = true
+            tab.accessibilityLabel = label
+            tab.accessibilityTraits = .button
+            tab.accessibilityFrame = tab.frame
+            tabBar.addSubview(tab)
+        }
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(
+            in: tabBar,
+            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight),
+            userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
+        )
+        let elements = hierarchy.flattenToElements()
+
+        XCTAssertEqual(hierarchy.flattenToContainers().map { $0.type }, [.tabBar])
+        XCTAssertEqual(elements.map { $0.label }, ["First", "Second", "Third"])
+        XCTAssertEqual(elements.map { $0.context }, [
+            .tab(index: 1, count: 3),
+            .tab(index: 2, count: 3),
+            .tab(index: 3, count: 3),
+        ])
+        XCTAssertEqual(elements.map { $0.description }, [
+            "First. Tab. 1 of 3.",
+            "Second. Tab. 2 of 3.",
+            "Third. Tab. 3 of 3.",
+        ])
+    }
+
+    func testSubviewTabTraitContextCountsNestedLeaves() {
+        let tabBar = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+        tabBar.accessibilityTraits = .tabBar
+        let nested = UIView(frame: tabBar.bounds)
+        tabBar.addSubview(nested)
+        let leaves = ["First", "Second", "Third"].enumerated().map { index, label in
+            let leaf = UIView(frame: CGRect(x: 0, y: index * 40, width: 100, height: 30))
+            leaf.isAccessibilityElement = true
+            leaf.accessibilityLabel = label
+            leaf.accessibilityFrame = leaf.frame
+            nested.addSubview(leaf)
+            return leaf
+        }
+        nested.accessibilityElements = leaves
+
+        let elements = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: tabBar).flattenToElements()
+        XCTAssertEqual(elements.map { $0.label }, ["First", "Second", "Third"])
+        XCTAssertEqual(elements.map { $0.context }, [
+            .tab(index: 1, count: 3), .tab(index: 2, count: 3), .tab(index: 3, count: 3),
+        ])
+    }
+
+    func testSubviewTabTraitContextDistinguishesRepeatedSourceOccurrences() {
+        let tabBar = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        tabBar.accessibilityTraits = .tabBar
+        let leaf = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 30))
+        leaf.isAccessibilityElement = true
+        leaf.accessibilityLabel = "Repeated"
+        leaf.accessibilityFrame = leaf.frame
+        for _ in 0 ..< 2 {
+            let wrapper = UIView(frame: tabBar.bounds)
+            wrapper.accessibilityElements = [leaf]
+            tabBar.addSubview(wrapper)
+        }
+        var callbackIndices: [Int] = []
+        var callbackSources: [NSObject] = []
+        let hierarchy: [AccessibilityHierarchy] = AccessibilityHierarchyParser().parseAccessibilityHierarchy(
+            in: tabBar,
+            makeElement: { element, index, source in
+                callbackIndices.append(index)
+                callbackSources.append(source)
+                return .element(element, traversalIndex: index)
+            },
+            makeContainer: { container, children, _ in .container(container, children: children) }
+        )
+
+        XCTAssertEqual(hierarchy.flattenToElements().map { $0.context }, [
+            .tab(index: 1, count: 2), .tab(index: 2, count: 2),
+        ])
+        XCTAssertEqual(callbackIndices, [0, 1])
+        XCTAssertEqual(callbackSources.count, 2)
+        XCTAssertTrue(callbackSources.allSatisfy { $0 === leaf })
+    }
+
+    func testVendedTabTraitContextKeepsChildGroupPositions() {
+        let tabBar = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
+        tabBar.accessibilityTraits = .tabBar
+        let groups = [UIView(frame: tabBar.bounds), UIView(frame: tabBar.bounds)]
+        for (index, group) in groups.enumerated() {
+            tabBar.addSubview(group)
+            let leaves = ["A", "B"].enumerated().map { leafIndex, label in
+                let leaf = UIView(frame: CGRect(x: index * 100, y: leafIndex * 40, width: 90, height: 30))
+                leaf.isAccessibilityElement = true
+                leaf.accessibilityLabel = "\(index + 1)\(label)"
+                leaf.accessibilityFrame = leaf.frame
+                group.addSubview(leaf)
+                return leaf
+            }
+            group.accessibilityElements = leaves
+        }
+        tabBar.accessibilityElements = groups
+
+        let elements = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: tabBar).flattenToElements()
+        XCTAssertEqual(elements.map { $0.label }, ["1A", "1B", "2A", "2B"])
+        XCTAssertEqual(elements.map { $0.context }, [
+            .tab(index: 1, count: 2), .tab(index: 1, count: 2),
+            .tab(index: 2, count: 2), .tab(index: 2, count: 2),
+        ])
+    }
+
+    func testVendedMetadataGroupInheritsExplicitParentOrder() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 200))
+        let group = UIView(frame: root.bounds)
+        group.accessibilityContainerType = .semanticGroup
+        root.addSubview(group)
+        for (label, y) in [("Bottom", 100), ("Top", 0)] {
+            let leaf = UIView(frame: CGRect(x: 0, y: y, width: 100, height: 30))
+            leaf.isAccessibilityElement = true
+            leaf.accessibilityLabel = label
+            leaf.accessibilityFrame = leaf.frame
+            group.addSubview(leaf)
+        }
+        root.accessibilityElements = [group]
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: root)
+        XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, ["Bottom", "Top"])
+    }
+
+    func testVendedMetadataGroupsInheritExplicitParentOrder() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 300))
+        var groups: [UIView] = []
+        for (name, top, bottom) in [("First", 100, 200), ("Last", 0, 250)] {
+            let group = UIView(frame: root.bounds)
+            group.accessibilityContainerType = .semanticGroup
+            let nested = UIView(frame: root.bounds)
+            nested.accessibilityContainerType = .semanticGroup
+            group.addSubview(nested)
+            root.addSubview(group)
+            for (parent, label, y) in [(nested, "\(name) Bottom", bottom), (group, "\(name) Top", top)] {
+                let leaf = UIView(frame: CGRect(x: 0, y: y, width: 100, height: 30))
+                leaf.isAccessibilityElement = true
+                leaf.accessibilityLabel = label
+                leaf.accessibilityFrame = leaf.frame
+                parent.addSubview(leaf)
+            }
+            groups.append(group)
+        }
+        let middle = UIView(frame: CGRect(x: 0, y: 50, width: 100, height: 30))
+        middle.isAccessibilityElement = true
+        middle.accessibilityLabel = "Middle"
+        middle.accessibilityFrame = middle.frame
+        root.addSubview(middle)
+        root.accessibilityElements = [groups[0], middle, groups[1]]
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: root)
+        XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, [
+            "First Bottom", "First Top", "Middle", "Last Bottom", "Last Top",
+        ])
+    }
+
+    func testVendedNavigationGroupsKeepTheirLocalSubviewOrder() {
+        for label: String? in [nil, "Group"] {
+            let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 200))
+            let group = UIView(frame: root.bounds)
+            group.accessibilityContainerType = .semanticGroup
+            group.accessibilityLabel = label
+            group.shouldGroupAccessibilityChildren = label == nil
+            root.addSubview(group)
+            for (label, y) in [("Bottom", 100), ("Top", 0)] {
+                let leaf = UIView(frame: CGRect(x: 0, y: y, width: 100, height: 30))
+                leaf.isAccessibilityElement = true
+                leaf.accessibilityLabel = label
+                leaf.accessibilityFrame = leaf.frame
+                group.addSubview(leaf)
+            }
+            root.accessibilityElements = [group]
+
+            let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: root)
+            XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, ["Top", "Bottom"])
+        }
+    }
+
+    func testAuthoredInputLabelEchoIsPreservedByParser() throws {
+        let view = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 30))
+        view.isAccessibilityElement = true
+        view.accessibilityLabel = "Label"
+        view.accessibilityUserInputLabels = ["Label"]
+        let marker = try XCTUnwrap(AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: view).flattenToElements().first)
+        XCTAssertEqual(marker.userInputLabels, ["Label"])
+    }
+
+    func testMetadataContainersPreserveInterleavedNavigationOrder() {
+        let configurations: [(UIView) -> Void] = [
+            { $0.accessibilityIdentifier = "Wrapper" },
+            { $0.accessibilityCustomActions = [UIAccessibilityCustomAction(name: "Action", actionHandler: { _ in true })] },
+            { $0.accessibilityViewIsModal = true },
+            { $0.accessibilityContainerType = .semanticGroup },
+            { ($0 as! UIScrollView).contentSize = CGSize(width: 100, height: 500) },
+        ]
+        for (index, configure) in configurations.enumerated() {
+            let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 200))
+            let wrapper: UIView = index == configurations.count - 1 ? UIScrollView(frame: root.bounds) : UIView(frame: root.bounds)
+            configure(wrapper)
+            let shell = UIView(frame: root.bounds)
+            root.addSubview(shell)
+            shell.addSubview(wrapper)
+            for (parent, label, y) in [(wrapper, "A2", 120), (root, "B", 60), (wrapper, "A1", 0)] {
+                let leaf = UIView(frame: CGRect(x: 0, y: y, width: 100, height: 30))
+                leaf.isAccessibilityElement = true
+                leaf.accessibilityLabel = label
+                leaf.accessibilityFrame = leaf.frame
+                parent.addSubview(leaf)
+            }
+            var callbackEvents: [String] = []
+            let hierarchy: [AccessibilityHierarchy] = AccessibilityHierarchyParser().parseAccessibilityHierarchy(
+                in: root,
+                makeElement: { element, index, _ in
+                    callbackEvents.append("element:\(element.label ?? ""):\(index)")
+                    return .element(element, traversalIndex: index)
+                },
+                makeContainer: { container, children, source in
+                    if source === wrapper {
+                        callbackEvents.append("container:Wrapper")
+                    }
+                    return .container(container, children: children)
+                }
+            )
+            let expected = ["A1", "B", "A2"]
+            XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, expected)
+            XCTAssertEqual(callbackEvents, ["element:A1:0", "element:A2:2", "container:Wrapper", "element:B:1"])
+            XCTAssertEqual(hierarchy.flattenToElements().map { $0.context }, [nil, nil, nil])
+            guard case let .container(_, children) = hierarchy.first else {
+                XCTFail("Expected retained metadata container for configuration \(index)")
+                continue
+            }
+            XCTAssertEqual(children.flattenToElements().map { $0.label }, ["A1", "A2"])
+            var ownedTraversalIndices: [Int] = []
+            for child in children {
+                child.forEach { node in
+                    if case let .element(_, traversalIndex) = node {
+                        ownedTraversalIndices.append(traversalIndex)
+                    }
+                }
+            }
+            XCTAssertEqual(ownedTraversalIndices, [0, 2])
+        }
+    }
+
+    func testAuthoredListRoleIsNotOverriddenByTabItemTrait() {
+        let list = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        list.accessibilityContainerType = .list
+        let leaves = ["First", "Last"].enumerated().map { index, label in
+            let leaf = UIView(frame: CGRect(x: 0, y: index * 40, width: 100, height: 30))
+            leaf.isAccessibilityElement = true
+            leaf.accessibilityLabel = label
+            leaf.accessibilityTraits = .tabBarItemTrait
+            leaf.accessibilityFrame = leaf.frame
+            list.addSubview(leaf)
+            return leaf
+        }
+        list.accessibilityElements = leaves
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: list)
+        XCTAssertEqual(hierarchy.flattenToContainers().map { $0.type }, [.list])
+        XCTAssertEqual(hierarchy.flattenToElements().map { $0.context }, [.listStart, .listEnd])
+    }
+
+    func testOnlyLastModalSubviewIsTraversed() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 200))
+        for (index, label) in ["Background", "First modal", "Last modal", "Trailing sibling"].enumerated() {
+            let leaf = UIView(frame: CGRect(x: 0, y: index * 40, width: 100, height: 30))
+            leaf.isAccessibilityElement = true
+            leaf.accessibilityLabel = label
+            leaf.accessibilityFrame = leaf.frame
+            leaf.accessibilityViewIsModal = index == 1 || index == 2
+            root.addSubview(leaf)
+        }
+        XCTAssertEqual(AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: root).flattenToElements().map { $0.label }, ["Last modal"])
+    }
+
+    func testSnapshotDeliveryOmitsOffscreenElementsButHierarchyKeepsThem() throws {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let scroll = UIScrollView(frame: root.bounds)
+        scroll.contentSize = CGSize(width: 100, height: 400)
+        root.addSubview(scroll)
+        let leaves = ["Visible", "Offscreen", "Zero frame"].enumerated().map { index, label in
+            let leaf = UIAccessibilityElement(accessibilityContainer: scroll)
+            leaf.accessibilityLabel = label
+            leaf.accessibilityFrameInContainerSpace = index == 2 ? .zero : CGRect(x: 0, y: index * 200, width: 100, height: 30)
+            return leaf
+        }
+        scroll.accessibilityElements = leaves
+        let snapshot = CapturingSnapshotView(containedView: root, snapshotConfiguration: .init(viewRenderingMode: .renderLayerInContext, colorRenderingMode: .fullColor))
+        let window = UIWindow(frame: root.bounds)
+        snapshot.addSubview(root)
+        window.addSubview(snapshot)
+        window.makeKeyAndVisible()
+        defer {
+            window.resignKey()
+            window.isHidden = true
+        }
+
+        let parser = AccessibilityHierarchyParser()
+        let hierarchy = parser.parseAccessibilityHierarchy(in: root)
+        XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, ["Visible", "Offscreen", "Zero frame"])
+        XCTAssertEqual(hierarchy.flattenToElements().map { $0.visibility }, [.onscreen, .offscreen, .offscreen])
+        XCTAssertEqual(parser.parseAccessibilityElements(in: root).map { $0.label }, ["Visible"])
+
+        try snapshot.parseAccessibility()
+        XCTAssertEqual(try XCTUnwrap(snapshot.parsedData).markers.map { $0.label }, ["Visible"])
+    }
+
+    func testVendedListGroupsKeepChildBoundaryContextAndSourceCallbacks() {
+        let list = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 200))
+        list.accessibilityContainerType = .list
+
+        let firstGroup = UIView(frame: CGRect(x: 0, y: 100, width: 100, height: 80))
+        firstGroup.accessibilityContainerType = .landmark
+        let lastGroup = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 80))
+        lastGroup.accessibilityContainerType = .semanticGroup
+        var sources: [UIView] = []
+        for (group, labels, y) in [
+            (firstGroup, ["First A", "First B"], 100),
+            (lastGroup, ["Last A", "Last B"], 0),
+        ] {
+            let children = labels.enumerated().map { index, label in
+                let child = UIView(frame: CGRect(x: 0, y: index * 40, width: 100, height: 30))
+                child.isAccessibilityElement = true
+                child.accessibilityLabel = label
+                child.accessibilityFrame = CGRect(x: 0, y: y + index * 40, width: 100, height: 30)
+                group.addSubview(child)
+                return child
+            }
+            group.accessibilityElements = children
+            list.addSubview(group)
+            sources.append(contentsOf: children)
+        }
+        list.accessibilityElements = [firstGroup, lastGroup]
+
+        var callbackElements: [AccessibilityElement] = []
+        var callbackIndices: [Int] = []
+        var callbackSources: [NSObject] = []
+        var containerSources: [NSObject] = []
+        let hierarchy: [AccessibilityHierarchy] = AccessibilityHierarchyParser().parseAccessibilityHierarchy(
+            in: list,
+            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight),
+            userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone),
+            makeElement: { element, index, source in
+                callbackElements.append(element)
+                callbackIndices.append(index)
+                callbackSources.append(source)
+                return .element(element, traversalIndex: index)
+            },
+            makeContainer: { container, children, source in
+                containerSources.append(source)
+                return .container(container, children: children)
+            }
+        )
+
+        let elements = hierarchy.flattenToElements()
+        XCTAssertEqual(elements.map { $0.label }, ["First A", "First B", "Last A", "Last B"])
+        XCTAssertEqual(elements.map { $0.context }, [.listStart, .listStart, .listEnd, .listEnd])
+        XCTAssertEqual(elements.map { $0.description }, [
+            "First A. List Start.", "First B. List Start.",
+            "Last A. List End.", "Last B. List End.",
+        ])
+        XCTAssertEqual(callbackElements, elements)
+        XCTAssertEqual(callbackIndices, [0, 1, 2, 3])
+        XCTAssertEqual(callbackSources.count, sources.count)
+        XCTAssertTrue(zip(callbackSources, sources).allSatisfy { $0.0 === $0.1 })
+        XCTAssertEqual(containerSources.count, 3)
+        XCTAssertTrue(containerSources[0] === firstGroup)
+        XCTAssertTrue(containerSources[1] === lastGroup)
+        XCTAssertTrue(containerSources[2] === list)
+        XCTAssertEqual(hierarchy.flattenToContainers().map { $0.type }, [
+            .list, .landmark, .semanticGroup(label: nil, value: nil),
+        ])
+    }
+
     // MARK: - Inconsistent Hierarchy Resilience
 
     /// A container that exposes accessibility elements via `accessibilityElements` but reports
@@ -878,7 +1365,10 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         }
     }
 
-    func testParserReturnsContextlessElementWhenContainerReportsNotFound() {
+    func testParserDerivesContextFromGraphWhenContainerReportsNotFound() {
+        // A container that lies about its children (drops one on `index(of:)`) no longer strips that
+        // element's context. Graph-derived parsing reads the element's position from the tree it
+        // actually walked, not from the container's self-report, so list context still applies.
         let root = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
         let container = InconsistentListContainer(frame: root.bounds)
         root.addSubview(container)
@@ -888,9 +1378,10 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             in: root,
             userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight),
             userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
-        ).flattenToElements().map { $0.description }
+        ).flattenToElements()
 
-        XCTAssertEqual(elements, ["child"], "Element should still be parsed even when its container drops it")
+        XCTAssertEqual(elements.map { $0.description }, ["child. List Start."], "Element keeps its graph-derived list context even when its container drops it")
+        XCTAssertEqual(elements.map { $0.context }, [.listStart])
     }
 
     /// A `UITabBar` with no items previously triggered a modulo-by-zero `precondition` inside
@@ -1006,6 +1497,14 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 }
 
 // MARK: -
+
+private final class CapturingSnapshotView: AccessibilitySnapshotBaseView {
+    var parsedData: ParsedAccessibilityData?
+
+    override func render(data: ParsedAccessibilityData) {
+        parsedData = data
+    }
+}
 
 private final class ActivationPointTestView: UIView {
     var overriddenFrame: CGRect?
@@ -1139,6 +1638,10 @@ private final class TestDataTableView: UIView, UIAccessibilityContainerDataTable
     let rows: Int
     let columns: Int
     var cells: [CellIndex: TestDataTableCell] = [:]
+    var rowHeaders: [Int: [UIAccessibilityContainerDataTableCell]] = [:]
+    var columnHeaders: [Int: [UIAccessibilityContainerDataTableCell]] = [:]
+    var allowsQueries = true
+    private(set) var queryCount = 0
 
     init(frame: CGRect, rows: Int, columns: Int) {
         self.rows = rows
@@ -1159,15 +1662,28 @@ private final class TestDataTableView: UIView, UIAccessibilityContainerDataTable
     // MARK: - UIAccessibilityContainerDataTable
 
     func accessibilityDataTableCellElement(forRow row: Int, column: Int) -> UIAccessibilityContainerDataTableCell? {
-        return cells[CellIndex(row: row, column: column)]
+        queryCount += 1
+        return allowsQueries ? cells[CellIndex(row: row, column: column)] : nil
     }
 
     func accessibilityRowCount() -> Int {
-        return rows
+        queryCount += 1
+        return allowsQueries ? rows : 0
     }
 
     func accessibilityColumnCount() -> Int {
-        return columns
+        queryCount += 1
+        return allowsQueries ? columns : 0
+    }
+
+    func accessibilityHeaderElements(forRow row: Int) -> [UIAccessibilityContainerDataTableCell]? {
+        queryCount += 1
+        return allowsQueries ? rowHeaders[row] : nil
+    }
+
+    func accessibilityHeaderElements(forColumn column: Int) -> [UIAccessibilityContainerDataTableCell]? {
+        queryCount += 1
+        return allowsQueries ? columnHeaders[column] : nil
     }
 }
 
@@ -1175,10 +1691,16 @@ private final class TestDataTableView: UIView, UIAccessibilityContainerDataTable
 private final class TestDataTableCell: UIView, UIAccessibilityContainerDataTableCell {
     let row: Int
     let column: Int
+    let rowSpan: Int
+    let columnSpan: Int
+    var allowsQueries = true
+    private(set) var queryCount = 0
 
-    init(row: Int, column: Int, label: String) {
+    init(row: Int, column: Int, label: String, rowSpan: Int = 1, columnSpan: Int = 1) {
         self.row = row
         self.column = column
+        self.rowSpan = rowSpan
+        self.columnSpan = columnSpan
         super.init(frame: .zero)
         isAccessibilityElement = true
         accessibilityLabel = label
@@ -1192,10 +1714,12 @@ private final class TestDataTableCell: UIView, UIAccessibilityContainerDataTable
     // MARK: - UIAccessibilityContainerDataTableCell
 
     func accessibilityRowRange() -> NSRange {
-        return NSRange(location: row, length: 1)
+        queryCount += 1
+        return allowsQueries ? NSRange(location: row, length: rowSpan) : NSRange(location: NSNotFound, length: 0)
     }
 
     func accessibilityColumnRange() -> NSRange {
-        return NSRange(location: column, length: 1)
+        queryCount += 1
+        return allowsQueries ? NSRange(location: column, length: columnSpan) : NSRange(location: NSNotFound, length: 0)
     }
 }
