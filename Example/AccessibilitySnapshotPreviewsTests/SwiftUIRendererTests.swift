@@ -31,19 +31,21 @@ final class SwiftUIInputLabelTests: XCTestCase {
         }
     }
 
-    func testLegendAcceptsSharedConfiguration() {
-        let configuration = AccessibilitySnapshotConfiguration(
-            viewRenderingMode: .renderLayerInContext,
-            includesInputLabels: .always,
-            showsUnspokenTraits: false
-        )
-        let legend = LegendView(markers: [], palette: .default, configuration: configuration)
-        XCTAssertTrue(legend.showUserInputLabels)
-        XCTAssertFalse(legend.showUnspokenTraits)
+    func testLegendPreservesInputLabelDisplayMode() {
+        for mode in [AccessibilityContentDisplayMode.always, .whenOverridden, .never] {
+            let configuration = AccessibilitySnapshotConfiguration(
+                viewRenderingMode: .renderLayerInContext,
+                includesInputLabels: mode,
+                showsUnspokenTraits: false
+            )
+            let configuredLegend = LegendView(markers: [], palette: .default, configuration: configuration)
+            XCTAssertEqual(configuredLegend.inputLabelDisplayMode, mode)
+            XCTAssertFalse(configuredLegend.showUnspokenTraits)
 
-        let legacyLegend = LegendView(markers: [], palette: .default, showUserInputLabels: false)
-        XCTAssertFalse(legacyLegend.showUserInputLabels)
-        XCTAssertTrue(legacyLegend.showUnspokenTraits)
+            let legend = LegendView(markers: [], palette: .default, inputLabelDisplayMode: mode)
+            XCTAssertEqual(legend.inputLabelDisplayMode, mode)
+            XCTAssertTrue(legend.showUnspokenTraits)
+        }
     }
 }
 

@@ -9,8 +9,8 @@ public struct LegendView: View {
     public let palette: ColorPalette
     private let configuration: AccessibilitySnapshotConfiguration
 
-    public var showUserInputLabels: Bool {
-        configuration.inputLabelDisplayMode != .never
+    public var inputLabelDisplayMode: AccessibilityContentDisplayMode {
+        configuration.inputLabelDisplayMode
     }
 
     public var showUnspokenTraits: Bool {
@@ -20,7 +20,7 @@ public struct LegendView: View {
     public init(
         markers: [AccessibilityMarker],
         palette: ColorPalette,
-        showUserInputLabels: Bool,
+        inputLabelDisplayMode: AccessibilityContentDisplayMode,
         showUnspokenTraits: Bool = true
     ) {
         self.init(
@@ -28,7 +28,7 @@ public struct LegendView: View {
             palette: palette,
             configuration: .init(
                 viewRenderingMode: .drawHierarchyInRect,
-                includesInputLabels: showUserInputLabels ? .whenOverridden : .never,
+                includesInputLabels: inputLabelDisplayMode,
                 showsUnspokenTraits: showUnspokenTraits
             )
         )
