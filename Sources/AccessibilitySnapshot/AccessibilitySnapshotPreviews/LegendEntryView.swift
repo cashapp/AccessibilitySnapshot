@@ -1,4 +1,4 @@
-@_spi(Rendering) import AccessibilitySnapshotCore
+import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser
 import SwiftUI
 
@@ -11,7 +11,7 @@ struct LegendEntryView: View {
     let configuration: AccessibilitySnapshotConfiguration
 
     var userInputLabels: [String] {
-        marker.displayInputLabels(configuration.inputLabelDisplayMode)
+        configuration.inputLabels(for: marker)
     }
 
     var body: some View {

@@ -1,4 +1,4 @@
-@_spi(Rendering) @testable import AccessibilitySnapshotCore
+@testable import AccessibilitySnapshotCore
 @testable import AccessibilitySnapshotParser
 import UIKit
 import XCTest
@@ -24,6 +24,9 @@ final class InputLabelDisplayTests: XCTestCase {
         view.isAccessibilityElement = true
         view.accessibilityLabel = "Row label"
         view.accessibilityRespondsToUserInteraction = true
+        let always = AccessibilitySnapshotConfiguration(viewRenderingMode: .renderLayerInContext, includesInputLabels: .always)
+        let whenOverridden = AccessibilitySnapshotConfiguration(viewRenderingMode: .renderLayerInContext, includesInputLabels: .whenOverridden)
+        let never = AccessibilitySnapshotConfiguration(viewRenderingMode: .renderLayerInContext, includesInputLabels: .never)
         for (labels, expectedOverrides) in [
             (["Row label"], []),
             (["Select row"], ["Select row"]),
@@ -32,15 +35,15 @@ final class InputLabelDisplayTests: XCTestCase {
             view.accessibilityUserInputLabels = labels
             let marker = try XCTUnwrap(AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: view).flattenToElements().first)
             XCTAssertEqual(marker.userInputLabels, labels)
-            XCTAssertEqual(marker.displayInputLabels(.always), labels)
-            XCTAssertEqual(marker.displayInputLabels(.whenOverridden), expectedOverrides)
-            XCTAssertEqual(marker.displayInputLabels(.never), [])
+            XCTAssertEqual(always.inputLabels(for: marker), labels)
+            XCTAssertEqual(whenOverridden.inputLabels(for: marker), expectedOverrides)
+            XCTAssertEqual(never.inputLabels(for: marker), [])
         }
         view.accessibilityRespondsToUserInteraction = false
         view.accessibilityUserInputLabels = ["Select row"]
         let noninteractive = try XCTUnwrap(AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: view).flattenToElements().first)
-        XCTAssertEqual(noninteractive.displayInputLabels(.whenOverridden), [])
-        XCTAssertEqual(noninteractive.displayInputLabels(.always), ["Select row"])
+        XCTAssertEqual(whenOverridden.inputLabels(for: noninteractive), [])
+        XCTAssertEqual(always.inputLabels(for: noninteractive), ["Select row"])
     }
 
     func testAlwaysInputLabelsUsesDefaultWordsAndTraits() throws {
@@ -49,12 +52,15 @@ final class InputLabelDisplayTests: XCTestCase {
         view.accessibilityLabel = "Volume control"
         view.accessibilityTraits = [.button, .adjustable]
         view.accessibilityLanguage = "en-US"
+        let always = AccessibilitySnapshotConfiguration(viewRenderingMode: .renderLayerInContext, includesInputLabels: .always)
+        let whenOverridden = AccessibilitySnapshotConfiguration(viewRenderingMode: .renderLayerInContext, includesInputLabels: .whenOverridden)
+        let never = AccessibilitySnapshotConfiguration(viewRenderingMode: .renderLayerInContext, includesInputLabels: .never)
         for labels: [String]? in [nil, []] {
             view.accessibilityUserInputLabels = labels
             let marker = try XCTUnwrap(AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: view).flattenToElements().first)
-            XCTAssertEqual(marker.displayInputLabels(.always), ["Volume", "control", "Button.", "Adjustable."])
-            XCTAssertEqual(marker.displayInputLabels(.whenOverridden), [])
-            XCTAssertEqual(marker.displayInputLabels(.never), [])
+            XCTAssertEqual(always.inputLabels(for: marker), ["Volume", "control", "Button.", "Adjustable."])
+            XCTAssertEqual(whenOverridden.inputLabels(for: marker), [])
+            XCTAssertEqual(never.inputLabels(for: marker), [])
         }
     }
 

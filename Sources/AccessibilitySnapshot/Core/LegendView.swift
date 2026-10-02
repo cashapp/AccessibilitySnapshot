@@ -54,7 +54,7 @@ extension AccessibilitySnapshotView {
             )
 
             userInputLabelsView = {
-                let labels = marker.displayInputLabels(configuration.inputLabelDisplayMode)
+                let labels = configuration.inputLabels(for: marker)
                 return labels.isEmpty ? nil : .init(titles: labels, color: fillColor)
             }()
 
@@ -246,8 +246,7 @@ extension AccessibilitySnapshotView {
 }
 
 extension AccessibilityMarker {
-    @_spi(Rendering)
-    public func displayInputLabels(_ mode: AccessibilityContentDisplayMode) -> [String] {
+    func displayInputLabels(_ mode: AccessibilityContentDisplayMode) -> [String] {
         switch mode {
         case .always:
             if let labels = userInputLabels, !labels.isEmpty {
