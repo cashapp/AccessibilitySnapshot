@@ -17,7 +17,7 @@ final class InputLabelDisplayTests: XCTestCase {
             (["Volume control", "Set volume"], true, ["Volume control", "Set volume"], ["Volume control", "Set volume"]),
             (["Set volume"], false, ["Set volume"], []),
         ] {
-            let marker = AccessibilityMarker(
+            let marker = AccessibilityElement(
                 description: "Volume control. Button. Adjustable.",
                 label: "Volume control",
                 value: nil,
@@ -41,7 +41,7 @@ final class InputLabelDisplayTests: XCTestCase {
     }
 
     func testUIKitLegendUsesInputLabelDisplayMode() {
-        let marker = AccessibilityMarker(
+        let marker = AccessibilityElement(
             description: "Label",
             label: "Label",
             value: nil,

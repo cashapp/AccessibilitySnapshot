@@ -8,7 +8,7 @@ import XCTest
 @available(iOS 16.0, *)
 final class SwiftUIInputLabelTests: XCTestCase {
     func testLegendEntryHidesInputLabelEchoWhenOverridden() {
-        let marker = AccessibilityMarker(
+        let marker = AccessibilityElement(
             description: "Label",
             label: "Label",
             value: nil,
@@ -42,7 +42,7 @@ final class SwiftUIInputLabelTests: XCTestCase {
 
     @MainActor
     func testSnapshotRendersFallbackInputLabelsOnlyWhenAlways() {
-        let marker = AccessibilityMarker(
+        let marker = AccessibilityElement(
             description: "Volume control. Button. Adjustable.",
             label: "Volume control",
             value: nil,
