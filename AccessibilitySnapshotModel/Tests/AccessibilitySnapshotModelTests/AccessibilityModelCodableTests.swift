@@ -145,6 +145,62 @@ final class AccessibilityModelCodableTests: XCTestCase {
         XCTAssertEqual(decoded.frame, container.frame)
     }
 
+    func testLegacyContainerPayloadDefaultsNewFields() throws {
+        let payloads: [(String, AccessibilityContainer.ContainerType)] = [
+            (#"{"list":{}}"#, .list),
+            (#"{"landmark":{}}"#, .landmark),
+            (#"{"tabBar":{}}"#, .tabBar),
+            (#"{"dataTable":{"rowCount":2,"columnCount":3}}"#, .dataTable(rowCount: 2, columnCount: 3, cells: [])),
+        ]
+        for (typeJSON, expectedType) in payloads {
+            let data = Data("{\"type\":\(typeJSON),\"frame\":[[10,20],[100,44]]}".utf8)
+            let decoded = try JSONDecoder().decode(AccessibilityContainer.self, from: data)
+            XCTAssertEqual(decoded.type, expectedType)
+            XCTAssertEqual(decoded.frame, AccessibilityRect(x: 10, y: 20, width: 100, height: 44))
+            XCTAssertNil(decoded.identifier)
+            XCTAssertNil(decoded.scrollableContentSize)
+            XCTAssertFalse(decoded.isModalBoundary)
+            XCTAssertEqual(decoded.customActions, [])
+        }
+    }
+
+    func testLegacySemanticGroupIdentifierMigratesToContainer() throws {
+        let data = Data(#"{"type":{"semanticGroup":{"label":"Group","value":"Value","identifier":"legacy-id"}},"frame":[[0,0],[100,44]]}"#.utf8)
+        let decoded = try JSONDecoder().decode(AccessibilityContainer.self, from: data)
+        XCTAssertEqual(decoded.type, .semanticGroup(label: "Group", value: "Value"))
+        XCTAssertEqual(decoded.identifier, "legacy-id")
+        XCTAssertFalse(decoded.isModalBoundary)
+        XCTAssertEqual(decoded.customActions, [])
+
+        let encoded = try JSONEncoder().encode(decoded)
+        let roundTrip = try JSONDecoder().decode(AccessibilityContainer.self, from: encoded)
+        XCTAssertEqual(roundTrip, decoded)
+        let object = try JSONSerialization.jsonObject(with: encoded) as! [String: Any]
+        XCTAssertEqual(object["identifier"] as? String, "legacy-id")
+        let type = object["type"] as! [String: Any]
+        let semanticGroup = type["semanticGroup"] as! [String: Any]
+        XCTAssertNil(semanticGroup["identifier"])
+
+        var mixedPayload = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        mixedPayload["identifier"] = "current-id"
+        let mixedData = try JSONSerialization.data(withJSONObject: mixedPayload)
+        let mixed = try JSONDecoder().decode(AccessibilityContainer.self, from: mixedData)
+        XCTAssertEqual(mixed.identifier, "current-id")
+    }
+
+    func testContainerMetadataCodableRoundTrip() throws {
+        let container = AccessibilityContainer(
+            type: .semanticGroup(label: nil, value: nil),
+            identifier: "current-id",
+            scrollableContentSize: AccessibilitySize(width: 100, height: 500),
+            frame: AccessibilityRect(x: 10, y: 20, width: 100, height: 44),
+            isModalBoundary: true,
+            customActions: ["Delete"]
+        )
+        let data = try JSONEncoder().encode(container)
+        XCTAssertEqual(try JSONDecoder().decode(AccessibilityContainer.self, from: data), container)
+    }
+
     func testAccessibilityHierarchyCodable() throws {
         let element1 = AccessibilityElement(
             description: "Item 1",

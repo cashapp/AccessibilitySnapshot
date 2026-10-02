@@ -81,6 +81,37 @@ public struct AccessibilityContainer: Hashable, Codable, Sendable {
         self.isModalBoundary = isModalBoundary
         self.customActions = customActions
     }
+
+    private enum CodingKeys: String, CodingKey {
+        case type
+        case identifier
+        case scrollableContentSize
+        case frame
+        case isModalBoundary
+        case customActions
+    }
+
+    private enum LegacySemanticGroupKeys: String, CodingKey {
+        case semanticGroup
+        case identifier
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        type = try container.decode(ContainerType.self, forKey: .type)
+        let identifier = try container.decodeIfPresent(String.self, forKey: .identifier)
+        if identifier == nil, case .semanticGroup = type {
+            let typeContainer = try container.nestedContainer(keyedBy: LegacySemanticGroupKeys.self, forKey: .type)
+            let semanticGroup = try typeContainer.nestedContainer(keyedBy: LegacySemanticGroupKeys.self, forKey: .semanticGroup)
+            self.identifier = try semanticGroup.decodeIfPresent(String.self, forKey: .identifier)
+        } else {
+            self.identifier = identifier
+        }
+        scrollableContentSize = try container.decodeIfPresent(AccessibilitySize.self, forKey: .scrollableContentSize)
+        frame = try container.decode(AccessibilityRect.self, forKey: .frame)
+        isModalBoundary = try container.decodeIfPresent(Bool.self, forKey: .isModalBoundary) ?? false
+        customActions = try container.decodeIfPresent([AccessibilityElement.CustomAction].self, forKey: .customActions) ?? []
+    }
 }
 
 // MARK: - ContainerType Codable (wire-compatible with pre-`cells` payloads)
