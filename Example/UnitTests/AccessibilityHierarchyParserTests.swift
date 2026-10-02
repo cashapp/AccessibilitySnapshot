@@ -1071,7 +1071,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         ])
     }
 
-    func testVendedMetadataGroupPreservesSubviewOrderInExplicitParent() {
+    func testVendedMetadataGroupInheritsExplicitParentOrder() {
         let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 200))
         let group = UIView(frame: root.bounds)
         group.accessibilityContainerType = .semanticGroup
@@ -1089,7 +1089,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, ["Bottom", "Top"])
     }
 
-    func testVendedMetadataGroupsPreserveSubviewOrderInExplicitParent() {
+    func testVendedMetadataGroupsInheritExplicitParentOrder() {
         let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 300))
         var groups: [UIView] = []
         for (name, top, bottom) in [("First", 100, 200), ("Last", 0, 250)] {
@@ -1119,6 +1119,28 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, [
             "First Bottom", "First Top", "Middle", "Last Bottom", "Last Top",
         ])
+    }
+
+    func testVendedNavigationGroupsKeepTheirLocalSubviewOrder() {
+        for label: String? in [nil, "Group"] {
+            let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 200))
+            let group = UIView(frame: root.bounds)
+            group.accessibilityContainerType = .semanticGroup
+            group.accessibilityLabel = label
+            group.shouldGroupAccessibilityChildren = label == nil
+            root.addSubview(group)
+            for (label, y) in [("Bottom", 100), ("Top", 0)] {
+                let leaf = UIView(frame: CGRect(x: 0, y: y, width: 100, height: 30))
+                leaf.isAccessibilityElement = true
+                leaf.accessibilityLabel = label
+                leaf.accessibilityFrame = leaf.frame
+                group.addSubview(leaf)
+            }
+            root.accessibilityElements = [group]
+
+            let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: root)
+            XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, ["Top", "Bottom"])
+        }
     }
 
     func testAuthoredInputLabelEchoIsPreservedByParser() throws {
