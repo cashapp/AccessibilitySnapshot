@@ -837,7 +837,6 @@ private extension NSObject {
                 let children = element.recursiveAccessibilityHierarchy(
                     contextProvider: contextProvider ?? (providesContext ? providedContextAsContainer() : nil)
                 )
-                // Preserve the parent's array slots while sorting each child's ungrouped descendants locally.
                 accessibilityHierarchyOfElements.append(.group(
                     children,
                     explicitlyOrdered: false,
