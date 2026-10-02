@@ -1,9 +1,5 @@
-import AccessibilitySnapshotCore
-import AccessibilitySnapshotParser
 import FBSnapshotTestCase_Accessibility
 import iOSSnapshotTestCase
-import SwiftUI
-import XCTest
 
 @testable import AccessibilitySnapshotDemo
 
@@ -25,43 +21,6 @@ final class SwiftUIListSectionTests: SnapshotTestCase {
     }
 
     @available(iOS 15.0, *)
-    func testListWithSectionHeadersReadingOrder() throws {
-        try assertReadingOrder(
-            of: SwiftUIListWithSections(),
-            equals: ["Fruits", "Apple", "Banana", "Cherry", "Vegetables", "Carrot", "Peas"]
-        )
-    }
-
-    @available(iOS 15.0, *)
-    func testListWithHeadersAndFootersReadingOrder() throws {
-        try assertReadingOrder(
-            of: SwiftUIListWithHeadersAndFooters(),
-            equals: ["Accounts", "Checking", "Savings", "Tap an account to view details", "Bills", "Electric", "Internet", "Due this month"]
-        )
-    }
-
-    private func assertReadingOrder<Content: View>(of content: Content, equals expected: [String], file: StaticString = #filePath, line: UInt = #line) throws {
-        let host = UIHostingController(rootView: content)
-        let root = try XCTUnwrap(host.view, file: file, line: line)
-        root.bounds.size = UIScreen.main.bounds.size
-        let snapshot = ListReadingOrderSnapshotView(
-            containedView: root,
-            snapshotConfiguration: .init(viewRenderingMode: .drawHierarchyInRect)
-        )
-        let window = UIWindow(frame: UIScreen.main.bounds)
-        window.makeKeyAndVisible()
-        snapshot.center = window.center
-        window.addSubview(snapshot)
-        defer {
-            window.resignKey()
-            window.isHidden = true
-        }
-        try snapshot.parseAccessibility()
-        let markers = try XCTUnwrap(snapshot.markers, file: file, line: line)
-        XCTAssertEqual(markers.compactMap { $0.label?.lowercased() }, expected.map { $0.lowercased() }, file: file, line: line)
-    }
-
-    @available(iOS 15.0, *)
     func testListWithSectionHeaders() {
         SnapshotVerifyAccessibility(
             SwiftUIListWithSections(),
@@ -77,13 +36,5 @@ final class SwiftUIListSectionTests: SnapshotTestCase {
             size: UIScreen.main.bounds.size,
             overallTolerance: iOS17ListOverallTolerance
         )
-    }
-}
-
-private final class ListReadingOrderSnapshotView: AccessibilitySnapshotBaseView {
-    var markers: [AccessibilityMarker]?
-
-    override func render(data: ParsedAccessibilityData) {
-        markers = data.markers
     }
 }

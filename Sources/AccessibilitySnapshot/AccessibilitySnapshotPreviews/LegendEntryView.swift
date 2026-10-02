@@ -1,4 +1,4 @@
-@_spi(Rendering) import AccessibilitySnapshotCore
+import AccessibilitySnapshotCore
 import AccessibilitySnapshotParser
 import SwiftUI
 
@@ -8,11 +8,8 @@ struct LegendEntryView: View {
     let index: Int
     let marker: AccessibilityMarker
     let palette: ColorPalette
-    let configuration: AccessibilitySnapshotConfiguration
-
-    var userInputLabels: [String] {
-        marker.displayInputLabels(configuration.inputLabelDisplayMode)
-    }
+    let showUserInputLabels: Bool
+    let showUnspokenTraits: Bool
 
     var body: some View {
         HStack(alignment: .top, spacing: LegendLayoutMetrics.markerToLabelSpacing) {
@@ -25,7 +22,7 @@ struct LegendEntryView: View {
                     HintView(text: hint)
                 }
 
-                if configuration.showsUnspokenTraits {
+                if showUnspokenTraits {
                     TraitsView(traits: marker.traits)
                 }
 
@@ -51,8 +48,8 @@ struct LegendEntryView: View {
                     )
                 }
 
-                if !userInputLabels.isEmpty {
-                    UserInputLabelsView(labels: userInputLabels)
+                if showUserInputLabels, let labels = marker.userInputLabels, !labels.isEmpty {
+                    UserInputLabelsView(labels: labels)
                 }
             }
         }

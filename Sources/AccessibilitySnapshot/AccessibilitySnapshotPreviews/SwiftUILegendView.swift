@@ -7,15 +7,8 @@ import SwiftUI
 public struct LegendView: View {
     public let markers: [AccessibilityMarker]
     public let palette: ColorPalette
-    private let configuration: AccessibilitySnapshotConfiguration
-
-    public var showUserInputLabels: Bool {
-        configuration.inputLabelDisplayMode != .never
-    }
-
-    public var showUnspokenTraits: Bool {
-        configuration.showsUnspokenTraits
-    }
+    public let showUserInputLabels: Bool
+    public let showUnspokenTraits: Bool
 
     public init(
         markers: [AccessibilityMarker],
@@ -23,25 +16,10 @@ public struct LegendView: View {
         showUserInputLabels: Bool,
         showUnspokenTraits: Bool = true
     ) {
-        self.init(
-            markers: markers,
-            palette: palette,
-            configuration: .init(
-                viewRenderingMode: .drawHierarchyInRect,
-                includesInputLabels: showUserInputLabels ? .whenOverridden : .never,
-                showsUnspokenTraits: showUnspokenTraits
-            )
-        )
-    }
-
-    public init(
-        markers: [AccessibilityMarker],
-        palette: ColorPalette,
-        configuration: AccessibilitySnapshotConfiguration
-    ) {
         self.markers = markers
         self.palette = palette
-        self.configuration = configuration
+        self.showUserInputLabels = showUserInputLabels
+        self.showUnspokenTraits = showUnspokenTraits
     }
 
     public var body: some View {
@@ -55,7 +33,8 @@ public struct LegendView: View {
                         index: index,
                         marker: markers[index],
                         palette: palette,
-                        configuration: configuration
+                        showUserInputLabels: showUserInputLabels,
+                        showUnspokenTraits: showUnspokenTraits
                     )
                 }
             }
