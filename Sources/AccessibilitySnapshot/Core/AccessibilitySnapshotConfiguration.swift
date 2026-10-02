@@ -94,6 +94,11 @@ public struct AccessibilitySnapshotConfiguration {
         inputLabelDisplayMode = includesInputLabels
         self.showsUnspokenTraits = showsUnspokenTraits
     }
+
+    /// Returns the input labels to show for this marker using the configured display mode.
+    public func inputLabels(for marker: AccessibilityMarker) -> [String] {
+        marker.displayInputLabels(inputLabelDisplayMode)
+    }
 }
 
 public enum ViewRenderingMode {

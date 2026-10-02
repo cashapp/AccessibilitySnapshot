@@ -7,19 +7,41 @@ import SwiftUI
 public struct LegendView: View {
     public let markers: [AccessibilityMarker]
     public let palette: ColorPalette
-    public let showUserInputLabels: Bool
-    public let showUnspokenTraits: Bool
+    private let configuration: AccessibilitySnapshotConfiguration
+
+    public var inputLabelDisplayMode: AccessibilityContentDisplayMode {
+        configuration.inputLabelDisplayMode
+    }
+
+    public var showUnspokenTraits: Bool {
+        configuration.showsUnspokenTraits
+    }
 
     public init(
         markers: [AccessibilityMarker],
         palette: ColorPalette,
-        showUserInputLabels: Bool,
+        inputLabelDisplayMode: AccessibilityContentDisplayMode,
         showUnspokenTraits: Bool = true
+    ) {
+        self.init(
+            markers: markers,
+            palette: palette,
+            configuration: .init(
+                viewRenderingMode: .drawHierarchyInRect,
+                includesInputLabels: inputLabelDisplayMode,
+                showsUnspokenTraits: showUnspokenTraits
+            )
+        )
+    }
+
+    public init(
+        markers: [AccessibilityMarker],
+        palette: ColorPalette,
+        configuration: AccessibilitySnapshotConfiguration
     ) {
         self.markers = markers
         self.palette = palette
-        self.showUserInputLabels = showUserInputLabels
-        self.showUnspokenTraits = showUnspokenTraits
+        self.configuration = configuration
     }
 
     public var body: some View {
@@ -33,8 +55,7 @@ public struct LegendView: View {
                         index: index,
                         marker: markers[index],
                         palette: palette,
-                        showUserInputLabels: showUserInputLabels,
-                        showUnspokenTraits: showUnspokenTraits
+                        configuration: configuration
                     )
                 }
             }

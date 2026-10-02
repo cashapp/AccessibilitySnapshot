@@ -54,43 +54,8 @@ extension AccessibilitySnapshotView {
             )
 
             userInputLabelsView = {
-                let userInputLabels: [String]? = {
-                    switch configuration.inputLabelDisplayMode {
-                    case .always:
-                        guard let labels = marker.userInputLabels, !labels.isEmpty else {
-                            /// If no labels are provided the accessibility label will be used, split on spaces.
-                            var labels = marker.label?.split(separator: " ").map(String.init) ?? []
-
-                            /// The button trait precedes the adjustable trait if both are present.
-                            if marker.traits.contains(.button) {
-                                labels.append(Strings.buttonInputLabelText(for: marker.accessibilityLanguage))
-                            }
-                            if marker.traits.contains(.adjustable) {
-                                labels.append(Strings.adjustableInputLabelText(for: marker.accessibilityLanguage))
-                            }
-
-                            return labels
-                        }
-                        return marker.userInputLabels
-
-                    case .whenOverridden:
-                        guard
-                            marker.respondsToUserInteraction,
-                            let userInputLabels = marker.userInputLabels,
-                            !userInputLabels.isEmpty
-                        else {
-                            return nil
-                        }
-                        return userInputLabels
-
-                    case .never:
-                        return nil
-                    }
-                }()
-
-                guard let userInputLabels else { return nil }
-
-                return .init(titles: userInputLabels, color: fillColor)
+                let labels = configuration.inputLabels(for: marker)
+                return labels.isEmpty ? nil : .init(titles: labels, color: fillColor)
             }()
 
             super.init(frame: .zero)
@@ -280,8 +245,34 @@ extension AccessibilitySnapshotView {
     }
 }
 
-extension AccessibilityMarker {
-    func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityMarker.CustomRotor] {
+extension AccessibilityElement {
+    func displayInputLabels(_ mode: AccessibilityContentDisplayMode) -> [String] {
+        switch mode {
+        case .always:
+            if let labels = userInputLabels, !labels.isEmpty {
+                return labels
+            }
+            var labels = label?.split(separator: " ").map(String.init) ?? []
+            if traits.contains(.button) {
+                labels.append(Strings.buttonInputLabelText(for: accessibilityLanguage))
+            }
+            if traits.contains(.adjustable) {
+                labels.append(Strings.adjustableInputLabelText(for: accessibilityLanguage))
+            }
+            return labels
+        case .whenOverridden:
+            guard respondsToUserInteraction, let labels = userInputLabels, !labels.isEmpty,
+                  !(labels.count == 1 && labels[0] == label)
+            else {
+                return []
+            }
+            return labels
+        case .never:
+            return []
+        }
+    }
+
+    func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityElement.CustomRotor] {
         switch mode {
         case .always:
             return customRotors
