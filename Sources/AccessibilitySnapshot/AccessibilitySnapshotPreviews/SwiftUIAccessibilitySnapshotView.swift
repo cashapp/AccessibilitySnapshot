@@ -25,7 +25,7 @@ public struct AccessibilitySnapshotView<Content: View>: View {
         self.content = content()
         self.configuration = configuration
         self.palette = palette
-        self.renderSize = renderSize ?? UIScreen.main.bounds.size
+        self.renderSize = renderSize ?? SnapshotPlatformDefaults.renderSize
     }
 
     private var showUserInputLabels: Bool {
