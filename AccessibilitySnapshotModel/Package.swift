@@ -3,11 +3,11 @@
 
 import PackageDescription
 
-// A dependency-free model package. It imports no platform frameworks, so it builds and tests on
-// any Swift toolchain — including macOS and Linux via `swift test` — and the host package consumes
-// it through a local path dependency.
+// A model package with Foundation-based speech formatting and localization resources.
+// It builds and tests without UIKit on macOS and Linux via `swift test`.
 let package = Package(
     name: "AccessibilitySnapshotModel",
+    defaultLocalization: "en",
     products: [
         .library(
             name: "AccessibilitySnapshotModel",
@@ -16,7 +16,8 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "AccessibilitySnapshotModel"
+            name: "AccessibilitySnapshotModel",
+            resources: [.process("Assets")]
         ),
         .testTarget(
             name: "AccessibilitySnapshotModelTests",

@@ -15,7 +15,7 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
 
         let marker = AccessibilityElement.CustomRotor(
             from: rotor,
-            parentElement: NSObject(),
+            accessibilityLanguage: nil,
             root: UIView(),
             resultLimit: 0
         )
@@ -24,7 +24,7 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
             return XCTFail("Expected custom rotor marker")
         }
         XCTAssertEqual(marker.name, "Errors")
-        XCTAssertEqual(marker.resultMarkers, [])
+        XCTAssertEqual(marker.results, [])
         XCTAssertEqual(marker.limit, .none)
         XCTAssertEqual(searchCount, 0)
     }
@@ -38,7 +38,7 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
 
         let marker = AccessibilityElement.CustomRotor(
             from: rotor,
-            parentElement: NSObject(),
+            accessibilityLanguage: nil,
             root: UIView(),
             resultLimit: -1
         )
@@ -47,7 +47,7 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
             return XCTFail("Expected custom rotor marker")
         }
         XCTAssertEqual(marker.name, "Errors")
-        XCTAssertEqual(marker.resultMarkers, [])
+        XCTAssertEqual(marker.results, [])
         XCTAssertEqual(marker.limit, .none)
         XCTAssertEqual(searchCount, 0)
     }

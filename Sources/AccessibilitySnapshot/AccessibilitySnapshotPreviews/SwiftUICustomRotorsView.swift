@@ -32,11 +32,11 @@ struct CustomRotorsView: View {
     }
 
     private func resultsText(for rotor: AccessibilityMarker.CustomRotor) -> String {
-        guard !rotor.resultMarkers.isEmpty else {
+        guard !rotor.results.isEmpty else {
             return Strings.noResultsText(for: locale)
         }
 
-        let resultsString = rotor.resultMarkers.map { "- \($0.elementDescription)" }.joined(separator: "\n")
+        let resultsString = rotor.results.map { "- \($0.elementDescription)" }.joined(separator: "\n")
 
         switch rotor.limit {
         case .none:
@@ -57,7 +57,7 @@ struct CustomRotorsView: View {
         rotors: [
             .init(
                 name: "Headings",
-                resultMarkers: [
+                results: [
                     .init(elementDescription: "Welcome"),
                     .init(elementDescription: "Features"),
                     .init(elementDescription: "Pricing"),
@@ -75,14 +75,14 @@ struct CustomRotorsView: View {
         rotors: [
             .init(
                 name: "Headings",
-                resultMarkers: [
+                results: [
                     .init(elementDescription: "Welcome"),
                     .init(elementDescription: "Features"),
                 ]
             ),
             .init(
                 name: "Links",
-                resultMarkers: [
+                results: [
                     .init(elementDescription: "Learn more"),
                     .init(elementDescription: "Contact us"),
                 ]
@@ -97,7 +97,7 @@ struct CustomRotorsView: View {
 #Preview("Empty Rotor") {
     CustomRotorsView(
         rotors: [
-            .init(name: "Headings", resultMarkers: []),
+            .init(name: "Headings", results: []),
         ],
         locale: nil
     )
