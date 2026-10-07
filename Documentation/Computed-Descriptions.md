@@ -1,14 +1,20 @@
 # Computed element descriptions
 
-The parser captures an element's label, value, traits, raw hint, language, and container context. `AccessibilityElement.description` and `hint` format those captured values when read. Formatting uses the existing speech rules and translations and does not query the source UIKit object.
+The parser captures an element's label, value, traits, raw hint, and language, then derives its container context. `AccessibilityElement.description` and `hint` format those stored values when read. Formatting uses the existing speech rules and translations and does not query the source UIKit object.
 
-The caller-supplied generic constructors still receive the live source object. Element fields are captured after the structural walk, and context-dependent rotor results are collected before any caller constructor runs. The generic fold constructs each public element from its completed private record. Changing a source in a constructor does not change that element or elements delivered by later constructors.
+On entry to a container candidate, the parser captures its own candidate public metadata, geometry, and policies before selecting or visiting children. Ancestor container getters run before descendant capture. Group completion on exit uses only captured data to determine descendant presence, container emission, and any child-inferred role.
+
+Public element values and raw rotor targets are captured when their sources are encountered. Table cell and header relationship queries are recorded as sources are discovered during the live walk; context and header child indices are resolved later. The parser attaches context through `addContext(_:)` and formats rotor results from captured values.
+
+All live reads finish before the generic fold passes completed public elements and containers to the caller-supplied constructors with their exact original live sources. Changing a source in a constructor does not change that element or elements delivered by later constructors.
+
+Capture is sequential. Settle layout before parsing; later getter-driven mutations do not update fields or geometry already captured.
 
 ## Constructing elements
 
 Remove the `description:` initializer argument. The `hint:` argument takes the captured accessibility hint before any trait instructions are added. The element stores that input privately and computes separate `description` and `hint` outputs, including container position, table headers, and trait instructions.
 
-`withDescription(_:hint:)` is removed. Delivered elements, containers, geometry, custom content, and rotor results are publicly read-only; derived properties are getter-only. The model exposes `addContext(_:)` through the `Parsing` SPI so the parser can attach derived context without rereading captured fields. Ordinary callers cannot mutate context. Parse the hierarchy again to capture changed relationships and produce new elements with updated context. The parser's intermediate capture state remains mutable while it prepares the result.
+Delivered elements, containers, geometry, custom content, and rotor results are publicly read-only; derived properties are getter-only. The model exposes `addContext(_:)` and `addCustomRotors(_:)` through the `Parsing` SPI so the parser can complete its stored public payloads without rereading captured fields. Ordinary callers cannot mutate context or rotors. Parse the hierarchy again to capture changed relationships and produce new elements with updated context.
 
 `CustomRotor.Result` and `CustomRotor.results` replace `ResultMarker` and `resultMarkers`. Rotor names, results, and custom-content fields are now read-only. The rotor result array retains its existing `resultMarkers` JSON key so saved rotor data still decodes.
 

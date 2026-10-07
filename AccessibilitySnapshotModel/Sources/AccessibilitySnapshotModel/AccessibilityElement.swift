@@ -74,7 +74,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
     public let usesDefaultActivationPoint: Bool
     public let customActions: [CustomAction]
     public let customContent: [CustomContent]
-    public let customRotors: [CustomRotor]
+    public private(set) var customRotors: [CustomRotor]
     public let accessibilityLanguage: String?
     public let respondsToUserInteraction: Bool
     public private(set) var context: AccessibilityContext?
@@ -126,6 +126,12 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
     @_spi(Parsing)
     public mutating func addContext(_ context: AccessibilityContext?) {
         self.context = context
+    }
+
+    /// Attaches rotor results formatted with context derived by the parser.
+    @_spi(Parsing)
+    public mutating func addCustomRotors(_ customRotors: [CustomRotor]) {
+        self.customRotors = customRotors
     }
 
     // MARK: - Codable

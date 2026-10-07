@@ -128,6 +128,39 @@ final class AccessibilityModelCodableTests: XCTestCase {
         XCTAssertEqual(legacyDecoded.description, "Cell: 42")
     }
 
+    func testParserAttachmentsPreserveAuthoredHintAndValueCopies() throws {
+        var element = AccessibilityElement(
+            label: "Volume",
+            value: "50",
+            traits: [.adjustable],
+            identifier: "volume",
+            hint: "Change volume",
+            userInputLabels: ["Volume"],
+            shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
+            activationPoint: AccessibilityPoint(x: 50, y: 22),
+            usesDefaultActivationPoint: true,
+            customActions: [],
+            customContent: [],
+            customRotors: [],
+            accessibilityLanguage: "en-US",
+            respondsToUserInteraction: true
+        )
+        let captured = element
+        let rotors: [AccessibilityElement.CustomRotor] = [
+            .init(name: "Related", results: [.init(elementDescription: "Speaker")]),
+        ]
+        element.addContext(.listEnd)
+        element.addCustomRotors(rotors)
+        XCTAssertEqual(element.description, "Volume: 50. Adjustable. List End.")
+        XCTAssertEqual(element.hint, captured.hint)
+        XCTAssertEqual(element.customRotors, rotors)
+        XCTAssertEqual(try JSONDecoder().decode(AccessibilityElement.self, from: JSONEncoder().encode(element)), element)
+
+        element.addContext(nil)
+        element.addCustomRotors([])
+        XCTAssertEqual(element, captured)
+    }
+
     func testLegacyElementDecodingRegeneratesSpeech() throws {
         let data = Data(#"""
         {"description":"Stale description","label":"Setting","value":"1","traits":["button","switchButton"],"hint":"Legacy hint","shape":{"type":"frame","frame":[[0,0],[100,44]]},"activationPoint":[50,22],"usesDefaultActivationPoint":true,"customActions":[],"customContent":[],"customRotors":[],"accessibilityLanguage":"en-US","respondsToUserInteraction":true}
