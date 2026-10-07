@@ -88,7 +88,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         }
     }
 
-    func testVendedGroupSortFramesFollowNavigationProviderScope() {
+    func testSilentTabBarScopeSortsNestedTabGroupsByLeafFramesWhileDirectTabsUseGroupFrames() {
         let root = TransparentTabBar(frame: CGRect(x: 0, y: 0, width: 300, height: 100))
         root.shouldGroupAccessibilityChildren = false
         let tabs = UIView(frame: root.bounds)
@@ -119,8 +119,45 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
                     userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: direction),
                     userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
                 ).flattenToElements()
-                XCTAssertEqual(elements.map { $0.label }, labels, "\(direction), wrapped: \(parseRoot === root), grouping: \(root.shouldGroupAccessibilityChildren)")
+                // The silent outer tab bar reserves scope, so its nested tab trait cannot anchor group frames.
+                let expected = parseRoot === root ? Array(labels.reversed()) : labels
+                XCTAssertEqual(elements.map { $0.label }, expected, "\(direction), wrapped: \(parseRoot === root), grouping: \(root.shouldGroupAccessibilityChildren)")
             }
+        }
+    }
+
+    func testSilentSegmentedControlScopeSortsNestedTabGroupsByLeafFrames() {
+        let root = TransparentSegmentedControl(frame: CGRect(x: 0, y: 0, width: 300, height: 100))
+        root.isAccessibilityElement = false
+        let tabs = UIView(frame: root.bounds)
+        tabs.accessibilityTraits = .tabBar
+        root.addSubview(tabs)
+
+        for (label, groupX, leafX) in [("Left", 10, 200), ("Right", 200, 10)] {
+            let group = UIView(frame: CGRect(x: groupX, y: 10, width: 50, height: 30))
+            group.accessibilityFrame = group.frame
+            tabs.addSubview(group)
+            let leaf = UIAccessibilityElement(accessibilityContainer: group)
+            leaf.accessibilityLabel = label
+            leaf.accessibilityFrame = CGRect(x: leafX, y: 10, width: 50, height: 30)
+            group.accessibilityElements = [leaf]
+        }
+
+        XCTAssertNil(root.accessibilityElements)
+        XCTAssertEqual(root.accessibilityContainerType, .none)
+        XCTAssertEqual(root.accessibilityTraits, [])
+        XCTAssertFalse(root.shouldGroupAccessibilityChildren)
+        for (direction, labels) in [
+            (UIUserInterfaceLayoutDirection.leftToRight, ["Right", "Left"]),
+            (.rightToLeft, ["Left", "Right"]),
+        ] {
+            let elements = AccessibilityHierarchyParser().parseAccessibilityHierarchy(
+                in: root,
+                userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: direction),
+                userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
+            ).flattenToElements()
+            XCTAssertEqual(elements.map { $0.label }, labels, "\(direction)")
+            XCTAssertEqual(elements.map { $0.context }, [nil, nil], "\(direction)")
         }
     }
 
@@ -1206,7 +1243,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         root.accessibilityElements = [container]
 
         let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: root)
-        XCTAssertEqual(container.childListReads, 1)
+        XCTAssertTrue(container.parentTextReadBeforeFirstChildListRead)
+        XCTAssertGreaterThan(container.childListReads, 0)
         XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, ["First", "Last"])
         XCTAssertEqual(hierarchy.flattenToElements().map { $0.context }, [.listStart, .listEnd])
     }
@@ -1404,7 +1442,36 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         ])
     }
 
-    func testSubviewTabTraitContextDistinguishesRepeatedSourceOccurrences() {
+    func testSubviewTabTraitContextUsesFirstEqualSourcePositionWithoutCoalescingLeaves() {
+        let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        root.accessibilityTraits = .tabBar
+        let leaves = ["A", "B"].enumerated().map { index, label in
+            let leaf = EqualKeyView(frame: CGRect(x: 0, y: index * 40, width: 100, height: 30))
+            leaf.equalityKey = 1
+            leaf.isAccessibilityElement = true
+            leaf.accessibilityLabel = label
+            leaf.accessibilityLanguage = "en"
+            leaf.accessibilityFrame = leaf.frame
+            root.addSubview(leaf)
+            return leaf
+        }
+        var callbackSources: [NSObject] = []
+        let hierarchy: [AccessibilityHierarchy] = AccessibilityHierarchyParser().parseAccessibilityHierarchy(
+            in: root,
+            makeElement: { element, index, source in
+                callbackSources.append(source)
+                return .element(element, traversalIndex: index)
+            },
+            makeContainer: { container, children, _ in .container(container, children: children) }
+        )
+
+        let elements = hierarchy.flattenToElements()
+        XCTAssertEqual(elements.map { $0.context }, [.tab(index: 1, count: 2), .tab(index: 1, count: 2)])
+        XCTAssertEqual(elements.map { $0.description }, ["A. Tab. 1 of 2.", "B. Tab. 1 of 2."])
+        XCTAssertEqual(callbackSources.map { ObjectIdentifier($0) }, leaves.map { ObjectIdentifier($0) })
+    }
+
+    func testSubviewTabTraitContextUsesFirstSourcePositionAndDistinctTraversalIndices() {
         let tabBar = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
         tabBar.accessibilityTraits = .tabBar
         let leaf = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 30))
@@ -1429,14 +1496,14 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         )
 
         XCTAssertEqual(hierarchy.flattenToElements().map { $0.context }, [
-            .tab(index: 1, count: 2), .tab(index: 2, count: 2),
+            .tab(index: 1, count: 2), .tab(index: 1, count: 2),
         ])
         XCTAssertEqual(callbackIndices, [0, 1])
         XCTAssertEqual(callbackSources.count, 2)
         XCTAssertTrue(callbackSources.allSatisfy { $0 === leaf })
     }
 
-    func testVendedTabTraitContextKeepsChildGroupPositions() {
+    func testVendedTabTraitContextUsesDirectMembershipAndAdvertisedEntryCount() {
         let tabBar = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
         tabBar.accessibilityTraits = .tabBar
         let groups = [UIView(frame: tabBar.bounds), UIView(frame: tabBar.bounds)]
@@ -1452,14 +1519,180 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             }
             group.accessibilityElements = leaves
         }
-        tabBar.accessibilityElements = groups
+        let direct = UIView(frame: CGRect(x: 0, y: 80, width: 90, height: 30))
+        direct.isAccessibilityElement = true
+        direct.accessibilityLabel = "Direct"
+        direct.accessibilityLanguage = "en"
+        direct.accessibilityFrame = direct.frame
+        tabBar.addSubview(direct)
+        tabBar.accessibilityElements = [groups[0], direct, groups[1]]
 
         let elements = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: tabBar).flattenToElements()
-        XCTAssertEqual(elements.map { $0.label }, ["1A", "1B", "2A", "2B"])
-        XCTAssertEqual(elements.map { $0.context }, [
-            .tab(index: 1, count: 2), .tab(index: 1, count: 2),
-            .tab(index: 2, count: 2), .tab(index: 2, count: 2),
-        ])
+        XCTAssertEqual(elements.map { $0.label }, ["1A", "1B", "Direct", "2A", "2B"])
+        XCTAssertEqual(elements.map { $0.context }, [nil, nil, .tab(index: 2, count: 3), nil, nil])
+        XCTAssertEqual(elements.map { $0.description }, ["1A", "1B", "Direct. Tab. 2 of 3.", "2A", "2B"])
+    }
+
+    func testVendedTabTraitContextUsesReportedMembershipPositionAndCount() {
+        let root = ReportedMembershipTabContainer(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        let leaf = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 30))
+        leaf.isAccessibilityElement = true
+        leaf.accessibilityLabel = "Leaf"
+        leaf.accessibilityLanguage = "en"
+        leaf.accessibilityFrame = leaf.frame
+        root.addSubview(leaf)
+        root.accessibilityElements = [leaf]
+
+        let elements = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: root).flattenToElements()
+        XCTAssertEqual(elements.map { $0.context }, [.tab(index: 2, count: 4)])
+        XCTAssertEqual(elements.map { $0.description }, ["Leaf. Tab. 2 of 4."])
+    }
+
+    func testVendedSegmentedControlContextTakesPrecedenceOverTabTrait() {
+        let root = VendingSegmentedControl(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+        root.isAccessibilityElement = false
+        root.accessibilityTraits = .tabBar
+        let leaves = ["First", "Last"].enumerated().map { index, label in
+            let leaf = UIView(frame: CGRect(x: 0, y: index * 40, width: 100, height: 30))
+            leaf.isAccessibilityElement = true
+            leaf.accessibilityLabel = label
+            leaf.accessibilityLanguage = "en"
+            leaf.accessibilityFrame = leaf.frame
+            root.addSubview(leaf)
+            return leaf
+        }
+        root.accessibilityElements = leaves
+
+        let elements = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: root).flattenToElements()
+        XCTAssertEqual(elements.map { $0.context }, [.series(index: 1, count: 2), .series(index: 2, count: 2)])
+        XCTAssertEqual(elements.map { $0.description }, ["First 1 of 2.", "Last 2 of 2."])
+    }
+
+    func testDataTableContextTakesPrecedenceOverTabTrait() {
+        for vendsChildren in [false, true] {
+            let table = TestDataTableView(frame: CGRect(x: 0, y: 0, width: 100, height: 100), rows: 1, columns: 1)
+            table.accessibilityTraits = .tabBar
+            let cell = TestDataTableCell(row: 0, column: 0, label: "Cell")
+            cell.frame = CGRect(x: 0, y: 0, width: 100, height: 30)
+            cell.accessibilityFrame = cell.frame
+            cell.accessibilityLanguage = "en"
+            table.addSubview(cell)
+            table.cells[CellIndex(row: 0, column: 0)] = cell
+            if vendsChildren {
+                table.accessibilityElements = [cell]
+            }
+
+            let elements = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: table).flattenToElements()
+            XCTAssertEqual(elements.map { $0.context }, [.dataTableCell(
+                row: 0, column: 0, width: 1, height: 1, isFirstInRow: true, rowHeaders: [], columnHeaders: []
+            )], "vends children: \(vendsChildren)")
+            XCTAssertEqual(elements.map { $0.description }, ["Cell. Row 1. Column 1."], "vends children: \(vendsChildren)")
+        }
+    }
+
+    func testSubviewDataTableScopeSortsNestedVendedWrappersByCellFramesDespiteTabTrait() {
+        let table = TestDataTableView(frame: CGRect(x: 0, y: 0, width: 300, height: 100), rows: 1, columns: 2)
+        table.accessibilityTraits = .tabBar
+        for (column, configuration) in [("Left", 10, 200), ("Right", 200, 10)].enumerated() {
+            let (label, wrapperX, cellX) = configuration
+            let wrapper = UIView(frame: CGRect(x: wrapperX, y: 10, width: 50, height: 30))
+            wrapper.accessibilityFrame = wrapper.frame
+            table.addSubview(wrapper)
+            let cell = TestDataTableCell(row: 0, column: column, label: label)
+            cell.frame = CGRect(x: cellX, y: 10, width: 50, height: 30)
+            cell.accessibilityFrame = cell.frame
+            wrapper.addSubview(cell)
+            wrapper.accessibilityElements = [cell]
+            table.cells[CellIndex(row: 0, column: column)] = cell
+        }
+
+        XCTAssertNil(table.accessibilityElements)
+        for (direction, labels, columns) in [
+            (UIUserInterfaceLayoutDirection.leftToRight, ["Right", "Left"], [1, 0]),
+            (.rightToLeft, ["Left", "Right"], [0, 1]),
+        ] {
+            let elements = AccessibilityHierarchyParser().parseAccessibilityHierarchy(
+                in: table,
+                userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: direction),
+                userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
+            ).flattenToElements()
+            XCTAssertEqual(elements.map { $0.label }, labels, "\(direction)")
+            XCTAssertEqual(elements.map { $0.context }, columns.map { column -> AccessibilityContext? in
+                AccessibilityContext.dataTableCell(
+                    row: 0, column: column, width: 1, height: 1, isFirstInRow: column == 0,
+                    rowHeaders: [], columnHeaders: []
+                )
+            }, "\(direction)")
+        }
+    }
+
+    func testDuplicateVendedLeafUsesFirstMembershipPosition() {
+        for containerType in [UIAccessibilityContainerType.list, .landmark, .none] {
+            let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+            root.accessibilityContainerType = containerType
+            if containerType == .none {
+                root.accessibilityTraits = .tabBar
+            }
+            let leaf = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 30))
+            leaf.isAccessibilityElement = true
+            leaf.accessibilityLabel = "Repeated"
+            leaf.accessibilityLanguage = "en"
+            leaf.accessibilityFrame = leaf.frame
+            root.addSubview(leaf)
+            root.accessibilityElements = [leaf, leaf]
+
+            let elements = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: root).flattenToElements()
+            let context: AccessibilityContext
+            let description: String
+            switch containerType {
+            case .list:
+                context = .listStart
+                description = "Repeated. List Start."
+            case .landmark:
+                context = .landmarkStart
+                description = "Repeated. Landmark."
+            default:
+                context = .tab(index: 1, count: 2)
+                description = "Repeated. Tab. 1 of 2."
+            }
+            XCTAssertEqual(elements.map { $0.context }, [context, context], "\(containerType)")
+            XCTAssertEqual(elements.map { $0.description }, [description, description], "\(containerType)")
+        }
+    }
+
+    func testExplicitlyVendedRealTabBarButtonsKeepTraitSpeechWithoutPositionalContext() {
+        let tabBar = UITabBar(frame: CGRect(x: 0, y: 0, width: 200, height: 50))
+        tabBar.items = [UITabBarItem(title: "First", image: nil, tag: 0), UITabBarItem(title: "Last", image: nil, tag: 1)]
+        let window = UIWindow(frame: tabBar.bounds)
+        window.addSubview(tabBar)
+        window.makeKeyAndVisible()
+        defer {
+            window.resignKey()
+            window.isHidden = true
+        }
+        tabBar.layoutIfNeeded()
+        let buttonClasses = [NSClassFromString("UITabBarButton"), NSClassFromString("_UITabButton")].compactMap { $0 }
+        func buttons(in view: UIView) -> [UIView] {
+            view.subviews.flatMap { child in
+                (buttonClasses.contains { child.isKind(of: $0) } ? [child] : []) + buttons(in: child)
+            }
+        }
+        let actualButtons = buttons(in: tabBar).sorted { $0.frame.minX < $1.frame.minX }
+        guard !actualButtons.isEmpty, actualButtons.count.isMultiple(of: 2) else {
+            return XCTFail("Expected a nonempty multiple of two real tab bar buttons, found \(actualButtons.count)")
+        }
+        let labels = actualButtons.indices.map { $0.isMultiple(of: 2) ? "First" : "Last" }
+        for (button, label) in zip(actualButtons, labels) {
+            button.accessibilityLabel = label
+            button.accessibilityValue = nil
+            button.accessibilityLanguage = "en"
+            button.accessibilityTraits = .tabBarItemTrait
+        }
+        tabBar.accessibilityElements = actualButtons
+
+        let elements = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: tabBar).flattenToElements()
+        XCTAssertTrue(elements.allSatisfy { $0.context == nil })
+        XCTAssertEqual(elements.map { $0.description }, labels.map { "\($0). Tab." })
     }
 
     func testVendedMetadataGroupSortsWithinExplicitParentSlot() {
@@ -1758,7 +1991,39 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(try XCTUnwrap(snapshot.parsedData).markers.map { $0.label }, ["Path only"])
     }
 
-    func testVendedListGroupsKeepChildBoundaryContextAndSourceCallbacks() {
+    func testNonVendingAncestorsReserveContextScopeOnlyForContextRoles() {
+        for (outerType, innerType, announcesList) in [
+            (UIAccessibilityContainerType.list, UIAccessibilityContainerType.list, false),
+            (.landmark, .list, false),
+            (.landmark, .landmark, false),
+            (.none, .list, true),
+            (.semanticGroup, .list, true),
+        ] {
+            let outer = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+            outer.accessibilityContainerType = outerType
+            let inner = UIView(frame: outer.bounds)
+            inner.accessibilityContainerType = innerType
+            outer.addSubview(inner)
+            let leaves = ["First", "Last"].enumerated().map { index, label in
+                let leaf = UIView(frame: CGRect(x: 0, y: index * 40, width: 100, height: 30))
+                leaf.isAccessibilityElement = true
+                leaf.accessibilityLabel = label
+                leaf.accessibilityLanguage = "en"
+                leaf.accessibilityFrame = leaf.frame
+                inner.addSubview(leaf)
+                return leaf
+            }
+            inner.accessibilityElements = leaves
+
+            let elements = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: outer).flattenToElements()
+            let configuration = "outer: \(outerType), inner: \(innerType)"
+            XCTAssertNil(outer.accessibilityElements, configuration)
+            XCTAssertEqual(elements.map { $0.description }, announcesList ? ["First. List Start.", "Last. List End."] : ["First", "Last"], configuration)
+            XCTAssertEqual(elements.map { $0.context }, announcesList ? [.listStart, .listEnd] : [nil, nil], configuration)
+        }
+    }
+
+    func testVendedListGroupsKeepSourceCallbacksWithoutDescendantBoundaryContext() {
         let list = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 200))
         list.accessibilityContainerType = .list
 
@@ -1807,11 +2072,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         let elements = hierarchy.flattenToElements()
         XCTAssertEqual(elements.map { $0.label }, ["First A", "First B", "Last A", "Last B"])
-        XCTAssertEqual(elements.map { $0.context }, [.listStart, .listStart, .listEnd, .listEnd])
-        XCTAssertEqual(elements.map { $0.description }, [
-            "First A. List Start.", "First B. List Start.",
-            "Last A. List End.", "Last B. List End.",
-        ])
+        XCTAssertEqual(elements.map { $0.context }, [nil, nil, nil, nil])
+        XCTAssertEqual(elements.map { $0.description }, ["First A", "First B", "Last A", "Last B"])
         XCTAssertEqual(callbackElements, elements)
         XCTAssertEqual(callbackIndices, [0, 1, 2, 3])
         XCTAssertEqual(callbackSources.count, sources.count)
@@ -1850,10 +2112,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         }
     }
 
-    func testParserDerivesContextFromGraphWhenContainerReportsNotFound() {
-        // A container that lies about its children (drops one on `index(of:)`) no longer strips that
-        // element's context. Graph-derived parsing reads the element's position from the tree it
-        // actually walked, not from the container's self-report, so list context still applies.
+    func testParserDropsVendedContextWhenContainerReportsNotFound() {
+        // A vended leaf keeps its speech without positional context when its container reports no membership.
         let root = UIView(frame: CGRect(x: 0, y: 0, width: 200, height: 200))
         let container = InconsistentListContainer(frame: root.bounds)
         root.addSubview(container)
@@ -1865,8 +2125,8 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
             userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
         ).flattenToElements()
 
-        XCTAssertEqual(elements.map { $0.description }, ["child. List Start."], "Element keeps its graph-derived list context even when its container drops it")
-        XCTAssertEqual(elements.map { $0.context }, [.listStart])
+        XCTAssertEqual(elements.map { $0.description }, ["child"])
+        XCTAssertEqual(elements.map { $0.context }, [nil])
     }
 
     /// A `UITabBar` with no items previously triggered a modulo-by-zero `precondition` inside
@@ -2273,7 +2533,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(callbackSources.map { ObjectIdentifier($0) }, [first, owner].map { ObjectIdentifier($0) })
         XCTAssertEqual(containerSources.map { ObjectIdentifier($0) }, [wrapper, list].map { ObjectIdentifier($0) })
         let elements = hierarchy.flattenToElements()
-        XCTAssertEqual(elements.map { $0.context }, [.listStart, .listEnd])
+        XCTAssertEqual(elements.map { $0.context }, [nil, .listEnd])
         XCTAssertEqual(try XCTUnwrap(elements.last).customRotors, [.init(name: "Matches", results: [
             .init(elementDescription: "Match. List End.", shape: .frame(AccessibilityRect(targetFrame))),
         ])])
@@ -2333,6 +2593,64 @@ private final class TransparentTabBar: UITabBar {
     }
 }
 
+private final class TransparentSegmentedControl: UISegmentedControl {
+    override var shouldGroupAccessibilityChildren: Bool {
+        get { false }
+        set {}
+    }
+
+    override var accessibilityContainerType: UIAccessibilityContainerType {
+        get { .none }
+        set {}
+    }
+
+    override var accessibilityTraits: UIAccessibilityTraits {
+        get { [] }
+        set {}
+    }
+
+    override var accessibilityElements: [Any]? {
+        get { nil }
+        set {}
+    }
+}
+
+private final class VendingSegmentedControl: UISegmentedControl {
+    private var vendedElements: [NSObject] = []
+
+    override var accessibilityTraits: UIAccessibilityTraits {
+        get { .tabBar }
+        set {}
+    }
+
+    override var accessibilityElements: [Any]? {
+        get { vendedElements }
+        set { vendedElements = newValue as? [NSObject] ?? [] }
+    }
+
+    override func index(ofAccessibilityElement element: Any) -> Int {
+        guard let element = element as? NSObject else { return NSNotFound }
+        return vendedElements.firstIndex { $0 === element } ?? NSNotFound
+    }
+
+    override func accessibilityElementCount() -> Int {
+        vendedElements.count
+    }
+}
+
+private final class EqualKeyView: UIView {
+    var equalityKey = 0
+
+    override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? EqualKeyView else { return false }
+        return equalityKey == other.equalityKey
+    }
+
+    override var hash: Int {
+        equalityKey.hashValue
+    }
+}
+
 private final class GetterMutatingView: UIView {
     var mutateOnLabelRead: (() -> Void)?
 
@@ -2345,10 +2663,26 @@ private final class GetterMutatingView: UIView {
     }
 }
 
+private final class ReportedMembershipTabContainer: UIView {
+    override var accessibilityTraits: UIAccessibilityTraits {
+        get { .tabBar }
+        set {}
+    }
+
+    override func index(ofAccessibilityElement element: Any) -> Int {
+        1
+    }
+
+    override func accessibilityElementCount() -> Int {
+        4
+    }
+}
+
 private final class GetterSettlingObjectContainer: NSObject {
     private let children: [UIView]
     private var ready = false
     private(set) var childListReads = 0
+    private(set) var parentTextReadBeforeFirstChildListRead = false
 
     init(children: [UIView]) {
         self.children = children
@@ -2366,6 +2700,9 @@ private final class GetterSettlingObjectContainer: NSObject {
 
     override var accessibilityElements: [Any]? {
         get {
+            if childListReads == 0 {
+                parentTextReadBeforeFirstChildListRead = ready
+            }
             childListReads += 1
             return ready ? children : []
         }

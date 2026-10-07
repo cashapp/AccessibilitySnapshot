@@ -40,12 +40,16 @@ flowchart TD
 
 | Private type | What it carries |
 |---|---|
-| `CapturedElement` | Public `AccessibilityElement` value, original strong source, sorting frame, raw rotor captures, view flag, traversal index |
+| `CapturedElement` | Public `AccessibilityElement` value, original strong source, sorting frame, raw rotor captures, view flag, captured tab-equality identity, traversal index |
 | `ContainerInfo` | Public `AccessibilityContainer` payload, original strong source, role, navigation/context rules, tab/table facts |
+| `CapturedVendedContexts` | Captures reported membership and positional context for encountered leaves, including silent results |
+| `CapturedTabSources` | Captures equality groups for subview-based tab positions; later ordering compares only captured identities |
 | `CapturedDataTable` | Call-scoped reference record retaining the live table source and parent-table link; accumulates captured cell relationships and a header cache as sources are encountered |
 | `AccessibilityNode` | Either a captured leaf or a group of child nodes, with explicit-order and group-anchor information |
 
 On entry to a container candidate, the walk captures its own candidate public `AccessibilityContainer` metadata, geometry, and policies before selecting or visiting children. Ancestor container getters therefore run before descendant capture. On exit, group completion uses only captured data to determine whether accessible descendants exist, whether to emit a container, and any child-inferred role.
+
+Context-scope reservation is separate from generating positional speech. The first eligible ancestor keeps its scope even when it adds no announcement. During the live walk, vended providers' membership and count accessors supply captured positional facts, preserving custom overrides and contextless descendants. Subview-based tab positions use each captured equality group's first position in reading order. Group-anchor eligibility is captured from the incoming scope before navigation projection.
 
 Leaf public values, geometry, and raw rotor targets are captured when their sources are encountered. Table cell and header relationship queries are recorded as sources are discovered during the live walk; context and header child indices are resolved later from captured facts and the ordered tree. Sorting and rotor formatting also use captured data. All live reads finish before the generic fold invokes caller constructors.
 
@@ -86,7 +90,7 @@ flowchart LR
     end
 ```
 
-The structural and navigation projections share the same `CapturedElement` instances. Attaching context to the stored value or assigning an index updates the occurrence that both projections refer to. Repeated appearances of one live source have separate records and can receive different context and indices.
+The structural and navigation projections share the same `CapturedElement` instances. Attaching context to the stored value or assigning an index updates the occurrence that both projections refer to. Repeated appearances of one live source have separate records and traversal indices. Within one positional scope, each appearance reuses the source's captured membership context.
 
 Constructor invocation order follows the structural fold. Consumers use the supplied traversal indices when they need reading order.
 

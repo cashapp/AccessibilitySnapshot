@@ -170,8 +170,7 @@ public final class AccessibilityHierarchyParser {
         _ nodes: [AccessibilityNode],
         explicitlyOrdered: Bool,
         userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection,
-        userInterfaceIdiom: UIUserInterfaceIdiom,
-        provider: ContainerInfo? = nil
+        userInterfaceIdiom: UIUserInterfaceIdiom
     ) -> [AccessibilityNode] {
         let horizontalCompare: (Double, Double) -> Bool
         switch userInterfaceLayoutDirection {
@@ -201,7 +200,7 @@ public final class AccessibilityHierarchyParser {
         }
         let navigationNodes = explicitlyOrdered ? nodes : nodes.flatMap { $0.navigationNodes }
         let ordered = explicitlyOrdered ? navigationNodes : navigationNodes
-            .map { ($0, Self.accessibilitySortFrame(for: $0, compare: compare, provider: provider)) }
+            .map { ($0, Self.accessibilitySortFrame(for: $0, compare: compare)) }
             .sorted { compare($0.1, $1.1) }
             .map { $0.0 }
 
@@ -214,8 +213,7 @@ public final class AccessibilityHierarchyParser {
                     children,
                     explicitlyOrdered: info?.formsNavigationBoundary == false ? explicitlyOrdered : childExplicitlyOrdered,
                     userInterfaceLayoutDirection: userInterfaceLayoutDirection,
-                    userInterfaceIdiom: userInterfaceIdiom,
-                    provider: provider ?? info.flatMap { $0.lendsContext ? $0 : nil }
+                    userInterfaceIdiom: userInterfaceIdiom
                 ),
                 explicitlyOrdered: true,
                 sortFrameOverride: frame,
@@ -243,7 +241,6 @@ public final class AccessibilityHierarchyParser {
     private func prepareNodes(
         _ nodes: [AccessibilityNode],
         provider: ContainerInfo? = nil,
-        context: Context? = nil,
         tabContexts: [ObjectIdentifier: Context]? = nil
     ) -> [AccessibilityNode] {
         nodes.map { node in
@@ -254,33 +251,34 @@ public final class AccessibilityHierarchyParser {
                     element.value.addContext(cells[identity]?.context)
                 } else if let tabs = provider?.tabBarItemContexts {
                     element.value.addContext(tabs[identity])
-                } else if provider?.usesFlattenedTabPositions == true {
-                    element.value.addContext(tabContexts?[ObjectIdentifier(element)])
+                } else if let contexts = provider?.vendedContexts {
+                    element.value.addContext(contexts.context(for: identity))
+                } else if let tabSourceIdentity = element.tabSourceIdentity, element.isView {
+                    element.value.addContext(tabContexts?[tabSourceIdentity])
                 } else {
-                    element.value.addContext(context)
+                    element.value.addContext(nil)
                 }
                 return node
 
             case let .group(children, explicitlyOrdered, frame, capturedInfo):
                 var info = capturedInfo
                 let ownsContext = provider == nil && info?.lendsContext == true
-                let childProvider = provider ?? info.flatMap { $0.lendsContext ? $0 : nil }
+                let childProvider = provider ?? info.flatMap { $0.reservesContextScope ? $0 : nil }
                 var childTabContexts = tabContexts
-                if ownsContext, info?.usesFlattenedTabPositions == true {
+                if ownsContext, info?.tabSources != nil {
                     let tabs = children.flatMap { $0.capturedElements }.sorted { $0.traversalIndex < $1.traversalIndex }
                     childTabContexts = [:]
-                    for (index, tab) in tabs.enumerated() where tab.isView {
-                        childTabContexts?[ObjectIdentifier(tab)] = .tab(index: index + 1, count: tabs.count)
+                    for (index, tab) in tabs.enumerated() {
+                        if let identity = tab.tabSourceIdentity, childTabContexts?[identity] == nil {
+                            childTabContexts?[identity] = .tab(index: index + 1, count: tabs.count)
+                        }
                     }
                 }
-                let preparedChildren = children.enumerated().flatMap { index, child in
-                    prepareNodes(
-                        [child],
-                        provider: childProvider,
-                        context: ownsContext ? info?.context(at: index, count: children.count) : context,
-                        tabContexts: childTabContexts
-                    )
-                }
+                let preparedChildren = prepareNodes(
+                    children,
+                    provider: childProvider,
+                    tabContexts: childTabContexts
+                )
                 if let captured = info,
                    case let .dataTable(rowCount, columnCount, _) = captured.role,
                    let container = captured.container
@@ -463,19 +461,17 @@ private extension AccessibilityHierarchyParser {
     /// Returns captured sorting geometry, or nil for an empty group.
     static func accessibilitySortFrame(
         for node: AccessibilityNode,
-        compare: (AccessibilityRect?, AccessibilityRect?) -> Bool,
-        provider: ContainerInfo? = nil
+        compare: (AccessibilityRect?, AccessibilityRect?) -> Bool
     ) -> AccessibilityRect? {
         switch node {
         case let .element(element):
             return element.sortFrame
-        case let .group(children, _, frame, info):
-            if let frame, provider?.anchorsVendedGroups == true {
+        case let .group(children, _, frame, _):
+            if let frame {
                 return frame
             }
-            let childProvider = provider ?? info.flatMap { $0.lendsContext ? $0 : nil }
             return children
-                .compactMap { accessibilitySortFrame(for: $0, compare: compare, provider: childProvider) }
+                .compactMap { accessibilitySortFrame(for: $0, compare: compare) }
                 .min { compare($0, $1) }
         }
     }
@@ -543,29 +539,36 @@ private struct ContainerInfo {
     let source: NSObject
     var role: AccessibilityContainer.ContainerType
     let traits: UIAccessibilityTraits
+    let containerType: UIAccessibilityContainerType
     let shouldGroupChildren: Bool
     let infersTabBarFromChildren: Bool
+    let isSegmentedControl: Bool
     var lendsContext: Bool
+    let reservesContextScope: Bool
     var formsNavigationBoundary: Bool
-    var usesFlattenedTabPositions: Bool
+    var tabSources: CapturedTabSources?
     var anchorsVendedGroups: Bool
-    let tabBarItemContexts: [ObjectIdentifier: AccessibilityContext]?
+    var tabBarItemContexts: [ObjectIdentifier: AccessibilityContext]?
+    var vendedContexts: CapturedVendedContexts?
     let dataTable: CapturedDataTable?
     var container: AccessibilityContainer?
 
     func withChildOrdering(vendsChildren: Bool) -> ContainerInfo {
         var configured = self
-        if vendsChildren {
-            configured.formsNavigationBoundary = true
-            configured.usesFlattenedTabPositions = false
-            configured.anchorsVendedGroups = false
-            switch role {
-            case .series, .list, .landmark:
-                configured.lendsContext = true
-            case .none, .semanticGroup, .dataTable, .tabBar, .scrollable:
-                break
-            }
+        guard vendsChildren else { return configured }
+        configured.formsNavigationBoundary = true
+        configured.tabSources = nil
+        configured.anchorsVendedGroups = false
+        configured.tabBarItemContexts = nil
+        switch role {
+        case .series, .list, .landmark:
+            configured.lendsContext = reservesContextScope
+        case .tabBar:
+            configured.lendsContext = traits.contains(.tabBar)
+        case .none, .semanticGroup, .dataTable, .scrollable:
+            break
         }
+        configured.vendedContexts = CapturedVendedContexts()
         return configured
     }
 
@@ -588,22 +591,45 @@ private struct ContainerInfo {
         if !children.contains(where: { $0.containsAccessibleElement }) {
             completed.container = nil
         }
-        return completed.container != nil || completed.lendsContext ? completed : nil
+        return completed.container != nil || completed.reservesContextScope ? completed : nil
+    }
+}
+
+/// Captures NSObject equality groups without comparing live sources during preparation.
+private final class CapturedTabSources {
+    private var identities: [NSObject: ObjectIdentifier] = [:]
+
+    func capture(_ source: NSObject) -> ObjectIdentifier {
+        if let identity = identities[source] { return identity }
+        let identity = ObjectIdentifier(source)
+        identities[source] = identity
+        return identity
+    }
+}
+
+/// Captures a vended provider's reported membership during the live walk.
+private final class CapturedVendedContexts {
+    private var capturedSources: Set<ObjectIdentifier> = []
+    private var contexts: [ObjectIdentifier: AccessibilityContext] = [:]
+
+    func capture(source: NSObject, provider: ContainerInfo) {
+        let identity = ObjectIdentifier(source)
+        guard capturedSources.insert(identity).inserted else { return }
+        let index = provider.source.index(ofAccessibilityElement: source)
+        guard index != NSNotFound else { return }
+        if provider.isSegmentedControl {
+            contexts[identity] = .series(index: index + 1, count: provider.source.accessibilityElementCount())
+        } else if provider.traits.contains(.tabBar) {
+            contexts[identity] = .tab(index: index + 1, count: provider.source.accessibilityElementCount())
+        } else if provider.containerType == .list {
+            contexts[identity] = index == 0 ? .listStart : (index == provider.source.accessibilityElementCount() - 1 ? .listEnd : nil)
+        } else if provider.containerType == .landmark {
+            contexts[identity] = index == 0 ? .landmarkStart : (index == provider.source.accessibilityElementCount() - 1 ? .landmarkEnd : nil)
+        }
     }
 
-    func context(at index: Int, count: Int) -> AccessibilityContext? {
-        switch role {
-        case .series:
-            return .series(index: index + 1, count: count)
-        case .tabBar:
-            return tabBarItemContexts == nil ? .tab(index: index + 1, count: count) : nil
-        case .list:
-            return index == 0 ? .listStart : (index == count - 1 ? .listEnd : nil)
-        case .landmark:
-            return index == 0 ? .landmarkStart : (index == count - 1 ? .landmarkEnd : nil)
-        case .none, .semanticGroup, .dataTable, .scrollable:
-            return nil
-        }
+    func context(for identity: ObjectIdentifier) -> AccessibilityContext? {
+        contexts[identity]
     }
 }
 
@@ -695,14 +721,16 @@ private final class CapturedDataTable {
 private final class CapturedElement {
     let source: NSObject
     let isView: Bool
+    let tabSourceIdentity: ObjectIdentifier?
     let sortFrame: AccessibilityRect
     let rotors: [CapturedRotor]
     var value: AccessibilityElement
     var traversalIndex = 0
 
-    init(source: NSObject, in root: UIView, visibility: ScreenVisibility, rotorResultLimit: Int) {
+    init(source: NSObject, in root: UIView, visibility: ScreenVisibility, rotorResultLimit: Int, tabSources: CapturedTabSources?) {
         self.source = source
         isView = source is UIView
+        tabSourceIdentity = tabSources?.capture(source)
         sortFrame = AccessibilityHierarchyParser.sortFrame(for: source, in: root)
         let value = AccessibilityHierarchyParser.captureElement(for: source, in: root, visibility: visibility)
         self.value = value
@@ -784,7 +812,8 @@ private extension NSObject {
         isRoot: Bool = false,
         inheritsOffscreen: Bool = false,
         rotorResultLimit: Int,
-        dataTable: CapturedDataTable? = nil
+        dataTable: CapturedDataTable? = nil,
+        contextScope: ContainerInfo? = nil
     ) -> [AccessibilityNode] {
         guard !accessibilityElementsHidden else {
             return []
@@ -807,6 +836,7 @@ private extension NSObject {
             return []
         }
         let childDataTable = capturedContainer?.dataTable ?? dataTable
+        let childContextScope = contextScope ?? capturedContainer.flatMap { $0.reservesContextScope ? $0 : nil }
 
         // Only clipping ancestors pass their offscreen state to descendants.
         var isOffscreen = inheritsOffscreen
@@ -828,6 +858,9 @@ private extension NSObject {
         var recursiveAccessibilityHierarchy: [AccessibilityNode] = []
 
         if isElement {
+            if let contextScope, contextScope.dataTable == nil {
+                contextScope.vendedContexts?.capture(source: self, provider: contextScope)
+            }
             if !isOffscreen, !(self is UIView) {
                 // A framed non-UIView element clipped out by a scrollable ancestor is marked
                 // off-screen rather than pruned.
@@ -851,14 +884,14 @@ private extension NSObject {
                 }
             }
             recursiveAccessibilityHierarchy.append(
-                .element(CapturedElement(source: self, in: root, visibility: isOffscreen ? .offscreen : .onscreen, rotorResultLimit: rotorResultLimit))
+                .element(CapturedElement(source: self, in: root, visibility: isOffscreen ? .offscreen : .onscreen, rotorResultLimit: rotorResultLimit, tabSources: contextScope?.tabSources))
             )
 
         } else if let childSources {
             let sortFrame = AccessibilityHierarchyParser.sortFrame(for: self, in: root)
             var accessibilityHierarchyOfElements: [AccessibilityNode] = []
             for element in childSources {
-                let children = element.recursiveAccessibilityHierarchy(in: root, inheritsOffscreen: isOffscreen, rotorResultLimit: rotorResultLimit, dataTable: childDataTable)
+                let children = element.recursiveAccessibilityHierarchy(in: root, inheritsOffscreen: isOffscreen, rotorResultLimit: rotorResultLimit, dataTable: childDataTable, contextScope: childContextScope)
                 accessibilityHierarchyOfElements.append(.group(
                     children,
                     explicitlyOrdered: false,
@@ -870,7 +903,7 @@ private extension NSObject {
             recursiveAccessibilityHierarchy.append(.group(
                 accessibilityHierarchyOfElements,
                 explicitlyOrdered: true,
-                sortFrameOverride: sortFrame,
+                sortFrameOverride: contextScope?.anchorsVendedGroups == true ? sortFrame : nil,
                 container: container
             ))
 
@@ -890,7 +923,8 @@ private extension NSObject {
                         isRoot: false,
                         inheritsOffscreen: isOffscreen,
                         rotorResultLimit: rotorResultLimit,
-                        dataTable: childDataTable
+                        dataTable: childDataTable,
+                        contextScope: childContextScope
                     )
                 )
             }
@@ -949,6 +983,7 @@ private extension NSObject {
             }
         }
         let lendsContext = actualTabBar != nil || traits.contains(.tabBar) || dataTable != nil
+        let reservesContextScope = lendsContext || self is UISegmentedControl || type == .list || type == .landmark
         let hasContainerFacts = identifier?.isEmpty == false
             || scrollableContentSize != nil
             || isModalBoundary
@@ -968,15 +1003,19 @@ private extension NSObject {
             source: self,
             role: role,
             traits: traits,
+            containerType: type,
             shouldGroupChildren: shouldGroupChildren,
             infersTabBarFromChildren: type == .none && actualTabBar == nil && !traits.contains(.tabBar) && !(self is UISegmentedControl),
+            isSegmentedControl: self is UISegmentedControl,
             lendsContext: lendsContext,
+            reservesContextScope: reservesContextScope,
             formsNavigationBoundary: shouldGroupChildren
                 || traits.contains(.tabBar) || type == .list || type == .landmark || type == .dataTable
                 || (type == .semanticGroup && (label != nil || value != nil || identifier != nil)),
-            usesFlattenedTabPositions: actualTabBar == nil && traits.contains(.tabBar),
-            anchorsVendedGroups: traits.contains(.tabBar),
+            tabSources: actualTabBar == nil && dataTable == nil && traits.contains(.tabBar) ? CapturedTabSources() : nil,
+            anchorsVendedGroups: dataTable == nil && traits.contains(.tabBar),
             tabBarItemContexts: tabBarItemContexts,
+            vendedContexts: nil,
             dataTable: dataTable.map { CapturedDataTable(source: $0, parent: parentDataTable) },
             container: container
         )
