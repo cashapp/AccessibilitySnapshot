@@ -53,7 +53,7 @@ public final class AccessibilityHierarchyParser {
     /// Defaults to 10.
     /// - parameter userInterfaceLayoutDirectionProvider: The provider of the device's user interface layout direction.
     /// In most cases, this should use the default value, `UIApplication.shared`.
-    @available(*, deprecated, message: "Use parseAccessibilityHierarchy(in:) and flattenToElements() instead")
+    @available(*, deprecated, message: "Use parseAccessibilityHierarchy(in:).flattenToElements().filter { $0.visibility == .onscreen } to preserve snapshot filtering")
     public func parseAccessibilityElements(
         in root: UIView,
         rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
@@ -543,7 +543,9 @@ private struct ContainerInfo {
     let shouldGroupChildren: Bool
     let infersTabBarFromChildren: Bool
     let isSegmentedControl: Bool
+    // Whether this provider supplies speech context in its captured vending mode.
     var lendsContext: Bool
+    // The first eligible ancestor owns the scope, including silent nonvending lists and landmarks.
     let reservesContextScope: Bool
     var formsNavigationBoundary: Bool
     var tabSources: CapturedTabSources?
@@ -644,7 +646,7 @@ private final class CapturedDataTable {
     let source: UIAccessibilityContainerDataTable
     let parent: CapturedDataTable?
     private(set) var cells: [ObjectIdentifier: CapturedDataTableCell] = [:]
-    private var headers: [ObjectIdentifier: AccessibilityContext.Header] = [:]
+    private var headers: [ObjectIdentifier: AccessibilityContext.TableHeader] = [:]
     // Keep identity keys valid for cells and headers outside the emitted tree.
     private var capturedSources: [NSObject] = []
 
@@ -706,13 +708,13 @@ private final class CapturedDataTable {
         )
     }
 
-    private func captureHeader(_ header: NSObject) -> AccessibilityContext.Header {
+    private func captureHeader(_ header: NSObject) -> AccessibilityContext.TableHeader {
         let identity = ObjectIdentifier(header)
         if let captured = headers[identity] {
             return captured
         }
         capturedSources.append(header)
-        let captured = AccessibilityContext.Header(label: header.accessibilityLabel, value: header.accessibilityValue)
+        let captured = AccessibilityContext.TableHeader(label: header.accessibilityLabel, value: header.accessibilityValue)
         headers[identity] = captured
         return captured
     }

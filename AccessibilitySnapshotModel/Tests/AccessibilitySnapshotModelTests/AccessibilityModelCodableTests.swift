@@ -43,6 +43,39 @@ final class AccessibilityModelCodableTests: XCTestCase {
         XCTAssertNil(rotors.first?["results"])
     }
 
+    func testDeprecatedRotorNamesForwardToCurrentAPI() throws {
+        let result = AccessibilityElement.CustomRotor.ResultMarker(elementDescription: "Item")
+        let legacy = AccessibilityElement.CustomRotor(name: "Related", resultMarkers: [result])
+        let current = AccessibilityElement.CustomRotor(name: "Related", results: [result])
+
+        XCTAssertEqual(legacy, current)
+        XCTAssertEqual(legacy.resultMarkers, current.results)
+        XCTAssertEqual(AccessibilityElement.CustomRotor(name: "Related"), .init(name: "Related", results: []))
+
+        let data = try JSONEncoder().encode(legacy)
+        XCTAssertEqual(try JSONDecoder().decode(AccessibilityElement.CustomRotor.self, from: data), current)
+        let object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertNotNil(object["resultMarkers"])
+        XCTAssertNil(object["results"])
+    }
+
+    func testDeprecatedTableHeaderNamePreservesContextAndEncoding() throws {
+        let header = AccessibilityContext.Header(label: "Revenue", value: "USD")
+        let current = AccessibilityContext.TableHeader(label: "Revenue", value: "USD")
+        let context = AccessibilityContext.dataTableCell(
+            row: 0, column: 0, width: 1, height: 1, isFirstInRow: true,
+            rowHeaders: [], columnHeaders: [header]
+        )
+
+        XCTAssertEqual(header, current)
+        let data = try JSONEncoder().encode(context)
+        XCTAssertEqual(try JSONDecoder().decode(AccessibilityContext.self, from: data), context)
+        let object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        let cell = try XCTUnwrap(object["dataTableCell"] as? [String: Any])
+        let headers = try XCTUnwrap(cell["columnHeaders"] as? [[String: String]])
+        XCTAssertEqual(headers, [["label": "Revenue", "value": "USD"]])
+    }
+
     func testAccessibilityElementVisibilityCodableDefaultsToOnscreen() throws {
         let element = AccessibilityElement(
             label: "Offscreen Button",
@@ -186,6 +219,29 @@ final class AccessibilityModelCodableTests: XCTestCase {
         XCTAssertEqual(decoded, expected)
         XCTAssertEqual(decoded.description, "Setting. Switch Button. On.")
         XCTAssertEqual(decoded.hint, "Legacy hint. Double tap to toggle setting.")
+    }
+
+    func testLegacyFormattedSwitchHintDecodingDuplicatesInstruction() throws {
+        // ponytail: Legacy formatted hints become authored input; repeating the switch instruction is
+        // an accepted best-effort compatibility limitation.
+        let data = Data(#"""
+        {"description":"Setting. Switch Button. On.","label":"Setting","value":"1","traits":["button","switchButton"],"hint":"Double tap to toggle setting.","shape":{"type":"frame","frame":[[0,0],[100,44]]},"activationPoint":[50,22],"usesDefaultActivationPoint":true,"customActions":[],"customContent":[],"customRotors":[],"accessibilityLanguage":"en-US","respondsToUserInteraction":true}
+        """#.utf8)
+        let decoded = try JSONDecoder().decode(AccessibilityElement.self, from: data)
+
+        XCTAssertEqual(decoded.description, "Setting. Switch Button. On.")
+        XCTAssertEqual(decoded.hint, "Double tap to toggle setting. Double tap to toggle setting.")
+
+        let encoded = try JSONEncoder().encode(decoded)
+        let object = try JSONSerialization.jsonObject(with: encoded) as! [String: Any]
+        XCTAssertEqual(object["authoredHint"] as? String, "Double tap to toggle setting.")
+        XCTAssertNil(object["description"])
+        XCTAssertNil(object["hint"])
+
+        let roundTrip = try JSONDecoder().decode(AccessibilityElement.self, from: encoded)
+        XCTAssertEqual(roundTrip, decoded)
+        XCTAssertEqual(roundTrip.description, decoded.description)
+        XCTAssertEqual(roundTrip.hint, decoded.hint)
     }
 
     func testExplicitNilAuthoredHintDoesNotDecodeLegacyHint() throws {
@@ -385,9 +441,27 @@ final class AccessibilityModelCodableTests: XCTestCase {
         }
     }
 
+    func testDataTableCellWithoutHeadersRoundTrips() throws {
+        let cell = AccessibilityContainer.DataTableCellInfo(
+            row: 2, column: 3, rowSpan: 2, columnSpan: 1, isFirstInRow: false
+        )
+        let container = AccessibilityContainer(
+            type: .dataTable(rowCount: 4, columnCount: 5, cells: [cell]),
+            frame: .zero
+        )
+        let expected = AccessibilityContainer.DataTableCellInfo(
+            row: 2, column: 3, rowSpan: 2, columnSpan: 1, isFirstInRow: false,
+            rowHeaderChildIndices: [], columnHeaderChildIndices: []
+        )
+
+        XCTAssertEqual(cell, expected)
+        let data = try JSONEncoder().encode(container)
+        XCTAssertEqual(try JSONDecoder().decode(AccessibilityContainer.self, from: data), container)
+    }
+
     func testDataTableContainerCodable() throws {
         let container = AccessibilityContainer(
-            type: .dataTable(rowCount: 5, columnCount: 4, cells: []),
+            type: .dataTable(rowCount: 5, columnCount: 4),
             frame: AccessibilityRect(x: 0, y: 0, width: 320, height: 200)
         )
 

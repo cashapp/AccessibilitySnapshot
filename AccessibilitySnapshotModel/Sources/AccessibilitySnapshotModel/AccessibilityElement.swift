@@ -25,14 +25,25 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
             }
         }
 
+        @available(*, deprecated, renamed: "Result")
+        public typealias ResultMarker = Result
+
         public let name: String
         public let results: [Result]
         public let limit: AccessibilityRotorResultLimit
+
+        @available(*, deprecated, renamed: "results")
+        public var resultMarkers: [Result] { results }
 
         public init(name: String, results: [Result] = [], limit: AccessibilityRotorResultLimit = .none) {
             self.name = name
             self.results = results
             self.limit = limit
+        }
+
+        @available(*, deprecated, renamed: "init(name:results:limit:)")
+        public init(name: String, resultMarkers: [Result], limit: AccessibilityRotorResultLimit = .none) {
+            self.init(name: name, results: resultMarkers, limit: limit)
         }
 
         public var description: String {

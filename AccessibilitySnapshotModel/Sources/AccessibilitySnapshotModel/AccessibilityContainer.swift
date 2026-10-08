@@ -4,25 +4,17 @@ public struct AccessibilityContainer: Hashable, Codable, Sendable {
         case semanticGroup(label: String?, value: String?)
         case list
         case landmark
-        case dataTable(rowCount: Int, columnCount: Int, cells: [DataTableCellInfo?])
-        /// A tab bar. Members announce "Tab. N of M.", with any `Button` trait replaced by "Tab."
-        ///
-        /// Normalizes UIKit's two channels for tab-ness (the public `.tabBar` trait predates
-        /// `accessibilityContainerType` by one iOS release, so it's a container role expressed as
-        /// a trait): custom views union `.tabBar` onto themselves; a real `UITabBar` carries no
-        /// `.tabBar` trait (it reports `.semanticGroup`) and is recognized by the private
-        /// `.tabBarItem` trait on its button children instead.
+        case dataTable(rowCount: Int, columnCount: Int, cells: [DataTableCellInfo?] = [])
+        /// A tab-bar container. Each element's context determines its tab and position announcements.
         case tabBar
-        /// An ordered series whose members announce a position ("N of M") while keeping their own
-        /// trait (e.g. a `UISegmentedControl`'s segments render "Segment A. Button. 1 of 3."). Unlike
-        /// `.tabBar`, the member's `Button` trait is retained rather than replaced with "Tab.".
+        /// An ordered-series container. Element context supplies positions while preserving element traits.
         case series
         case scrollable(contentSize: AccessibilitySize)
     }
 
-    /// Per-cell grid facts captured once at parse time and stored on the `.dataTable` container so
-    /// that cell context ("Row 2. Column 1. Spans 2 rows.", header prefixes) can be derived at
-    /// delivery from the graph alone — no live `UIAccessibilityContainerDataTable` access.
+    /// Captured per-cell grid facts and header relationships stored on the `.dataTable` container.
+    /// Elements carry their own captured header text in `AccessibilityContext.dataTableCell`;
+    /// these indices describe relationships between the container's emitted children.
     ///
     /// Entries are positionally aligned with the container node's ordered `children`; a `nil`
     /// entry marks a child that is not a data-table cell. Header references are stored as indices
@@ -46,8 +38,8 @@ public struct AccessibilityContainer: Hashable, Codable, Sendable {
             rowSpan: Int,
             columnSpan: Int,
             isFirstInRow: Bool,
-            rowHeaderChildIndices: [Int],
-            columnHeaderChildIndices: [Int]
+            rowHeaderChildIndices: [Int] = [],
+            columnHeaderChildIndices: [Int] = []
         ) {
             self.row = row
             self.column = column

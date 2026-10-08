@@ -6,9 +6,9 @@ extension AccessibilityElement {
         label: String?,
         value: String?,
         traits: AccessibilityTraits,
-        authoredHint: String?,
-        accessibilityLanguage: String?,
-        context: AccessibilityContext?
+        authoredHint: String? = nil,
+        accessibilityLanguage: String? = nil,
+        context: AccessibilityContext? = nil
     ) -> (description: String, hint: String?) {
         let strings = Strings(locale: accessibilityLanguage)
 

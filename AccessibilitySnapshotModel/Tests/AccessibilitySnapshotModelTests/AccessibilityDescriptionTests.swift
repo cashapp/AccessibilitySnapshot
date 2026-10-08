@@ -25,6 +25,18 @@ final class AccessibilityDescriptionTests: XCTestCase {
         XCTAssertEqual(decoded.hint, element.hint)
     }
 
+    func testFormattingDefaultsMatchExplicitAbsentInputs() {
+        let speech = AccessibilityElement.accessibilityDescription(label: "Item", value: "Value", traits: [])
+        let explicit = AccessibilityElement.accessibilityDescription(
+            label: "Item", value: "Value", traits: [],
+            authoredHint: nil, accessibilityLanguage: nil, context: nil
+        )
+
+        XCTAssertEqual(speech.description, "Item: Value")
+        XCTAssertEqual(speech.description, explicit.description)
+        XCTAssertEqual(speech.hint, explicit.hint)
+    }
+
     func testComputeLocalizedTraitsAndContainerContext() {
         for (language, expected) in [
             ("en-US", "Item. Tab. 2 of 3."),

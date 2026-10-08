@@ -985,6 +985,60 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         ])
     }
 
+    func testDataTableHeaderIndicesFollowSortedChildrenAndRoundTrip() throws {
+        let table = TestDataTableView(
+            frame: CGRect(x: 0, y: 0, width: 200, height: 150),
+            rows: 4,
+            columns: 5
+        )
+        let cell = TestDataTableCell(row: 2, column: 0, label: "Cell", rowSpan: 2, columnSpan: 2)
+        let columnHeader = TestDataTableCell(row: 0, column: 0, label: "Revenue")
+        let rowHeader = TestDataTableCell(row: 2, column: 4, label: "Region")
+        for (child, y) in [(cell, 100), (columnHeader, 0), (rowHeader, 50)] {
+            child.frame = CGRect(x: 0, y: y, width: 180, height: 40)
+            child.accessibilityFrame = child.frame
+            table.addSubview(child)
+            table.cells[CellIndex(row: child.row, column: child.column)] = child
+        }
+        table.rowHeaders[2] = [rowHeader]
+        table.columnHeaders[0] = [columnHeader]
+        XCTAssertNil(table.accessibilityElements)
+        XCTAssertEqual(table.subviews.map { $0.accessibilityLabel }, ["Cell", "Revenue", "Region"])
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(
+            in: table,
+            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight),
+            userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
+        )
+        XCTAssertEqual(hierarchy.count, 1)
+        guard case let .container(container, children) = hierarchy.first else {
+            XCTFail("Expected dataTable container")
+            return
+        }
+        XCTAssertEqual(children.map { node -> String? in
+            if case let .element(element, _) = node { return element.label }
+            return nil
+        }, ["Revenue", "Region", "Cell"])
+        XCTAssertEqual(container.type, .dataTable(rowCount: 4, columnCount: 5, cells: [
+            .init(
+                row: 0, column: 0, rowSpan: 1, columnSpan: 1, isFirstInRow: true,
+                rowHeaderChildIndices: [], columnHeaderChildIndices: []
+            ),
+            .init(
+                row: 2, column: 4, rowSpan: 1, columnSpan: 1, isFirstInRow: false,
+                rowHeaderChildIndices: [], columnHeaderChildIndices: []
+            ),
+            .init(
+                row: 2, column: 0, rowSpan: 2, columnSpan: 2, isFirstInRow: true,
+                rowHeaderChildIndices: [1], columnHeaderChildIndices: [0]
+            ),
+        ]))
+
+        let data = try JSONEncoder().encode(container)
+        let decoded = try JSONDecoder().decode(AccessibilityContainer.self, from: data)
+        XCTAssertEqual(decoded, container)
+    }
+
     func testLaterLeafGetterCannotMutateCapturedDataTableRelationships() {
         let table = TestDataTableView(
             frame: CGRect(x: 0, y: 0, width: 200, height: 100),
@@ -1911,7 +1965,9 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         let hierarchy = parser.parseAccessibilityHierarchy(in: root)
         XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, ["Visible", "Offscreen", "Zero frame"])
         XCTAssertEqual(hierarchy.flattenToElements().map { $0.visibility }, [.onscreen, .offscreen, .offscreen])
-        XCTAssertEqual(parser.parseAccessibilityElements(in: root).map { $0.label }, ["Visible"])
+        let legacyElements = parser.parseAccessibilityElements(in: root)
+        XCTAssertEqual(legacyElements.map { $0.label }, ["Visible"])
+        XCTAssertEqual(legacyElements, hierarchy.flattenToElements().filter { $0.visibility == .onscreen })
 
         try snapshot.parseAccessibility()
         XCTAssertEqual(try XCTUnwrap(snapshot.parsedData).markers.map { $0.label }, ["Visible"])
