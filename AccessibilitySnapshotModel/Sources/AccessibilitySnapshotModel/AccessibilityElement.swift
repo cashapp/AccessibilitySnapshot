@@ -62,12 +62,12 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
 
     // MARK: - Public Properties
 
-    public var description: String { formattedDescription.description }
+    public var description: String { formattedUtterance.description }
     public let label: String?
     public let value: String?
     public let traits: AccessibilityTraits
     public let identifier: String?
-    public var hint: String? { formattedDescription.hint }
+    public var hint: String? { formattedUtterance.hint }
     public let userInputLabels: [String]?
     public let shape: AccessibilityShape
     public let activationPoint: AccessibilityPoint
@@ -202,7 +202,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
 
     private let authoredHint: String?
 
-    private var formattedDescription: (description: String, hint: String?) {
+    private var formattedUtterance: (description: String, hint: String?) {
         Self.accessibilityDescription(
             label: label,
             value: value,
