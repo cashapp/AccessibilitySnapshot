@@ -5,22 +5,24 @@ import RegexBuilder
 
 let fileManager = FileManager.default
 
-guard let enumerator = fileManager.enumerator(
-    atPath: (fileManager.currentDirectoryPath as NSString)
-        .appendingPathComponent("Sources")
-) else {
-    exit(1)
-}
-
 var swiftFiles: [String] = []
 var stringsFiles: [String] = []
 
-for filePath in enumerator {
-    let filePath = filePath as! String
-    if filePath.hasSuffix(".swift") {
-        swiftFiles.append("Sources/\(filePath)")
-    } else if filePath.hasSuffix(".strings") {
-        stringsFiles.append("Sources/\(filePath)")
+for sourceDirectory in ["Sources", "AccessibilitySnapshotModel/Sources"] {
+    guard let enumerator = fileManager.enumerator(
+        atPath: (fileManager.currentDirectoryPath as NSString)
+            .appendingPathComponent(sourceDirectory)
+    ) else {
+        exit(1)
+    }
+
+    for filePath in enumerator {
+        let filePath = filePath as! String
+        if filePath.hasSuffix(".swift") {
+            swiftFiles.append("\(sourceDirectory)/\(filePath)")
+        } else if filePath.hasSuffix(".strings") {
+            stringsFiles.append("\(sourceDirectory)/\(filePath)")
+        }
     }
 }
 

@@ -1,46 +1,71 @@
-import AccessibilitySnapshotModel
+@_spi(Parsing) import AccessibilitySnapshotModel
 import UIKit
 
 // MARK: - CustomRotor UIKit Init
 
 extension AccessibilityElement.CustomRotor {
-    init?(from rotor: UIAccessibilityCustomRotor, parentElement: NSObject, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int) {
-        guard rotor.isKnownRotorType else { return nil }
+    init?(from rotor: UIAccessibilityCustomRotor, accessibilityLanguage: String?, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int) {
+        guard let captured = CapturedRotor(from: rotor, accessibilityLanguage: accessibilityLanguage, root: root, resultLimit: resultLimit) else { return nil }
+        self = captured.rotor(context: context)
+    }
+}
 
-        let name = rotor.displayName(locale: parentElement.accessibilityLanguage)
+struct CapturedRotor {
+    private struct Result {
+        let element: AccessibilityElement
+        let substring: String?
+        let rangeDescription: String?
+        let shape: AccessibilityShape
 
-        // A nonpositive result limit means the rotor should be preserved as metadata only:
-        // keep its name but don't invoke the search block or collect any results.
-        guard resultLimit > 0 else {
-            self.init(name: name, resultMarkers: [], limit: .none)
-            return
-        }
-
-        let collected = rotor.collectAllResults(nextLimit: resultLimit, previousLimit: resultLimit)
-        let markers: [ResultMarker] = collected.results.compactMap { result in
-            guard let element = result.targetElement as? NSObject else { return nil }
-            var description = element.accessibilityDescription(context: context).description
-            var shape: AccessibilityShape? = AccessibilityHierarchyParser.accessibilityShape(for: element, in: root)
-
+        init?(from result: UIAccessibilityCustomRotorItemResult, root: UIView) {
+            guard let object = result.targetElement as? NSObject else { return nil }
+            element = AccessibilityHierarchyParser.captureElement(for: object, in: root)
+            var shape = element.shape
             if let range = result.targetRange,
-               let input = element as? UITextInput
+               let input = object as? UITextInput
             {
                 if let path = input.accessibilityPath(for: range), path.hasFiniteBounds {
                     let converted = root.convert(path, from: input as? UIView)
                     shape = .path(AccessibilityPathElement.elements(from: converted.cgPath))
                 }
-                if let substring = input.text(in: range) {
-                    description = substring
-                }
-                return ResultMarker(elementDescription: description, rangeDescription: range.formatted(in: input), shape: shape)
+                substring = input.text(in: range)
+                rangeDescription = range.formatted(in: input)
+            } else {
+                substring = nil
+                rangeDescription = nil
             }
-            return ResultMarker(elementDescription: description, rangeDescription: nil, shape: shape)
+            self.shape = shape
         }
-        self.init(
-            name: name,
-            resultMarkers: markers,
-            limit: AccessibilityRotorResultLimit(collected.limit)
-        )
+
+        func result(context: AccessibilityHierarchyParser.Context?) -> AccessibilityElement.CustomRotor.Result {
+            var element = element
+            element.addContext(context)
+            return .init(elementDescription: substring ?? element.description, rangeDescription: rangeDescription, shape: shape)
+        }
+    }
+
+    private let name: String
+    private let results: [Result]
+    private let limit: AccessibilityRotorResultLimit
+
+    init?(from rotor: UIAccessibilityCustomRotor, accessibilityLanguage: String?, root: UIView, resultLimit: Int) {
+        guard rotor.isKnownRotorType else { return nil }
+        name = rotor.displayName(locale: accessibilityLanguage)
+
+        // A nonpositive result limit preserves the name without invoking the search block.
+        guard resultLimit > 0 else {
+            results = []
+            limit = .none
+            return
+        }
+
+        let collected = rotor.collectAllResults(nextLimit: resultLimit, previousLimit: resultLimit)
+        results = collected.results.compactMap { Result(from: $0, root: root) }
+        limit = AccessibilityRotorResultLimit(collected.limit)
+    }
+
+    func rotor(context: AccessibilityHierarchyParser.Context? = nil) -> AccessibilityElement.CustomRotor {
+        .init(name: name, results: results.map { $0.result(context: context) }, limit: limit)
     }
 }
 

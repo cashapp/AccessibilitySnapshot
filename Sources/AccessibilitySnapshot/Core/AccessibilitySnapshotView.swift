@@ -90,7 +90,7 @@ public final class AccessibilitySnapshotView: AccessibilitySnapshotBaseView {
             let legendView = LegendView(marker: marker, fillColor: fillColor, configuration: snapshotConfiguration)
             addSubview(legendView)
 
-            let rotorResultsShapes = marker.displayRotors(snapshotConfiguration.rotors.displayMode).flatMap(\.resultMarkers).compactMap(\.shape)
+            let rotorResultsShapes = marker.displayRotors(snapshotConfiguration.rotors.displayMode).flatMap { $0.results }.compactMap { $0.shape }
 
             let overlayView = OverlayView(
                 frame: snapshotView.bounds,
