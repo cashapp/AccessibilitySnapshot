@@ -148,12 +148,12 @@ public final class AccessibilityHierarchyParser {
             userInterfaceIdiom: userInterfaceIdiom
         )
         let capturedElements = navigationNodes.flatMap { $0.capturedElements }
-        for (index, element) in capturedElements.enumerated() {
-            element.traversalIndex = index
+        for (index, captured) in capturedElements.enumerated() {
+            captured.traversalIndex = index
         }
         let preparedNodes = prepareNodes(orderedOutputNodes(capturedNodes))
         for captured in capturedElements {
-            captured.value.addCustomRotors(captured.rotors.map { $0.rotor(context: captured.value.context) })
+            captured.element.addCustomRotors(captured.rotors.map { $0.rotor(context: captured.element.context) })
         }
 
         return foldNodes(
@@ -245,18 +245,18 @@ public final class AccessibilityHierarchyParser {
     ) -> [AccessibilityNode] {
         nodes.map { node in
             switch node {
-            case let .element(element):
-                let identity = ObjectIdentifier(element.source)
+            case let .element(captured):
+                let identity = ObjectIdentifier(captured.source)
                 if let cells = provider?.dataTable?.cells {
-                    element.value.addContext(cells[identity]?.context)
+                    captured.element.addContext(cells[identity]?.context)
                 } else if let tabs = provider?.tabBarItemContexts {
-                    element.value.addContext(tabs[identity])
+                    captured.element.addContext(tabs[identity])
                 } else if let contexts = provider?.vendedContexts {
-                    element.value.addContext(contexts.context(for: identity))
-                } else if let tabSourceIdentity = element.tabSourceIdentity, element.isView {
-                    element.value.addContext(tabContexts?[tabSourceIdentity])
+                    captured.element.addContext(contexts.context(for: identity))
+                } else if let tabSourceIdentity = captured.tabSourceIdentity, captured.isView {
+                    captured.element.addContext(tabContexts?[tabSourceIdentity])
                 } else {
-                    element.value.addContext(nil)
+                    captured.element.addContext(nil)
                 }
                 return node
 
@@ -326,8 +326,8 @@ public final class AccessibilityHierarchyParser {
     ) -> [Node] {
         func mapNode(_ node: AccessibilityNode) -> [Node] {
             switch node {
-            case let .element(element):
-                return [makeElement(element.value, element.traversalIndex, element.source)]
+            case let .element(captured):
+                return [makeElement(captured.element, captured.traversalIndex, captured.source)]
             case let .group(children, _, _, info):
                 let mappedChildren = children.flatMap { mapNode($0) }
                 if let info, let container = info.container {
@@ -464,8 +464,8 @@ private extension AccessibilityHierarchyParser {
         compare: (AccessibilityRect?, AccessibilityRect?) -> Bool
     ) -> AccessibilityRect? {
         switch node {
-        case let .element(element):
-            return element.sortFrame
+        case let .element(captured):
+            return captured.sortFrame
         case let .group(children, _, frame, _):
             if let frame {
                 return frame
@@ -726,7 +726,7 @@ private final class CapturedElement {
     let tabSourceIdentity: ObjectIdentifier?
     let sortFrame: AccessibilityRect
     let rotors: [CapturedRotor]
-    var value: AccessibilityElement
+    var element: AccessibilityElement
     var traversalIndex = 0
 
     init(source: NSObject, in root: UIView, visibility: ScreenVisibility, rotorResultLimit: Int, tabSources: CapturedTabSources?) {
@@ -734,10 +734,10 @@ private final class CapturedElement {
         isView = source is UIView
         tabSourceIdentity = tabSources?.capture(source)
         sortFrame = AccessibilityHierarchyParser.sortFrame(for: source, in: root)
-        let value = AccessibilityHierarchyParser.captureElement(for: source, in: root, visibility: visibility)
-        self.value = value
+        let element = AccessibilityHierarchyParser.captureElement(for: source, in: root, visibility: visibility)
+        self.element = element
         rotors = (source.accessibilityCustomRotors ?? []).compactMap {
-            CapturedRotor(from: $0, accessibilityLanguage: value.accessibilityLanguage, root: root, resultLimit: rotorResultLimit)
+            CapturedRotor(from: $0, accessibilityLanguage: element.accessibilityLanguage, root: root, resultLimit: rotorResultLimit)
         }
     }
 }
@@ -757,8 +757,8 @@ private enum AccessibilityNode {
 
     var capturedElements: [CapturedElement] {
         switch self {
-        case let .element(element):
-            return [element]
+        case let .element(captured):
+            return [captured]
         case let .group(children, _, _, _):
             return children.flatMap { $0.capturedElements }
         }
@@ -779,8 +779,8 @@ private enum AccessibilityNode {
 
     var emittedSources: [NSObject] {
         switch self {
-        case let .element(element):
-            return [element.source]
+        case let .element(captured):
+            return [captured.source]
         case let .group(children, _, _, info):
             if let info, info.container != nil {
                 return [info.source]
@@ -791,8 +791,8 @@ private enum AccessibilityNode {
 
     var emittedTabBarItem: Bool {
         switch self {
-        case let .element(element):
-            return element.value.traits.uiAccessibilityTraits.contains(.tabBarItemTrait)
+        case let .element(captured):
+            return captured.element.traits.uiAccessibilityTraits.contains(.tabBarItemTrait)
         case let .group(children, _, _, info):
             if let info, info.container != nil {
                 return info.traits.contains(.tabBarItemTrait)
