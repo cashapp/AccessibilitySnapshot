@@ -904,9 +904,13 @@ private extension NSObject {
             ))
 
         } else if let `self` = self as? UIView {
+            // If there is at least one modal subview, the last modal is the only subview parsed in the accessibility
+            // hierarchy. Otherwise, parse all of the subviews. A popover places its modal dimming view beside its
+            // presented view, and UIKit keeps the presented view reachable, so the parser keeps it as well.
             let subviewsToParse: [UIView]
             if let lastModalView = self.subviews.last(where: { $0.accessibilityViewIsModal }) {
-                subviewsToParse = [lastModalView]
+                let popoverViews = self.window?.presentedPopoverViews ?? []
+                subviewsToParse = self.subviews.filter { $0 === lastModalView || popoverViews.contains($0) }
             } else {
                 subviewsToParse = self.subviews
             }
@@ -1285,6 +1289,23 @@ private extension NSObject {
         guard !clipped.isNull else { return false }
         return clipped.width > visibleFrameMinDimension
             && clipped.height > visibleFrameMinDimension
+    }
+}
+
+// MARK: -
+
+private extension UIWindow {
+    /// The presented views of the popovers in the window's chain of presented view controllers.
+    var presentedPopoverViews: [UIView] {
+        var views: [UIView] = []
+        var presented = rootViewController?.presentedViewController
+        while let viewController = presented {
+            if let view = viewController.popoverPresentationController?.presentedView {
+                views.append(view)
+            }
+            presented = viewController.presentedViewController
+        }
+        return views
     }
 }
 

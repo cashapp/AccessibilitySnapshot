@@ -2247,6 +2247,59 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertNoThrow(try JSONEncoder().encode(marker.shape), "The produced shape must be JSON-encodable")
     }
 
+    // MARK: - Modal Tests
+
+    func testPopoverContentIsParsedBesideModalDimmingView() {
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
+        let presenter = UIViewController()
+        let background = UIButton(type: .system)
+        background.setTitle("Background", for: .normal)
+        background.frame = CGRect(x: 20, y: 200, width: 160, height: 44)
+        presenter.view.addSubview(background)
+        window.rootViewController = presenter
+        window.makeKeyAndVisible()
+
+        let popover = PopoverContentViewController()
+        popover.modalPresentationStyle = .popover
+        popover.popoverPresentationController?.sourceView = background
+        popover.popoverPresentationController?.sourceRect = background.bounds
+        popover.popoverPresentationController?.delegate = popover
+        let presented = expectation(description: "Popover presented")
+        presenter.present(popover, animated: false) { presented.fulfill() }
+        wait(for: [presented], timeout: 5)
+        window.layoutIfNeeded()
+
+        // UIKit places the popover beside its modal dimming view.
+        let containerView = popover.popoverPresentationController?.containerView
+        XCTAssertEqual(containerView?.subviews.map { "\(type(of: $0))" }, ["_UIPopoverDimmingView", "_UIPopoverView"])
+        XCTAssertEqual(containerView?.subviews.map { $0.accessibilityViewIsModal }, [true, false])
+
+        XCTAssertEqual(parseMarkers(in: window).map { $0.label }, ["Popover Action"])
+
+        presenter.dismiss(animated: false)
+        window.isHidden = true
+    }
+
+    func testModalViewHidesLaterSiblings() {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
+
+        let background = UIView(frame: CGRect(x: 20, y: 0, width: 160, height: 44))
+        background.isAccessibilityElement = true
+        background.accessibilityLabel = "Background"
+        rootView.addSubview(background)
+
+        let modalView = UIView(frame: rootView.bounds)
+        modalView.accessibilityViewIsModal = true
+        rootView.addSubview(modalView)
+
+        let laterSibling = UIView(frame: CGRect(x: 20, y: 100, width: 160, height: 44))
+        laterSibling.isAccessibilityElement = true
+        laterSibling.accessibilityLabel = "Later Sibling"
+        rootView.addSubview(laterSibling)
+
+        XCTAssertEqual(parseMarkers(in: rootView).map { $0.label }, [])
+    }
+
     // MARK: - Generic Fold Tests
 
     func testGenericFoldPassesSourceObjects() {
@@ -2796,6 +2849,23 @@ private final class ActivationPointTestView: UIView {
     override var accessibilityPath: UIBezierPath? {
         get { overriddenPath ?? super.accessibilityPath }
         set { overriddenPath = newValue }
+    }
+}
+
+// MARK: -
+
+private final class PopoverContentViewController: UIViewController, UIPopoverPresentationControllerDelegate {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        let button = UIButton(type: .system)
+        button.setTitle("Popover Action", for: .normal)
+        button.frame = CGRect(x: 20, y: 20, width: 160, height: 44)
+        view.addSubview(button)
+        preferredContentSize = CGSize(width: 200, height: 100)
+    }
+
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+        .none
     }
 }
 
