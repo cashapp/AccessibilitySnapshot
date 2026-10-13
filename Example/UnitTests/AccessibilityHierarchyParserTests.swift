@@ -2283,40 +2283,6 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         window.isHidden = true
     }
 
-    func testPopoverPassthroughViewsAreParsed() {
-        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
-        let presenter = UIViewController()
-        let background = UIButton(type: .system)
-        background.setTitle("Background", for: .normal)
-        background.frame = CGRect(x: 20, y: 200, width: 160, height: 44)
-        presenter.view.addSubview(background)
-        let passthrough = UIButton(type: .system)
-        passthrough.setTitle("Passthrough", for: .normal)
-        passthrough.frame = CGRect(x: 20, y: 700, width: 160, height: 44)
-        presenter.view.addSubview(passthrough)
-        window.rootViewController = presenter
-        window.makeKeyAndVisible()
-
-        let popover = PopoverContentViewController()
-        popover.modalPresentationStyle = .popover
-        popover.popoverPresentationController?.sourceView = background
-        popover.popoverPresentationController?.sourceRect = background.bounds
-        popover.popoverPresentationController?.delegate = popover
-        popover.popoverPresentationController?.passthroughViews = [passthrough]
-        let presented = expectation(description: "Popover presented")
-        presenter.present(popover, animated: false) { presented.fulfill() }
-        wait(for: [presented], timeout: 5)
-        window.layoutIfNeeded()
-
-        XCTAssertEqual(parseMarkers(in: window).map { $0.label }, ["Popover Action", "Passthrough"])
-
-        // Wait for UIKit to finish the dismissal before the window is released.
-        let dismissed = expectation(description: "Popover dismissed")
-        presenter.dismiss(animated: false) { dismissed.fulfill() }
-        wait(for: [dismissed], timeout: 5)
-        window.isHidden = true
-    }
-
     func testPresentedViewIsParsedBesideCustomModalDimmingView() {
         let window = UIWindow(frame: UIScreen.main.bounds)
         let presenter = UIViewController()
@@ -2345,18 +2311,25 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         window.isHidden = true
     }
 
-    func testViewControllerViewIsHiddenBesideModalView() {
-        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
+    func testDimmingModalViewKeepsLaterSiblings() {
+        let rootView = UIView(frame: UIScreen.main.bounds)
 
-        let modalView = UIView(frame: rootView.bounds)
-        modalView.accessibilityViewIsModal = true
-        rootView.addSubview(modalView)
+        let background = UIView(frame: CGRect(x: 20, y: 100, width: 160, height: 44))
+        background.isAccessibilityElement = true
+        background.accessibilityLabel = "Background"
+        rootView.addSubview(background)
 
-        let viewController = PopoverContentViewController()
-        viewController.view.frame = CGRect(x: 0, y: 100, width: 200, height: 100)
-        rootView.addSubview(viewController.view)
+        let dimmingView = UIView(frame: rootView.bounds)
+        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        dimmingView.accessibilityViewIsModal = true
+        rootView.addSubview(dimmingView)
 
-        XCTAssertEqual(parseMarkers(in: rootView).map { $0.label }, [])
+        let laterSibling = UIView(frame: CGRect(x: 20, y: 300, width: 160, height: 44))
+        laterSibling.isAccessibilityElement = true
+        laterSibling.accessibilityLabel = "Later Sibling"
+        rootView.addSubview(laterSibling)
+
+        XCTAssertEqual(parseMarkers(in: rootView).map { $0.label }, ["Later Sibling"])
     }
 
     func testModalViewHidesLaterSiblings() {
@@ -2368,6 +2341,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         rootView.addSubview(background)
 
         let modalView = UIView(frame: rootView.bounds)
+        modalView.backgroundColor = .white
         modalView.accessibilityViewIsModal = true
         rootView.addSubview(modalView)
 

@@ -905,21 +905,12 @@ private extension NSObject {
 
         } else if let `self` = self as? UIView {
             // If there is at least one modal subview, the last modal is the only subview parsed in the accessibility
-            // hierarchy. Otherwise, parse all of the subviews. UIKit keeps a presented view reachable above the
-            // presentation's modal dimming view, and keeps a popover's passthrough views reachable.
-            var subviewsToParse: [UIView]
+            // hierarchy, along with the subviews above it when it looks like a dimming view. Otherwise, parse all of the
+            // subviews.
+            let subviewsToParse: [UIView]
             if let modalIndex = self.subviews.lastIndex(where: { $0.accessibilityViewIsModal }) {
                 let modalView = self.subviews[modalIndex]
-                let laterSubviews = self.subviews[(modalIndex + 1)...]
-                if laterSubviews.contains(where: { $0.presentedViewControllerOfPresentedView != nil }) {
-                    subviewsToParse = [modalView] + laterSubviews
-                } else {
-                    subviewsToParse = [modalView]
-                }
-                // A popover keeps its passthrough views reachable outside the modal view.
-                subviewsToParse += modalView.popoverPassthroughViews.filter {
-                    $0.isDescendant(of: self) && !$0.isDescendant(of: modalView)
-                }
+                subviewsToParse = modalView.looksLikeDimmingView ? Array(self.subviews[modalIndex...]) : [modalView]
             } else {
                 subviewsToParse = self.subviews
             }
@@ -1304,33 +1295,17 @@ private extension NSObject {
 // MARK: -
 
 private extension UIView {
-    /// The presented view controller when the view is the presented view of a presentation. The presented view
-    /// controller is the first view controller found in the view's subtree.
-    var presentedViewControllerOfPresentedView: UIViewController? {
-        var views = [self]
-        while !views.isEmpty {
-            let view = views.removeFirst()
-            if let viewController = view.next as? UIViewController {
-                // Reading `presentationController` can create a presentation controller, so read it only for a view
-                // controller that is presented.
-                guard viewController.presentingViewController != nil,
-                      viewController.presentationController?.presentedView === self
-                else {
-                    return nil
-                }
-                return viewController
-            }
-            views.append(contentsOf: view.subviews)
+    /// Whether the view looks like the dimming view that UIKit puts behind a popover, a sheet, or an alert.
+    var looksLikeDimmingView: Bool {
+        // It covers its superview.
+        guard let superview = superview, frame.contains(superview.bounds) else {
+            return false
         }
-        return nil
-    }
-
-    /// The passthrough views of the popover whose container view is this view.
-    var popoverPassthroughViews: [UIView] {
-        let popoverPresentationController = subviews.lazy
-            .compactMap { $0.presentedViewControllerOfPresentedView?.popoverPresentationController }
-            .first { $0.containerView === self }
-        return popoverPresentationController?.passthroughViews ?? []
+        var white: CGFloat = 0, colorAlpha: CGFloat = 0
+        backgroundColor?.getWhite(&white, alpha: &colorAlpha)
+        let effectiveAlpha = colorAlpha * alpha
+        // It is clear, like the dimming view of a popover, or it is a translucent near-black.
+        return effectiveAlpha == 0 || (white < 0.01 && (0.1 ... 0.9).contains(effectiveAlpha))
     }
 }
 
