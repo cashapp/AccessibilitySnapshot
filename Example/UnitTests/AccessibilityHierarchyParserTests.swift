@@ -2276,7 +2276,10 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
         XCTAssertEqual(parseMarkers(in: window).map { $0.label }, ["Popover Action"])
 
-        presenter.dismiss(animated: false)
+        // Wait for UIKit to finish the dismissal before the window is released.
+        let dismissed = expectation(description: "Popover dismissed")
+        presenter.dismiss(animated: false) { dismissed.fulfill() }
+        wait(for: [dismissed], timeout: 5)
         window.isHidden = true
     }
 

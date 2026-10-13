@@ -909,8 +909,7 @@ private extension NSObject {
             // presented view, and UIKit keeps the presented view reachable, so the parser keeps it as well.
             let subviewsToParse: [UIView]
             if let lastModalView = self.subviews.last(where: { $0.accessibilityViewIsModal }) {
-                let popoverViews = self.window?.presentedPopoverViews ?? []
-                subviewsToParse = self.subviews.filter { $0 === lastModalView || popoverViews.contains($0) }
+                subviewsToParse = self.subviews.filter { $0 === lastModalView || $0.isPresentedPopoverView }
             } else {
                 subviewsToParse = self.subviews
             }
@@ -1294,18 +1293,19 @@ private extension NSObject {
 
 // MARK: -
 
-private extension UIWindow {
-    /// The presented views of the popovers in the window's chain of presented view controllers.
-    var presentedPopoverViews: [UIView] {
-        var views: [UIView] = []
-        var presented = rootViewController?.presentedViewController
-        while let viewController = presented {
-            if let view = viewController.popoverPresentationController?.presentedView {
-                views.append(view)
+private extension UIView {
+    /// Whether the view is the presented view of a popover. The presented view controller is the first view
+    /// controller found in the view's subtree.
+    var isPresentedPopoverView: Bool {
+        var views = [self]
+        while !views.isEmpty {
+            let view = views.removeFirst()
+            if let viewController = view.next as? UIViewController {
+                return viewController.popoverPresentationController?.presentedView === self
             }
-            presented = viewController.presentedViewController
+            views.append(contentsOf: view.subviews)
         }
-        return views
+        return false
     }
 }
 
