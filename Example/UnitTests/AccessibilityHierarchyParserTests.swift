@@ -2359,48 +2359,6 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertEqual(parseMarkers(in: rootView).map { $0.label }, [])
     }
 
-    func testDimmingModalViewKeepsLaterSiblings() {
-        let rootView = UIView(frame: UIScreen.main.bounds)
-
-        let background = UIView(frame: CGRect(x: 20, y: 100, width: 160, height: 44))
-        background.isAccessibilityElement = true
-        background.accessibilityLabel = "Background"
-        rootView.addSubview(background)
-
-        let dimmingView = UIView(frame: rootView.bounds)
-        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
-        dimmingView.accessibilityViewIsModal = true
-        rootView.addSubview(dimmingView)
-
-        let laterSibling = UIView(frame: CGRect(x: 20, y: 300, width: 160, height: 44))
-        laterSibling.isAccessibilityElement = true
-        laterSibling.accessibilityLabel = "Later Sibling"
-        rootView.addSubview(laterSibling)
-
-        XCTAssertEqual(parseMarkers(in: rootView).map { $0.label }, ["Later Sibling"])
-
-        // UIKit treats only a full-screen, near-black, translucent view as a dimming view.
-        let screen = UIScreen.main.bounds
-        let nonDimmingViews: [(UIColor?, CGRect)] = [
-            (nil, screen),
-            (UIColor.white.withAlphaComponent(0.3), screen),
-            (.black, screen),
-            (UIColor.black.withAlphaComponent(0.05), screen),
-            (UIColor.black.withAlphaComponent(0.3), CGRect(x: 0, y: 0, width: 200, height: 200)),
-        ]
-        for (color, frame) in nonDimmingViews {
-            dimmingView.backgroundColor = color
-            dimmingView.frame = frame
-            XCTAssertEqual(parseMarkers(in: rootView).map { $0.label }, [], "\(String(describing: color)) \(frame)")
-        }
-
-        // The alpha of the view also counts toward the translucency.
-        dimmingView.backgroundColor = .black
-        dimmingView.frame = screen
-        dimmingView.alpha = 0.5
-        XCTAssertEqual(parseMarkers(in: rootView).map { $0.label }, ["Later Sibling"])
-    }
-
     func testModalViewHidesLaterSiblings() {
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
 

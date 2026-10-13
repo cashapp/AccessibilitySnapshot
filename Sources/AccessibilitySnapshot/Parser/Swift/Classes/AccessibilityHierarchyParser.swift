@@ -905,27 +905,20 @@ private extension NSObject {
 
         } else if let `self` = self as? UIView {
             // If there is at least one modal subview, the last modal is the only subview parsed in the accessibility
-            // hierarchy. Otherwise, parse all of the subviews. UIKit keeps the subviews above a modal dimming view
-            // reachable, so the parser keeps them as well. A presentation's dimming view is recognized by the presented
-            // view above it, because UIKit keeps those subviews reachable whatever the dimming view's color. When the
-            // modal view contains a popover, UIKit also keeps the popover's passthrough views reachable.
+            // hierarchy. Otherwise, parse all of the subviews. UIKit keeps a presented view reachable above the
+            // presentation's modal dimming view, and keeps a popover's passthrough views reachable.
             var subviewsToParse: [UIView]
             if let modalIndex = self.subviews.lastIndex(where: { $0.accessibilityViewIsModal }) {
                 let modalView = self.subviews[modalIndex]
                 let laterSubviews = self.subviews[(modalIndex + 1)...]
-                if modalView.isProbablyDimmingView || laterSubviews.contains(where: { $0.isPresentedView }) {
+                if laterSubviews.contains(where: { $0.presentedViewControllerOfPresentedView != nil }) {
                     subviewsToParse = [modalView] + laterSubviews
                 } else {
                     subviewsToParse = [modalView]
                 }
-
-                let hiddenSubviews = self.subviews.filter { subview in !subviewsToParse.contains { $0 === subview } }
-                let passthroughViews = modalView.popoverPassthroughViews.filter { passthroughView in
-                    hiddenSubviews.contains { passthroughView.isDescendant(of: $0) }
-                }
-                subviewsToParse += passthroughViews.filter { passthroughView in
-                    !passthroughViews.contains { $0 !== passthroughView && passthroughView.isDescendant(of: $0) }
-                        && passthroughView.isVisible(below: self)
+                // A popover keeps its passthrough views reachable outside the modal view.
+                subviewsToParse += modalView.popoverPassthroughViews.filter {
+                    $0.isDescendant(of: self) && !$0.isDescendant(of: modalView)
                 }
             } else {
                 subviewsToParse = self.subviews
@@ -1311,45 +1304,6 @@ private extension NSObject {
 // MARK: -
 
 private extension UIView {
-    /// Whether UIKit treats the view as a dimming view: a full-screen, near-black, translucent view without an opaque
-    /// full-screen fill. The translucency combines the alpha of the background color with the alpha of the view.
-    var isProbablyDimmingView: Bool {
-        guard
-            alpha != 0,
-            bounds == UIScreen.main.bounds,
-            let color = backgroundColor ?? layer.backgroundColor.map({ UIColor(cgColor: $0) }),
-            color != .clear
-        else {
-            return false
-        }
-
-        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, colorAlpha: CGFloat = 0
-        guard color.getRed(&red, green: &green, blue: &blue, alpha: &colorAlpha) else {
-            return false
-        }
-        // ponytail: Rec. 601 luma; the 0.01 threshold makes the choice of coefficients immaterial for near-black.
-        let luma = 0.299 * red + 0.587 * green + 0.114 * blue
-        let effectiveAlpha = colorAlpha * alpha
-        guard luma < 0.01, effectiveAlpha >= 0.1, effectiveAlpha <= 0.9 else {
-            return false
-        }
-
-        // A full-screen opaque fill inside a chain of single subviews hides the content behind the view.
-        var view: UIView = self
-        while view.subviews.count == 1 {
-            view = view.subviews[0]
-            if !view.isHidden, view.alpha != 0, view.bounds == bounds, view.backgroundColor?.cgColor.alpha == 1 {
-                return false
-            }
-        }
-        return true
-    }
-
-    /// Whether the view is the presented view of a presentation.
-    var isPresentedView: Bool {
-        presentedViewControllerOfPresentedView != nil
-    }
-
     /// The presented view controller when the view is the presented view of a presentation. The presented view
     /// controller is the first view controller found in the view's subtree.
     var presentedViewControllerOfPresentedView: UIViewController? {
@@ -1377,18 +1331,6 @@ private extension UIView {
             .compactMap { $0.presentedViewControllerOfPresentedView?.popoverPresentationController }
             .first { $0.containerView === self }
         return popoverPresentationController?.passthroughViews ?? []
-    }
-
-    /// Whether the view and each of its superviews below `ancestor` are visible.
-    func isVisible(below ancestor: UIView) -> Bool {
-        var view: UIView? = self
-        while let current = view, current !== ancestor {
-            if current.isHidden || current.alpha <= 0 || current.accessibilityElementsHidden {
-                return false
-            }
-            view = current.superview
-        }
-        return true
     }
 }
 
