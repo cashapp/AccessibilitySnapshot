@@ -2283,6 +2283,40 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         window.isHidden = true
     }
 
+    func testPopoverPassthroughViewsAreParsed() {
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
+        let presenter = UIViewController()
+        let background = UIButton(type: .system)
+        background.setTitle("Background", for: .normal)
+        background.frame = CGRect(x: 20, y: 200, width: 160, height: 44)
+        presenter.view.addSubview(background)
+        let passthrough = UIButton(type: .system)
+        passthrough.setTitle("Passthrough", for: .normal)
+        passthrough.frame = CGRect(x: 20, y: 700, width: 160, height: 44)
+        presenter.view.addSubview(passthrough)
+        window.rootViewController = presenter
+        window.makeKeyAndVisible()
+
+        let popover = PopoverContentViewController()
+        popover.modalPresentationStyle = .popover
+        popover.popoverPresentationController?.sourceView = background
+        popover.popoverPresentationController?.sourceRect = background.bounds
+        popover.popoverPresentationController?.delegate = popover
+        popover.popoverPresentationController?.passthroughViews = [passthrough]
+        let presented = expectation(description: "Popover presented")
+        presenter.present(popover, animated: false) { presented.fulfill() }
+        wait(for: [presented], timeout: 5)
+        window.layoutIfNeeded()
+
+        XCTAssertEqual(parseMarkers(in: window).map { $0.label }, ["Popover Action", "Passthrough"])
+
+        // Wait for UIKit to finish the dismissal before the window is released.
+        let dismissed = expectation(description: "Popover dismissed")
+        presenter.dismiss(animated: false) { dismissed.fulfill() }
+        wait(for: [dismissed], timeout: 5)
+        window.isHidden = true
+    }
+
     func testPresentedViewIsParsedBesideCustomModalDimmingView() {
         let window = UIWindow(frame: UIScreen.main.bounds)
         let presenter = UIViewController()

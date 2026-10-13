@@ -907,8 +907,9 @@ private extension NSObject {
             // If there is at least one modal subview, the last modal is the only subview parsed in the accessibility
             // hierarchy. Otherwise, parse all of the subviews. UIKit keeps the subviews above a modal dimming view
             // reachable, so the parser keeps them as well. A presentation's dimming view is recognized by the presented
-            // view above it, because UIKit keeps those subviews reachable whatever the dimming view's color.
-            let subviewsToParse: [UIView]
+            // view above it, because UIKit keeps those subviews reachable whatever the dimming view's color. When the
+            // modal view contains a popover, UIKit also keeps the popover's passthrough views reachable.
+            var subviewsToParse: [UIView]
             if let modalIndex = self.subviews.lastIndex(where: { $0.accessibilityViewIsModal }) {
                 let modalView = self.subviews[modalIndex]
                 let laterSubviews = self.subviews[(modalIndex + 1)...]
@@ -916,6 +917,15 @@ private extension NSObject {
                     subviewsToParse = [modalView] + laterSubviews
                 } else {
                     subviewsToParse = [modalView]
+                }
+
+                let hiddenSubviews = self.subviews.filter { subview in !subviewsToParse.contains { $0 === subview } }
+                let passthroughViews = modalView.popoverPassthroughViews.filter { passthroughView in
+                    hiddenSubviews.contains { passthroughView.isDescendant(of: $0) }
+                }
+                subviewsToParse += passthroughViews.filter { passthroughView in
+                    !passthroughViews.contains { $0 !== passthroughView && passthroughView.isDescendant(of: $0) }
+                        && passthroughView.isVisible(below: self)
                 }
             } else {
                 subviewsToParse = self.subviews
@@ -1335,21 +1345,50 @@ private extension UIView {
         return true
     }
 
-    /// Whether the view is the presented view of a presentation. The presented view controller is the first view
-    /// controller found in the view's subtree.
+    /// Whether the view is the presented view of a presentation.
     var isPresentedView: Bool {
+        presentedViewControllerOfPresentedView != nil
+    }
+
+    /// The presented view controller when the view is the presented view of a presentation. The presented view
+    /// controller is the first view controller found in the view's subtree.
+    var presentedViewControllerOfPresentedView: UIViewController? {
         var views = [self]
         while !views.isEmpty {
             let view = views.removeFirst()
             if let viewController = view.next as? UIViewController {
                 // Reading `presentationController` can create a presentation controller, so read it only for a view
                 // controller that is presented.
-                return viewController.presentingViewController != nil
-                    && viewController.presentationController?.presentedView === self
+                guard viewController.presentingViewController != nil,
+                      viewController.presentationController?.presentedView === self
+                else {
+                    return nil
+                }
+                return viewController
             }
             views.append(contentsOf: view.subviews)
         }
-        return false
+        return nil
+    }
+
+    /// The passthrough views of the popover whose container view is this view.
+    var popoverPassthroughViews: [UIView] {
+        let popoverPresentationController = subviews.lazy
+            .compactMap { $0.presentedViewControllerOfPresentedView?.popoverPresentationController }
+            .first { $0.containerView === self }
+        return popoverPresentationController?.passthroughViews ?? []
+    }
+
+    /// Whether the view and each of its superviews below `ancestor` are visible.
+    func isVisible(below ancestor: UIView) -> Bool {
+        var view: UIView? = self
+        while let current = view, current !== ancestor {
+            if current.isHidden || current.alpha <= 0 || current.accessibilityElementsHidden {
+                return false
+            }
+            view = current.superview
+        }
+        return true
     }
 }
 
