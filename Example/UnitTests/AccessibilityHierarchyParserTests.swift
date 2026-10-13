@@ -2283,6 +2283,90 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         window.isHidden = true
     }
 
+    func testPresentedViewIsParsedBesideCustomModalDimmingView() {
+        let window = UIWindow(frame: UIScreen.main.bounds)
+        let presenter = UIViewController()
+        let background = UIButton(type: .system)
+        background.setTitle("Background", for: .normal)
+        background.frame = CGRect(x: 20, y: 200, width: 160, height: 44)
+        presenter.view.addSubview(background)
+        window.rootViewController = presenter
+        window.makeKeyAndVisible()
+
+        let transitioningDelegate = DimmingTransitioningDelegate()
+        let presentedViewController = PopoverContentViewController()
+        presentedViewController.modalPresentationStyle = .custom
+        presentedViewController.transitioningDelegate = transitioningDelegate
+        let presented = expectation(description: "View controller presented")
+        presenter.present(presentedViewController, animated: false) { presented.fulfill() }
+        wait(for: [presented], timeout: 5)
+        window.layoutIfNeeded()
+
+        XCTAssertEqual(parseMarkers(in: window).map { $0.label }, ["Dimming", "Popover Action"])
+
+        // Wait for UIKit to finish the dismissal before the window is released.
+        let dismissed = expectation(description: "View controller dismissed")
+        presenter.dismiss(animated: false) { dismissed.fulfill() }
+        wait(for: [dismissed], timeout: 5)
+        window.isHidden = true
+    }
+
+    func testViewControllerViewIsHiddenBesideModalView() {
+        let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
+
+        let modalView = UIView(frame: rootView.bounds)
+        modalView.accessibilityViewIsModal = true
+        rootView.addSubview(modalView)
+
+        let viewController = PopoverContentViewController()
+        viewController.view.frame = CGRect(x: 0, y: 100, width: 200, height: 100)
+        rootView.addSubview(viewController.view)
+
+        XCTAssertEqual(parseMarkers(in: rootView).map { $0.label }, [])
+    }
+
+    func testDimmingModalViewKeepsLaterSiblings() {
+        let rootView = UIView(frame: UIScreen.main.bounds)
+
+        let background = UIView(frame: CGRect(x: 20, y: 100, width: 160, height: 44))
+        background.isAccessibilityElement = true
+        background.accessibilityLabel = "Background"
+        rootView.addSubview(background)
+
+        let dimmingView = UIView(frame: rootView.bounds)
+        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        dimmingView.accessibilityViewIsModal = true
+        rootView.addSubview(dimmingView)
+
+        let laterSibling = UIView(frame: CGRect(x: 20, y: 300, width: 160, height: 44))
+        laterSibling.isAccessibilityElement = true
+        laterSibling.accessibilityLabel = "Later Sibling"
+        rootView.addSubview(laterSibling)
+
+        XCTAssertEqual(parseMarkers(in: rootView).map { $0.label }, ["Later Sibling"])
+
+        // UIKit treats only a full-screen, near-black, translucent view as a dimming view.
+        let screen = UIScreen.main.bounds
+        let nonDimmingViews: [(UIColor?, CGRect)] = [
+            (nil, screen),
+            (UIColor.white.withAlphaComponent(0.3), screen),
+            (.black, screen),
+            (UIColor.black.withAlphaComponent(0.05), screen),
+            (UIColor.black.withAlphaComponent(0.3), CGRect(x: 0, y: 0, width: 200, height: 200)),
+        ]
+        for (color, frame) in nonDimmingViews {
+            dimmingView.backgroundColor = color
+            dimmingView.frame = frame
+            XCTAssertEqual(parseMarkers(in: rootView).map { $0.label }, [], "\(String(describing: color)) \(frame)")
+        }
+
+        // The alpha of the view also counts toward the translucency.
+        dimmingView.backgroundColor = .black
+        dimmingView.frame = screen
+        dimmingView.alpha = 0.5
+        XCTAssertEqual(parseMarkers(in: rootView).map { $0.label }, ["Later Sibling"])
+    }
+
     func testModalViewHidesLaterSiblings() {
         let rootView = UIView(frame: CGRect(x: 0, y: 0, width: 375, height: 812))
 
@@ -2869,6 +2953,37 @@ private final class PopoverContentViewController: UIViewController, UIPopoverPre
 
     func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
         .none
+    }
+}
+
+private final class DimmingPresentationController: UIPresentationController {
+    private let dimmingView = UIView()
+
+    override var frameOfPresentedViewInContainerView: CGRect {
+        CGRect(x: 40, y: 300, width: 200, height: 100)
+    }
+
+    override func presentationTransitionWillBegin() {
+        dimmingView.frame = containerView?.bounds ?? .zero
+        dimmingView.backgroundColor = UIColor.black.withAlphaComponent(0.3)
+        dimmingView.isAccessibilityElement = true
+        dimmingView.accessibilityLabel = "Dimming"
+        dimmingView.accessibilityViewIsModal = true
+        containerView?.insertSubview(dimmingView, at: 0)
+    }
+
+    override func containerViewWillLayoutSubviews() {
+        presentedView?.frame = frameOfPresentedViewInContainerView
+    }
+}
+
+private final class DimmingTransitioningDelegate: NSObject, UIViewControllerTransitioningDelegate {
+    func presentationController(
+        forPresented presented: UIViewController,
+        presenting: UIViewController?,
+        source: UIViewController
+    ) -> UIPresentationController? {
+        DimmingPresentationController(presentedViewController: presented, presenting: presenting)
     }
 }
 

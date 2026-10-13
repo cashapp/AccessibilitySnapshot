@@ -905,11 +905,18 @@ private extension NSObject {
 
         } else if let `self` = self as? UIView {
             // If there is at least one modal subview, the last modal is the only subview parsed in the accessibility
-            // hierarchy. Otherwise, parse all of the subviews. A popover places its modal dimming view beside its
-            // presented view, and UIKit keeps the presented view reachable, so the parser keeps it as well.
+            // hierarchy. Otherwise, parse all of the subviews. UIKit keeps the subviews above a modal dimming view
+            // reachable, so the parser keeps them as well. A presentation's dimming view is recognized by the presented
+            // view above it, because UIKit keeps those subviews reachable whatever the dimming view's color.
             let subviewsToParse: [UIView]
-            if let lastModalView = self.subviews.last(where: { $0.accessibilityViewIsModal }) {
-                subviewsToParse = self.subviews.filter { $0 === lastModalView || $0.isPresentedPopoverView }
+            if let modalIndex = self.subviews.lastIndex(where: { $0.accessibilityViewIsModal }) {
+                let modalView = self.subviews[modalIndex]
+                let laterSubviews = self.subviews[(modalIndex + 1)...]
+                if modalView.isProbablyDimmingView || laterSubviews.contains(where: { $0.isPresentedView }) {
+                    subviewsToParse = [modalView] + laterSubviews
+                } else {
+                    subviewsToParse = [modalView]
+                }
             } else {
                 subviewsToParse = self.subviews
             }
@@ -1294,14 +1301,51 @@ private extension NSObject {
 // MARK: -
 
 private extension UIView {
-    /// Whether the view is the presented view of a popover. The presented view controller is the first view
+    /// Whether UIKit treats the view as a dimming view: a full-screen, near-black, translucent view without an opaque
+    /// full-screen fill. The translucency combines the alpha of the background color with the alpha of the view.
+    var isProbablyDimmingView: Bool {
+        guard
+            alpha != 0,
+            bounds == UIScreen.main.bounds,
+            let color = backgroundColor ?? layer.backgroundColor.map({ UIColor(cgColor: $0) }),
+            color != .clear
+        else {
+            return false
+        }
+
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, colorAlpha: CGFloat = 0
+        guard color.getRed(&red, green: &green, blue: &blue, alpha: &colorAlpha) else {
+            return false
+        }
+        // ponytail: Rec. 601 luma; the 0.01 threshold makes the choice of coefficients immaterial for near-black.
+        let luma = 0.299 * red + 0.587 * green + 0.114 * blue
+        let effectiveAlpha = colorAlpha * alpha
+        guard luma < 0.01, effectiveAlpha >= 0.1, effectiveAlpha <= 0.9 else {
+            return false
+        }
+
+        // A full-screen opaque fill inside a chain of single subviews hides the content behind the view.
+        var view: UIView = self
+        while view.subviews.count == 1 {
+            view = view.subviews[0]
+            if !view.isHidden, view.alpha != 0, view.bounds == bounds, view.backgroundColor?.cgColor.alpha == 1 {
+                return false
+            }
+        }
+        return true
+    }
+
+    /// Whether the view is the presented view of a presentation. The presented view controller is the first view
     /// controller found in the view's subtree.
-    var isPresentedPopoverView: Bool {
+    var isPresentedView: Bool {
         var views = [self]
         while !views.isEmpty {
             let view = views.removeFirst()
             if let viewController = view.next as? UIViewController {
-                return viewController.popoverPresentationController?.presentedView === self
+                // Reading `presentationController` can create a presentation controller, so read it only for a view
+                // controller that is presented.
+                return viewController.presentingViewController != nil
+                    && viewController.presentationController?.presentedView === self
             }
             views.append(contentsOf: view.subviews)
         }
