@@ -46,6 +46,7 @@ final class RootViewController: UITableViewController {
             }),
             ("List Container", { _ in ListContainerViewController() }),
             ("Landmark Container", { _ in LandmarkContainerViewController() }),
+            ("Empty Semantic Group", { _ in EmptySemanticGroupViewController() }),
             ("Invert Colors", { _ in InvertColorsViewController() }),
             ("User Input Labels", { _ in UserInputLabelsViewController() }),
             ("Text Field", { _ in TextFieldViewController() }),
