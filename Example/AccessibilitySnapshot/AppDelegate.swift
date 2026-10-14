@@ -8,7 +8,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let window = UIWindow(frame: UIScreen.main.bounds)
         self.window = window
 
-        let rootViewController = RootViewController()
+        let rootViewController: UIViewController = ProcessInfo.processInfo.arguments.contains("-EmptySemanticGroup")
+            ? EmptySemanticGroupViewController()
+            : RootViewController()
 
         let navigationController = UINavigationController(rootViewController: rootViewController)
         window.rootViewController = navigationController

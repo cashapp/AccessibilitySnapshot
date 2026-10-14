@@ -1,19 +1,72 @@
 import UIKit
 
 final class EmptySemanticGroupViewController: AccessibilityViewController {
+    // MARK: - Private Properties
+
+    private let popoverButton = UIButton(type: .system)
+
     // MARK: - UIViewController
 
-    override func loadView() {
-        view = View(presentPopover: { [weak self] sourceView in self?.presentPopover(from: sourceView) })
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        title = "Empty Semantic Group"
+        navigationController?.overrideUserInterfaceStyle = .light
+
+        let beforeButton = UIButton(type: .system)
+        beforeButton.setTitle("Before", for: .normal)
+
+        let emptyGroup = UIView()
+        emptyGroup.backgroundColor = .systemTeal
+        emptyGroup.accessibilityContainerType = .semanticGroup
+        emptyGroup.accessibilityLabel = "Empty Group"
+
+        let identifierOnlyGroup = UIView()
+        identifierOnlyGroup.backgroundColor = .systemOrange
+        identifierOnlyGroup.accessibilityContainerType = .semanticGroup
+        identifierOnlyGroup.accessibilityIdentifier = "IdentifierOnlyGroup"
+
+        let filledGroup = UIView()
+        filledGroup.backgroundColor = .systemGreen
+        filledGroup.accessibilityContainerType = .semanticGroup
+        filledGroup.accessibilityLabel = "Filled Group"
+        let childLabel = UILabel()
+        childLabel.text = "Child"
+        childLabel.translatesAutoresizingMaskIntoConstraints = false
+        filledGroup.addSubview(childLabel)
+
+        popoverButton.setTitle("Show Popover", for: .normal)
+        popoverButton.addTarget(self, action: #selector(presentPopover), for: .touchUpInside)
+
+        let afterButton = UIButton(type: .system)
+        afterButton.setTitle("After", for: .normal)
+
+        [beforeButton, popoverButton, afterButton].forEach { $0.setTitleColor(.systemBlue, for: .normal) }
+        childLabel.textColor = .black
+
+        let rows = [beforeButton, emptyGroup, identifierOnlyGroup, filledGroup, popoverButton, afterButton]
+        let stackView = UIStackView(arrangedSubviews: rows)
+        stackView.axis = .vertical
+        stackView.spacing = 20
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(stackView)
+
+        NSLayoutConstraint.activate(rows.map { $0.heightAnchor.constraint(equalToConstant: 60) } + [
+            stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+            stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            childLabel.leadingAnchor.constraint(equalTo: filledGroup.leadingAnchor, constant: 12),
+            childLabel.centerYAnchor.constraint(equalTo: filledGroup.centerYAnchor),
+        ])
     }
 
     // MARK: - Private Methods
 
-    private func presentPopover(from sourceView: UIView) {
+    @objc private func presentPopover() {
         let popover = PopoverContentViewController()
         popover.modalPresentationStyle = .popover
-        popover.popoverPresentationController?.sourceView = sourceView
-        popover.popoverPresentationController?.sourceRect = sourceView.bounds
+        popover.popoverPresentationController?.sourceView = popoverButton
+        popover.popoverPresentationController?.sourceRect = popoverButton.bounds
         popover.popoverPresentationController?.delegate = popover
         present(popover, animated: true)
     }
@@ -21,91 +74,18 @@ final class EmptySemanticGroupViewController: AccessibilityViewController {
 
 // MARK: -
 
-private extension EmptySemanticGroupViewController {
-    final class View: UIView {
-        // MARK: - Life Cycle
-
-        init(presentPopover: @escaping (UIView) -> Void) {
-            self.presentPopover = presentPopover
-
-            super.init(frame: .zero)
-
-            beforeButton.setTitle("Before", for: .normal)
-            afterButton.setTitle("After", for: .normal)
-            popoverButton.setTitle("Show Popover", for: .normal)
-            popoverButton.addTarget(self, action: #selector(popoverButtonTapped), for: .touchUpInside)
-
-            emptyGroup.accessibilityContainerType = .semanticGroup
-            emptyGroup.accessibilityLabel = "Empty Group"
-            emptyGroup.backgroundColor = .systemTeal
-
-            identifierOnlyGroup.accessibilityContainerType = .semanticGroup
-            identifierOnlyGroup.accessibilityIdentifier = "IdentifierOnlyGroup"
-            identifierOnlyGroup.backgroundColor = .systemOrange
-
-            filledGroup.accessibilityContainerType = .semanticGroup
-            filledGroup.accessibilityLabel = "Filled Group"
-            filledGroup.backgroundColor = .systemGreen
-            childLabel.text = "Child"
-            filledGroup.addSubview(childLabel)
-
-            [beforeButton, emptyGroup, identifierOnlyGroup, filledGroup, popoverButton, afterButton].forEach(addSubview)
-        }
-
-        @available(*, unavailable)
-        required init?(coder: NSCoder) {
-            fatalError("init(coder:) has not been implemented")
-        }
-
-        // MARK: - Private Properties
-
-        private let presentPopover: (UIView) -> Void
-
-        private let beforeButton = UIButton(type: .system)
-
-        private let emptyGroup = UIView()
-
-        private let identifierOnlyGroup = UIView()
-
-        private let filledGroup = UIView()
-
-        private let childLabel = UILabel()
-
-        private let popoverButton = UIButton(type: .system)
-
-        private let afterButton = UIButton(type: .system)
-
-        // MARK: - UIView
-
-        override func layoutSubviews() {
-            var y = safeAreaInsets.top + 20
-            for subview in [beforeButton, emptyGroup, identifierOnlyGroup, filledGroup, popoverButton, afterButton] {
-                subview.frame = CGRect(x: 20, y: y, width: bounds.width - 40, height: 60)
-                y += 80
-            }
-            childLabel.frame = filledGroup.bounds.insetBy(dx: 12, dy: 12)
-        }
-
-        // MARK: - Private Methods
-
-        @objc private func popoverButtonTapped() {
-            presentPopover(popoverButton)
-        }
+private final class PopoverContentViewController: UIViewController, UIPopoverPresentationControllerDelegate {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .white
+        let button = UIButton(type: .system)
+        button.setTitle("Popover Action", for: .normal)
+        button.frame = CGRect(x: 20, y: 20, width: 160, height: 44)
+        view.addSubview(button)
+        preferredContentSize = CGSize(width: 200, height: 100)
     }
 
-    final class PopoverContentViewController: UIViewController, UIPopoverPresentationControllerDelegate {
-        override func viewDidLoad() {
-            super.viewDidLoad()
-            view.backgroundColor = .white
-            let button = UIButton(type: .system)
-            button.setTitle("Popover Action", for: .normal)
-            button.frame = CGRect(x: 20, y: 20, width: 160, height: 44)
-            view.addSubview(button)
-            preferredContentSize = CGSize(width: 200, height: 100)
-        }
-
-        func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
-            .none
-        }
+    func adaptivePresentationStyle(for controller: UIPresentationController, traitCollection: UITraitCollection) -> UIModalPresentationStyle {
+        .none
     }
 }
