@@ -12,9 +12,8 @@ extension AccessibilityElement {
     ) -> (description: String, hint: String?) {
         let strings = Strings(locale: accessibilityLanguage)
 
-        var accessibilityDescription =
-            (traits.contains(.backButton) && label?.lowercased() == strings.backDescriptor.lowercased())
-                ? "" : label ?? ""
+        let isBackButton = traits.contains(.backButton) && label?.lowercased() == strings.backDescriptor.lowercased()
+        var accessibilityDescription = isBackButton ? "" : label ?? ""
 
         var hintDescription = authoredHint?.nonEmpty()
 

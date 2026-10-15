@@ -499,13 +499,7 @@ extension UIBezierPath {
     /// `Int(_:)` conversions and trap with a Swift runtime SIGTRAP. Callers
     /// gate `.path(...)` on this check and fall back to `.frame(...)`.
     var hasFiniteBounds: Bool {
-        guard !isEmpty else { return false }
-        let rect = cgPath.boundingBoxOfPath
-        return !rect.isNull
-            && rect.origin.x.isFinite
-            && rect.origin.y.isFinite
-            && rect.size.width.isFinite
-            && rect.size.height.isFinite
+        !isEmpty && cgPath.boundingBoxOfPath.hasFiniteGeometry
     }
 }
 
