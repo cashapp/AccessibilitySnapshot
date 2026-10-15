@@ -280,13 +280,13 @@ extension AccessibilitySnapshotView {
     }
 }
 
-extension AccessibilityMarker {
-    func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityMarker.CustomRotor] {
+extension AccessibilityElement {
+    func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityElement.CustomRotor] {
         switch mode {
         case .always:
             return customRotors
         case .whenOverridden:
-            return customRotors.filter { !$0.resultMarkers.isEmpty }
+            return customRotors.filter { !$0.results.isEmpty }
         case .never:
             return []
         }
