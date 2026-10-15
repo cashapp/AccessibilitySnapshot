@@ -904,9 +904,13 @@ private extension NSObject {
             ))
 
         } else if let `self` = self as? UIView {
+            // If there is at least one modal subview, the last modal is the only subview parsed in the accessibility
+            // hierarchy, along with the subviews above it when it looks like a dimming view. Otherwise, parse all of the
+            // subviews.
             let subviewsToParse: [UIView]
-            if let lastModalView = self.subviews.last(where: { $0.accessibilityViewIsModal }) {
-                subviewsToParse = [lastModalView]
+            if let modalIndex = self.subviews.lastIndex(where: { $0.accessibilityViewIsModal }) {
+                let modalView = self.subviews[modalIndex]
+                subviewsToParse = modalView.looksLikeDimmingView ? Array(self.subviews[modalIndex...]) : [modalView]
             } else {
                 subviewsToParse = self.subviews
             }
@@ -1285,6 +1289,23 @@ private extension NSObject {
         guard !clipped.isNull else { return false }
         return clipped.width > visibleFrameMinDimension
             && clipped.height > visibleFrameMinDimension
+    }
+}
+
+// MARK: -
+
+private extension UIView {
+    /// Whether the view looks like the dimming view that UIKit puts behind a popover, a sheet, or an alert.
+    var looksLikeDimmingView: Bool {
+        // It covers its superview.
+        guard let superview = superview, frame.contains(superview.bounds) else {
+            return false
+        }
+        var white: CGFloat = 0, colorAlpha: CGFloat = 0
+        backgroundColor?.getWhite(&white, alpha: &colorAlpha)
+        let effectiveAlpha = colorAlpha * alpha
+        // It is clear, like the dimming view of a popover, or it is a translucent near-black.
+        return effectiveAlpha == 0 || (white < 0.01 && (0.1 ... 0.9).contains(effectiveAlpha))
     }
 }
 
