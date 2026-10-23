@@ -28,6 +28,10 @@ let package = Package(
             targets: ["AccessibilitySnapshotCore"]
         ),
         .library(
+            name: "AccessibilitySnapshotModel",
+            targets: ["AccessibilitySnapshotModel"]
+        ),
+        .library(
             name: "AccessibilitySnapshotParser",
             targets: ["AccessibilitySnapshotParser"]
         ),
