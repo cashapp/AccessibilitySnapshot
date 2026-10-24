@@ -458,7 +458,7 @@ extension AccessibilityHierarchyParser {
 // MARK: - Fileprivate Helpers
 
 private extension AccessibilityHierarchyParser {
-    /// Returns captured sorting geometry, or nil for an empty group.
+    /// Returns captured sorting geometry, or nil for a group with no positioned children.
     static func accessibilitySortFrame(
         for node: AccessibilityNode,
         compare: (AccessibilityRect?, AccessibilityRect?) -> Bool
@@ -472,17 +472,23 @@ private extension AccessibilityHierarchyParser {
             }
             return children
                 .compactMap { accessibilitySortFrame(for: $0, compare: compare) }
+                // A zero frame, such as an off-screen table row, has no position to sort the group by.
+                .filter { $0 != .zero }
                 .min { compare($0, $1) }
         }
     }
 
     static func sortFrame(for object: NSObject, in root: UIView) -> AccessibilityRect {
+        let frame: AccessibilityRect
         switch accessibilityShape(for: object, in: root, preferPath: false) {
         case let .frame(rect):
-            return rect
+            frame = rect
         default:
-            return finiteAccessibilityRect(object.accessibilityFrame)
+            frame = finiteAccessibilityRect(object.accessibilityFrame)
         }
+        // A scroll view sorts by its content area, inside the content inset.
+        guard let scrollView = object as? UIScrollView else { return frame }
+        return finiteAccessibilityRect(frame.cgRect.inset(by: scrollView.adjustedContentInset))
     }
 }
 
