@@ -16,8 +16,8 @@ extension AccessibilitySnapshotView {
                 resultsLabel.font = Metrics.font
                 resultsLabel.numberOfLines = 0
                 resultsLabel.text = {
-                    guard !rotor.resultMarkers.isEmpty else { return Strings.noResultsText(for: locale) }
-                    let resultsString = rotor.resultMarkers.map { "- \($0.elementDescription)" }.joined(separator: "\n")
+                    guard !rotor.results.isEmpty else { return Strings.noResultsText(for: locale) }
+                    let resultsString = rotor.results.map { "- \($0.elementDescription)" }.joined(separator: "\n")
                     switch rotor.limit {
                     case .none:
                         return resultsString

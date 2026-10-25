@@ -128,7 +128,7 @@ public struct AccessibilitySnapshotView<Content: View>: View {
             markers = parser.parseAccessibilityHierarchy(
                 in: hostingController.view,
                 rotorResultLimit: configuration.rotors.resultLimit
-            ).flattenToElements()
+            ).flattenToElements().filter { $0.visibility == .onscreen }
         } catch {
             parseError = error
         }
@@ -177,7 +177,7 @@ public struct PreParsedAccessibilitySnapshotView: View {
         renderSize: CGSize
     ) {
         self.snapshotImage = snapshotImage
-        self.markers = markers
+        self.markers = markers.filter { $0.visibility == .onscreen }
         self.configuration = configuration
         self.palette = palette
         self.renderSize = renderSize
