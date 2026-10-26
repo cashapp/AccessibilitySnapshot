@@ -1209,6 +1209,54 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         window.isHidden = true
     }
 
+    func testOffscreenTableRowsSortAfterViewAboveTable() {
+        let window = UIWindow(frame: .init(x: 0, y: 0, width: 320, height: 200))
+        let label = UILabel(frame: .init(x: 0, y: 20, width: 320, height: 40))
+        label.text = "Above"
+        let dataSource = TableRowDataSource(rowCount: 30)
+        let table = UITableView(frame: .init(x: 0, y: 60, width: 320, height: 140), style: .plain)
+        table.dataSource = dataSource
+        window.addSubview(label)
+        window.addSubview(table)
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+
+        let labels = AccessibilityHierarchyParser().parseAccessibilityHierarchy(
+            in: window,
+            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight),
+            userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
+        ).flattenToElements().compactMap { $0.label }
+
+        XCTAssertEqual(labels, ["Above"] + (0 ..< 30).map { "Row \($0)" })
+
+        window.isHidden = true
+    }
+
+    func testScrollViewElementSortsByContentArea() {
+        let window = UIWindow(frame: .init(x: 0, y: 0, width: 320, height: 200))
+        let scrollView = UIScrollView(frame: window.bounds)
+        scrollView.contentInsetAdjustmentBehavior = .never
+        scrollView.contentInset.top = 60
+        scrollView.isAccessibilityElement = true
+        scrollView.accessibilityLabel = "Content"
+        let label = UILabel(frame: .init(x: 0, y: 10, width: 320, height: 40))
+        label.text = "Header"
+        window.addSubview(scrollView)
+        window.addSubview(label)
+        window.makeKeyAndVisible()
+        window.layoutIfNeeded()
+
+        let labels = AccessibilityHierarchyParser().parseAccessibilityHierarchy(
+            in: window,
+            userInterfaceLayoutDirectionProvider: TestUserInterfaceLayoutDirectionProvider(userInterfaceLayoutDirection: .leftToRight),
+            userInterfaceIdiomProvider: TestUserInterfaceIdiomProvider(userInterfaceIdiom: .phone)
+        ).flattenToElements().compactMap { $0.label }
+
+        XCTAssertEqual(labels, ["Header", "Content"])
+
+        window.isHidden = true
+    }
+
     /// End-to-end regression guard for a real `UISegmentedControl`. It vends its segments through
     /// `accessibilityElements` (resolved by the first branch of `resolvedAccessibilityElements()`),
     /// so it must continue to parse as a three-element series with VoiceOver-style "N of 3" context —

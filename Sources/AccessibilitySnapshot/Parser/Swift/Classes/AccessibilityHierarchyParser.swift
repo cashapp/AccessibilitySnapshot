@@ -470,19 +470,23 @@ private extension AccessibilityHierarchyParser {
             if let frame {
                 return frame
             }
-            return children
-                .compactMap { accessibilitySortFrame(for: $0, compare: compare) }
-                .min { compare($0, $1) }
+            let frames = children.compactMap { accessibilitySortFrame(for: $0, compare: compare) }
+            // A zero frame, such as an off-screen table row, places the group only when no child has a position.
+            return frames.filter { $0 != .zero }.min { compare($0, $1) } ?? frames.min { compare($0, $1) }
         }
     }
 
     static func sortFrame(for object: NSObject, in root: UIView) -> AccessibilityRect {
+        let frame: AccessibilityRect
         switch accessibilityShape(for: object, in: root, preferPath: false) {
         case let .frame(rect):
-            return rect
+            frame = rect
         default:
-            return finiteAccessibilityRect(object.accessibilityFrame)
+            frame = finiteAccessibilityRect(object.accessibilityFrame)
         }
+        // A scroll view sorts by its content area, inside the content inset.
+        guard let scrollView = object as? UIScrollView else { return frame }
+        return finiteAccessibilityRect(frame.cgRect.inset(by: scrollView.adjustedContentInset))
     }
 }
 
