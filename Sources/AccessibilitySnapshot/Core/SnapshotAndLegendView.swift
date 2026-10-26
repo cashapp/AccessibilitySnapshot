@@ -1,3 +1,4 @@
+import AccessibilitySnapshotParser
 import UIKit
 
 open class SnapshotAndLegendView: UIView {
@@ -196,12 +197,12 @@ open class SnapshotAndLegendView: UIView {
 
 private extension CGFloat {
     func floorToPixel(in source: UIWindow?) -> CGFloat {
-        let scale = source?.screen.scale ?? 1
+        let scale = source?.effectiveDisplayScale ?? 1
         return floor(self * scale) / scale
     }
 
     func ceilToPixel(in source: UIWindow?) -> CGFloat {
-        let scale = source?.screen.scale ?? 1
+        let scale = source?.effectiveDisplayScale ?? 1
         return ceil(self * scale) / scale
     }
 }

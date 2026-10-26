@@ -362,7 +362,7 @@ extension AccessibilityHierarchyParser {
             usesDefaultActivationPoint: usesDefaultActivationPoint(
                 element: object,
                 activationPoint: activationPoint,
-                screenScale: (root.window?.screen ?? UIScreen.main).scale
+                screenScale: root.effectiveDisplayScale
             ),
             customActions: (object.accessibilityCustomActions ?? []).map { $0.name },
             customContent: object.customContent,
