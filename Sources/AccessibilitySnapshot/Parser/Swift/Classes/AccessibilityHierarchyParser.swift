@@ -458,7 +458,7 @@ extension AccessibilityHierarchyParser {
 // MARK: - Fileprivate Helpers
 
 private extension AccessibilityHierarchyParser {
-    /// Returns captured sorting geometry, or nil for a group with no positioned children.
+    /// Returns captured sorting geometry, or nil for an empty group.
     static func accessibilitySortFrame(
         for node: AccessibilityNode,
         compare: (AccessibilityRect?, AccessibilityRect?) -> Bool
@@ -470,11 +470,9 @@ private extension AccessibilityHierarchyParser {
             if let frame {
                 return frame
             }
-            return children
-                .compactMap { accessibilitySortFrame(for: $0, compare: compare) }
-                // A zero frame, such as an off-screen table row, has no position to sort the group by.
-                .filter { $0 != .zero }
-                .min { compare($0, $1) }
+            let frames = children.compactMap { accessibilitySortFrame(for: $0, compare: compare) }
+            // A zero frame, such as an off-screen table row, places the group only when no child has a position.
+            return frames.filter { $0 != .zero }.min { compare($0, $1) } ?? frames.min { compare($0, $1) }
         }
     }
 
