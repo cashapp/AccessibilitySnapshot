@@ -186,6 +186,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
         element.addCustomRotors(rotors)
         XCTAssertEqual(element.description, "Volume: 50. Adjustable. List End.")
         XCTAssertEqual(element.hint, captured.hint)
+        XCTAssertEqual(element.authoredHint, "Change volume")
         XCTAssertEqual(element.customRotors, rotors)
         XCTAssertEqual(try JSONDecoder().decode(AccessibilityElement.self, from: JSONEncoder().encode(element)), element)
 
