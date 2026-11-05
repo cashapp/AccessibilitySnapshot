@@ -168,6 +168,11 @@ extension AccessibilityElement {
             hintDescription = nil
         }
 
+        // VoiceOver drops a hint that exactly matches the label.
+        if hintDescription == label {
+            hintDescription = nil
+        }
+
         // Add trait specifiers to description.
         if !traitSpecifiers.isEmpty {
             if let existingDescription = accessibilityDescription.nonEmpty() {
@@ -243,7 +248,11 @@ extension AccessibilityElement {
                     hintDescription = strings.textAreaTraitHint
                 } else {
                     // This is a UITextField/TextField
-                    hintDescription = strings.textEntryTraitHint
+                    if let existingHintDescription = hintDescription?.nonEmpty()?.strippingTrailingPeriod() {
+                        hintDescription = String(format: strings.textEntryTraitHintFormat, existingHintDescription)
+                    } else {
+                        hintDescription = strings.textEntryTraitHint
+                    }
                 }
             }
         }
@@ -327,6 +336,8 @@ extension AccessibilityElement {
         let secureTextFieldTraitName: String
 
         let textEntryTraitHint: String
+
+        let textEntryTraitHintFormat: String
 
         let textEntryIsEditingTraitHint: String
 
@@ -498,6 +509,12 @@ extension AccessibilityElement {
             textEntryTraitHint = "Double tap to edit.".localized(
                 key: "trait.text_field.hint",
                 comment: "Hint describing how to use elements with the 'text entry' accessibility trait",
+                locale: locale
+            )
+            textEntryTraitHintFormat = "%@. Double tap to edit.".localized(
+                key: "trait.text_field.hint_format",
+                comment: "Format for hint describing how to use elements with the 'text entry' accessibility trait; " +
+                    "param0: the existing hint",
                 locale: locale
             )
             textEntryIsEditingTraitHint = "Use the rotor to access Misspelled Words".localized(

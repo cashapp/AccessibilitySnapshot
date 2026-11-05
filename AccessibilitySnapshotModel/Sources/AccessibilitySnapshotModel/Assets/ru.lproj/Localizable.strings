@@ -100,6 +100,9 @@
 /* Hint describing how to use elements with the 'text entry' accessibility trait */
 "trait.text_field.hint" = "коснитесь дважды, чтобы редактировать";
 
+/* Format for hint describing how to use elements with the 'text entry' accessibility trait; param0: the existing hint */
+"trait.text_field.hint_format" = "%@. Коснитесь дважды, чтобы редактировать";
+
 /* Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited */
 "trait.text_field_is_editing.hint" = "Используйте ротор для доступа к oбъeкту: Cлова с ошибками";
 
