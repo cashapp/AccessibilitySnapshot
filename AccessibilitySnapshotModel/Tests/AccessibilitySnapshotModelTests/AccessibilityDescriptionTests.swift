@@ -57,7 +57,8 @@ final class AccessibilityDescriptionTests: XCTestCase {
             (nil as String?, nil as String?, AccessibilityTraits.adjustable, "Change volume." as String?, "Change volume. Adjustable.", nil as String?),
             ("Setting", "1", [.button, .switchButton], "Change setting.", "Setting. Switch Button. On.", "Change setting. Double tap to toggle setting."),
             ("Setting", "0", [.button, .switchButton, .notEnabled], "Change setting.", "Setting. Dimmed. Switch Button. Off.", "Change setting."),
-            ("Password", nil, [.textEntry, .secureTextField], "Authored hint", "Password. Secure Text Field.", "Double tap to edit."),
+            ("Password", nil, [.textEntry, .secureTextField], "Authored hint", "Password. Secure Text Field.", "Authored hint. Double tap to edit."),
+            ("Name", nil, [.textEntry], nil, "Name. Text Field.", "Double tap to edit."),
             ("Back", nil, [.button, .backButton], nil, "Back Button.", nil),
         ] {
             let speech = AccessibilityElement.accessibilityDescription(
