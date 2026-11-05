@@ -168,6 +168,11 @@ extension AccessibilityElement {
             hintDescription = nil
         }
 
+        // VoiceOver drops a hint that exactly matches the label.
+        if hintDescription == label {
+            hintDescription = nil
+        }
+
         // Add trait specifiers to description.
         if !traitSpecifiers.isEmpty {
             if let existingDescription = accessibilityDescription.nonEmpty() {
