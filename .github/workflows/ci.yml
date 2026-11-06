@@ -9,7 +9,7 @@ on:
 jobs:
   spm:
     name: SPM Build
-    runs-on: macOS-14
+    runs-on: macOS-15
     strategy:
       matrix:
         platform: ['iOS_17']
@@ -24,7 +24,7 @@ jobs:
 
   model-tests:
     name: Model Tests (macOS)
-    runs-on: macOS-14
+    runs-on: macOS-15
     steps:
       - name: Checkout Repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
 
   validate-strings:
     name: Validate Localized Strings
-    runs-on: macOS-14
+    runs-on: macOS-15
     steps:
       - name: Checkout Repo
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # ratchet:actions/checkout@v4
@@ -47,7 +47,7 @@ jobs:
       matrix:
         include:
           - platform: iOS_17
-            runner: macOS-14
+            runner: macOS-15
             device: "iPhone 15 Pro"
             os: "17.5"
           - platform: iOS_18
