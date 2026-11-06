@@ -10,6 +10,8 @@ if [[ ${PLATFORMS[*]} =~ 'iOS_16' ]]; then
 fi
 
 if [[ ${PLATFORMS[*]} =~ 'iOS_17' ]]; then
+	xcodebuild -runFirstLaunch
+	xcrun simctl list runtimes > /dev/null
 	xcodebuild -downloadPlatform iOS -buildVersion 17.5
 	xcrun simctl list devices 'iOS 17.5' | grep -q 'iPhone 15 Pro (' || xcrun simctl create 'iPhone 15 Pro' 'iPhone 15 Pro' com.apple.CoreSimulator.SimRuntime.iOS-17-5
 fi
