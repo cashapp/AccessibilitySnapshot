@@ -2247,6 +2247,23 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertNoThrow(try JSONEncoder().encode(marker.shape), "The produced shape must be JSON-encodable")
     }
 
+    func testNonFiniteActivationPointFallsBackToDefault() throws {
+        for reportedPoint in [CGPoint(x: CGFloat.nan, y: CGFloat.nan), CGPoint(x: 20, y: CGFloat.infinity)] {
+            let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+            let element = ActivationPointTestView(frame: CGRect(x: 10, y: 10, width: 50, height: 50))
+            element.isAccessibilityElement = true
+            element.accessibilityLabel = "nonFinitePoint"
+            element.overriddenFrame = CGRect(x: 10, y: 10, width: 50, height: 50)
+            element.overriddenActivationPoint = reportedPoint
+            root.addSubview(element)
+
+            let marker = try XCTUnwrap(parseMarkers(in: root).first)
+            XCTAssertEqual(marker.activationPoint, AccessibilityPoint(CGPoint(x: 35, y: 35)), "\(reportedPoint)")
+            XCTAssertTrue(marker.usesDefaultActivationPoint, "\(reportedPoint)")
+            XCTAssertNoThrow(try JSONEncoder().encode(marker.activationPoint))
+        }
+    }
+
     // MARK: - Modal Tests
 
     func testPopoverContentIsParsedBesideModalDimmingView() {
