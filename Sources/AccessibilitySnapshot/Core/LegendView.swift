@@ -282,6 +282,8 @@ extension AccessibilitySnapshotView {
 
 extension AccessibilityElement {
     func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityElement.CustomRotor] {
+        // Unknown system rotors are mostly private UIKit rotors that only add noise to a legend.
+        let customRotors = customRotors.filter { !$0.isUnknownSystemRotor }
         switch mode {
         case .always:
             return customRotors
@@ -290,5 +292,12 @@ extension AccessibilityElement {
         case .never:
             return []
         }
+    }
+}
+
+extension AccessibilityElement.CustomRotor {
+    var isUnknownSystemRotor: Bool {
+        if case .unknown = systemType { return true }
+        return false
     }
 }

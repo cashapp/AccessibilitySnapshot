@@ -50,6 +50,12 @@ final class AccessibilityModelCodableTests: XCTestCase {
         let object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
         XCTAssertEqual(object["systemType"] as? String, "headingLevel1")
 
+        let unknown = AccessibilityElement.CustomRotor(name: "Unknown", systemType: .unknown(42))
+        let unknownData = try JSONEncoder().encode(unknown)
+        XCTAssertEqual(try JSONDecoder().decode(AccessibilityElement.CustomRotor.self, from: unknownData), unknown)
+        let unknownObject = try JSONSerialization.jsonObject(with: unknownData) as! [String: Any]
+        XCTAssertEqual(unknownObject["systemType"] as? String, "unknown(42)")
+
         let custom = try JSONDecoder().decode(
             AccessibilityElement.CustomRotor.self,
             from: Data(#"{"name":"Errors","resultMarkers":[],"limit":{"none":{}}}"#.utf8)

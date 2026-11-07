@@ -26,7 +26,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         }
 
         /// A system rotor's type, independent of its localized `name`.
-        public enum SystemType: String, Hashable, Codable, Sendable {
+        public enum SystemType: Hashable, Codable, Sendable {
             case link
             case visitedLink
             case heading
@@ -45,6 +45,70 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
             case table
             case list
             case landmark
+            /// A system rotor type without a case here, by its UIKit raw value.
+            case unknown(Int)
+
+            private static let named: [SystemType] = [
+                .link,
+                .visitedLink,
+                .heading,
+                .headingLevel1,
+                .headingLevel2,
+                .headingLevel3,
+                .headingLevel4,
+                .headingLevel5,
+                .headingLevel6,
+                .boldText,
+                .italicText,
+                .underlineText,
+                .misspelledWord,
+                .image,
+                .textField,
+                .table,
+                .list,
+                .landmark,
+            ]
+
+            private var name: String {
+                switch self {
+                case .link: return "link"
+                case .visitedLink: return "visitedLink"
+                case .heading: return "heading"
+                case .headingLevel1: return "headingLevel1"
+                case .headingLevel2: return "headingLevel2"
+                case .headingLevel3: return "headingLevel3"
+                case .headingLevel4: return "headingLevel4"
+                case .headingLevel5: return "headingLevel5"
+                case .headingLevel6: return "headingLevel6"
+                case .boldText: return "boldText"
+                case .italicText: return "italicText"
+                case .underlineText: return "underlineText"
+                case .misspelledWord: return "misspelledWord"
+                case .image: return "image"
+                case .textField: return "textField"
+                case .table: return "table"
+                case .list: return "list"
+                case .landmark: return "landmark"
+                case let .unknown(rawValue): return "unknown(\(rawValue))"
+                }
+            }
+
+            public init(from decoder: Decoder) throws {
+                let container = try decoder.singleValueContainer()
+                let name = try container.decode(String.self)
+                if let named = Self.named.first(where: { $0.name == name }) {
+                    self = named
+                } else if name.hasPrefix("unknown("), name.hasSuffix(")"), let rawValue = Int(name.dropFirst(8).dropLast()) {
+                    self = .unknown(rawValue)
+                } else {
+                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unrecognized rotor system type \(name)")
+                }
+            }
+
+            public func encode(to encoder: Encoder) throws {
+                var container = encoder.singleValueContainer()
+                try container.encode(name)
+            }
         }
 
         @available(*, deprecated, renamed: "Result")
