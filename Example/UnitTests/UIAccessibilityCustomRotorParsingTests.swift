@@ -6,6 +6,18 @@ import XCTest
 @testable import AccessibilitySnapshotParser
 
 final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
+    func test_systemRotorsAreTaggedWithTheirType() {
+        let heading = UIAccessibilityCustomRotor(systemType: .heading) { _ in nil }
+        let custom = UIAccessibilityCustomRotor(name: "Errors") { _ in nil }
+
+        let headingMarker = AccessibilityElement.CustomRotor(from: heading, accessibilityLanguage: nil, root: UIView(), resultLimit: 0)
+        let customMarker = AccessibilityElement.CustomRotor(from: custom, accessibilityLanguage: nil, root: UIView(), resultLimit: 0)
+
+        XCTAssertEqual(headingMarker?.systemType, .heading)
+        XCTAssertEqual(headingMarker?.name, "Headings")
+        XCTAssertNil(customMarker?.systemType)
+    }
+
     func test_zeroLimitPreservesRotorNameWithoutCollectingResults() {
         var searchCount = 0
         let rotor = UIAccessibilityCustomRotor(name: "Errors") { _ in

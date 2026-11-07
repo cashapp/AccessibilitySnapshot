@@ -1,4 +1,4 @@
-import AccessibilitySnapshotModel
+import AccessibilityHierarchyModel
 import CoreGraphics
 import UIKit
 

@@ -28,6 +28,10 @@ let package = Package(
             targets: ["AccessibilitySnapshotCore"]
         ),
         .library(
+            name: "AccessibilityHierarchyModel",
+            targets: ["AccessibilityHierarchyModel"]
+        ),
+        .library(
             name: "AccessibilitySnapshotParser",
             targets: ["AccessibilitySnapshotParser"]
         ),
@@ -50,8 +54,8 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "AccessibilitySnapshotModel",
-            path: "AccessibilitySnapshotModel/Sources/AccessibilitySnapshotModel",
+            name: "AccessibilityHierarchyModel",
+            path: "AccessibilityHierarchyModel/Sources/AccessibilityHierarchyModel",
             resources: [.process("Assets")]
         ),
         .target(
@@ -61,7 +65,7 @@ let package = Package(
         .target(
             name: "AccessibilitySnapshotParser",
             dependencies: [
-                "AccessibilitySnapshotModel",
+                "AccessibilityHierarchyModel",
                 "AccessibilitySnapshotParser-ObjC",
             ],
             path: "Sources/AccessibilitySnapshot/Parser/Swift"

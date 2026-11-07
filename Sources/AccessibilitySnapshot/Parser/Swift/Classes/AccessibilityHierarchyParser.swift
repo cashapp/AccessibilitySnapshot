@@ -1,5 +1,5 @@
 import Accessibility
-@_spi(Parsing) import AccessibilitySnapshotModel
+@_spi(Parsing) import AccessibilityHierarchyModel
 import os.log
 import SwiftUI
 import UIKit
@@ -153,7 +153,7 @@ public final class AccessibilityHierarchyParser {
         }
         let preparedNodes = prepareNodes(orderedOutputNodes(capturedNodes))
         for captured in capturedElements {
-            captured.element.addCustomRotors(captured.rotors.map { $0.rotor(context: captured.element.context) })
+            captured.element.customRotors = captured.rotors.map { $0.rotor(context: captured.element.context) }
         }
 
         return foldNodes(
@@ -355,7 +355,7 @@ extension AccessibilityHierarchyParser {
             value: object.accessibilityValue,
             traits: AccessibilityTraits(object.accessibilityTraits),
             identifier: object.identifier,
-            hint: object.accessibilityHint,
+            authoredHint: object.accessibilityHint,
             userInputLabels: object.accessibilityUserInputLabels,
             shape: accessibilityShape(for: object, in: root),
             activationPoint: AccessibilityPoint(root.convert(activationPoint, from: nil)),

@@ -1,9 +1,9 @@
-@_spi(Parsing) import AccessibilitySnapshotModel
+@_spi(Parsing) import AccessibilityHierarchyModel
 import Foundation
 import XCTest
 
 /// Codable and wire-format coverage for the portable model. These tests depend only on
-/// `AccessibilitySnapshotModel` (no UIKit / CoreGraphics), so they run on any SwiftPM
+/// `AccessibilityHierarchyModel` (no UIKit / CoreGraphics), so they run on any SwiftPM
 /// toolchain — see the model-only CI job that exercises them on Linux.
 final class AccessibilityModelCodableTests: XCTestCase {
     // MARK: - Codable Round-Trips
@@ -14,7 +14,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: "Button Value",
             traits: [.button, .selected],
             identifier: "test-button-id",
-            hint: "Double tap to activate",
+            authoredHint: "Double tap to activate",
             userInputLabels: ["tap button", "press button"],
             shape: .frame(AccessibilityRect(x: 10, y: 20, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 60, y: 42),
@@ -43,6 +43,26 @@ final class AccessibilityModelCodableTests: XCTestCase {
         XCTAssertNil(rotors.first?["results"])
     }
 
+    func testRotorSystemTypeEncodesAsNameAndDefaultsToNil() throws {
+        let heading = AccessibilityElement.CustomRotor(name: "Headings", systemType: .headingLevel1)
+        let data = try JSONEncoder().encode(heading)
+        XCTAssertEqual(try JSONDecoder().decode(AccessibilityElement.CustomRotor.self, from: data), heading)
+        let object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertEqual(object["systemType"] as? String, "headingLevel1")
+
+        let unknown = AccessibilityElement.CustomRotor(name: "Unknown", systemType: .unknown(42))
+        let unknownData = try JSONEncoder().encode(unknown)
+        XCTAssertEqual(try JSONDecoder().decode(AccessibilityElement.CustomRotor.self, from: unknownData), unknown)
+        let unknownObject = try JSONSerialization.jsonObject(with: unknownData) as! [String: Any]
+        XCTAssertEqual(unknownObject["systemType"] as? String, "unknown(42)")
+
+        let custom = try JSONDecoder().decode(
+            AccessibilityElement.CustomRotor.self,
+            from: Data(#"{"name":"Errors","resultMarkers":[],"limit":{"none":{}}}"#.utf8)
+        )
+        XCTAssertNil(custom.systemType)
+    }
+
     func testDeprecatedRotorNamesForwardToCurrentAPI() throws {
         let result = AccessibilityElement.CustomRotor.ResultMarker(elementDescription: "Item")
         let legacy = AccessibilityElement.CustomRotor(name: "Related", resultMarkers: [result])
@@ -59,30 +79,13 @@ final class AccessibilityModelCodableTests: XCTestCase {
         XCTAssertNil(object["results"])
     }
 
-    func testDeprecatedTableHeaderNamePreservesContextAndEncoding() throws {
-        let header = AccessibilityContext.Header(label: "Revenue", value: "USD")
-        let current = AccessibilityContext.TableHeader(label: "Revenue", value: "USD")
-        let context = AccessibilityContext.dataTableCell(
-            row: 0, column: 0, width: 1, height: 1, isFirstInRow: true,
-            rowHeaders: [], columnHeaders: [header]
-        )
-
-        XCTAssertEqual(header, current)
-        let data = try JSONEncoder().encode(context)
-        XCTAssertEqual(try JSONDecoder().decode(AccessibilityContext.self, from: data), context)
-        let object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-        let cell = try XCTUnwrap(object["dataTableCell"] as? [String: Any])
-        let headers = try XCTUnwrap(cell["columnHeaders"] as? [[String: String]])
-        XCTAssertEqual(headers, [["label": "Revenue", "value": "USD"]])
-    }
-
     func testAccessibilityElementVisibilityCodableDefaultsToOnscreen() throws {
         let element = AccessibilityElement(
             label: "Offscreen Button",
             value: nil,
             traits: [.button],
             identifier: nil,
-            hint: nil,
+            authoredHint: nil,
             userInputLabels: nil,
             shape: .frame(AccessibilityRect(x: 0, y: 200, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 222),
@@ -125,7 +128,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: "42",
             traits: [],
             identifier: nil,
-            hint: "Raw hint",
+            authoredHint: "Raw hint",
             userInputLabels: nil,
             shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 22),
@@ -167,7 +170,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: "50",
             traits: [.adjustable],
             identifier: "volume",
-            hint: "Change volume",
+            authoredHint: "Change volume",
             userInputLabels: ["Volume"],
             shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 22),
@@ -183,15 +186,58 @@ final class AccessibilityModelCodableTests: XCTestCase {
             .init(name: "Related", results: [.init(elementDescription: "Speaker")]),
         ]
         element.addContext(.listEnd)
-        element.addCustomRotors(rotors)
+        element.customRotors = rotors
         XCTAssertEqual(element.description, "Volume: 50. Adjustable. List End.")
         XCTAssertEqual(element.hint, captured.hint)
         XCTAssertEqual(element.customRotors, rotors)
         XCTAssertEqual(try JSONDecoder().decode(AccessibilityElement.self, from: JSONEncoder().encode(element)), element)
 
         element.addContext(nil)
-        element.addCustomRotors([])
+        element.customRotors = []
         XCTAssertEqual(element, captured)
+    }
+
+    func testInitializerRebuildsElementFromPublicProperties() {
+        var element = AccessibilityElement(
+            label: "Volume",
+            value: "50",
+            traits: [.adjustable],
+            identifier: "volume",
+            authoredHint: "Change volume",
+            userInputLabels: ["Volume"],
+            shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
+            activationPoint: AccessibilityPoint(x: 50, y: 22),
+            usesDefaultActivationPoint: true,
+            customActions: ["Mute"],
+            customContent: [.init(label: "Level", value: "Medium")],
+            customRotors: [.init(name: "Related", results: [.init(elementDescription: "Speaker")])],
+            accessibilityLanguage: "en-US",
+            respondsToUserInteraction: true,
+            visibility: .offscreen,
+            context: .listEnd
+        )
+        element.shape = .frame(AccessibilityRect(x: 10, y: 20, width: 100, height: 44))
+
+        let rebuilt = AccessibilityElement(
+            label: element.label,
+            value: element.value,
+            traits: element.traits,
+            identifier: element.identifier,
+            authoredHint: element.authoredHint,
+            userInputLabels: element.userInputLabels,
+            shape: element.shape,
+            activationPoint: element.activationPoint,
+            usesDefaultActivationPoint: element.usesDefaultActivationPoint,
+            customActions: element.customActions,
+            customContent: element.customContent,
+            customRotors: element.customRotors,
+            accessibilityLanguage: element.accessibilityLanguage,
+            respondsToUserInteraction: element.respondsToUserInteraction,
+            visibility: element.visibility,
+            context: element.context
+        )
+        XCTAssertEqual(rebuilt, element)
+        XCTAssertEqual(rebuilt.hint, element.hint)
     }
 
     func testLegacyElementDecodingRegeneratesSpeech() throws {
@@ -204,7 +250,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: "1",
             traits: [.button, .switchButton],
             identifier: nil,
-            hint: "Legacy hint",
+            authoredHint: "Legacy hint",
             userInputLabels: nil,
             shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 22),
@@ -250,7 +296,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: "1",
             traits: [.button, .switchButton],
             identifier: nil,
-            hint: nil,
+            authoredHint: nil,
             userInputLabels: nil,
             shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 22),
@@ -356,7 +402,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: nil,
             traits: [],
             identifier: nil,
-            hint: nil,
+            authoredHint: nil,
             userInputLabels: nil,
             shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 22),
@@ -373,7 +419,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: nil,
             traits: [],
             identifier: nil,
-            hint: nil,
+            authoredHint: nil,
             userInputLabels: nil,
             shape: .frame(AccessibilityRect(x: 0, y: 50, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 72),

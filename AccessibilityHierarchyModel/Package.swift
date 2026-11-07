@@ -6,22 +6,22 @@ import PackageDescription
 // A model package with Foundation-based speech formatting and localization resources.
 // It builds and tests without UIKit on macOS and Linux via `swift test`.
 let package = Package(
-    name: "AccessibilitySnapshotModel",
+    name: "AccessibilityHierarchyModel",
     defaultLocalization: "en",
     products: [
         .library(
-            name: "AccessibilitySnapshotModel",
-            targets: ["AccessibilitySnapshotModel"]
+            name: "AccessibilityHierarchyModel",
+            targets: ["AccessibilityHierarchyModel"]
         ),
     ],
     targets: [
         .target(
-            name: "AccessibilitySnapshotModel",
+            name: "AccessibilityHierarchyModel",
             resources: [.process("Assets")]
         ),
         .testTarget(
-            name: "AccessibilitySnapshotModelTests",
-            dependencies: ["AccessibilitySnapshotModel"]
+            name: "AccessibilityHierarchyModelTests",
+            dependencies: ["AccessibilityHierarchyModel"]
         ),
     ]
 )

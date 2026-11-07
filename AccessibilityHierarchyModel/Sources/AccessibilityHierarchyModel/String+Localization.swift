@@ -6,6 +6,7 @@ extension String {
     }
 }
 
+@_spi(Parsing)
 public enum StringLocalization {
     #if SWIFT_PACKAGE
         private static let resourceBundle = Bundle.module
