@@ -80,19 +80,19 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
     public let identifier: String?
     public var hint: String? { formattedUtterance.hint }
     public let userInputLabels: [String]?
-    public let shape: AccessibilityShape
-    public let activationPoint: AccessibilityPoint
+    public var shape: AccessibilityShape
+    public var activationPoint: AccessibilityPoint
     public let usesDefaultActivationPoint: Bool
     public let customActions: [CustomAction]
     public let customContent: [CustomContent]
-    public private(set) var customRotors: [CustomRotor]
+    public var customRotors: [CustomRotor]
     public let accessibilityLanguage: String?
     public let respondsToUserInteraction: Bool
     public private(set) var context: AccessibilityContext?
 
     /// Whether the element was on screen at parse time. Defaults to `.onscreen`, which is also the
     /// value used when decoding payloads written before this field existed.
-    public let visibility: ScreenVisibility
+    public var visibility: ScreenVisibility
 
     // MARK: - Initialization
 
