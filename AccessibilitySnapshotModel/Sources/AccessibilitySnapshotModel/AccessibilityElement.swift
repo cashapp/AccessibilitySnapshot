@@ -92,7 +92,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
 
     /// Whether the element was on screen at parse time. Defaults to `.onscreen`, which is also the
     /// value used when decoding payloads written before this field existed.
-    public let visibility: ScreenVisibility
+    public var visibility: ScreenVisibility
 
     // MARK: - Initialization
 
