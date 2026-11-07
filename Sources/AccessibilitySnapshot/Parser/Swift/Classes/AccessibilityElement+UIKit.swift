@@ -4,9 +4,8 @@ import UIKit
 // MARK: - CustomRotor UIKit Init
 
 extension AccessibilityElement.CustomRotor {
-    init?(from rotor: UIAccessibilityCustomRotor, accessibilityLanguage: String?, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int) {
-        guard let captured = CapturedRotor(from: rotor, accessibilityLanguage: accessibilityLanguage, root: root, resultLimit: resultLimit) else { return nil }
-        self = captured.rotor(context: context)
+    init(from rotor: UIAccessibilityCustomRotor, accessibilityLanguage: String?, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int) {
+        self = CapturedRotor(from: rotor, accessibilityLanguage: accessibilityLanguage, root: root, resultLimit: resultLimit).rotor(context: context)
     }
 }
 
@@ -49,8 +48,7 @@ struct CapturedRotor {
     private let results: [Result]
     private let limit: AccessibilityRotorResultLimit
 
-    init?(from rotor: UIAccessibilityCustomRotor, accessibilityLanguage: String?, root: UIView, resultLimit: Int) {
-        guard rotor.isKnownRotorType else { return nil }
+    init(from rotor: UIAccessibilityCustomRotor, accessibilityLanguage: String?, root: UIView, resultLimit: Int) {
         name = rotor.displayName(locale: accessibilityLanguage)
         systemType = rotor.systemType
 
