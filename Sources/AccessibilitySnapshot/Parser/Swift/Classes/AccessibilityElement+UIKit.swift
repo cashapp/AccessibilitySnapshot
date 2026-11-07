@@ -1,4 +1,4 @@
-@_spi(Parsing) import AccessibilitySnapshotModel
+@_spi(Parsing) import AccessibilityHierarchyModel
 import UIKit
 
 // MARK: - CustomRotor UIKit Init

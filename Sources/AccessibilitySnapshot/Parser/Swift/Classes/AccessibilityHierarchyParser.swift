@@ -1,5 +1,5 @@
 import Accessibility
-@_spi(Parsing) import AccessibilitySnapshotModel
+@_spi(Parsing) import AccessibilityHierarchyModel
 import os.log
 import SwiftUI
 import UIKit

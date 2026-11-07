@@ -1,4 +1,4 @@
-import AccessibilitySnapshotModel
+import AccessibilityHierarchyModel
 
 extension String {
     func localized(key: String, comment: String, locale: String?, file: StaticString = #file) -> String {

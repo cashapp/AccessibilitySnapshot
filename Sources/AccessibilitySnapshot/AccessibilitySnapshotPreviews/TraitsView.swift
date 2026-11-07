@@ -4,7 +4,7 @@ import UIKit
 
 @available(iOS 16.0, *)
 struct TraitsView: View {
-    let traits: AccessibilitySnapshotModel.AccessibilityTraits
+    let traits: AccessibilityHierarchyModel.AccessibilityTraits
 
     private typealias Tokens = DesignTokens.TraitPill
 
@@ -122,7 +122,7 @@ enum UnspokenTrait: Hashable {
         }
     }
 
-    static func from(_ traits: AccessibilitySnapshotModel.AccessibilityTraits) -> [UnspokenTrait] {
+    static func from(_ traits: AccessibilityHierarchyModel.AccessibilityTraits) -> [UnspokenTrait] {
         let uiTraits = traits.uiAccessibilityTraits
         return availableCases.filter { unspokenTrait in
             guard let uiTrait = unspokenTrait.uiTrait else { return false }

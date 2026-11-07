@@ -1,9 +1,9 @@
-@_spi(Parsing) import AccessibilitySnapshotModel
+@_spi(Parsing) import AccessibilityHierarchyModel
 import Foundation
 import XCTest
 
 /// Codable and wire-format coverage for the portable model. These tests depend only on
-/// `AccessibilitySnapshotModel` (no UIKit / CoreGraphics), so they run on any SwiftPM
+/// `AccessibilityHierarchyModel` (no UIKit / CoreGraphics), so they run on any SwiftPM
 /// toolchain — see the model-only CI job that exercises them on Linux.
 final class AccessibilityModelCodableTests: XCTestCase {
     // MARK: - Codable Round-Trips
