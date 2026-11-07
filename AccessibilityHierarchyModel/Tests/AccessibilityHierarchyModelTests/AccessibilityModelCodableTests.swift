@@ -59,23 +59,6 @@ final class AccessibilityModelCodableTests: XCTestCase {
         XCTAssertNil(object["results"])
     }
 
-    func testDeprecatedTableHeaderNamePreservesContextAndEncoding() throws {
-        let header = AccessibilityContext.Header(label: "Revenue", value: "USD")
-        let current = AccessibilityContext.TableHeader(label: "Revenue", value: "USD")
-        let context = AccessibilityContext.dataTableCell(
-            row: 0, column: 0, width: 1, height: 1, isFirstInRow: true,
-            rowHeaders: [], columnHeaders: [header]
-        )
-
-        XCTAssertEqual(header, current)
-        let data = try JSONEncoder().encode(context)
-        XCTAssertEqual(try JSONDecoder().decode(AccessibilityContext.self, from: data), context)
-        let object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
-        let cell = try XCTUnwrap(object["dataTableCell"] as? [String: Any])
-        let headers = try XCTUnwrap(cell["columnHeaders"] as? [[String: String]])
-        XCTAssertEqual(headers, [["label": "Revenue", "value": "USD"]])
-    }
-
     func testAccessibilityElementVisibilityCodableDefaultsToOnscreen() throws {
         let element = AccessibilityElement(
             label: "Offscreen Button",
@@ -183,14 +166,14 @@ final class AccessibilityModelCodableTests: XCTestCase {
             .init(name: "Related", results: [.init(elementDescription: "Speaker")]),
         ]
         element.addContext(.listEnd)
-        element.addCustomRotors(rotors)
+        element.customRotors = rotors
         XCTAssertEqual(element.description, "Volume: 50. Adjustable. List End.")
         XCTAssertEqual(element.hint, captured.hint)
         XCTAssertEqual(element.customRotors, rotors)
         XCTAssertEqual(try JSONDecoder().decode(AccessibilityElement.self, from: JSONEncoder().encode(element)), element)
 
         element.addContext(nil)
-        element.addCustomRotors([])
+        element.customRotors = []
         XCTAssertEqual(element, captured)
     }
 

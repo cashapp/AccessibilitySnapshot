@@ -11,9 +11,6 @@ public enum AccessibilityContext: Hashable, Codable, Sendable {
         }
     }
 
-    @available(*, deprecated, renamed: "TableHeader")
-    public typealias Header = TableHeader
-
     case series(index: Int, count: Int)
     case tab(index: Int, count: Int)
     case tabBarItem(index: Int, count: Int)

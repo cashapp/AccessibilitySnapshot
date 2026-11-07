@@ -153,7 +153,7 @@ public final class AccessibilityHierarchyParser {
         }
         let preparedNodes = prepareNodes(orderedOutputNodes(capturedNodes))
         for captured in capturedElements {
-            captured.element.addCustomRotors(captured.rotors.map { $0.rotor(context: captured.element.context) })
+            captured.element.customRotors = captured.rotors.map { $0.rotor(context: captured.element.context) }
         }
 
         return foldNodes(

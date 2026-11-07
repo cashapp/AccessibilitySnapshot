@@ -141,12 +141,6 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         self.context = context
     }
 
-    /// Attaches rotor results formatted with context derived by the parser.
-    @_spi(Parsing)
-    public mutating func addCustomRotors(_ customRotors: [CustomRotor]) {
-        self.customRotors = customRotors
-    }
-
     // MARK: - Codable
 
     private enum CodingKeys: String, CodingKey {
