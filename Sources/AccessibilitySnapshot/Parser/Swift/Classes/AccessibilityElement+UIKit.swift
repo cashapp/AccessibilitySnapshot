@@ -45,12 +45,14 @@ struct CapturedRotor {
     }
 
     private let name: String
+    private let systemType: AccessibilityElement.CustomRotor.SystemType?
     private let results: [Result]
     private let limit: AccessibilityRotorResultLimit
 
     init?(from rotor: UIAccessibilityCustomRotor, accessibilityLanguage: String?, root: UIView, resultLimit: Int) {
         guard rotor.isKnownRotorType else { return nil }
         name = rotor.displayName(locale: accessibilityLanguage)
+        systemType = rotor.systemType
 
         // A nonpositive result limit preserves the name without invoking the search block.
         guard resultLimit > 0 else {
@@ -65,7 +67,7 @@ struct CapturedRotor {
     }
 
     func rotor(context: AccessibilityHierarchyParser.Context? = nil) -> AccessibilityElement.CustomRotor {
-        .init(name: name, results: results.map { $0.result(context: context) }, limit: limit)
+        .init(name: name, systemType: systemType, results: results.map { $0.result(context: context) }, limit: limit)
     }
 }
 

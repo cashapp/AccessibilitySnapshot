@@ -25,18 +25,43 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
             }
         }
 
+        /// A system rotor's type, independent of its localized `name`.
+        public enum SystemType: String, Hashable, Codable, Sendable {
+            case link
+            case visitedLink
+            case heading
+            case headingLevel1
+            case headingLevel2
+            case headingLevel3
+            case headingLevel4
+            case headingLevel5
+            case headingLevel6
+            case boldText
+            case italicText
+            case underlineText
+            case misspelledWord
+            case image
+            case textField
+            case table
+            case list
+            case landmark
+        }
+
         @available(*, deprecated, renamed: "Result")
         public typealias ResultMarker = Result
 
         public let name: String
+        /// `nil` for a custom rotor, which is identified by its `name`.
+        public let systemType: SystemType?
         public let results: [Result]
         public let limit: AccessibilityRotorResultLimit
 
         @available(*, deprecated, renamed: "results")
         public var resultMarkers: [Result] { results }
 
-        public init(name: String, results: [Result] = [], limit: AccessibilityRotorResultLimit = .none) {
+        public init(name: String, systemType: SystemType? = nil, results: [Result] = [], limit: AccessibilityRotorResultLimit = .none) {
             self.name = name
+            self.systemType = systemType
             self.results = results
             self.limit = limit
         }
@@ -52,6 +77,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
 
         private enum CodingKeys: String, CodingKey {
             case name
+            case systemType
             case results = "resultMarkers"
             case limit
         }

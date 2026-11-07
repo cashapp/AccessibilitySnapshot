@@ -43,6 +43,20 @@ final class AccessibilityModelCodableTests: XCTestCase {
         XCTAssertNil(rotors.first?["results"])
     }
 
+    func testRotorSystemTypeEncodesAsNameAndDefaultsToNil() throws {
+        let heading = AccessibilityElement.CustomRotor(name: "Headings", systemType: .headingLevel1)
+        let data = try JSONEncoder().encode(heading)
+        XCTAssertEqual(try JSONDecoder().decode(AccessibilityElement.CustomRotor.self, from: data), heading)
+        let object = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        XCTAssertEqual(object["systemType"] as? String, "headingLevel1")
+
+        let custom = try JSONDecoder().decode(
+            AccessibilityElement.CustomRotor.self,
+            from: Data(#"{"name":"Errors","resultMarkers":[],"limit":{"none":{}}}"#.utf8)
+        )
+        XCTAssertNil(custom.systemType)
+    }
+
     func testDeprecatedRotorNamesForwardToCurrentAPI() throws {
         let result = AccessibilityElement.CustomRotor.ResultMarker(elementDescription: "Item")
         let legacy = AccessibilityElement.CustomRotor(name: "Related", resultMarkers: [result])
