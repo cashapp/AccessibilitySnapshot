@@ -380,7 +380,7 @@ extension AccessibilityHierarchyParser {
             let converted = root.convert(accessibilityPath, from: nil)
             return .path(AccessibilityPathElement.elements(from: converted.cgPath))
 
-        } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer, !element.accessibilityFrameInContainerSpace.isNull {
+        } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer as? UICoordinateSpace, !element.accessibilityFrameInContainerSpace.isNull {
             return .frame(finiteAccessibilityRect(container.convert(element.accessibilityFrameInContainerSpace, to: root)))
 
         } else {
@@ -667,8 +667,9 @@ private final class CapturedDataTable {
             && !(0 ..< column).contains {
                 source.accessibilityDataTableCellElement(forRow: row, column: $0) != nil
             }
+        // Optional protocol requirements are hard errors under strict concurrency even in Swift 5 mode (#368).
         let rowHeaders: [NSObject]
-        if isFirstInRow, let allHeaders = source.accessibilityHeaderElements?(forRow: row) {
+        if isFirstInRow, let allHeaders = MainActor.assumeIsolated({ source.accessibilityHeaderElements?(forRow: row) }) {
             rowHeaders = allHeaders.filter { header in
                 header !== cell
                     && source.accessibilityDataTableCellElement(
@@ -679,7 +680,7 @@ private final class CapturedDataTable {
         } else {
             rowHeaders = []
         }
-        let columnHeaders = (source.accessibilityHeaderElements?(forColumn: column) ?? []).filter { header in
+        let columnHeaders = (MainActor.assumeIsolated { source.accessibilityHeaderElements?(forColumn: column) } ?? []).filter { header in
             let headerRow = header.accessibilityRowRange().location
             let headerColumn = header.accessibilityColumnRange().location
             if header === cell {
