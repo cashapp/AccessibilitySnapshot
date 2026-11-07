@@ -12,7 +12,12 @@ fi
 if [[ ${PLATFORMS[*]} =~ 'iOS_17' ]]; then
 	xcodebuild -runFirstLaunch
 	xcrun simctl list runtimes > /dev/null
-	xcodebuild -downloadPlatform iOS -buildVersion 17.5
+	# The 7 GB download from Apple sometimes drops partway through, so retry it.
+	for attempt in 1 2 3; do
+		xcodebuild -downloadPlatform iOS -buildVersion 17.5 && break
+		[[ $attempt == 3 ]] && exit 1
+		sleep 10
+	done
 	xcrun simctl list devices 'iOS 17.5' | grep -q 'iPhone 15 Pro (' || xcrun simctl create 'iPhone 15 Pro' 'iPhone 15 Pro' com.apple.CoreSimulator.SimRuntime.iOS-17-5
 fi
 
