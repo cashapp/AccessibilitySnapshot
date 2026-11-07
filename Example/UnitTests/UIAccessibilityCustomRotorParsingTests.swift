@@ -18,23 +18,6 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
         XCTAssertNil(customMarker?.systemType)
     }
 
-    func test_unknownSystemRotorsAreCapturedAndHiddenFromSnapshots() throws {
-        let type = try XCTUnwrap(UIAccessibilityCustomRotor.SystemRotorType(rawValue: 9999))
-        let rotor = UIAccessibilityCustomRotor(systemType: type) { _ in nil }
-
-        let marker = try XCTUnwrap(AccessibilityElement.CustomRotor(from: rotor, accessibilityLanguage: nil, root: UIView(), resultLimit: 0))
-        XCTAssertEqual(marker.systemType, .unknown(9999))
-
-        let heading = AccessibilityElement.CustomRotor(name: "Headings", systemType: .heading)
-        let element = AccessibilityElement(
-            label: nil, value: nil, traits: [], identifier: nil, authoredHint: nil, userInputLabels: nil,
-            shape: .frame(.zero), activationPoint: .zero, usesDefaultActivationPoint: true,
-            customActions: [], customContent: [], customRotors: [marker, heading],
-            accessibilityLanguage: nil, respondsToUserInteraction: false
-        )
-        XCTAssertEqual(element.displayRotors(.always), [heading])
-    }
-
     func test_zeroLimitPreservesRotorNameWithoutCollectingResults() {
         var searchCount = 0
         let rotor = UIAccessibilityCustomRotor(name: "Errors") { _ in

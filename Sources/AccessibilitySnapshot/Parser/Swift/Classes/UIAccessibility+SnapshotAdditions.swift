@@ -49,6 +49,15 @@ extension UIAccessibilityTraits {
 // MARK: -
 
 extension UIAccessibilityCustomRotor {
+    var isKnownRotorType: Bool {
+        switch systemRotorType {
+        case .none, .link, .visitedLink, .heading, .headingLevel1, .headingLevel2, .headingLevel3, .headingLevel4, .headingLevel5, .headingLevel6, .boldText, .italicText, .underlineText, .misspelledWord, .image, .textField, .table, .list, .landmark:
+            return true
+        @unknown default:
+            return false
+        }
+    }
+
     var systemType: AccessibilityElement.CustomRotor.SystemType? {
         switch systemRotorType {
         case .none: return nil

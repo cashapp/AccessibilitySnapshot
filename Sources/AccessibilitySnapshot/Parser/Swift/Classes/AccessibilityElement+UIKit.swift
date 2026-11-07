@@ -50,6 +50,7 @@ struct CapturedRotor {
     private let limit: AccessibilityRotorResultLimit
 
     init?(from rotor: UIAccessibilityCustomRotor, accessibilityLanguage: String?, root: UIView, resultLimit: Int) {
+        guard rotor.isKnownRotorType else { return nil }
         name = rotor.displayName(locale: accessibilityLanguage)
         systemType = rotor.systemType
 

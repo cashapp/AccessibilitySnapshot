@@ -48,56 +48,32 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
             /// A system rotor type without a case here, by its UIKit raw value.
             case unknown(Int)
 
-            private static let named: [SystemType] = [
-                .link,
-                .visitedLink,
-                .heading,
-                .headingLevel1,
-                .headingLevel2,
-                .headingLevel3,
-                .headingLevel4,
-                .headingLevel5,
-                .headingLevel6,
-                .boldText,
-                .italicText,
-                .underlineText,
-                .misspelledWord,
-                .image,
-                .textField,
-                .table,
-                .list,
-                .landmark,
+            private static let names: [(type: SystemType, name: String)] = [
+                (.link, "link"),
+                (.visitedLink, "visitedLink"),
+                (.heading, "heading"),
+                (.headingLevel1, "headingLevel1"),
+                (.headingLevel2, "headingLevel2"),
+                (.headingLevel3, "headingLevel3"),
+                (.headingLevel4, "headingLevel4"),
+                (.headingLevel5, "headingLevel5"),
+                (.headingLevel6, "headingLevel6"),
+                (.boldText, "boldText"),
+                (.italicText, "italicText"),
+                (.underlineText, "underlineText"),
+                (.misspelledWord, "misspelledWord"),
+                (.image, "image"),
+                (.textField, "textField"),
+                (.table, "table"),
+                (.list, "list"),
+                (.landmark, "landmark"),
             ]
-
-            private var name: String {
-                switch self {
-                case .link: return "link"
-                case .visitedLink: return "visitedLink"
-                case .heading: return "heading"
-                case .headingLevel1: return "headingLevel1"
-                case .headingLevel2: return "headingLevel2"
-                case .headingLevel3: return "headingLevel3"
-                case .headingLevel4: return "headingLevel4"
-                case .headingLevel5: return "headingLevel5"
-                case .headingLevel6: return "headingLevel6"
-                case .boldText: return "boldText"
-                case .italicText: return "italicText"
-                case .underlineText: return "underlineText"
-                case .misspelledWord: return "misspelledWord"
-                case .image: return "image"
-                case .textField: return "textField"
-                case .table: return "table"
-                case .list: return "list"
-                case .landmark: return "landmark"
-                case let .unknown(rawValue): return "unknown(\(rawValue))"
-                }
-            }
 
             public init(from decoder: Decoder) throws {
                 let container = try decoder.singleValueContainer()
                 let name = try container.decode(String.self)
-                if let named = Self.named.first(where: { $0.name == name }) {
-                    self = named
+                if let named = Self.names.first(where: { $0.name == name }) {
+                    self = named.type
                 } else if name.hasPrefix("unknown("), name.hasSuffix(")"), let rawValue = Int(name.dropFirst(8).dropLast()) {
                     self = .unknown(rawValue)
                 } else {
@@ -107,7 +83,11 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
 
             public func encode(to encoder: Encoder) throws {
                 var container = encoder.singleValueContainer()
-                try container.encode(name)
+                if case let .unknown(rawValue) = self {
+                    try container.encode("unknown(\(rawValue))")
+                } else {
+                    try container.encode(Self.names.first(where: { $0.type == self })!.name)
+                }
             }
         }
 
@@ -182,13 +162,12 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
     public let respondsToUserInteraction: Bool
     public private(set) var context: AccessibilityContext?
 
-    /// Whether the element was on screen at parse time. Defaults to `.onscreen`, which is also the
-    /// value used when decoding payloads written before this field existed.
+    /// Whether the element is on screen. Defaults to `.onscreen`, which is also the value used
+    /// when decoding payloads written before this field existed.
     public var visibility: ScreenVisibility
 
     // MARK: - Initialization
 
-    /// - Parameter authoredHint: The captured accessibility hint before speech instructions are added.
     public init(
         label: String?,
         value: String?,
