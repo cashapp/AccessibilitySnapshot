@@ -747,7 +747,7 @@ private final class CapturedElement {
         sortFrame = AccessibilityHierarchyParser.sortFrame(for: source, in: root)
         let element = AccessibilityHierarchyParser.captureElement(for: source, in: root, visibility: visibility)
         self.element = element
-        rotors = (source.accessibilityCustomRotors ?? []).compactMap {
+        rotors = (source.accessibilityCustomRotors ?? []).map {
             CapturedRotor(from: $0, accessibilityLanguage: element.accessibilityLanguage, root: root, resultLimit: rotorResultLimit)
         }
     }
