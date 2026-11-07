@@ -40,7 +40,7 @@ struct LegendEntryView: View {
                     )
                 }
 
-                let displayRotors = marker.customRotors.filter { !$0.results.isEmpty }
+                let displayRotors = marker.displayRotors(.whenOverridden)
                 if !displayRotors.isEmpty {
                     CustomRotorsView(
                         rotors: displayRotors,

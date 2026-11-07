@@ -280,8 +280,13 @@ extension AccessibilitySnapshotView {
     }
 }
 
-extension AccessibilityElement {
+public extension AccessibilityElement {
+    /// The rotors a snapshot shows. Unknown system rotors are mostly private UIKit rotors, so they're left out.
     func displayRotors(_ mode: AccessibilityContentDisplayMode) -> [AccessibilityElement.CustomRotor] {
+        let customRotors = customRotors.filter {
+            if case .unknown = $0.systemType { return false }
+            return true
+        }
         switch mode {
         case .always:
             return customRotors
