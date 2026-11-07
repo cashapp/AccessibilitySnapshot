@@ -14,7 +14,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: "Button Value",
             traits: [.button, .selected],
             identifier: "test-button-id",
-            hint: "Double tap to activate",
+            authoredHint: "Double tap to activate",
             userInputLabels: ["tap button", "press button"],
             shape: .frame(AccessibilityRect(x: 10, y: 20, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 60, y: 42),
@@ -82,7 +82,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: nil,
             traits: [.button],
             identifier: nil,
-            hint: nil,
+            authoredHint: nil,
             userInputLabels: nil,
             shape: .frame(AccessibilityRect(x: 0, y: 200, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 222),
@@ -125,7 +125,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: "42",
             traits: [],
             identifier: nil,
-            hint: "Raw hint",
+            authoredHint: "Raw hint",
             userInputLabels: nil,
             shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 22),
@@ -167,7 +167,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: "50",
             traits: [.adjustable],
             identifier: "volume",
-            hint: "Change volume",
+            authoredHint: "Change volume",
             userInputLabels: ["Volume"],
             shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 22),
@@ -194,6 +194,49 @@ final class AccessibilityModelCodableTests: XCTestCase {
         XCTAssertEqual(element, captured)
     }
 
+    func testInitializerRebuildsElementFromPublicProperties() {
+        var element = AccessibilityElement(
+            label: "Volume",
+            value: "50",
+            traits: [.adjustable],
+            identifier: "volume",
+            authoredHint: "Change volume",
+            userInputLabels: ["Volume"],
+            shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
+            activationPoint: AccessibilityPoint(x: 50, y: 22),
+            usesDefaultActivationPoint: true,
+            customActions: ["Mute"],
+            customContent: [.init(label: "Level", value: "Medium")],
+            customRotors: [.init(name: "Related", results: [.init(elementDescription: "Speaker")])],
+            accessibilityLanguage: "en-US",
+            respondsToUserInteraction: true,
+            visibility: .offscreen,
+            context: .listEnd
+        )
+        element.shape = .frame(AccessibilityRect(x: 10, y: 20, width: 100, height: 44))
+
+        let rebuilt = AccessibilityElement(
+            label: element.label,
+            value: element.value,
+            traits: element.traits,
+            identifier: element.identifier,
+            authoredHint: element.authoredHint,
+            userInputLabels: element.userInputLabels,
+            shape: element.shape,
+            activationPoint: element.activationPoint,
+            usesDefaultActivationPoint: element.usesDefaultActivationPoint,
+            customActions: element.customActions,
+            customContent: element.customContent,
+            customRotors: element.customRotors,
+            accessibilityLanguage: element.accessibilityLanguage,
+            respondsToUserInteraction: element.respondsToUserInteraction,
+            visibility: element.visibility,
+            context: element.context
+        )
+        XCTAssertEqual(rebuilt, element)
+        XCTAssertEqual(rebuilt.hint, element.hint)
+    }
+
     func testLegacyElementDecodingRegeneratesSpeech() throws {
         let data = Data(#"""
         {"description":"Stale description","label":"Setting","value":"1","traits":["button","switchButton"],"hint":"Legacy hint","shape":{"type":"frame","frame":[[0,0],[100,44]]},"activationPoint":[50,22],"usesDefaultActivationPoint":true,"customActions":[],"customContent":[],"customRotors":[],"accessibilityLanguage":"en-US","respondsToUserInteraction":true}
@@ -204,7 +247,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: "1",
             traits: [.button, .switchButton],
             identifier: nil,
-            hint: "Legacy hint",
+            authoredHint: "Legacy hint",
             userInputLabels: nil,
             shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 22),
@@ -250,7 +293,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: "1",
             traits: [.button, .switchButton],
             identifier: nil,
-            hint: nil,
+            authoredHint: nil,
             userInputLabels: nil,
             shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 22),
@@ -356,7 +399,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: nil,
             traits: [],
             identifier: nil,
-            hint: nil,
+            authoredHint: nil,
             userInputLabels: nil,
             shape: .frame(AccessibilityRect(x: 0, y: 0, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 22),
@@ -373,7 +416,7 @@ final class AccessibilityModelCodableTests: XCTestCase {
             value: nil,
             traits: [],
             identifier: nil,
-            hint: nil,
+            authoredHint: nil,
             userInputLabels: nil,
             shape: .frame(AccessibilityRect(x: 0, y: 50, width: 100, height: 44)),
             activationPoint: AccessibilityPoint(x: 50, y: 72),

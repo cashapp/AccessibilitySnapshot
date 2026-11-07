@@ -6,7 +6,7 @@ final class AccessibilityDescriptionTests: XCTestCase {
     func testComputeSpeechFromCapturedFields() throws {
         let element = AccessibilityElement(
             label: "Volume", value: "50%", traits: [.selected, .adjustable], identifier: nil,
-            hint: "Change volume.", userInputLabels: nil, shape: .frame(.zero),
+            authoredHint: "Change volume.", userInputLabels: nil, shape: .frame(.zero),
             activationPoint: .zero, usesDefaultActivationPoint: true,
             customActions: [], customContent: [], customRotors: [],
             accessibilityLanguage: "en-US", respondsToUserInteraction: true,

@@ -355,7 +355,7 @@ extension AccessibilityHierarchyParser {
             value: object.accessibilityValue,
             traits: AccessibilityTraits(object.accessibilityTraits),
             identifier: object.identifier,
-            hint: object.accessibilityHint,
+            authoredHint: object.accessibilityHint,
             userInputLabels: object.accessibilityUserInputLabels,
             shape: accessibilityShape(for: object, in: root),
             activationPoint: AccessibilityPoint(root.convert(activationPoint, from: nil)),

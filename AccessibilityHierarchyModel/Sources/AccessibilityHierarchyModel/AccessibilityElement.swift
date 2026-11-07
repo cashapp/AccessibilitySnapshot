@@ -79,6 +79,8 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
     public let traits: AccessibilityTraits
     public let identifier: String?
     public var hint: String? { formattedUtterance.hint }
+    /// The captured accessibility hint before speech instructions are added.
+    public let authoredHint: String?
     public let userInputLabels: [String]?
     public var shape: AccessibilityShape
     public var activationPoint: AccessibilityPoint
@@ -96,13 +98,13 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
 
     // MARK: - Initialization
 
-    /// - Parameter hint: The captured accessibility hint before speech instructions are added.
+    /// - Parameter authoredHint: The captured accessibility hint before speech instructions are added.
     public init(
         label: String?,
         value: String?,
         traits: AccessibilityTraits,
         identifier: String?,
-        hint: String?,
+        authoredHint: String?,
         userInputLabels: [String]?,
         shape: AccessibilityShape,
         activationPoint: AccessibilityPoint,
@@ -119,7 +121,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         self.value = value
         self.traits = traits
         self.identifier = identifier
-        authoredHint = hint
+        self.authoredHint = authoredHint
         self.userInputLabels = userInputLabels
         self.shape = shape
         self.activationPoint = activationPoint
@@ -210,8 +212,6 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
     }
 
     // MARK: - Speech Formatting
-
-    private let authoredHint: String?
 
     private var formattedUtterance: (description: String, hint: String?) {
         Self.accessibilityDescription(
