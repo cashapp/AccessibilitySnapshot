@@ -3,6 +3,7 @@
 import UIKit
 import XCTest
 
+@MainActor
 final class AccessibilityHierarchyParserTests: XCTestCase {
     func testUserInterfaceLayoutDirection() {
         let gridView = UIView(frame: .init(x: 0, y: 0, width: 20, height: 20))

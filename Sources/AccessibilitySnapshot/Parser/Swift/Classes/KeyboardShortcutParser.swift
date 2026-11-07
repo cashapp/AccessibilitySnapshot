@@ -43,6 +43,7 @@ public struct KeyboardShortcut: Equatable {
     }
 
     /// Creates a KeyboardShortcut from a UIKeyCommand.
+    @MainActor
     public init(from keyCommand: UIKeyCommand, menuTitle: String? = nil) {
         input = keyCommand.input ?? ""
         modifierFlags = keyCommand.modifierFlags
@@ -168,6 +169,7 @@ enum SpecialKey {
 // MARK: - KeyboardShortcutParser
 
 /// Parses UIKeyCommands from a view's responder chain or a UIMenu.
+@MainActor
 public enum KeyboardShortcutParser {
     // MARK: - Parsing from UIMenu
 

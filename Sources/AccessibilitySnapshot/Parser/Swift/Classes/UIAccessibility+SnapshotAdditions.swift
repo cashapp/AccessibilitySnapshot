@@ -1,6 +1,7 @@
 import AccessibilitySnapshotModel
 import UIKit
 
+@MainActor
 extension NSObject {
     func accessibilityDescription(context: AccessibilityHierarchyParser.Context?) -> (description: String, hint: String?) {
         AccessibilityElement.accessibilityDescription(
@@ -327,6 +328,7 @@ extension UIAccessibilityCustomRotor {
     private struct _hashableRotorResult: Hashable {
         var element: NSObject
         var range: UITextRange?
+        @MainActor
         init?(_ result: UIAccessibilityCustomRotorItemResult) {
             guard let element = result.targetElement as? NSObject else { return nil }
             self.element = element
@@ -339,6 +341,7 @@ extension UIAccessibilityCustomRotor {
     }
 }
 
+@MainActor
 private extension UIAccessibilityCustomRotorItemResult {
     func compare(_ other: UIAccessibilityCustomRotorItemResult?) -> Bool {
         guard let other else { return false }
@@ -350,6 +353,7 @@ private extension UIAccessibilityCustomRotorItemResult {
     }
 }
 
+@MainActor
 extension Array where Element: UIAccessibilityCustomRotorItemResult {
     func compareWith(_ other: [Element]) -> Bool {
         guard count == other.count else { return false }

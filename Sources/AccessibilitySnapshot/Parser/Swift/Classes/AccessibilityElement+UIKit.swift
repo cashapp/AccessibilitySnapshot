@@ -3,6 +3,7 @@ import UIKit
 
 // MARK: - CustomRotor UIKit Init
 
+@MainActor
 extension AccessibilityElement.CustomRotor {
     init?(from rotor: UIAccessibilityCustomRotor, accessibilityLanguage: String?, root: UIView, context: AccessibilityHierarchyParser.Context? = nil, resultLimit: Int) {
         guard let captured = CapturedRotor(from: rotor, accessibilityLanguage: accessibilityLanguage, root: root, resultLimit: resultLimit) else { return nil }
@@ -10,7 +11,9 @@ extension AccessibilityElement.CustomRotor {
     }
 }
 
+@MainActor
 struct CapturedRotor {
+    @MainActor
     private struct Result {
         let element: AccessibilityElement
         let substring: String?
