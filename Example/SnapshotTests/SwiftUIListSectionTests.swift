@@ -81,7 +81,7 @@ final class SwiftUIListSectionTests: SnapshotTestCase {
 }
 
 private final class ListReadingOrderSnapshotView: AccessibilitySnapshotBaseView {
-    var markers: [AccessibilityMarker]?
+    var markers: [AccessibilityElement]?
 
     override func render(data: ParsedAccessibilityData) {
         markers = data.markers

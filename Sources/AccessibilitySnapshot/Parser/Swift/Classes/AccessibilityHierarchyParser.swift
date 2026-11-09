@@ -24,6 +24,9 @@ extension UIDevice: UserInterfaceIdiomProviding {}
 // MARK: -
 
 public final class AccessibilityHierarchyParser {
+    /// The default number of results captured for each custom rotor.
+    public static let defaultRotorResultLimit: Int = 10
+
     // MARK: - Public Types
 
     /// The portable context captured for an element.
@@ -56,7 +59,7 @@ public final class AccessibilityHierarchyParser {
     @available(*, deprecated, message: "Use parseAccessibilityHierarchy(in:).flattenToElements().filter { $0.visibility == .onscreen } to preserve snapshot filtering")
     public func parseAccessibilityElements(
         in root: UIView,
-        rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
+        rotorResultLimit: Int = AccessibilityHierarchyParser.defaultRotorResultLimit,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
         userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
     ) -> [AccessibilityElement] {
@@ -93,7 +96,7 @@ public final class AccessibilityHierarchyParser {
     /// - returns: Array of root-level hierarchy nodes with containers grouping their children
     public func parseAccessibilityHierarchy(
         in root: UIView,
-        rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
+        rotorResultLimit: Int = AccessibilityHierarchyParser.defaultRotorResultLimit,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
         userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
     ) -> [AccessibilityHierarchy] {
@@ -131,7 +134,7 @@ public final class AccessibilityHierarchyParser {
     /// - parameter makeContainer: Builds an interior node from its children. Called once per container.
     public func parseAccessibilityHierarchy<Node>(
         in root: UIView,
-        rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
+        rotorResultLimit: Int = AccessibilityHierarchyParser.defaultRotorResultLimit,
         userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
         userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current,
         makeElement: (AccessibilityElement, _ traversalIndex: Int, _ source: NSObject) -> Node,
@@ -343,6 +346,20 @@ public final class AccessibilityHierarchyParser {
 // MARK: - Internal Helpers
 
 extension AccessibilityHierarchyParser {
+    /// Before iOS 17, VoiceOver ignores a switch value other than on, off or mixed.
+    static func spokenValue(of object: NSObject) -> String? {
+        let value = object.accessibilityValue
+        guard #unavailable(iOS 17.0), object.accessibilityTraits.contains(.switchButton) else {
+            return value
+        }
+        switch value {
+        case "0", "1", "2":
+            return value
+        default:
+            return nil
+        }
+    }
+
     /// Captures public element data without searching its custom rotors.
     static func captureElement(
         for object: NSObject,
@@ -352,7 +369,7 @@ extension AccessibilityHierarchyParser {
         let activationPoint = object.accessibilityActivationPoint
         return AccessibilityElement(
             label: object.accessibilityLabel,
-            value: object.accessibilityValue,
+            value: spokenValue(of: object),
             traits: AccessibilityTraits(object.accessibilityTraits),
             identifier: object.identifier,
             authoredHint: object.accessibilityHint,
@@ -1342,4 +1359,9 @@ extension UITextInput {
             path.append(UIBezierPath(roundedRect: rect.rect, cornerRadius: 8.0))
         }
     }
+}
+
+public extension AccessibilityElement {
+    @available(*, deprecated, renamed: "AccessibilityHierarchyParser.defaultRotorResultLimit")
+    static var defaultRotorResultLimit: Int { AccessibilityHierarchyParser.defaultRotorResultLimit }
 }

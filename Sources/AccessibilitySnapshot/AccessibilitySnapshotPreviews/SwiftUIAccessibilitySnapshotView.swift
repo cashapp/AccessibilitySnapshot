@@ -12,7 +12,7 @@ public struct AccessibilitySnapshotView<Content: View>: View {
     private let palette: ColorPalette
     private let renderSize: CGSize
 
-    @State private var markers: [AccessibilityMarker] = []
+    @State private var markers: [AccessibilityElement] = []
     @State private var snapshotImage: UIImage?
     @State private var parseError: Error?
 
@@ -164,14 +164,14 @@ public extension AccessibilitySnapshotView where Content == UIViewWrapper {
 @available(iOS 16.0, *)
 public struct PreParsedAccessibilitySnapshotView: View {
     private let snapshotImage: UIImage
-    private let markers: [AccessibilityMarker]
+    private let markers: [AccessibilityElement]
     private let configuration: AccessibilitySnapshotConfiguration
     private let palette: ColorPalette
     private let renderSize: CGSize
 
     public init(
         snapshotImage: UIImage,
-        markers: [AccessibilityMarker],
+        markers: [AccessibilityElement],
         configuration: AccessibilitySnapshotConfiguration = .init(viewRenderingMode: .drawHierarchyInRect),
         palette: ColorPalette = .default,
         renderSize: CGSize
@@ -284,7 +284,7 @@ public struct PreParsedAccessibilitySnapshotView: View {
 @available(iOS 16.0, *)
 @ViewBuilder
 func markerOverlayView(
-    marker: AccessibilityMarker,
+    marker: AccessibilityElement,
     index: Int,
     palette: ColorPalette,
     activationPointDisplayMode: AccessibilityContentDisplayMode
@@ -304,7 +304,7 @@ func markerOverlayView(
 }
 
 private func shouldShowActivationPoint(
-    for marker: AccessibilityMarker,
+    for marker: AccessibilityElement,
     displayMode: AccessibilityContentDisplayMode
 ) -> Bool {
     switch displayMode {

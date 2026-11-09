@@ -6,7 +6,7 @@ import UIKit
 /// Displays an element's custom rotors.
 @available(iOS 16.0, *)
 struct CustomRotorsView: View {
-    let rotors: [AccessibilityMarker.CustomRotor]
+    let rotors: [AccessibilityElement.CustomRotor]
     let locale: String?
 
     private typealias Tokens = DesignTokens.CustomContent
@@ -31,7 +31,7 @@ struct CustomRotorsView: View {
         }
     }
 
-    private func resultsText(for rotor: AccessibilityMarker.CustomRotor) -> String {
+    private func resultsText(for rotor: AccessibilityElement.CustomRotor) -> String {
         guard !rotor.results.isEmpty else {
             return Strings.noResultsText(for: locale)
         }

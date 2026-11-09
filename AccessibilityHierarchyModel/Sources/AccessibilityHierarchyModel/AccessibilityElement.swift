@@ -1,8 +1,7 @@
+@available(*, deprecated, renamed: "AccessibilityElement")
 public typealias AccessibilityMarker = AccessibilityElement
 
 public struct AccessibilityElement: Hashable, Codable, Sendable {
-    public static let defaultRotorResultLimit: Int = 10
-
     // MARK: - Public Types
 
     public struct CustomRotor: Hashable, Codable, Sendable, CustomStringConvertible {

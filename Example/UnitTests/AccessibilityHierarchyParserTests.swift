@@ -2703,7 +2703,7 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
 
     // MARK: - Private Helpers
 
-    private func parseMarkers(in view: UIView) -> [AccessibilityMarker] {
+    private func parseMarkers(in view: UIView) -> [AccessibilityElement] {
         let parser = AccessibilityHierarchyParser()
         return parser.parseAccessibilityElements(
             in: view,

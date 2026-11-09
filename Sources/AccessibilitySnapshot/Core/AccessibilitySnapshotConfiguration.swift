@@ -36,7 +36,7 @@ public struct AccessibilitySnapshotConfiguration {
 
         public init(
             displayMode: AccessibilityContentDisplayMode = .whenOverridden,
-            resultLimit: Int = AccessibilityMarker.defaultRotorResultLimit
+            resultLimit: Int = AccessibilityHierarchyParser.defaultRotorResultLimit
         ) {
             self.displayMode = displayMode
             self.resultLimit = resultLimit
@@ -84,7 +84,7 @@ public struct AccessibilitySnapshotConfiguration {
         activationPointDisplay: AccessibilityContentDisplayMode = .whenOverridden,
         includesInputLabels: AccessibilityContentDisplayMode = .whenOverridden,
         includesCustomRotors: AccessibilityContentDisplayMode = .whenOverridden,
-        rotorResultLimit: Int = AccessibilityMarker.defaultRotorResultLimit,
+        rotorResultLimit: Int = AccessibilityHierarchyParser.defaultRotorResultLimit,
         showsUnspokenTraits: Bool = true
     ) {
         rendering = Rendering(renderMode: viewRenderingMode, colorMode: colorRenderingMode)

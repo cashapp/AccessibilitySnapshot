@@ -5,7 +5,7 @@ extension AccessibilitySnapshotView {
     final class CustomActionsView: UIView {
         // MARK: - Life Cycle
 
-        init(actionsAvailableText: String?, customActions: [AccessibilityMarker.CustomAction]) {
+        init(actionsAvailableText: String?, customActions: [AccessibilityElement.CustomAction]) {
             actionLabels = customActions.map {
                 let iconLabel = UILabel()
                 iconLabel.text = "↓"

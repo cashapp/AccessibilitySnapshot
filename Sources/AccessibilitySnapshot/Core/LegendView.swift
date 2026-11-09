@@ -5,7 +5,7 @@ extension AccessibilitySnapshotView {
     final class LegendView: UIView {
         // MARK: - Life Cycle
 
-        init(marker: AccessibilityMarker, fillColor: UIColor, configuration: AccessibilitySnapshotConfiguration) {
+        init(marker: AccessibilityElement, fillColor: UIColor, configuration: AccessibilitySnapshotConfiguration) {
             hintLabel = marker.hint.map {
                 let label = UILabel()
                 label.text = $0

@@ -5,7 +5,7 @@ extension AccessibilitySnapshotView {
     final class CustomRotorsView: UIView {
         // MARK: - Life Cycle
 
-        init(rotors: [AccessibilityMarker.CustomRotor], locale: String?) {
+        init(rotors: [AccessibilityElement.CustomRotor], locale: String?) {
             rotorLabels = rotors.map { rotor in
                 let iconLabel = UILabel()
                 iconLabel.text = "↺ \(rotor.name):"
