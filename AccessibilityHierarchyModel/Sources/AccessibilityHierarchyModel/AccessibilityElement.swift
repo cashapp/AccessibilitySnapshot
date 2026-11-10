@@ -1,8 +1,7 @@
+@available(*, deprecated, renamed: "AccessibilityElement")
 public typealias AccessibilityMarker = AccessibilityElement
 
 public struct AccessibilityElement: Hashable, Codable, Sendable {
-    public static let defaultRotorResultLimit: Int = 10
-
     // MARK: - Public Types
 
     public struct CustomRotor: Hashable, Codable, Sendable, CustomStringConvertible {
@@ -25,18 +24,87 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
             }
         }
 
+        /// A system rotor's type, independent of its localized `name`.
+        public enum SystemType: Hashable, Codable, Sendable {
+            case link
+            case visitedLink
+            case heading
+            case headingLevel1
+            case headingLevel2
+            case headingLevel3
+            case headingLevel4
+            case headingLevel5
+            case headingLevel6
+            case boldText
+            case italicText
+            case underlineText
+            case misspelledWord
+            case image
+            case textField
+            case table
+            case list
+            case landmark
+            /// A system rotor type without a case here, by its UIKit raw value.
+            case unknown(Int)
+
+            private static let names: [(type: SystemType, name: String)] = [
+                (.link, "link"),
+                (.visitedLink, "visitedLink"),
+                (.heading, "heading"),
+                (.headingLevel1, "headingLevel1"),
+                (.headingLevel2, "headingLevel2"),
+                (.headingLevel3, "headingLevel3"),
+                (.headingLevel4, "headingLevel4"),
+                (.headingLevel5, "headingLevel5"),
+                (.headingLevel6, "headingLevel6"),
+                (.boldText, "boldText"),
+                (.italicText, "italicText"),
+                (.underlineText, "underlineText"),
+                (.misspelledWord, "misspelledWord"),
+                (.image, "image"),
+                (.textField, "textField"),
+                (.table, "table"),
+                (.list, "list"),
+                (.landmark, "landmark"),
+            ]
+
+            public init(from decoder: Decoder) throws {
+                let container = try decoder.singleValueContainer()
+                let name = try container.decode(String.self)
+                if let named = Self.names.first(where: { $0.name == name }) {
+                    self = named.type
+                } else if name.hasPrefix("unknown("), name.hasSuffix(")"), let rawValue = Int(name.dropFirst(8).dropLast()) {
+                    self = .unknown(rawValue)
+                } else {
+                    throw DecodingError.dataCorruptedError(in: container, debugDescription: "Unrecognized rotor system type \(name)")
+                }
+            }
+
+            public func encode(to encoder: Encoder) throws {
+                var container = encoder.singleValueContainer()
+                if case let .unknown(rawValue) = self {
+                    try container.encode("unknown(\(rawValue))")
+                } else {
+                    try container.encode(Self.names.first(where: { $0.type == self })!.name)
+                }
+            }
+        }
+
         @available(*, deprecated, renamed: "Result")
         public typealias ResultMarker = Result
 
         public let name: String
+        /// `nil` for a custom rotor, which is identified by its `name`.
+        public let systemType: SystemType?
         public let results: [Result]
         public let limit: AccessibilityRotorResultLimit
 
         @available(*, deprecated, renamed: "results")
         public var resultMarkers: [Result] { results }
 
-        public init(name: String, results: [Result] = [], limit: AccessibilityRotorResultLimit = .none) {
+        public init(name: String, systemType: SystemType? = nil, results: [Result] = [], limit: AccessibilityRotorResultLimit = .none) {
             self.name = name
+            self.systemType = systemType
             self.results = results
             self.limit = limit
         }
@@ -52,6 +120,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
 
         private enum CodingKeys: String, CodingKey {
             case name
+            case systemType
             case results = "resultMarkers"
             case limit
         }
@@ -79,30 +148,31 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
     public let traits: AccessibilityTraits
     public let identifier: String?
     public var hint: String? { formattedUtterance.hint }
+    /// The captured accessibility hint before speech instructions are added.
+    public let authoredHint: String?
     public let userInputLabels: [String]?
-    public let shape: AccessibilityShape
-    public let activationPoint: AccessibilityPoint
+    public var shape: AccessibilityShape
+    public var activationPoint: AccessibilityPoint
     public let usesDefaultActivationPoint: Bool
     public let customActions: [CustomAction]
     public let customContent: [CustomContent]
-    public private(set) var customRotors: [CustomRotor]
+    public var customRotors: [CustomRotor]
     public let accessibilityLanguage: String?
     public let respondsToUserInteraction: Bool
     public private(set) var context: AccessibilityContext?
 
-    /// Whether the element was on screen at parse time. Defaults to `.onscreen`, which is also the
-    /// value used when decoding payloads written before this field existed.
-    public let visibility: ScreenVisibility
+    /// Whether the element is on screen. Defaults to `.onscreen`, which is also the value used
+    /// when decoding payloads written before this field existed.
+    public var visibility: ScreenVisibility
 
     // MARK: - Initialization
 
-    /// - Parameter hint: The captured accessibility hint before speech instructions are added.
     public init(
         label: String?,
         value: String?,
         traits: AccessibilityTraits,
         identifier: String?,
-        hint: String?,
+        authoredHint: String?,
         userInputLabels: [String]?,
         shape: AccessibilityShape,
         activationPoint: AccessibilityPoint,
@@ -119,7 +189,7 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
         self.value = value
         self.traits = traits
         self.identifier = identifier
-        authoredHint = hint
+        self.authoredHint = authoredHint
         self.userInputLabels = userInputLabels
         self.shape = shape
         self.activationPoint = activationPoint
@@ -137,12 +207,6 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
     @_spi(Parsing)
     public mutating func addContext(_ context: AccessibilityContext?) {
         self.context = context
-    }
-
-    /// Attaches rotor results formatted with context derived by the parser.
-    @_spi(Parsing)
-    public mutating func addCustomRotors(_ customRotors: [CustomRotor]) {
-        self.customRotors = customRotors
     }
 
     // MARK: - Codable
@@ -210,8 +274,6 @@ public struct AccessibilityElement: Hashable, Codable, Sendable {
     }
 
     // MARK: - Speech Formatting
-
-    private let authoredHint: String?
 
     private var formattedUtterance: (description: String, hint: String?) {
         Self.accessibilityDescription(

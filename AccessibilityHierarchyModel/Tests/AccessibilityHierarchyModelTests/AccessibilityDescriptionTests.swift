@@ -1,4 +1,4 @@
-import AccessibilitySnapshotModel
+import AccessibilityHierarchyModel
 import Foundation
 import XCTest
 
@@ -6,7 +6,7 @@ final class AccessibilityDescriptionTests: XCTestCase {
     func testComputeSpeechFromCapturedFields() throws {
         let element = AccessibilityElement(
             label: "Volume", value: "50%", traits: [.selected, .adjustable], identifier: nil,
-            hint: "Change volume.", userInputLabels: nil, shape: .frame(.zero),
+            authoredHint: "Change volume.", userInputLabels: nil, shape: .frame(.zero),
             activationPoint: .zero, usesDefaultActivationPoint: true,
             customActions: [], customContent: [], customRotors: [],
             accessibilityLanguage: "en-US", respondsToUserInteraction: true,
@@ -57,6 +57,7 @@ final class AccessibilityDescriptionTests: XCTestCase {
             (nil as String?, nil as String?, AccessibilityTraits.adjustable, "Change volume." as String?, "Change volume. Adjustable.", nil as String?),
             ("Setting", "1", [.button, .switchButton], "Change setting.", "Setting. Switch Button. On.", "Change setting. Double tap to toggle setting."),
             ("Setting", "0", [.button, .switchButton, .notEnabled], "Change setting.", "Setting. Dimmed. Switch Button. Off.", "Change setting."),
+            ("Wi-Fi", "Connected", [.button, .switchButton], nil, "Wi-Fi. Switch Button. Connected", "Double tap to toggle setting."),
             ("Password", nil, [.textEntry, .secureTextField], "Authored hint", "Password. Secure Text Field.", "Double tap to edit."),
             ("Back", nil, [.button, .backButton], nil, "Back Button.", nil),
         ] {

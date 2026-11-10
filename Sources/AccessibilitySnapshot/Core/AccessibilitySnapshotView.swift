@@ -141,7 +141,7 @@ public final class AccessibilitySnapshotView: AccessibilitySnapshotBaseView {
     // MARK: - Private Types
 
     private struct DisplayMarker {
-        var marker: AccessibilityMarker
+        var marker: AccessibilityElement
 
         var legendView: LegendView
 

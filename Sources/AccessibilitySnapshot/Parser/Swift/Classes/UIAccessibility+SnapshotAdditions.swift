@@ -1,4 +1,4 @@
-import AccessibilitySnapshotModel
+import AccessibilityHierarchyModel
 import UIKit
 
 extension NSObject {
@@ -55,6 +55,31 @@ extension UIAccessibilityCustomRotor {
             return true
         @unknown default:
             return false
+        }
+    }
+
+    var systemType: AccessibilityElement.CustomRotor.SystemType? {
+        switch systemRotorType {
+        case .none: return nil
+        case .link: return .link
+        case .visitedLink: return .visitedLink
+        case .heading: return .heading
+        case .headingLevel1: return .headingLevel1
+        case .headingLevel2: return .headingLevel2
+        case .headingLevel3: return .headingLevel3
+        case .headingLevel4: return .headingLevel4
+        case .headingLevel5: return .headingLevel5
+        case .headingLevel6: return .headingLevel6
+        case .boldText: return .boldText
+        case .italicText: return .italicText
+        case .underlineText: return .underlineText
+        case .misspelledWord: return .misspelledWord
+        case .image: return .image
+        case .textField: return .textField
+        case .table: return .table
+        case .list: return .list
+        case .landmark: return .landmark
+        @unknown default: return .unknown(systemRotorType.rawValue)
         }
     }
 

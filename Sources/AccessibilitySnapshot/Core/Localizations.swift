@@ -5,6 +5,7 @@
 //  Created by Soroush Khanlou on 7/1/25.
 //
 
+@_spi(Parsing) import AccessibilityHierarchyModel
 import AccessibilitySnapshotParser
 
 public enum Strings {

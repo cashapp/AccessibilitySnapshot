@@ -5,13 +5,13 @@ import SwiftUI
 /// Displays the complete legend with all accessibility elements.
 @available(iOS 16.0, *)
 public struct LegendView: View {
-    public let markers: [AccessibilityMarker]
+    public let markers: [AccessibilityElement]
     public let palette: ColorPalette
     public let showUserInputLabels: Bool
     public let showUnspokenTraits: Bool
 
     public init(
-        markers: [AccessibilityMarker],
+        markers: [AccessibilityElement],
         palette: ColorPalette,
         showUserInputLabels: Bool,
         showUnspokenTraits: Bool = true

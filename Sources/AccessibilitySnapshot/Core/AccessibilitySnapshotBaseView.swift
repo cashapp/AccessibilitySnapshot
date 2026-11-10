@@ -9,7 +9,7 @@ public struct ParsedAccessibilityData {
     public let image: UIImage
 
     /// The parsed accessibility markers.
-    public let markers: [AccessibilityMarker]
+    public let markers: [AccessibilityElement]
 
     /// The bounds size of the contained view.
     public let containedViewBounds: CGSize

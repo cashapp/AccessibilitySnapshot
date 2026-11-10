@@ -8,7 +8,7 @@ let fileManager = FileManager.default
 var swiftFiles: [String] = []
 var stringsFiles: [String] = []
 
-for sourceDirectory in ["Sources", "AccessibilitySnapshotModel/Sources"] {
+for sourceDirectory in ["Sources", "AccessibilityHierarchyModel/Sources"] {
     guard let enumerator = fileManager.enumerator(
         atPath: (fileManager.currentDirectoryPath as NSString)
             .appendingPathComponent(sourceDirectory)

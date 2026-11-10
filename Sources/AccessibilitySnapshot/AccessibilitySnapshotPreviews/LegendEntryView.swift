@@ -6,7 +6,7 @@ import SwiftUI
 @available(iOS 16.0, *)
 struct LegendEntryView: View {
     let index: Int
-    let marker: AccessibilityMarker
+    let marker: AccessibilityElement
     let palette: ColorPalette
     let showUserInputLabels: Bool
     let showUnspokenTraits: Bool

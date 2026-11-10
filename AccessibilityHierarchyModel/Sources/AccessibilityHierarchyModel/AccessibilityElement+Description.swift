@@ -117,9 +117,8 @@ extension AccessibilityElement {
             case "2":
                 traitSpecifiers.append(strings.switchButtonMixedStateName)
             default:
-                // Prior to iOS 17 the then private trait would suppress any other accessibility values.
-                // Once the trait became public in 17 values other than the above are announced with the trait specifiers.
-                if #available(iOS 17.0, *), let value {
+                // The parser drops values VoiceOver ignores on the capturing OS.
+                if let value {
                     traitSpecifiers.append(value)
                 }
             }

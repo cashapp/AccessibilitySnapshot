@@ -5,7 +5,7 @@ import SwiftUI
 /// Displays an element's custom content.
 @available(iOS 16.0, *)
 struct CustomContentView: View {
-    let content: [AccessibilityMarker.CustomContent]
+    let content: [AccessibilityElement.CustomContent]
     let locale: String?
 
     private typealias Tokens = DesignTokens.CustomContent

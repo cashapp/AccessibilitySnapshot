@@ -55,13 +55,13 @@ let project = Project(
         // MARK: - Library Targets
 
         .target(
-            name: "AccessibilitySnapshotModel",
+            name: "AccessibilityHierarchyModel",
             destinations: .iOS,
             product: .framework,
-            bundleId: "com.cashapp.AccessibilitySnapshotModel",
+            bundleId: "com.cashapp.AccessibilityHierarchyModel",
             deploymentTargets: deploymentTargets,
-            sources: ["../AccessibilitySnapshotModel/Sources/AccessibilitySnapshotModel/**/*.swift"],
-            resources: ["../AccessibilitySnapshotModel/Sources/AccessibilitySnapshotModel/Assets/**/*"]
+            sources: ["../AccessibilityHierarchyModel/Sources/AccessibilityHierarchyModel/**/*.swift"],
+            resources: ["../AccessibilityHierarchyModel/Sources/AccessibilityHierarchyModel/Assets/**/*"]
         ),
 
         .target(
@@ -91,7 +91,7 @@ let project = Project(
             deploymentTargets: deploymentTargets,
             sources: ["../Sources/AccessibilitySnapshot/Parser/Swift/Classes/**/*.swift"],
             dependencies: [
-                .target(name: "AccessibilitySnapshotModel"),
+                .target(name: "AccessibilityHierarchyModel"),
                 .target(name: "AccessibilitySnapshotParser_ObjC"),
             ]
         ),

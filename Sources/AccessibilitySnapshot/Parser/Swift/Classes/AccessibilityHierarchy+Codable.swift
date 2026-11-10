@@ -1,4 +1,4 @@
-import AccessibilitySnapshotModel
+import AccessibilityHierarchyModel
 import UIKit
 
 // MARK: - UIAccessibilityTraits Codable
