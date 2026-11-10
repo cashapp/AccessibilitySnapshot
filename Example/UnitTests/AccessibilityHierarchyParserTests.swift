@@ -2247,6 +2247,36 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         XCTAssertNoThrow(try JSONEncoder().encode(marker.shape), "The produced shape must be JSON-encodable")
     }
 
+    func testNonFiniteActivationPointFallsBackToDefault() throws {
+        for reportedPoint in [
+            CGPoint(x: CGFloat.infinity, y: CGFloat.infinity),
+            CGPoint(x: 20, y: CGFloat.infinity),
+            CGPoint(x: CGFloat.infinity, y: 20),
+            CGPoint(x: CGFloat.nan, y: CGFloat.nan),
+        ] {
+            let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
+            let window = UIWindow(frame: root.bounds)
+            window.addSubview(root)
+            window.makeKeyAndVisible()
+            defer {
+                window.resignKey()
+                window.isHidden = true
+            }
+
+            let element = ActivationPointTestView(frame: CGRect(x: 10, y: 10, width: 50, height: 50))
+            element.isAccessibilityElement = true
+            element.accessibilityLabel = "nonFinitePoint"
+            element.overriddenFrame = CGRect(x: 10, y: 10, width: 50, height: 50)
+            element.overriddenActivationPoint = reportedPoint
+            root.addSubview(element)
+
+            let marker = try XCTUnwrap(parseMarkers(in: root).first)
+            XCTAssertEqual(marker.activationPoint, AccessibilityPoint(CGPoint(x: 35, y: 35)), "\(reportedPoint)")
+            XCTAssertTrue(marker.usesDefaultActivationPoint, "\(reportedPoint)")
+            XCTAssertNoThrow(try JSONEncoder().encode(marker.activationPoint))
+        }
+    }
+
     // MARK: - Modal Tests
 
     func testPopoverContentIsParsedBesideModalDimmingView() {
