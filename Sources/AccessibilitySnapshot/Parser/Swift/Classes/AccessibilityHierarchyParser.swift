@@ -9,12 +9,14 @@ private let parserLog = OSLog(
     category: "Parser"
 )
 
+@MainActor
 public protocol UserInterfaceLayoutDirectionProviding {
     var userInterfaceLayoutDirection: UIUserInterfaceLayoutDirection { get }
 }
 
 extension UIApplication: UserInterfaceLayoutDirectionProviding {}
 
+@MainActor
 public protocol UserInterfaceIdiomProviding {
     var userInterfaceIdiom: UIUserInterfaceIdiom { get }
 }
@@ -23,6 +25,7 @@ extension UIDevice: UserInterfaceIdiomProviding {}
 
 // MARK: -
 
+@MainActor
 public final class AccessibilityHierarchyParser {
     // MARK: - Public Types
 
@@ -52,13 +55,13 @@ public final class AccessibilityHierarchyParser {
     /// Values less than or equal to 0 include rotor names only and do not evaluate rotor result blocks.
     /// Defaults to 10.
     /// - parameter userInterfaceLayoutDirectionProvider: The provider of the device's user interface layout direction.
-    /// In most cases, this should use the default value, `UIApplication.shared`.
+    /// Defaults to `UIApplication.shared`, which is correct in most cases.
     @available(*, deprecated, message: "Use parseAccessibilityHierarchy(in:).flattenToElements().filter { $0.visibility == .onscreen } to preserve snapshot filtering")
     public func parseAccessibilityElements(
         in root: UIView,
         rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
-        userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
-        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
+        userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding? = nil,
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding? = nil
     ) -> [AccessibilityElement] {
         return parseAccessibilityHierarchy(
             in: root,
@@ -88,14 +91,15 @@ public final class AccessibilityHierarchyParser {
     /// - parameter rotorResultLimit: Maximum number of rotor results to collect in each direction.
     /// Values less than or equal to 0 include rotor names only and do not evaluate rotor result blocks.
     /// Defaults to 10.
-    /// - parameter userInterfaceLayoutDirectionProvider: Provider of the device's UI layout direction
-    /// - parameter userInterfaceIdiomProvider: Provider of the device's interface idiom
+    /// - parameter userInterfaceLayoutDirectionProvider: Provider of the device's UI layout direction.
+    /// Defaults to `UIApplication.shared`.
+    /// - parameter userInterfaceIdiomProvider: Provider of the device's interface idiom. Defaults to `UIDevice.current`.
     /// - returns: Array of root-level hierarchy nodes with containers grouping their children
     public func parseAccessibilityHierarchy(
         in root: UIView,
         rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
-        userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
-        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current
+        userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding? = nil,
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding? = nil
     ) -> [AccessibilityHierarchy] {
         parseAccessibilityHierarchy(
             in: root,
@@ -132,13 +136,14 @@ public final class AccessibilityHierarchyParser {
     public func parseAccessibilityHierarchy<Node>(
         in root: UIView,
         rotorResultLimit: Int = AccessibilityElement.defaultRotorResultLimit,
-        userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding = UIApplication.shared,
-        userInterfaceIdiomProvider: UserInterfaceIdiomProviding = UIDevice.current,
+        userInterfaceLayoutDirectionProvider: UserInterfaceLayoutDirectionProviding? = nil,
+        userInterfaceIdiomProvider: UserInterfaceIdiomProviding? = nil,
         makeElement: (AccessibilityElement, _ traversalIndex: Int, _ source: NSObject) -> Node,
         makeContainer: (AccessibilityContainer, _ children: [Node], _ source: NSObject) -> Node
     ) -> [Node] {
-        let userInterfaceLayoutDirection = userInterfaceLayoutDirectionProvider.userInterfaceLayoutDirection
-        let userInterfaceIdiom = userInterfaceIdiomProvider.userInterfaceIdiom
+        // Defaults are resolved here because default arguments are evaluated outside the main actor in Swift 5 mode.
+        let userInterfaceLayoutDirection = (userInterfaceLayoutDirectionProvider ?? UIApplication.shared).userInterfaceLayoutDirection
+        let userInterfaceIdiom = (userInterfaceIdiomProvider ?? UIDevice.current).userInterfaceIdiom
 
         let capturedNodes = root.recursiveAccessibilityHierarchy(in: root, isRoot: true, rotorResultLimit: rotorResultLimit)
         let navigationNodes = sortedNodes(
@@ -384,7 +389,7 @@ extension AccessibilityHierarchyParser {
             let converted = root.convert(accessibilityPath, from: nil)
             return .path(AccessibilityPathElement.elements(from: converted.cgPath))
 
-        } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer, !element.accessibilityFrameInContainerSpace.isNull {
+        } else if let element = element as? UIAccessibilityElement, let container = element.accessibilityContainer as? UICoordinateSpace, !element.accessibilityFrameInContainerSpace.isNull {
             return .frame(finiteAccessibilityRect(container.convert(element.accessibilityFrameInContainerSpace, to: root)))
 
         } else {
@@ -533,6 +538,7 @@ private extension CGRect {
 }
 
 /// Captured roles and UIKit-only facts attached to a structural group.
+@MainActor
 private struct ContainerInfo {
     let source: NSObject
     var role: AccessibilityContainer.ContainerType
@@ -596,6 +602,7 @@ private struct ContainerInfo {
 }
 
 /// Captures NSObject equality groups without comparing live sources during preparation.
+@MainActor
 private final class CapturedTabSources {
     private var identities: [NSObject: ObjectIdentifier] = [:]
 
@@ -608,6 +615,7 @@ private final class CapturedTabSources {
 }
 
 /// Captures a vended provider's reported membership during the live walk.
+@MainActor
 private final class CapturedVendedContexts {
     private var capturedSources: Set<ObjectIdentifier> = []
     private var contexts: [ObjectIdentifier: AccessibilityContext] = [:]
@@ -633,6 +641,7 @@ private final class CapturedVendedContexts {
     }
 }
 
+@MainActor
 private struct CapturedDataTableCell {
     let context: AccessibilityContext
     let rowHeaderSources: [ObjectIdentifier]
@@ -640,6 +649,7 @@ private struct CapturedDataTableCell {
 }
 
 /// Records table relationships as sources are encountered during the walk.
+@MainActor
 private final class CapturedDataTable {
     let source: UIAccessibilityContainerDataTable
     let parent: CapturedDataTable?
@@ -718,6 +728,7 @@ private final class CapturedDataTable {
     }
 }
 
+@MainActor
 private final class CapturedElement {
     let source: NSObject
     let isView: Bool
@@ -740,6 +751,7 @@ private final class CapturedElement {
     }
 }
 
+@MainActor
 private enum AccessibilityNode {
     case element(CapturedElement)
 
@@ -802,6 +814,7 @@ private enum AccessibilityNode {
 
 // MARK: -
 
+@MainActor
 private extension NSObject {
     /// Recursively parses the accessibility elements/containers on the screen.
     ///
@@ -1109,6 +1122,7 @@ private extension UIView {
     }
 }
 
+@MainActor
 private extension NSObject {
     var customContent: [AccessibilityElement.CustomContent] {
         // Github runs tests on specific iOS versions against specific versions of Xcode in CI.
@@ -1209,6 +1223,7 @@ private let visibleFrameMinDimension: CGFloat = 2.0
 /// visible content rect and the window bounds, starting from `startView` and
 /// walking up the superview chain. Returns the clipped rect, or `.null` if
 /// fully occluded.
+@MainActor
 private func clipFrameAgainstAncestors(_ frame: CGRect, startingFrom startView: UIView) -> CGRect {
     var visibleRect = frame
     var ancestor: UIView? = startView
@@ -1234,6 +1249,7 @@ private func clipFrameAgainstAncestors(_ frame: CGRect, startingFrom startView: 
 }
 
 /// Walks the `accessibilityContainer` chain to find the nearest UIView.
+@MainActor
 private func nearestContainerView(for object: NSObject) -> UIView? {
     let containerSel = NSSelectorFromString("accessibilityContainer")
     var current: AnyObject? = object
@@ -1271,6 +1287,7 @@ private extension UIView {
     }
 }
 
+@MainActor
 private extension NSObject {
     func hasVisibleAccessibilityFrame() -> Bool {
         if let view = self as? UIView {
@@ -1321,6 +1338,7 @@ private extension CGPoint {
     }
 }
 
+@MainActor
 extension UITextRange {
     func formatted(in input: UITextInput?) -> String {
         guard let input else { return "\(self)" }
@@ -1331,6 +1349,7 @@ extension UITextRange {
     }
 }
 
+@MainActor
 extension UITextInput {
     func accessibilityPath(for range: UITextRange) -> UIBezierPath? {
         return selectionRects(for: range).reduce(into: UIBezierPath()) { path, rect in

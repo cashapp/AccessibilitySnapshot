@@ -5,6 +5,7 @@ import XCTest
 @testable import AccessibilitySnapshotCore
 @testable import AccessibilitySnapshotParser
 
+@MainActor
 final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
     func test_zeroLimitPreservesRotorNameWithoutCollectingResults() {
         var searchCount = 0
