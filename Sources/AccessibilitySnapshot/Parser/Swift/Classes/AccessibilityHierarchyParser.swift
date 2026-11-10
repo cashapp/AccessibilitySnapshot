@@ -25,7 +25,7 @@ extension UIDevice: UserInterfaceIdiomProviding {}
 
 public final class AccessibilityHierarchyParser {
     /// The default number of results captured for each custom rotor.
-    public static let defaultRotorResultLimit: Int = 10
+    public nonisolated static let defaultRotorResultLimit: Int = 10
 
     // MARK: - Public Types
 
