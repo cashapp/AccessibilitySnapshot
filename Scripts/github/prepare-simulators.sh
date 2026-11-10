@@ -13,8 +13,11 @@ if [[ ${PLATFORMS[*]} =~ 'iOS_17' ]]; then
 	xcodebuild -runFirstLaunch
 	xcrun simctl list runtimes > /dev/null
 	# The 7 GB download from Apple sometimes drops partway through, so retry it.
+	# Its progress output runs to tens of thousands of lines, so show only the end.
+	download_log=$(mktemp)
 	for attempt in 1 2 3; do
-		xcodebuild -downloadPlatform iOS -buildVersion 17.5 && break
+		xcodebuild -downloadPlatform iOS -buildVersion 17.5 > "$download_log" 2>&1 && tail -n 1 "$download_log" && break
+		tail -n 20 "$download_log"
 		[[ $attempt == 3 ]] && exit 1
 		sleep 10
 	done
