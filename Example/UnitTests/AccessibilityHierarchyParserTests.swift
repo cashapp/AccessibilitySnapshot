@@ -733,6 +733,37 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
         }
     }
 
+    func testTopLevelContainersSortByPosition() {
+        let rootView = UIView(frame: .init(x: 0, y: 0, width: 100, height: 300))
+
+        // Add in reverse order, the way a content view precedes a navigation bar
+        for (label, y, type) in [
+            ("Content", 200.0, UIAccessibilityContainerType.semanticGroup),
+            ("Middle", 100.0, .list),
+            ("Top", 0.0, .semanticGroup),
+        ] {
+            let container = UIView(frame: .init(x: 0, y: y, width: 100, height: 50))
+            container.accessibilityContainerType = type
+            container.accessibilityLabel = label
+            rootView.addSubview(container)
+
+            let item = UIView(frame: .init(x: 0, y: 0, width: 100, height: 30))
+            item.isAccessibilityElement = true
+            item.accessibilityLabel = "\(label) item"
+            item.accessibilityFrame = CGRect(x: 0, y: y, width: 100, height: 30)
+            container.addSubview(item)
+        }
+
+        let hierarchy = AccessibilityHierarchyParser().parseAccessibilityHierarchy(in: rootView)
+
+        let containerTypes = hierarchy.compactMap { node -> AccessibilityContainer.ContainerType? in
+            if case let .container(container, _) = node { return container.type }
+            return nil
+        }
+        XCTAssertEqual(containerTypes, [.semanticGroup(label: "Top", value: nil), .list, .semanticGroup(label: "Content", value: nil)])
+        XCTAssertEqual(hierarchy.flattenToElements().map { $0.label }, ["Top item", "Middle item", "Content item"])
+    }
+
     func testFlattenToContainers() {
         let rootView = UIView(frame: .init(x: 0, y: 0, width: 200, height: 200))
 
