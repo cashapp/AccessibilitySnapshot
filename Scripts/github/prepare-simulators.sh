@@ -21,6 +21,11 @@ if [[ ${PLATFORMS[*]} =~ 'iOS_17' ]]; then
 		[[ $attempt == 3 ]] && exit 1
 		sleep 10
 	done
+	# CoreSimulator creates the runtime's default devices a few seconds after the download finishes.
+	for _ in {1..30}; do
+		xcrun simctl list devices 'iOS 17.5' | grep -q 'iPhone 15 Pro (' && break
+		sleep 1
+	done
 	xcrun simctl list devices 'iOS 17.5' | grep -q 'iPhone 15 Pro (' || xcrun simctl create 'iPhone 15 Pro' 'iPhone 15 Pro' com.apple.CoreSimulator.SimRuntime.iOS-17-5
 fi
 
