@@ -13,9 +13,26 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
         let headingMarker = AccessibilityElement.CustomRotor(from: heading, accessibilityLanguage: nil, root: UIView(), resultLimit: 0)
         let customMarker = AccessibilityElement.CustomRotor(from: custom, accessibilityLanguage: nil, root: UIView(), resultLimit: 0)
 
-        XCTAssertEqual(headingMarker?.systemType, .heading)
-        XCTAssertEqual(headingMarker?.name, "Headings")
-        XCTAssertNil(customMarker?.systemType)
+        XCTAssertEqual(headingMarker.systemType, .heading)
+        XCTAssertEqual(headingMarker.name, "Headings")
+        XCTAssertNil(customMarker.systemType)
+    }
+
+    func test_unknownSystemRotorsAreCapturedAndLeftOutOfSnapshots() throws {
+        let type = try XCTUnwrap(UIAccessibilityCustomRotor.SystemRotorType(rawValue: 9999))
+        let rotor = UIAccessibilityCustomRotor(systemType: type) { _ in nil }
+
+        let unknown = AccessibilityElement.CustomRotor(from: rotor, accessibilityLanguage: nil, root: UIView(), resultLimit: 0)
+        XCTAssertEqual(unknown.systemType, .unknown(9999))
+
+        let heading = AccessibilityElement.CustomRotor(name: "Headings", systemType: .heading)
+        let element = AccessibilityElement(
+            label: nil, value: nil, traits: [], identifier: nil, authoredHint: nil, userInputLabels: nil,
+            shape: .frame(.zero), activationPoint: .zero, usesDefaultActivationPoint: true,
+            customActions: [], customContent: [], customRotors: [unknown, heading],
+            accessibilityLanguage: nil, respondsToUserInteraction: false
+        )
+        XCTAssertEqual(element.displayRotors(.always), [heading])
     }
 
     func test_zeroLimitPreservesRotorNameWithoutCollectingResults() {
@@ -32,9 +49,6 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
             resultLimit: 0
         )
 
-        guard let marker else {
-            return XCTFail("Expected custom rotor marker")
-        }
         XCTAssertEqual(marker.name, "Errors")
         XCTAssertEqual(marker.results, [])
         XCTAssertEqual(marker.limit, .none)
@@ -55,9 +69,6 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
             resultLimit: -1
         )
 
-        guard let marker else {
-            return XCTFail("Expected custom rotor marker")
-        }
         XCTAssertEqual(marker.name, "Errors")
         XCTAssertEqual(marker.results, [])
         XCTAssertEqual(marker.limit, .none)
@@ -83,7 +94,7 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
             defer { nextIndex += 1 }
             return .init(targetElement: targets[nextIndex], targetRange: nil)
         }
-        let captured = try XCTUnwrap(CapturedRotor(from: rotor, accessibilityLanguage: nil, root: root, resultLimit: 6))
+        let captured = CapturedRotor(from: rotor, accessibilityLanguage: nil, root: root, resultLimit: 6)
 
         XCTAssertEqual(captured.rotor(), .init(
             name: "Matches",
@@ -109,7 +120,7 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
             guard predicate.currentItem.targetElement == nil else { return nil }
             return .init(targetElement: target, targetRange: nil)
         }
-        let captured = try XCTUnwrap(CapturedRotor(from: rotor, accessibilityLanguage: "en-US", root: root, resultLimit: 10))
+        let captured = CapturedRotor(from: rotor, accessibilityLanguage: "en-US", root: root, resultLimit: 10)
         let searchCountAfterCapture = searchCount
 
         rotor.name = "Changed rotor"
@@ -141,7 +152,7 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
             guard predicate.currentItem.targetElement == nil else { return nil }
             return .init(targetElement: target, targetRange: nil)
         }
-        let captured = try XCTUnwrap(CapturedRotor(from: rotor, accessibilityLanguage: nil, root: root, resultLimit: 10))
+        let captured = CapturedRotor(from: rotor, accessibilityLanguage: nil, root: root, resultLimit: 10)
 
         target.accessibilityHint = "Changed hint."
         target.accessibilityLabel = "Changed label"
@@ -186,7 +197,7 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
             guard predicate.currentItem.targetElement == nil else { return nil }
             return .init(targetElement: target, targetRange: range)
         }
-        let captured = try XCTUnwrap(CapturedRotor(from: rotor, accessibilityLanguage: nil, root: root, resultLimit: 10))
+        let captured = CapturedRotor(from: rotor, accessibilityLanguage: nil, root: root, resultLimit: 10)
         let shape = try XCTUnwrap(captured.rotor().results.first).shape
 
         target.text = "changed text"
