@@ -2248,7 +2248,12 @@ final class AccessibilityHierarchyParserTests: XCTestCase {
     }
 
     func testNonFiniteActivationPointFallsBackToDefault() throws {
-        for reportedPoint in [CGPoint(x: CGFloat.infinity, y: CGFloat.infinity), CGPoint(x: 20, y: CGFloat.infinity)] {
+        for reportedPoint in [
+            CGPoint(x: CGFloat.infinity, y: CGFloat.infinity),
+            CGPoint(x: 20, y: CGFloat.infinity),
+            CGPoint(x: CGFloat.infinity, y: 20),
+            CGPoint(x: CGFloat.nan, y: CGFloat.nan),
+        ] {
             let root = UIView(frame: CGRect(x: 0, y: 0, width: 100, height: 100))
             let window = UIWindow(frame: root.bounds)
             window.addSubview(root)
