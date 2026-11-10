@@ -349,7 +349,11 @@ extension AccessibilityHierarchyParser {
         in root: UIView,
         visibility: ScreenVisibility = .onscreen
     ) -> AccessibilityElement {
-        let activationPoint = object.accessibilityActivationPoint
+        // A non-finite activation point falls back to the default, which is always finite.
+        let reportedActivationPoint = object.accessibilityActivationPoint
+        let activationPoint = reportedActivationPoint.x.isFinite && reportedActivationPoint.y.isFinite
+            ? reportedActivationPoint
+            : defaultActivationPoint(for: object)
         return AccessibilityElement(
             label: object.accessibilityLabel,
             value: object.accessibilityValue,
