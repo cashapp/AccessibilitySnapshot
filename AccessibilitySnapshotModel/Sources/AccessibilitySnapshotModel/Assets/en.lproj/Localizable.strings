@@ -100,6 +100,9 @@
 /* Hint describing how to use elements with the 'text entry' accessibility trait */
 "trait.text_field.hint" = "Double tap to edit.";
 
+/* Format for hint describing how to use elements with the 'text entry' accessibility trait; param0: the existing hint */
+"trait.text_field.hint_format" = "%@. Double tap to edit.";
+
 /* Hint describing how to use elements with the 'text entry' accessibility trait when they are being edited */
 "trait.text_field_is_editing.hint" = "Use the rotor to access Misspelled Words";
 
