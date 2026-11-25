@@ -186,6 +186,53 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
         ]))
     }
 
+    func test_wrappingRotorReportsBothLinksWithoutAdditionalResults() throws {
+        let root = UIView()
+        let labels = ["First link", "Second link"]
+        let targets = labels.map { label in
+            let target = UIAccessibilityElement(accessibilityContainer: root)
+            target.accessibilityLabel = label
+            target.accessibilityFrame = .zero
+            return target
+        }
+        let rotor = UIAccessibilityCustomRotor(name: "Links") { predicate in
+            guard predicate.searchDirection == .next else { return nil }
+            let index = predicate.currentItem.targetElement === targets[0] ? 1 : 0
+            return .init(targetElement: targets[index], targetRange: nil)
+        }
+
+        for resultLimit in [2, AccessibilityElement.defaultRotorResultLimit] {
+            let captured = try XCTUnwrap(CapturedRotor(from: rotor, accessibilityLanguage: nil, root: root, resultLimit: resultLimit))
+            let result = captured.rotor()
+
+            XCTAssertEqual(result.results.map(\.elementDescription), labels)
+            XCTAssertEqual(result.limit, .none, "With display limit \(resultLimit)")
+        }
+    }
+
+    func test_finiteRotorCountsAdditionalRangesOnTheSameTarget() throws {
+        let target = UITextField()
+        target.text = "ABC"
+        let ranges = try (0 ..< 3).map { index in
+            let start = try XCTUnwrap(target.position(from: target.beginningOfDocument, offset: index))
+            let end = try XCTUnwrap(target.position(from: start, offset: 1))
+            return try XCTUnwrap(target.textRange(from: start, to: end))
+        }
+        let rotor = UIAccessibilityCustomRotor(name: "Letters") { predicate in
+            let currentIndex = predicate.currentItem.targetRange.flatMap { ranges.firstIndex(of: $0) }
+            let nextIndex = currentIndex.map { $0 + 1 } ?? 0
+            guard ranges.indices.contains(nextIndex) else { return nil }
+            return .init(targetElement: target, targetRange: ranges[nextIndex])
+        }
+
+        for limit in [1, 2] {
+            let result = rotor.iterateResults(direction: .next, limit: limit)
+
+            XCTAssertEqual(result.results.compactMap(\.targetRange), Array(ranges.prefix(limit)))
+            XCTAssertEqual(result.limit, .underMaxCount(ranges.count - limit))
+        }
+    }
+
     func test_collectResults() {
         let strings: [NSString] = ["one", "two", "three", "four", "five"]
 
@@ -275,6 +322,8 @@ final class UIAccessibilityCustomRotorParsingTests: XCTestCase {
         XCTAssertEqual(rotor.iterateResults(direction: .next, limit: 10).results.count, 10)
         XCTAssertEqual(rotor.iterateResults(direction: .previous, limit: 10).results.count, 10)
 
-        XCTAssertEqual(rotor.collectAllResults(nextLimit: 10, previousLimit: 10).results.count, 20)
+        let all = rotor.collectAllResults(nextLimit: 10, previousLimit: 10)
+        XCTAssertEqual(all.results.count, 20)
+        XCTAssertEqual(all.limit, .greaterThanMaxCount)
     }
 }

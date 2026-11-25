@@ -295,19 +295,18 @@ extension UIAccessibilityCustomRotor {
             predicate.currentItem = last
         }
 
-        let limited = results.count <= limit ? countAdditionalResults(predicate) : .none
+        let limited = results.count <= limit ? countAdditionalResults(predicate, after: results) : .none
         return .init(results: results, limit: limited)
     }
 
-    private func countAdditionalResults(_ predicate: UIAccessibilityCustomRotorSearchPredicate, maxCount: Int = CollectedRotorResults.maximumCount) -> CollectedRotorResults.Limit {
-        // We have a ton of elements, more than we can display in a snapshot. lets get a count of how many there are up to our max count.
+    private func countAdditionalResults(_ predicate: UIAccessibilityCustomRotorSearchPredicate, after results: [UIAccessibilityCustomRotorItemResult], maxCount: Int = CollectedRotorResults.maximumCount) -> CollectedRotorResults.Limit {
+        var seenResults = resultSet(results)
         var count = 0
-        var result: UIAccessibilityCustomRotorItemResult?
-        while count < maxCount, let next = itemSearchBlock(predicate) {
-            if next.targetElement == nil || (next.targetElement as? NSObject)?.isEqual(result?.targetElement as? NSObject) ?? false {
-                break
-            }
-            result = next
+        while count < maxCount,
+              let next = itemSearchBlock(predicate),
+              let identity = _hashableRotorResult(next),
+              seenResults.insert(identity).inserted
+        {
             count += 1
             predicate.currentItem = next
         }
